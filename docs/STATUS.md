@@ -13,7 +13,7 @@ Stages are evidence fields, not a single success label. Partial research and fai
 
 | Workstream | Research evidence | Implementation | Build evidence | Hardware evidence | Next handoff |
 | --- | --- | --- | --- | --- | --- |
-| Baseline / boot | [Baseline comparison](sm8475_baseline_comparison_2026-10-11.md) | `razr/boot` created at upstream baseline; no board patches yet | [Configuration attempt blocked](../tests/results/2026-10-11-baseline-build.md) | Not recorded | Provide build dependencies, then validate clean build and implement reconciled SoC support |
+| Baseline / boot | [Baseline comparison](sm8475_baseline_comparison_2026-10-11.md) | `razr/boot` created at upstream baseline; no board patches yet | [Configuration attempt blocked](../tests/results/2026-10-11-baseline-build.md) | Not recorded | Run [baseline CI](BUILD_CI.md), then implement reconciled SoC support |
 | GPU | [Driver inventory](tables/linux_drivers.csv) | Not recorded | Not recorded | Not recorded | Pin relevant support and firmware requirements against selected baseline |
 | USB / Type-C | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Resolve controller, role/orientation and redriver dependencies |
 | DisplayPort | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Specify routing and USB/Type-C dependencies |
@@ -30,3 +30,7 @@ Stages are evidence fields, not a single success label. Partial research and fai
 ## Handoffs
 
 Place completed handoffs in `docs/handoffs/` using [the template](templates/subsystem-handoff.md), then link them from this page. The coordinator reconciles dependencies and selects integration order; subsystem chats supply code and evidence.
+
+## Build automation
+
+[GitHub Actions baseline build](BUILD_CI.md) supplies the cross-toolchain on a hosted runner. Workflow creation is not build success; the first run must be inspected before updating evidence status.

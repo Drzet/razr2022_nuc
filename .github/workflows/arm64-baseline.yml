@@ -1,0 +1,98 @@
+name: ARM64 baseline build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/arm64-baseline.yml'
+      - 'configs/baseline.json'
+      - 'scripts/build-baseline.sh'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arm64-baseline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out project
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Read and validate baseline
+        id: baseline
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          baseline = json.loads(Path("configs/baseline.json").read_text())
+          assert baseline["kernel_repository"] == "https://github.com/Drzet/linux"
+          sha = baseline["upstream_commit"]
+          assert isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha)
+          assert baseline["configuration_base"] == "arch/arm64/configs/defconfig"
+          assert baseline["configuration_fragments"] == [], "Baseline job does not apply fragments"
+          assert baseline["external_patchsets"] == [], "Baseline job does not apply patches"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              output.write(f"sha={sha}\n")
+          PY
+
+      - name: Check out pinned kernel
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: ${{ steps.baseline.outputs.sha }}
+          path: kernel
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install build dependencies
+        run: |
+          mkdir -p evidence
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+            make bc bison flex libssl-dev libelf-dev python3 \
+            perl rsync cpio kmod zstd xz-utils dwarves \
+            2>&1 | tee evidence/apt-install.log
+
+      - name: Build clean ARM64 Image and device trees
+        env:
+          KERNEL_SHA: ${{ steps.baseline.outputs.sha }}
+        run: bash scripts/build-baseline.sh kernel evidence
+
+      - name: Publish build evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: arm64-baseline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30
+          compression-level: 6
+
+      - name: Write run summary
+        if: always()
+        env:
+          BUILD_STATUS: ${{ job.status }}
+          BASELINE_SHA: ${{ steps.baseline.outputs.sha }}
+        run: |
+          {
+            echo "## ARM64 baseline build"
+            echo "- Kernel commit: `$BASELINE_SHA`"
+            echo "- Project commit: `$GITHUB_SHA`"
+            echo "- Job status before summary: $BUILD_STATUS"
+            echo "- Targets: ARM64 defconfig, Image and dtbs."
+            echo "- No modules build, DT schema validation or hardware test is claimed."
+            echo "- Download the evidence artifact for logs, configuration, versions and checksums."
+          } >> "$GITHUB_STEP_SUMMARY"
+

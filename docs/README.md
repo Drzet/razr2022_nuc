@@ -34,3 +34,5 @@ All source links use pinned Motorola or upstream Linux commit IDs where availabl
 - [postmarketOS source and reuse review (11 October 2026)](postmarketos_review_2026-10-11.md) — pinned package/tooling sources, community SM8475 references and packaging recommendation
 
 - [SM8475 comparison against the selected kernel baseline](sm8475_baseline_comparison_2026-10-11.md) — reuse decisions, incompatible older DT conventions and build blocker
+
+- [GitHub Actions baseline build](BUILD_CI.md) — triggers, targets and artifact contents
