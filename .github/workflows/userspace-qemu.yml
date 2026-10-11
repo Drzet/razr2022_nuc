@@ -45,7 +45,7 @@ jobs:
       - name: Build ARM64 Debian root filesystem
         run: sudo env GITHUB_SHA="$GITHUB_SHA" bash scripts/build-userspace.sh "$RUNNER_TEMP/razr-userspace-build" "$GITHUB_WORKSPACE/evidence"
       - name: Emulate guest boot, DHCP and authenticated SSH
-        run: bash scripts/smoke-qemu.sh "$RUNNER_TEMP/razr-userspace-build" "$GITHUB_WORKSPACE/evidence"
+        run: sudo bash scripts/smoke-qemu.sh "$RUNNER_TEMP/razr-userspace-build" "$GITHUB_WORKSPACE/evidence"
       - name: Retain all build evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
