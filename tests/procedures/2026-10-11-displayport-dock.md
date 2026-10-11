@@ -1,6 +1,14 @@
 # Motorola oneli: native Linux USB-C DisplayPort dock validation
 
-**Date:** 2026-10-11. **Status:** planned, not executed. **Hardware revision/firmware:** unknown. **Kernel baseline:** `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. **DisplayPort handoff:** [docs/handoffs/2026-10-11-displayport-oneli.md](../../docs/handoffs/2026-10-11-displayport-oneli.md).
+**Date:** 2026-10-11. **Status:** physical execution **deferred: owner has no access to the handset**. No AUX/HPD/EDID/link-training/monitor results. **Hardware revision/firmware:** unknown. **Kernel baseline:** `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. **DisplayPort handoff:** [docs/handoffs/2026-10-11-displayport-oneli.md](../../docs/handoffs/2026-10-11-displayport-oneli.md).
+
+## Offline results and next gate (2026-10-11)
+
+- [Pinned vendor AUX-routing investigation](../../docs/displayport_oneli_aux_routing_2026-10-11.md) establishes **vendor software** outputs: GPIO2/GPIO71 = `1/0` when disconnected, `0/0` in DP CC1, `0/1` in DP CC2. Exact physical mux IC and runtime polarity remain unknown.
+- 13/13 pinned-source assertions passed for the vendor GPIO path and existing mainline GPIO-SBU logic/binding. This is **source validation, not DT schema or hardware verification**.
+- No switch compatible can be justified from available oneli hardware evidence. Do **not** create a false GPIO-SBU compatible or enable DP in the board tree simply to make `dtbs_check` pass; the independently-controlled SBU mux and USB/PS5169 graph must first be identified.
+- [Cross-subsystem coordination issue #3](https://github.com/Drzet/razr2022_nuc/issues/3) tracks the Type-C connector, PS5169, GPIO91 and DP/AUX ownership.
+- **All matrix entries below are deferred until the handset and required dock/monitor become available.** A subsequent passing CI DTB/schema check is not an on-device DP test.
 
 ## Required prerequisites
 
@@ -55,12 +63,12 @@ Start with an advertised low-bandwidth mode; try 1920x1080 at 60 Hz **only if ED
 
 | Cable orientation | Attachment | DP/EDID | USB2 | USB3 | Power delivery |
 | --- | --- | --- | --- | --- | --- |
-| Normal | Direct DP adapter | To test | N/A | N/A | N/A |
-| Reversed | Direct DP adapter | To test | N/A | N/A | N/A |
-| Normal | Unpowered multifunction dock | To test | To test | To test | N/A |
-| Reversed | Unpowered multifunction dock | To test | To test | To test | N/A |
-| Normal | Powered multifunction dock | To test | To test | To test | To test |
-| Reversed | Powered multifunction dock | To test | To test | To test | To test |
+| Normal | Direct DP adapter | Deferred | N/A | N/A | N/A |
+| Reversed | Direct DP adapter | Deferred | N/A | N/A | N/A |
+| Normal | Unpowered multifunction dock | Deferred | To test | Deferred | N/A |
+| Reversed | Unpowered multifunction dock | Deferred | To test | Deferred | N/A |
+| Normal | Powered multifunction dock | Deferred | To test | Deferred | To test |
+| Reversed | Powered multifunction dock | Deferred | To test | Deferred | To test |
 
 For every test, save timestamped DRM connector state, Type-C role/orientation/Alt Mode state if exposed, PS5169 I2C probe log and debug data if available, AUX/DPCD/EDID result, negotiated lane/rate, USB speed, PD contract/battery indicators, errors and photo of screen output. Separate a physical dock failure from Linux/firmware failure by testing the adapter/dock on a known-good DP Alt Mode host first.
 
