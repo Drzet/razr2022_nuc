@@ -32,14 +32,17 @@ echo pending > "$evidence/qemu-ssh-status.txt"
 opts=(-i "$work/ssh_id_ed25519" -p "$port" -o BatchMode=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no
  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=3 -o ConnectionAttempts=1)
 for ((i=0;i<90;i++)); do
-  if ssh "${opts[@]}" razr@127.0.0.1 'test "$(dpkg --print-architecture)" = arm64 && test -d /run/systemd/system && test "$(systemctl is-active systemd-networkd)" = active && ip -4 route show default | grep -q default && echo RAZR_NETWORK_SSH_PASS' > "$evidence/ssh-command.log" 2>&1; then
+  if ssh "${opts[@]}" razr@127.0.0.1 'test "$(dpkg --print-architecture)" = arm64 && test "$(cat /proc/1/comm)" = systemd && test -d /run/systemd/system && ip -4 route show default | grep -q default && echo RAZR_NETWORK_SSH_PASS' > "$evidence/ssh-command.log" 2>&1; then
     if grep -Fq RAZR_NETWORK_SSH_PASS "$evidence/ssh-command.log"; then echo passed > "$evidence/qemu-ssh-status.txt"; break; fi
   fi
   kill -0 "$pid" 2>/dev/null || break
   sleep 2
 done
 [[ "$(cat "$evidence/qemu-ssh-status.txt")" == passed ]] || fail 'SSH_FAILED: no authenticated guest command after successful boot'
-ssh "${opts[@]}" razr@127.0.0.1 'sudo -n /usr/bin/systemctl poweroff' >> "$evidence/ssh-command.log" 2>&1 || true
+if ! ssh "${opts[@]}" razr@127.0.0.1 'sudo -n /usr/bin/systemctl poweroff' >> "$evidence/ssh-command.log" 2>&1; then
+  echo "Shutdown command was not accepted" >&2
+  exit 1
+fi
 set +e
 wait "$pid"
 rc=$?
