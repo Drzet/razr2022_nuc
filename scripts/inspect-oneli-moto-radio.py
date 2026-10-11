@@ -69,6 +69,63 @@ def parse_mbootv1(blob):
     return "Motorola MBOOTV1", entries
 
 
+
+def decode_android_sparse(source, target):
+    """Interpret Android sparse v1 typed chunks, not concatenated bytes."""
+    if len(source) < 28:
+        raise ValueError("too small for Android sparse")
+    import os
+    magic, major, minor, hdr, chdr, block, total, chunks, checksum = struct.unpack_from(
+        "<I4H4I", source, 0)
+    if (magic != 0xed26ff3a or major != 1 or hdr < 28 or chdr < 12
+            or block < 512 or block % 512 or total * block > 1024**3
+            or chunks > 100000):
+        raise ValueError("not a bounded supported Android sparse v1 image")
+    ptr, logical = hdr, 0
+    with target.open("w+b") as out:
+        for i in range(chunks):
+            if ptr + chdr > len(source):
+                raise ValueError("truncated sparse chunk header")
+            kind, reserved, nblocks, size = struct.unpack_from("<2H2I", source, ptr)
+            ptr += chdr
+            span = nblocks * block
+            if logical + nblocks > total:
+                raise ValueError("chunk exceeds Android sparse declared blocks")
+            if kind == 0xcac1:
+                if size != chdr + span or ptr + span > len(source):
+                    raise ValueError("invalid sparse RAW extent")
+                out.write(memoryview(source)[ptr:ptr+span])
+                ptr += span
+            elif kind == 0xcac2:
+                if size != chdr + 4 or ptr + 4 > len(source):
+                    raise ValueError("invalid sparse FILL extent")
+                word = source[ptr:ptr+4]
+                ptr += 4
+                tile = word * (1024*1024 // 4)
+                todo = span
+                while todo:
+                    n = min(todo, len(tile))
+                    out.write(tile[:n])
+                    todo -= n
+            elif kind == 0xcac3:
+                if size != chdr:
+                    raise ValueError("invalid DONT_CARE extent")
+                out.seek(span, os.SEEK_CUR)
+            elif kind == 0xcac4:
+                if size != chdr + 4 or nblocks or ptr + 4 > len(source):
+                    raise ValueError("invalid CRC32 chunk")
+                ptr += 4
+            else:
+                raise ValueError(f"unsupported sparse chunk {kind:#x}")
+            logical += nblocks
+        if logical != total or ptr != len(source):
+            raise ValueError("sparse bytes/count mismatch")
+        out.truncate(total * block)
+    return {"type": "Android sparse v1", "block_bytes": block, "total_blocks": total,
+            "typed_chunks": chunks, "decoded_bytes": total * block,
+            "decoded_sha256": hashlib.sha256(target.read_bytes()).hexdigest()}
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--json-out", required=True, type=Path)
@@ -102,6 +159,8 @@ def main():
         _, members = parsed
         helper = read_module(base / "inspect-oneli-lp-firmware.py", "firmware_metadata")
         report["file_count"] = len(members)
+        report["nested_filesystem_search"] = []
+        report["located_firmware"] = []
         for name, start, size in members:
             entry = {"name": name, "offset": start, "bytes": size,
                      "sha256": hashlib.sha256(memoryview(radio)[start:start+size]).hexdigest()}
@@ -110,6 +169,34 @@ def main():
                     f = Path(tmp) / "candidate.bin"
                     f.write_bytes(memoryview(radio)[start:start+size])
                     entry["firmware_metadata"] = helper.binary_metadata(f)
+            if name in ("NON-HLOS.bin", "fsg.mbn"):
+                with tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    original = root / "member.img"
+                    original.write_bytes(memoryview(radio)[start:start+size])
+                    candidate = original
+                    if bytes(memoryview(radio)[start:start+4]) == b"\x3a\xff\x26\xed":
+                        candidate = root / "decoded-non-hlos.img"
+                        entry["inner_sparse_image"] = decode_android_sparse(
+                            memoryview(radio)[start:start+size], candidate)
+                    mountpoint = root / "mount"
+                    mountpoint.mkdir()
+                    (root / "erofs").mkdir()
+                    info = helper.inspect_partition(candidate, f"radio:{name}",
+                        mountpoint, root / "erofs")
+                    entry["nested_filesystem"] = {
+                        "state": info["state"], "image_sha256": info["image_sha256"],
+                        "image_bytes": info["image_bytes"],
+                        "detected_type": info.get("file_type"),
+                        "blkid_type": info.get("blkid_type"),
+                        "searched_paths": info.get("searched_paths"),
+                        "hit_count": len(info.get("hits", [])),
+                        "error": info.get("mount_error")}
+                    report["nested_filesystem_search"].append(entry["nested_filesystem"])
+                    for hit in info.get("hits", []):
+                        report["located_firmware"].append({
+                            "nested_container": f"radio:{name}", **hit})
+                    print(f"nested {name}: {info['state']} ({len(info.get('hits', []))} matching files)", flush=True)
             report["entries"].append(entry)
     else:
         report["reason"] = "neither pinned MBOOTV1 nor SINGLE_N_LONELY magic recognized"
