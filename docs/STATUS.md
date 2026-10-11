@@ -13,7 +13,7 @@ Stages are evidence fields, not a single success label. Partial research and fai
 
 | Workstream | Research evidence | Implementation | Build evidence | Hardware evidence | Next handoff |
 | --- | --- | --- | --- | --- | --- |
-| Baseline / boot | [Baseline comparison](sm8475_baseline_comparison_2026-10-11.md) | `razr/boot` created at upstream baseline; no board patches yet | [Configuration attempt blocked](../tests/results/2026-10-11-baseline-build.md) | Not recorded | Run [baseline CI](BUILD_CI.md), then implement reconciled SoC support |
+| Baseline / boot | [Baseline comparison](sm8475_baseline_comparison_2026-10-11.md) and [boot handoff](handoffs/2026-10-11-boot-oneli.md) | Initial SM8475/oneli DTS and bindings on `razr/boot` at [cb9105e](https://github.com/Drzet/linux/commit/cb9105ebeb9485e31d044d4fa69396b415523669) | [Baseline configuration blocked](../tests/results/2026-10-11-baseline-build.md); boot branch not compiled | Not recorded | Run branch DTB/schema build; obtain actual oneli firmware/revision; reconcile UFS/USB/power shared-DT proposals |
 | GPU | [Driver inventory](tables/linux_drivers.csv) | Not recorded | Not recorded | Not recorded | Pin relevant support and firmware requirements against selected baseline |
 | USB / Type-C | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Resolve controller, role/orientation and redriver dependencies |
 | DisplayPort | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Specify routing and USB/Type-C dependencies |
@@ -25,11 +25,13 @@ Stages are evidence fields, not a single success label. Partial research and fai
 - Kernel fork `Drzet/linux` is verified, with read/write access and default branch `master` (2026-10-11). Upstream baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b` is selected; toolchain remains unavailable/unselected.
 - Actual device firmware and selected board revision remain unrecorded.
 - The VPU investigation adds sources not yet reconciled into the hardware database. Pin the appropriate source revision before reconciliation; preserve its current evidence qualifications.
-- `razr/boot` exists. No board patches, completed kernel configuration, integration branch or image preparation parameters have been established.
+- `razr/boot` now contains an initial reconciled SM8475 include, minimal oneli board DTS and binding support at `cb9105ebeb9485e31d044d4fa69396b415523669`. These are **source-only changes, not DTB-build- or hardware-validated**. No completed kernel configuration, integration branch or image preparation parameters have been established. [Boot handoff](handoffs/2026-10-11-boot-oneli.md).
 
 ## Handoffs
 
 Place completed handoffs in `docs/handoffs/` using [the template](templates/subsystem-handoff.md), then link them from this page. The coordinator reconciles dependencies and selects integration order; subsystem chats supply code and evidence.
+
+- [2026-10-11 boot / SM8475 / oneli handoff](handoffs/2026-10-11-boot-oneli.md) (implemented; no build or hardware results).
 
 ## Build automation
 
