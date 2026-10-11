@@ -22,6 +22,7 @@ jobs:
         id: acquisition
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p evidence
           archive="$RUNNER_TEMP/oneli-reference-stock.zip"
           trap 'rm -f "$archive"' EXIT
@@ -66,6 +67,7 @@ jobs:
         if: always()
         shell: bash
         run: |
+          set -euo pipefail
           {
             echo "## Oneli public firmware reference"
             echo "Requested URL: $STOCK_URL"
