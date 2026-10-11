@@ -38,7 +38,7 @@ cp scripts/smoke-qemu.sh "$evidence/smoke-qemu.sh"
  debootstrap --version
  qemu-aarch64-static --version
  qemu-system-aarch64 --version
- dpkg-query -W -f='host_package=\${Package}\t\${Version}\n' debootstrap qemu-user-static qemu-system-arm debian-archive-keyring e2fsprogs zstd
+ dpkg-query -W -f='host_package=${Package}\t${Version}\n' debootstrap qemu-user-static qemu-system-arm debian-archive-keyring e2fsprogs zstd
 } > "$evidence/environment.txt" 2>&1
 echo "qemu-debootstrap --arch=arm64 --variant=minbase --keyring=/usr/share/keyrings/debian-archive-keyring.gpg trixie ROOTFS $mirror" > "$evidence/commands.txt"
 qemu-debootstrap --arch=arm64 --variant=minbase --keyring=/usr/share/keyrings/debian-archive-keyring.gpg trixie "$root" "$mirror" 2>&1 | tee "$evidence/debootstrap.log"
@@ -60,7 +60,7 @@ mount --bind /dev "$root/dev"
 echo "chroot ROOTFS apt-get update; apt-get install systemd-sysv udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64" >> "$evidence/commands.txt"
 chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 | tee "$evidence/apt-update.log"
 chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends systemd-sysv udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 2>&1 | tee "$evidence/apt-install.log"
-chroot "$root" /usr/bin/dpkg-query -W -f='\${Package}\t\${Version}\t\${Architecture}\n' > "$evidence/packages.tsv"
+chroot "$root" /usr/bin/dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > "$evidence/packages.tsv"
 [[ "$(chroot "$root" dpkg --print-architecture)" == arm64 ]]
 chroot "$root" passwd -l root > "$evidence/root-lock.log" 2>&1
 mkdir -p "$root/usr/local/libexec" "$root/etc/systemd/system/multi-user.target.wants"
