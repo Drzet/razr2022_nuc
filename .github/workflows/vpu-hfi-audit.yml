@@ -9,6 +9,10 @@ on:
       - '.github/workflows/vpu-hfi-audit.yml'
   workflow_dispatch:
 
+concurrency:
+  group: vpu-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
