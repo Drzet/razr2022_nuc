@@ -90,3 +90,31 @@ These are **pinned Motorola source default values, not independent measurements 
 5. **Sustained thermal/power test:** validate TSENS/ADC channels and CPU cooling first; then instrument idle/medium/high load with USB input and both batteries, require throttling and shutdown behavior to work. Acceptance: stable PD/input power, no unnoticed discharge under specified continuous load, no unmonitored hotspot and a recorded thermal mitigation event.
 
 **Decision:** no active charge-controller or thermal policy modifications until firmware/device-specific data are obtained; none of the proposed DTS changes is safe to merge solely from these reference files.
+
+
+## Second-stage power audit: coordinator NEXT_TASKS follow-up (2026-10-11)
+
+Read the latest `AGENTS.md`, `docs/NEXT_TASKS.md`, `docs/STATUS.md` and `docs/WORKFLOW.md` from coordinator `main`. The phone is unavailable: source audits and synthetic host-side fixtures only. No electrical or hardware test was performed. No changes to shared Boot-owned DTS or kernel master.
+
+### Exact deliverables and commits
+
+- **Regulator parent/supply/consumer/enable proposal:** [`docs/power_oneli_regulators_2026-10-11.md`](../power_oneli_regulators_2026-10-11.md), coordination commit [`392da35fce3676402fed2f6d3d1828fb1cce13be`](https://github.com/Drzet/razr2022_nuc/commit/392da35fce3676402fed2f6d3d1828fb1cce13be). Based on pinned Moto resource declarations and the *separate* [INFERRED] SM8450 HDK upstream parent-supply comparator. Includes disabled-node illustrative skeleton for Boot review only, no tested board DT patch.
+- **Charging/GLINK protocol and dual-battery/thermal report:** [`docs/power_oneli_charging_protocol_2026-10-11.md`](../power_oneli_charging_protocol_2026-10-11.md), commit [`262c043103444fe0d49be075550b250e0d3d31c4`](https://github.com/Drzet/razr2022_nuc/commit/262c043103444fe0d49be075550b250e0d3d31c4).
+- **Reproducible source comparison and six synthetic fixtures:** [`tools/power/glink_protocol_audit.py`](../../tools/power/glink_protocol_audit.py), commits `77cad2417b4c02082a8d96fd1b55c088973afc4a` (initial) and `ff22ecd8b8e11b262ca4dd9336c9b557a8427306` (correct shared `BATT_POWER_AVG` count).
+- **Kernel** `Drzet/linux` `razr/power` **remains** `cb9105ebeb9485e31d044d4fa69396b415523669` at latest checked head. No new kernel commit, driver alias, DT change or merge. All candidate regulator/GLINK board changes are proposals for Boot; no change of upstream baseline.
+
+### Verified source results
+
+- Matching upstream/vendor packet owner (`32778`), transport type (REQ_RESP=1, NOTIFY=2), **8 common opcode values** and **41 common property IDs** (battery 0–23, USB 0–9, wireless 0–6). Vendor extra USB fields and upstream extra battery threshold fields are explicitly different.
+- Vendor `qti_battery_charger.c` uses `mmi,combo-batt-psy` to delegate capacity/status/current and related fields to a combined power supply; this oneli policy is **not** automatically implemented by mainline `qcom_battmgr`.
+- Upstream's unsigned SM8350 battery temperature division differs from vendor signed division on a hypothetical negative reading; Motorola's notification-setup ACK permits header-only responses whereas upstream SM8350 callback enforces at least a 4-byte payload. **[INFERRED]** A firmware header-only reply would time out on upstream; real reply length and protocol not observed.
+- No SGM41516D-to-SGM41542 compatible alias: exact chip ID/register programming and Motorola paired-load policy unverified. BQ27426 driver match is independent from this question. Vendor `mmi,temp-source=1` **cannot be assigned a physical sensor meaning from the pinned implementation**.
+- PM8350 BOB and S12B parent paths copied only from an explicitly labelled **[INFERRED]** upstream comparator, not oneli physical data; don't invent a fixed 3.7V battery supply.
+
+### Validation and blockers
+
+**Performed:** GitHub connector source-file reads at exact SHAs, scripted JS-side static comparison of 8 opcode definitions + 41 property mappings (zero mismatches), reproduction of six synthetic wire/temperature checks in Python `unittest` (6/6 passed). The comparison and fixture code has been committed and verified by GitHub readback; executing the *exact checked-in Python script against both original downloaded source files* has not been recorded, so no full CLI/CI pass claimed.
+
+**Not performed:** ARM64/DT build, binding schema check, any runtime GLINK request, actual I²C gauge/charger probe, PMIC voltage measurement, thermal throttling, 24-hour mains operation, device testing or firmware acceptance. These are deferred by phone unavailability.
+
+**Boot follow-up:** adopt/reject the disabled provider candidate skeleton, review exact supported regulator names and all upstream parent supplies, add UFS rails in Boot-owned DTS in separate commits, build the exact oneli DTB and report binding + phandle results. **Power/USB follow-up:** preserve Type-C/PD ownership, get actual charger firmware/standalone SGM driver source before considering active writes. Physical operation requires device later.
