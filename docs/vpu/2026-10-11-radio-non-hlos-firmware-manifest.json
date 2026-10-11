@@ -1,0 +1,270 @@
+{
+  "reference_archive": {
+    "android_build": "U2SLS34.1-42-14-11",
+    "sha256": "620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c",
+    "bytes": 4353164507
+  },
+  "evidence": {
+    "success_full_super_filesystems_run": 38180072535,
+    "success_radio_container_run": 38180784325,
+    "success_radio_nested_firmware_run": 38180934057,
+    "radio_nested_run_tested_checkout_sha": "c4be91a4613192f7d0526c95dac32544a63601ce",
+    "radio_nested_artifact_id": 11718485158,
+    "radio_nested_artifact_sha256": "6d189e7b663788a9e6c18d49d9025c0420106737cd0e05d56027490943bc3b47",
+    "hosted_run_success": true,
+    "firmware_authentication_tested": false,
+    "actual_on_phone_firmware_bytes_verified": false
+  },
+  "radio_container": {
+    "type": "Motorola SINGLE_N_LONELY",
+    "bytes": 203319040,
+    "sha256": "bcaac550d908ea72f08e9a1782714a46f52d26f20ec11c7e32f97140677769ca",
+    "direct_members": [
+      {
+        "name": "index.xml",
+        "bytes": 126
+      },
+      {
+        "name": "radio.pkg.xml",
+        "bytes": 86
+      },
+      {
+        "name": "radio.default.xml",
+        "bytes": 214
+      },
+      {
+        "name": "NON-HLOS.bin",
+        "bytes": 178827436,
+        "sha256": "03d37634aa39ff9af06d3b58"
+      },
+      {
+        "name": "fsg.mbn",
+        "bytes": 24473600,
+        "sha256": "c44d1974541e2d2e536a1c46557188f6f1cb2ed261b3ddd6d58b590b7ff4a56f"
+      }
+    ]
+  },
+  "nested_filesystems": [
+    {
+      "name": "radio/NON-HLOS.bin",
+      "container_format": "Android sparse v1",
+      "sparse_chunk_count": 12,
+      "decoded_format": "ext4",
+      "decoded_bytes": 414187520,
+      "decoded_sha256": "2ea61a0b5d31b626358f0b72c102131535f08ae3fb279b1857e646b0675416c6",
+      "files_searched": 639,
+      "matched_firmware_files": 28
+    },
+    {
+      "name": "radio/fsg.mbn",
+      "container_format": "ext4",
+      "bytes": 24473600,
+      "sha256": "c44d1974541e2d2e536a1c46557188f6f1cb2ed261b3ddd6d58b590b7ff4a56f",
+      "files_searched": 840,
+      "matched_firmware_files": 0
+    }
+  ],
+  "files": [
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/a730_sqe.fw",
+      "bytes": 74676,
+      "sha256": "e67d1829f57fc8326d806234b932dc3b78e28a9940df34c70752f17d5f38b7aa"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/a730_zap.b00",
+      "bytes": 148,
+      "sha256": "9cd65a08fa2ce72c05a52aad95951f749f52fc310613a2857e270b463a641a7f"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/a730_zap.b01",
+      "bytes": 2236,
+      "sha256": "1fc98f97cf354b9704b20d0848f7b2739638539a57d88ecf5cc71ca1c5c4e6b9"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/a730_zap.b02",
+      "bytes": 3896,
+      "sha256": "14228d0a3787ba77fc1859121d097d46e677d9e8773c39eeba625524d59f6336"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/a730_zap.mdt",
+      "bytes": 4044,
+      "sha256": "f5d8a41c1380ba2b42cd742538083306d245471ac5d51139e3bc8a6168ce84d2"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b00",
+      "bytes": 512,
+      "sha256": "b7d5dd5adb961ce62cbcd417cdcdbb5528bac3081a10874d519e023fc3de58a5"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b01",
+      "bytes": 1304408,
+      "sha256": "4fd8f2fa951131e2415aef2a60124235d8bec968f2a3504f2720d4943cc6d5f3"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b02",
+      "bytes": 195,
+      "sha256": "826c33d1b71e4fcb15f4195e89708b06a22bbd8c8a182730b2bd4787ad07e19b"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b03",
+      "bytes": 7824,
+      "sha256": "036001756c97f522aee4416390a702256c88cd32aad730eb76e270128eeb5f31"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b04",
+      "bytes": 1055184,
+      "sha256": "58d737941429330138996ab85932d9737aec021a687122c3068d789d5a273dfb"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b05",
+      "bytes": 304,
+      "sha256": "18dfd1949310fe7fae3d782333f41e17e8b341c21bf48fd2210d9481aa80332f"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b06",
+      "bytes": 143489,
+      "sha256": "e197819a241690fc564a2c85dece1e60da96406c573cea14effebaee6a403288"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.b07",
+      "bytes": 4136,
+      "sha256": "8f540b83788f76dd08e8b9b365bcf8f9f36d9715e16551aa6e209b27798c9e4b"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/fpctzapp64.mdt",
+      "bytes": 4648,
+      "sha256": "fd2b4ff116ba0723bfd3b9dcae3a5d3d1d462c8a4707083662d708e9cf40ccf5"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b00",
+      "bytes": 692,
+      "sha256": "fd307a03f90c5e0b76abff1b479f1c57c26245d9061b0acefbe95d59b4abb6f9"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b01",
+      "bytes": 300,
+      "sha256": "e1bd8ef4cc50d4069ae93854c351bc1ec3c69b889a16645a00f58f2052760d09"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b02",
+      "bytes": 20,
+      "sha256": "5c810efcddb8df1e523c99097d5609a278f722e56b7ce575e5ba1f04726e22f4"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b03",
+      "bytes": 20,
+      "sha256": "731973caf01a57d7534d795bead1b68eb3aab52727f06b4d2174656b9f6e7d65"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b04",
+      "bytes": 20,
+      "sha256": "7a1b9d5dff73c70276f9b18b6440f9a8d674b446ece36dc3f44dead3da04e5a8"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b05",
+      "bytes": 20,
+      "sha256": "c047e67c4b16a8630345deae029a22c3b245c35df5485e7e172b23a2380a6bd9"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b06",
+      "bytes": 24,
+      "sha256": "1881c2584c0e18865c5f1575905251e46795a98a1cbacb78a5ad4b8448cdfbbc"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b07",
+      "bytes": 16,
+      "sha256": "17b5bbea81099abafc9cf970586f97ee4d198e01dd80a7d63ef129f6407cc808"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b08",
+      "bytes": 951840,
+      "sha256": "4bcb5a55a5435e2c892d00df15da31c1a8428d023cb06ddf9132ccbc908ee3ea",
+      "qc_image_version_string": "video-firmware.2.4-33580ad5a949b4d45b3b008988280e60573cd894"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b09",
+      "bytes": 16512,
+      "sha256": "ae3bdd0919da6a3e12ca295e97d014574338dd6acbaa733a9c8b65839ef56072"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b18",
+      "bytes": 32,
+      "sha256": "43b09596e1496809aaa964b34c146580f0566c86bc9d7218a1288fd15fb93424"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.b19",
+      "bytes": 4712,
+      "sha256": "1ac92e64fd1a3af94d376e8a0f4200896aa9e62bc096413858fd3452eb90b403"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.mbn",
+      "bytes": 2024040,
+      "sha256": "9582ea4c5565408bd3e5ba6f8fffc7881f226cae001b6fcd7a0c868de9add9af",
+      "qc_image_version_string": "video-firmware.2.4-33580ad5a949b4d45b3b008988280e60573cd894",
+      "elf_class": 32,
+      "pt_load_count": 18,
+      "paddr_start_hex": "0x0f500000",
+      "paddr_end_exclusive_hex": "0x0fbff020",
+      "raw_phdr_flags": [
+        "0x8000000",
+        "0x8000005",
+        "0x8000006"
+      ],
+      "signature_validation": "not performed"
+    },
+    {
+      "container": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4",
+      "path": "image/vpu20_4v.mdt",
+      "bytes": 5404,
+      "sha256": "a276e19d4ba6f4b4b42bec7ee4497e1002582a357454d56e5e050d5f969c64b6",
+      "elf_class": 32,
+      "pt_load_count": 18,
+      "paddr_start_hex": "0x0f500000",
+      "paddr_end_exclusive_hex": "0x0fbff020",
+      "raw_phdr_flags": [
+        "0x8000000",
+        "0x8000005",
+        "0x8000006"
+      ],
+      "signature_validation": "not performed"
+    }
+  ],
+  "related_vendor_firmware_manifest": "docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json",
+  "integrity_and_limits": [
+    "File SHA256 obtained from public Android 14 reference, not handset flash dump",
+    "Qualcomm ELF PT_LOAD headers analyzed, no cryptographic signature or secure PAS loading check",
+    "Split .mdt and .bXX segments observed; no evidence of successful firmware loading",
+    "HFI Gen2 source layout host audit does not verify Motorola signed firmware handshake",
+    "Do not confuse vendor_a Venus 2.6 reference with radio NON-HLOS VPU 2.4 image",
+    "Consumer GPU SQE/GMU/ZAP require independent UBWC/power/profile review"
+  ],
+  "boot_metadata_file": "docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json",
+  "recommended_linux_fw_name_status": "source-backed basename vpu20_4v; final Linux request_firmware path/install format still requires packaging choice"
+}
