@@ -29,6 +29,7 @@ jobs:
         run: |
           python3 scripts/audit-vpu-hfi.py --self-test | tee evidence/python-selftest.txt
           python3 -m py_compile scripts/audit-vpu-hfi.py scripts/inventory-oneli-firmware.py
+          python3 tests/vpu/test-inventory.py -v 2>&1 | tee evidence/inventory-fixture-tests.log
       - name: Synthetic host C layout smoke test (not an ARM64 target build)
         run: |
           cc -std=c11 -Wall -Wextra -Werror -pedantic \
