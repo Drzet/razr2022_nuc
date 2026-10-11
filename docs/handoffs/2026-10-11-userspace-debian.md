@@ -17,7 +17,7 @@ The userspace branch includes:
 - 4f26dfab38106951b8e59d3498de72fcd6c7edcb: docs/userspace_boot_contract.md.
 - 273346890968be4c0be9914310b37b460f389d58: userspace/README.md usage and evidence boundaries.
 
-Pinned distribution inputs: Debian trixie, arm64; signed main and security snapshot repositories at 20261011T000000Z; SOURCE_DATE_EPOCH 1791676800; 3072 MiB disposable ext4 disk. QEMU uses distribution linux-image-arm64 (resolved package version in evidence), *not* Drzet/linux. Installed packages: systemd-sysv, udev, iproute2, kmod, ca-certificates, e2fsprogs, initramfs-tools and linux-image-arm64 plus dependency closure. Debian packages are never committed to source control.
+Additional commits: 0db12829933c5a36ab69b5702537a00ee13850d4 pins/verifies Debian 13 archive signing keys; 9cc0857e040b37dc3f2c43ed3d742a058406a1d5 adds explicit GPG and wget host dependencies. The signed Debian public key assets are verified against Debian FTP-master published SHA256 digests (main 6f1d277429dd7ffedcc6f8688a7ad9a458859b1139ffa026d1eeaadcbffb0da7; security 844c07d242db37f283afab9d5531270a0550841e90f9f1a9c3bd599722b808b7) before bootstrap.\n\nPinned distribution inputs: Debian trixie, arm64; signed main and security snapshot repositories at 20261011T000000Z; SOURCE_DATE_EPOCH 1791676800; 3072 MiB disposable ext4 disk. QEMU uses distribution linux-image-arm64 (resolved package version in evidence), *not* Drzet/linux. Installed packages: systemd-sysv, udev, iproute2, kmod, ca-certificates, e2fsprogs, initramfs-tools and linux-image-arm64 plus dependency closure. Debian packages are never committed to source control.
 
 ## Shared files and integration
 
@@ -33,7 +33,7 @@ On an Ubuntu 24.04 host with sudo and signed Debian archive keyring:
 
 ~~~bash
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends debootstrap qemu-user-static binfmt-support qemu-system-arm debian-archive-keyring e2fsprogs zstd xz-utils ca-certificates
+sudo apt-get install -y --no-install-recommends debootstrap qemu-user-static binfmt-support qemu-system-arm debian-archive-keyring e2fsprogs zstd xz-utils ca-certificates gnupg wget
 mkdir -p evidence
 sudo env GITHUB_SHA="$(git rev-parse HEAD)" bash scripts/build-userspace.sh /tmp/razr-userspace-build "$PWD/evidence"
 bash scripts/smoke-qemu.sh /tmp/razr-userspace-build "$PWD/evidence"
