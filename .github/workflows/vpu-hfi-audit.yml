@@ -102,8 +102,9 @@ jobs:
           make -C kernel O="$PWD/out" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
             KBUILD_MODPOST_WARN=1 -j2 M=drivers/media/platform/qcom/iris modules \
             2>&1 | tee evidence/iris-module-build.log
-          find kernel out -name 'iris.ko' -print | tee evidence/iris-modules.txt
+          find kernel out -name 'qcom-iris.ko' -print | tee evidence/iris-modules.txt
           test -s evidence/iris-modules.txt
+          echo 'Standalone module compile/link succeeded; missing Module.symvers leaves modpost unresolved symbols (expected in isolated M= build)' | tee evidence/modpost-scope.txt
       - name: Check SM8475 Iris schema
         run: |
           export PATH="$PWD/schema-venv/bin:$PATH"
