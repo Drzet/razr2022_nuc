@@ -1,0 +1,76 @@
+# SM8475/oneli VPU resource and firmware inventory: source-only matrix
+
+2026-10-11. Owner: `razr/vpu`. Evidence class: **researched**. Kernel baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`; initial Boot head `cb9105ebeb9485e31d044d4fa69396b415523669`. The handset is unavailable; no selected runtime DTBO or firmware bytes were inspected.
+
+## Primary pinned sources
+
+- **Oneli board:** Motorola `kernel-devicetree` [`90fa7be1db5bd47202673d4431408659149a7359`](https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-oneli-base.dts); oneli base reserves video memory and removes its inherited region.
+- **Motorola downstream VPU controller:** `kernel-video-devicetree` [`56e3632e15ab870f76920f80f19929addf48088b`](https://github.com/MotorolaMobilityLLC/kernel-video-devicetree/blob/56e3632e15ab870f76920f80f19929addf48088b/waipio-vidc.dtsi). Family-wide Waipio/Cape/ukee overlay, **not** measured oneli selection.
+- **Independent SM8475/Waipio driver comparator:** Xiaomi `LowTension/android_kernel_xiaomi_sm8475` [`39382bf760ccf05a8fb4dddee7138ecac02d4a59`](https://github.com/LowTension/android_kernel_xiaomi_sm8475/blob/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/platform/waipio/src/msm_vidc_waipio.c). Used **only** for HFI and caps comparison, not treated as Motorola firmware/device evidence.
+- **Our exact upstream:** [`iris_platform_vpu2.c`](https://github.com/Drzet/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/media/platform/qcom/iris/iris_platform_vpu2.c), [`iris_probe.c`](https://github.com/Drzet/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/media/platform/qcom/iris/iris_probe.c), [`sm8450.dtsi`](https://github.com/Drzet/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/arch/arm64/boot/dts/qcom/sm8450.dtsi), [`qcom,sm8550-iris.yaml`](https://github.com/Drzet/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/Documentation/devicetree/bindings/media/qcom%2Csm8550-iris.yaml).
+
+## Vendor-to-upstream resource matrix
+
+All values below are *source values*, not actual phone observations. "Candidate" is not an accepted upstream design.
+
+| Item | Motorola source (directly attested) | Xiaomi comparator (not Motorola) | Mainline candidate / gap | Disposition |
+| --- | --- | --- | --- | --- |
+| Controller | `qcom,vidc@aa00000`; `qcom,msm-vidc-waipio`, `qcom,msm-vidc-iris2` | `VPU_VERSION_IRIS2` | `video-codec@aa00000`; proposed `qcom,sm8475-iris` requires *new match and binding* | Do not copy downstream compatible sequence |
+| MMIO | `0x0aa00000`, length `0x000f0000` | Iris2 offsets in `msm_vidc_iris2.c` | Upstream Iris VPU2 `reg` | Source-backed address; no live register test |
+| IRQ | GIC SPI `174` active high | Iris2 interrupt handling | `interrupts = <GIC_SPI 174 IRQ_TYPE_LEVEL_HIGH>` | Source-backed |
+| Secure firmware authority | `pas-id = <9>` | Firmware downloader uses Qualcomm secure loader | Upstream `iris_firmware.c` hardcodes PAS `9`, `qcom_pas_auth_and_reset` | Number matches; authentication untested |
+| Firmware basename | `vidc,firmware-name = "vpu20_4v"` | Independent device firmware/version unknown | [INFERRED] `qcom/vpu/vpu20_4v.mbn` **possible** install path; upstream property is `firmware-name` | **Do not set a default filename as proven** |
+| HFI generation | Motorola DT says Iris2, does not encode HFI generation | Gen2 packet envelope, `HFI_CMD_INIT` + `HFI_VIDEO_ARCH_LX` | Gen2 Iris host layer exists; host subset audit matches | [INFERRED] Gen2 hypothesis; no Motorola firmware negotiation |
+| VPU generation | `qcom,msm-vidc-iris2` | `VPU_VERSION_IRIS2` | `iris_vpu2_ops` | [INFERRED] reuse VPU2 ops until register discrepancies checked |
+| VPP pipes | Not established by Motorola VPU DT | `NUM_VPP_PIPE = 4` | SM8250 profile 4, Milos profile 2 | [INFERRED] four-pipe Cape candidate, not measured oneli |
+| Formats | Not specified in Motorola VPU DT | Waipio decode H.264, HEVC, VP9, HEIC | Iris VPU2 shared maps H.264/HEVC/VP9 | [INFERRED] mainline initial codecs subset, do not claim HEIC support |
+| Frame/performance caps | Not specified | Max frame 8192×8192; Waipio `MAX_MBPF=276480`, `MAX_MBPS=7833600` (macroblocks source data) | Existing `sm8250_data` max differs; need explicit table after validation | [INFERRED] do not substitute unrelated cap profile |
+| VPU clocks | GCC_VIDEO_AXI0_CLK, VIDEO_CC_MVS0C_CLK, VIDEO_CC_MVS0_CLK, VIDEO_CC_MVS0_CLK_SRC | Uses multiple rate/clock ops | Mainline Iris `iface`, `core`, `vcodec0_core`; video CC source may be implicit | Compare driver clock bulk and OPP config; fourth downstream source clock not blindly carried over |
+| Clock rates | `239999999`, `338000000`, `366000000`, `444000000` Hz | Comparator has its own performance policy | Mainline OPP nodes with valid required corners (not yet derived) | [INFERRED] source candidate rates; no final voltage/corner mapping |
+| Resets | GCC_VIDEO_AXI0_CLK_ARES; VIDEO_CC_MVS0C_CLK_ARES | Iris2 register resets | Mainline names `bus`, `core`; sm8550 schema normally permits only one | Need SM8475 schema conditional for **two**; review clock-controller reset support |
+| GDSC | `iris-ctl-supply=<video_cc_mvs0c_gdsc>`; `vcodec-supply=<video_cc_mvs0_gdsc>` | Two domains expected | Mainline `power-domains` + `venus`, `vcodec0`, not downstream regulator-style `*-supply` | Candidate translation source-backed |
+| RPMh OPP domains | Not directly in Motorola video overlay | No proof of which required-opps | Baseline `videocc` consumes RPMHPD_MMCX/MXC; related Iris bindings use `mxc`, `mmcx` | [INFERRED] require explicit corner mapping before enabling |
+| CNOC | `MASTER_APPSS_PROC → SLAVE_VENUS_CFG` | N/A | `cpu-cfg` ICC consumer | Source-backed endpoints, translate to baseline labels |
+| DDR interconnect | `MASTER_LLCC → SLAVE_EBI1`, through `mc_virt` | N/A | [INFERRED] contributed to mainline `video-mem` path or upstream provider-managed route | Investigate whether no second ICC consumer is required |
+| Video/LLCC interconnect | `MASTER_VIDEO_P0 → SLAVE_LLCC` | N/A | Mainline `video-mem` ICC consumer (possibly `MASTER_VIDEO` via `mmss_noc`) | [INFERRED] must compare exact RPMh topology |
+| ICC votes | Motorola `qcom,bus-range-kbps` 1000..1000, 1000..15000000, 1000..15000000 | BW computation independent | Baseline Iris VPU2 ICC table `cpu-cfg`, `video-mem`; static limits differ by driver | Verify unit/aggregation; no measured votes |
+| Non-secure SMMU | Context bank `0x2180/0x0400`, address pool `0x25800000/0xba800000` | N/A | `iommus` endpoint candidate `0x2180`, attributes pending | [INFERRED] translate SMMU flags, not raw child node |
+| Non-secure pixel SMMU | Context bank `0x2187/0x0400`, pool `0x00100000/0xdff00000` | N/A | Possible second upstream `iommus` endpoint `0x2187` | [INFERRED] check stream ID/flags against effective DT and IOMMU driver |
+| Secure SMMU contexts | `0x2184`, `0x2181`, `0x2183`, secure VMIDs `0xb,0x9,0xa` | N/A | Upstream driver secure-world SCM handling, not five downstream child nodes | No confident direct DT translation; leave secure path disabled |
+| DMA address bound | Nonsecure pixels `0x00100000` + `0xdff00000` = bound `0xe0000000` | N/A | SM8250 Iris VPU2 default `dma_mask = 0xe0000000 - 1` | [INFERRED] same limit plausible; confirm mapping at runtime |
+| Protected-video configuration | Vendor secure/non-secure region boundaries `0x0/0x25800000`, `0x01000000/0x24800000` | N/A | Baseline `tz_cp_config_vpu2` uses same boundaries | Source equality; SCM operation remains untested |
+| Firmware carveout | `video_mem` phandle | N/A | Boot `sm8475-motorola-oneli.dts`: [source-defined] `0x9fd00000`, `0x700000`, `no-map` | Boot-owned; actual installed revision unknown |
+| LLCC slice | `cache-slice-names = "vidsc0"` | N/A | Optional LLCC client/slice configuration not evident in upstream Iris binding | Do not invent consumer without driver |
+| Property translations | Downstream `vidc,firmware-name`, `qcom,allowed-clock-rates`, `qcom,proxy-clock-names`, `qcom,iommu-*` | N/A | Mainline `firmware-name`, `operating-points-v2`, `interconnects`, `power-domains`, `iommus` | No mechanical DT copy |
+| Boot selection | `Kbuild`: `ARCH_CAPE → ukee-vidc.dtbo`; waipio DTS root also lists `qcom,cape` | N/A | oneli effective video overlay undecided | Inspect public package DTBO; board revision required for physical selection |
+
+## Public stock firmware: exact reference and blocker
+
+- Candidate **reference package**: `XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip`; Android 14 / `U2SLS34.1-42-14-11`; in the public `RETGB` directory, despite `RETEU` basename.
+- Direct URL: <https://mirrors-obs-1.lolinet.com/firmware/lenomola/2022/oneli/official/RETGB/XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip>.
+- Mirror index: <https://mirrors-obs-1.lolinet.com/firmware/lenomola/2022/oneli/official/RETGB/>. The directory listed it at **4,353,164 KB** and modified **2025-11-19 01:28**. These are *mirror metadata*, not an independently calculated file size/hash.
+- **Download/extraction blocker:** the web listing can be read, but fetching the ZIP via web inspection produced an unsupported ZIP content-type result; the current execution container's direct HTTPS access returned a DNS resolution failure for `mirrors-obs-1.lolinet.com`. The entire ~4.3-GB archive was **not downloaded**. Therefore its verified SHA-256, inner image names, `vpu20_4v*` / ZAP filenames and hashes, and DTBO candidate IDs are **not known**. This meets the coordinator's “exact missing-download blocker” path, **not** the stronger firmware-manifest acceptance path.
+- Not the installed image: the owner's handset region, board revision and build fingerprint are unobserved. Do not flash or call this reference the current phone firmware.
+- Cross-subsystem inventory requested by GPU: `qcom/a730_sqe.fw`, `qcom/gmu_gen70000.bin`, and signed board-specific A730 ZAP shader. The first two have generic linux-firmware provenance per [GPU handoff](../handoffs/gpu-2026-10-11.md); the correct oneli ZAP path/hash and secure loading remain unknown. VPU firmware `vpu20_4v` is a **separate** secure payload, not the GPU GMU firmware.
+
+### Offline reproduction procedure once ZIP bytes are available
+
+1. Preserve the ZIP unchanged and record its SHA-256 and exact URL. Run `python3 scripts/inventory-oneli-firmware.py --stock-zip /path/to/<exact-package>.zip --source-url <exact-package-url> --json-out /path/to/firmware-manifest.json`. This inventories the archive and parses Android DT table candidates if `dtbo.img` is a directly accessible ZIP member.
+2. Inspect ZIP entry names before selecting image extraction: `unzip -Z1 /path/to/<exact-package>.zip`. If a `super.img`, sparse `vendor.img` or payload container is present, identify its **actual format** before choosing Android logical-partition tools (`lpunpack`), sparse-image conversion (`simg2img`), EROFS reader or ext4 reader. [INFERRED] Which one is needed for this specific ZIP remains unknown.
+3. Inspect extracted `vendor` and `odm` trees, without copying their binary data into Git. Run `python3 scripts/inventory-oneli-firmware.py --extracted-root /path/to/extracted-root --json-out /path/to/firmware-manifest.json` (or both inputs together) to hash matching `vpu20_4v*` and A730/GMU candidate files and record `QC_IMAGE_VERSION_STRING` if present.
+4. Inspect any DTBO table with the exact tool/version used (Android `mkdtimg dump` or equivalent) and decompile *candidates* with `dtc`; record the header entries, board IDs, compatible strings, carveouts and GPU/VPU wiring. A candidate in a ZIP is **not proof of actual on-device selection**.
+5. Store only hashes, metadata, decoded nonproprietary facts and extraction/build tool versions in the project; do not commit stock firmware, signed binaries, full DTBO images or generated large images.
+
+## ABI verification beyond constants
+
+Executable audit: [`scripts/audit-vpu-hfi.py`](../../scripts/audit-vpu-hfi.py). Inputs are six exact Git blob SHA-pinned sources; requires no vendor binary and emits optional JSON evidence.
+
+Independently rechecked the pinned source text on 2026-10-11: **97 of 97** shared direct numeric HFI macros agree. Additionally the HFI header has matching **32-byte/4-byte alignment** layouts, HFI packet matching **32-byte/4-byte alignment** layouts (upstream adds trailing flexible `payload[]`, which contributes zero bytes), and HFI buffer matching **64-byte/8-byte alignment** layouts. Field offsets and names agree for fixed fields, including both `u64` members of the buffer; both system-init host functions use the same `HFI_CMD_INIT`, `HFI_VIDEO_ARCH_LX`, response/interrupt/non-discardable flags, U32 payload and `HFI_PORT_NONE`. Both emit the same set of seven named UBWC property IDs during init. These were **host-side source/layout checks**, not target-compiled `sizeof` assertions or firmware negotiation.
+
+Unresolved semantic questions: actual UBWC values (from board/interconnect configuration), Gen2 firmware response/state transitions, queue ownership, extra command/feature IDs, decoder capability responses, secure PAS acceptance, error paths, buffer DMA sharing and decoding. The numeric audit intentionally covers **only direct numeric definitions**; see the generated report for vendor-only/upstream-only names. [INFERRED] Upstream Iris VPU2 with Gen2 host packets is plausible; a real Motorola `vpu20_4v` version has not been examined.
+
+## Candidate patch boundary
+
+It is reasonable to introduce a disabled VPU DT proposal and design a driver platform descriptor, **not** to claim the profile works. No enabled `qcom,sm8475-iris` binding/driver pair is validated. Additional work must resolve default firmware path, OPP-to-RPMh votes, interconnect topology, IOMMU endpoint interpretation, UBWC caps and accurate bandwidth tables before a support patch is promoted. The Boot chat owns `sm8475.dtsi` and `sm8475-motorola-oneli.dts`. Neither is changed here.
+
+**Next acceptance test:** independently run the pinned ABI script and stock ZIP inventory on a networked CI machine; retain JSON+tool versions; then compile any proposed VPU driver/binding patch against an exact `razr/vpu` SHA and schema-check the Boot-owned DT candidate. Hardware performance/decode deferred.
