@@ -75,14 +75,45 @@ def metadata(url):
         q = struct.unpack_from("<4s6H3I5H2I", cd, i)
         method, crc, comp, uncomp = q[4], q[7], q[8], q[9]
         name_len, extra_len, comment_len, local = q[10], q[11], q[12], q[16]
+        end = i + 46 + name_len + extra_len + comment_len
+        if end > len(cd):
+            raise ValueError("truncated ZIP central directory entry")
         name = cd[i+46:i+46+name_len].decode("utf-8", "replace")
+        extra = cd[i+46+name_len:i+46+name_len+extra_len]
         if name in TARGETS:
-            if local == 0xffffffff:
-                raise ValueError(f"ZIP64 extended local offset required for {name}")
+            if any(x == 0xffffffff for x in (uncomp, comp, local)):
+                pos = 0
+                while pos + 4 <= len(extra):
+                    tag, length = struct.unpack_from("<HH", extra, pos)
+                    pos += 4
+                    if pos + length > len(extra):
+                        raise ValueError(f"{name}: invalid ZIP extra field")
+                    if tag == 0x0001:
+                        values = extra[pos:pos+length]
+                        k = 0
+                        def get64():
+                            nonlocal k
+                            if k + 8 > len(values):
+                                raise ValueError(f"{name}: truncated ZIP64 field")
+                            value = struct.unpack_from("<Q", values, k)[0]
+                            k += 8
+                            return value
+                        if uncomp == 0xffffffff:
+                            uncomp = get64()
+                        if comp == 0xffffffff:
+                            comp = get64()
+                        if local == 0xffffffff:
+                            local = get64()
+                        break
+                    pos += length
+                if any(x == 0xffffffff for x in (uncomp, comp, local)):
+                    raise ValueError(f"{name}: missing required ZIP64 extra field")
+            if local + 30 > EXPECTED_ZIP_BYTES:
+                raise ValueError(f"{name}: invalid local header position")
             entries[name] = {"local_header": local, "compressed_size": comp,
                              "uncompressed_size": uncomp, "method": method,
                              "crc32": f"{crc:08x}"}
-        i += 46 + name_len + extra_len + comment_len
+        i = end
     return entries, {"central_directory_offset": cd_offset, "central_directory_size": cd_size,
                      "central_directory_entries": total_entries}
 
@@ -100,7 +131,13 @@ def member(url, name, info):
     if info["method"] == 0:
         blob = compressed
     elif info["method"] == 8:
-        blob = zlib.decompress(compressed, -15, EXPANDED_CAP)
+        inflater = zlib.decompressobj(-15)
+        blob = inflater.decompress(compressed, EXPANDED_CAP + 1)
+        if len(blob) > EXPANDED_CAP or inflater.unconsumed_tail:
+            raise ValueError(f"{name}: deflate output exceeds size cap")
+        blob += inflater.flush()
+        if not inflater.eof or len(blob) > EXPANDED_CAP:
+            raise ValueError(f"{name}: truncated or oversized deflate stream")
     else:
         raise ValueError(f"{name}: unhandled compression method")
     if len(blob) != info["uncompressed_size"]:
