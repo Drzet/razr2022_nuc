@@ -1,0 +1,59 @@
+name: VPU pinned host ABI audit
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/audit-vpu-hfi.py'
+      - 'scripts/inventory-oneli-firmware.py'
+      - 'tests/vpu/**'
+      - '.github/workflows/vpu-hfi-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  hfi-source-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify host test tooling
+        run: |
+          mkdir -p evidence
+          python3 --version | tee evidence/python-version.txt
+          cc --version | head -n 1 | tee evidence/compiler-version.txt
+      - name: Synthetic Python parser and layout checks
+        run: |
+          python3 scripts/audit-vpu-hfi.py --self-test | tee evidence/python-selftest.txt
+          python3 -m py_compile scripts/audit-vpu-hfi.py scripts/inventory-oneli-firmware.py
+      - name: Synthetic host C layout smoke test (not an ARM64 target build)
+        run: |
+          cc -std=c11 -Wall -Wextra -Werror -pedantic \
+            -o evidence/hfi-host-layout tests/vpu/hfi-host-layout.c \
+            2>&1 | tee evidence/host-compile.log
+          ./evidence/hfi-host-layout
+      - name: Fetch pinned public host sources and compare ABI
+        run: |
+          python3 scripts/audit-vpu-hfi.py \
+            --json-out evidence/vpu-hfi-audit.json 2>&1 | tee evidence/vpu-hfi-audit.log
+      - name: Upload reproducible evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vpu-hfi-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Scope statement
+        if: always()
+        run: |
+          {
+            echo "## VPU host ABI audit"
+            echo "Kernel baseline: a5ebb76233b79db01e82e061173cb73c6d2b5c6b"
+            echo "Project revision: $GITHUB_SHA"
+            echo "Host packet definitions and synthetic C layout: audited."
+            echo "No oneli firmware, AArch64 kernel build, secure loading, decode or physical hardware claimed."
+          } >> "$GITHUB_STEP_SUMMARY"
