@@ -50,8 +50,8 @@ The proposed DTS block in [GPU handoff](handoffs/gpu-2026-10-11.md) removes ten 
 
 ## Firmware requirements for a shared GPU/VPU public-stock manifest
 
-- `qcom/a730_sqe.fw` (SQE): kernel's expected lookup; linux-firmware WHENCE publishes version v1.81. **Content SHA-256 not yet captured.**
-- `qcom/gmu_gen70000.bin` (GMU): kernel's expected lookup; linux-firmware WHENCE publishes version v4.00.07. **Content SHA-256 not yet captured.**
+- `qcom/a730_sqe.fw` (SQE): kernel's expected lookup; [linux-firmware WHENCE at 81a99dba039a21fd83d37a67a7de0fb80152e065](https://kernel.googlesource.com/pub/scm/linux/kernel/git/iwlwifi/linux-firmware/+/81a99dba039a21fd83d37a67a7de0fb80152e065/WHENCE) publishes version v1.81. **Content SHA-256 not yet captured.**
+- `qcom/gmu_gen70000.bin` (GMU): kernel's expected lookup; the same pinned WHENCE records version v4.00.07. **Content SHA-256 not yet captured.**
 - Device-signed ZAP: vendor base name `a730_zap`, kernel fallback `a730_zap.mdt`. Public firmware source for **Motorola oneli** not yet extracted; signed image, accompanying segmented MDT files, full path and SHA-256 are **unknown**. Neither generic SM8450 nor Nothing Pong ZAP is established as valid for oneli.
 - The pinned Motorola KGSL catalog also lists alternate `c500_gmu.bin` for both 7-0-1 and 7-4-0, but mainline's catalog does not request that fallback. Do not silently substitute it.
 
