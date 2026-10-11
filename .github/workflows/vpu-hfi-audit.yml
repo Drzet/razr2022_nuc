@@ -70,7 +70,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: Drzet/linux
-          ref: 9bc913217b9051f515970c4b65770efb3374e33a
+          ref: 3d532ed35ab98ce45efe0be65f7ec165e27e2a4c
           path: kernel
           fetch-depth: 1
           persist-credentials: false
@@ -90,22 +90,27 @@ jobs:
           aarch64-linux-gnu-gcc --version | head -n 1 | tee evidence/cross-gcc.txt
           make --version | head -n 1 | tee evidence/make-version.txt
           git -C kernel rev-parse HEAD | tee evidence/kernel-sha.txt
-      - name: Configure and compile candidate Iris module (ARM64, no runtime)
+      - name: Build complete ARM64 kernel Image and modules with ordinary modpost
         run: |
           mkdir -p out
           make -C kernel O="$PWD/out" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig \
             2>&1 | tee evidence/defconfig.log
+          cp out/.config evidence/resolved-arm64-defconfig
+          sha256sum evidence/resolved-arm64-defconfig > evidence/config-sha256.txt
           grep -E '^CONFIG_VIDEO_QCOM_IRIS=|^CONFIG_MEDIA_SUPPORT=|^CONFIG_ARCH_QCOM=' \
             out/.config | tee evidence/iris-config.txt
-          sha256sum out/.config > evidence/config-sha256.txt
+          # No M= isolation, KBUILD_MODPOST_WARN, KBUILD_MODPOST_NOFINAL or WERROR overrides.
           make -C kernel O="$PWD/out" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-            -j2 modules_prepare 2>&1 | tee evidence/modules-prepare.log
-          make -C kernel O="$PWD/out" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-            KBUILD_MODPOST_WARN=1 -j2 M=drivers/media/platform/qcom/iris modules \
-            2>&1 | tee evidence/iris-module-build.log
-          find kernel out -name 'qcom-iris.ko' -print | tee evidence/iris-modules.txt
-          test -s evidence/iris-modules.txt
-          echo 'Standalone module compile/link succeeded; missing Module.symvers leaves modpost unresolved symbols (expected in isolated M= build)' | tee evidence/modpost-scope.txt
+            -j2 Image modules 2>&1 | tee evidence/full-arm64-build.log
+          test -s out/arch/arm64/boot/Image
+          test -s out/Module.symvers
+          test -s out/drivers/media/platform/qcom/iris/qcom-iris.ko
+          sha256sum out/arch/arm64/boot/Image out/Module.symvers \
+            out/drivers/media/platform/qcom/iris/qcom-iris.ko > evidence/build-artifact-sha256.txt
+          cp out/Module.symvers evidence/Module.symvers
+          # Publish only a bounded binary module, not a full kernel artifact.
+          cp out/drivers/media/platform/qcom/iris/qcom-iris.ko evidence/qcom-iris.ko
+          git -C kernel rev-parse HEAD | tee evidence/tested-kernel-sha.txt
       - name: Check SM8475 Iris schema
         run: |
           export PATH="$PWD/schema-venv/bin:$PATH"
@@ -125,8 +130,8 @@ jobs:
         run: |
           {
             echo "## VPU ARM64 candidate"
-            echo "Kernel commit: 9bc913217b9051f515970c4b65770efb3374e33a"
+            echo "Kernel commit: 3d532ed35ab98ce45efe0be65f7ec165e27e2a4c"
             echo "Project revision: $GITHUB_SHA"
-            echo "Standalone Iris module compile + source binding schema check; inspect logs."
+            echo "Dependency-complete ARM64 Image/modules build with normal modpost and SM8475 schema check; inspect logs."
             echo "No merged Boot DTS, signed firmware load, HFI response, or device test."
           } >> "$GITHUB_STEP_SUMMARY"
