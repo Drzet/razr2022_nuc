@@ -31,24 +31,28 @@ The independent workflow on razr/userspace bootstraps from a signed Debian snaps
 
 This does not use the project kernel, oneli device tree, actual Qualcomm UFS, GPU, VPU, USB, DisplayPort, charge controller or regulators. It demonstrates no oneli boot or physical component functionality. Actual phone hardware tests remain deferred.
 
-## Machine-readable native build input contract
+## Native kernel artifact contract (schema v2)
 
-The tracked `userspace/native-kernel-inputs.example.json` intentionally retains **null** values for unresolved device-specific inputs. The consumer must supply an actual JSON manifest with all of the following fields populated and provenance recorded, not simply a moving branch name:
+The tracked `userspace/native-kernel-inputs.example.json` is **schema_version 2**. All absent device-specific fields are intentionally null. The offline validator `scripts/validate-native-kernel-inputs.py` refuses incomplete inputs and checks:
 
-- `kernel_commit`: exact Drzet/linux commit SHA (40 lowercase hex digits), `kernel_release`: release from that exact build's `include/config/kernel.release`.
-- `image_path`, `config_path`, `dtb_path`: paths relative to a staging root holding the native Image, resolved .config and reviewed oneli DTB.
-- `modules_directory`: relative path ending in `lib/modules/<kernel_release>`, containing the same-build kernel modules and depmod-generated `modules.dep`.
-- `initramfs_path`: native kernel-compatible initramfs, with storage/console/firmware requirements verified against the resolved config.
-- `firmware_manifest_path`, `firmware_directory`: JSON inventory and staged licensed firmware. The static validator hashes manifest but cannot establish secure-world firmware acceptance.
-- `boot_packaging_manifest_path`: source-backed boot/vendor_boot/DTBO header and slot/partition configuration, **only** after Boot verifies those inputs.
+1. Exact 40-hex `Drzet/linux` kernel commit; kernel release and matching `lib/modules/<release>` directory with `modules.dep`.
+2. SHA256 hashes for Image, resolved kernel config, oneli DTB, initramfs, firmware manifest, boot packaging manifest and `modules.dep`. `modules_sha256` must exhaustively cover every provided native `.ko` (including gzip/xz/zstd compressed forms).
+3. Each module must be AArch64 ELF, and its actual `modinfo -F vermagic` kernel-release token must match `kernel_release`. This is a necessary ABI check, not proof of matching symbol CRCs, compiler configuration or runtime loading.
+4. `initramfs_modules` must list specific native modules needed at early boot; `lsinitramfs` and `unmkinitramfs` verify the **actual extracted module bytes, vermagic and hashes**, not merely path presence.
+5. The firmware manifest must explicitly declare `schema_version: 1`, `status: complete`, nonempty `required_files` with `path`, `sha256`, `consumer`, boolean `in_initramfs`, and an empty `unknown_requirements` list. Each licensed staged file hash is checked, as is actual embedded content when designated for initramfs. An empty JSON object, a zero-file inventory or an unresolved required firmware path fails closed.
+6. Boot packaging manifest must explicitly declare `status: verified`. Its actual header/DTBO and phone-specific semantics remain Boot's responsibility.
 
-Offline invocation after those files exist:
+Build host requirements: Python 3, kmod (`modinfo`), `unmkinitramfs`/`lsinitramfs`, and `zstd` for compressed modules. Example command once the Boot artifacts are genuinely available:
 
 ```sh
 python3 scripts/validate-native-kernel-inputs.py native-inputs.json --artifact-root staging --output native-input-evidence.json
 ```
 
-The validator refuses nulls, escaping paths, mismatched module releases and missing files; it hashes supplied file inputs. Passing this check is **not** equivalent to a native kernel boot, an initramfs driver-closure test, or a firmware acceptance test. No actual native manifest can be filled or verified without exact Boot deliverables.
+Six automated synthetic fixtures include a valid AArch64 ELF module and failures for mismatched vermagic, altered Image, altered initramfs module bytes, missing embedded firmware and an unresolved firmware manifest. CI records its exact PR merge SHA and logs. This is a static consistency gate, not successful boot, module relocation/CRC validation or firmware secure-world authentication.
+
+### Project-kernel QEMU interface stage
+
+After the generic Debian-distribution-kernel QEMU boot/network/SSH gate passes, the coordinator may supply an exact reviewed **mainline kernel Image and matching module build**. A separate QEMU `virt` test would use **QEMU's virtual DT** and new matching initramfs; it must explicitly preserve the kernel SHA/config/Module.symvers and its artifacts. **Never** supply the oneli DT to the virt machine or label it phone emulation. No exact combined integration kernel/modules image is accepted as available until the coordinator records the selected commit and passing build.
 
 ## Unresolved handover requests for Boot
 
