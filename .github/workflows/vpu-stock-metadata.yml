@@ -1,0 +1,55 @@
+name: Oneli public ZIP64 range metadata (no full download)
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/inspect-oneli-stock-ranges.py'
+      - '.github/workflows/vpu-stock-metadata.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-meta-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stock-metadata:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install FDT inspection tool
+        run: |
+          mkdir -p evidence
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends device-tree-compiler \
+            2>&1 | tee evidence/apt-install.log
+          dtc --version | tee evidence/dtc-version.txt
+          python3 --version | tee evidence/python-version.txt
+      - name: Inspect bounded public ZIP byte ranges and individual members
+        run: |
+          python3 scripts/inspect-oneli-stock-ranges.py \
+            --json-out evidence/stock-zip-range-metadata.json \
+            2>&1 | tee evidence/range-inspection.log
+          git rev-parse HEAD | tee evidence/project-tested-sha.txt
+      - name: Retain metadata only; NEVER upload stock images
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-ziprange-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Scope
+        if: always()
+        run: |
+          {
+            echo "## Oneli stock metadata via ZIP64 byte ranges"
+            echo "No whole-archive download, no proprietary artifacts published."
+            echo "Public ROM reference, not installed firmware or bootloader selection."
+            echo "Bounded 26MiB per range and 128MiB per decompressed ZIP member."
+          } >> "$GITHUB_STEP_SUMMARY"
