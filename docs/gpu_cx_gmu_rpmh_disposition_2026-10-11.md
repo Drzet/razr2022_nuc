@@ -40,7 +40,9 @@ All are **numeric RPMh levels**, not microvolts. Vendor's independent `qcom,cx-l
 | 285 | LOW_SVS_D1 (56) | LOW_SVS (64) |
 | 220 | MIN_SVS (48) | LOW_SVS (64) |
 
-For the seven other rates the reported GPU and CX corner names match. Their equality **does not** imply that one upstream RPMh command also votes on both rails. [INFERRED] Applying GPU levels while the firmware independently applies higher CX minimums might be safe, but this cannot be established from source-only evidence. No unconditional CX/GPU equivalence is claimed.
+For the seven other rates the reported GPU and CX corner names match. Their equality **does not** imply that one upstream RPMh command also votes on both rails.
+
+**Specific level-range mismatch:** the inherited GMU OPP entries yield `cx_arc_votes` requested from **LOW_SVS (64)** and **SVS (128)**, whereas Motorola's per-GPU-frequency CX floor reaches **TURBO_L1 (416)** at 900 MHz and **TURBO (384)** at 862 MHz. The mainline code constructs CX votes with the GMU OPPs, so its available *requested* CX levels cannot be treated as a reproduction of Motorola's high GPU-state CX floor. Unknown `cx.lvl` rounding, firmware-owned votes and hardware rail dependencies may alter the actual rail state. **[INFERRED]** A GPU high-frequency state could be unsafe if those independent CX floors are required and not supplied elsewhere; this is why the candidate must remain disabled until a demonstrated vote contract exists. [INFERRED] Applying GPU levels while the firmware independently applies higher CX minimums might be safe, but this cannot be established from source-only evidence. No unconditional CX/GPU equivalence is claimed.
 
 ### Additional specific upstream call-site concern
 
