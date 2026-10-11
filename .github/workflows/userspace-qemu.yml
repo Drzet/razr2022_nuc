@@ -1,19 +1,13 @@
 name: Debian ARM64 userspace QEMU smoke
 on:
   workflow_dispatch:
-  push:
-    branches: ['razr/userspace']
-    paths:
-      - '.github/workflows/userspace-qemu.yml'
-      - 'userspace/**'
-      - 'scripts/build-userspace.sh'
-      - 'scripts/smoke-qemu.sh'
   pull_request:
     paths:
       - '.github/workflows/userspace-qemu.yml'
-      - 'userspace/**'
+      - 'userspace/inputs.env'
       - 'scripts/build-userspace.sh'
       - 'scripts/smoke-qemu.sh'
+      - 'scripts/verify-rootfs-ownership.sh'
 permissions:
   contents: read
 concurrency:
