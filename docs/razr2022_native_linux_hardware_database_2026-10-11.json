@@ -1,0 +1,1671 @@
+{
+  "metadata": {
+    "title": "Motorola razr 2022 oneli: native mainline Linux hardware and device-tree evidence database",
+    "date": "2026-10-11",
+    "phone_firmware": "unknown",
+    "current_phone_revision": "unknown",
+    "boot_verified": false,
+    "motorola_commits": {
+      "kernel-msm": {
+        "branch": "android-12-release-s3sl32.16-72-46",
+        "sha": "9511d6b2dc469e5bd836992e3bdd6d19ace112e0"
+      },
+      "kernel-devicetree": {
+        "branch": "android-12-release-ssl",
+        "sha": "90fa7be1db5bd47202673d4431408659149a7359"
+      },
+      "kernel-display-devicetree": {
+        "branch": "android-12-release-ssl",
+        "sha": "80b207bf35be5da38375e755506f136558ad24b5"
+      }
+    },
+    "upstream_linux_sha": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
+    "source_scope": "Mot Android 12 and Linus Linux master snapshot",
+    "warning": "Comprehensive index of relevant DTS source files / nodes, not a verified fully-resolved device tree binary."
+  },
+  "sheets": {
+    "Hardware": [
+      {
+        "Priority": "P0",
+        "Subsystem": "Platform",
+        "Component / IC": "Motorola Razr 2022 / oneli",
+        "Version / address / ID": "Device codename: oneli",
+        "Evidence tier": "Razr-specific",
+        "DT identity / wiring": "model = oneli; moto,oneli; board-id varies",
+        "Evidence status": "Confirmed in DT",
+        "NUC relevance": "Target board; firmware variant still unknown",
+        "Caveat / action": "Exact retail device DT overlay must be determined.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-pvt-overlay.dts#L16-L23"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Platform",
+        "Component / IC": "Snapdragon 8+ Gen 1 / Qualcomm SM8475 (Cape)",
+        "Version / address / ID": "SoC family; silicon stepping unknown",
+        "Evidence tier": "SoC-family",
+        "DT identity / wiring": "qcom,cape, qcom,msm-id 530/531/540",
+        "Evidence status": "Confirmed family; stepping unverified",
+        "NUC relevance": "All boot and driver setup",
+        "Caveat / action": "SM8475 is the marketed chipset; DTS commonly uses Cape.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-pvt-overlay.dts#L18-L23"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Platform",
+        "Component / IC": "ARM64 CPU subsystem",
+        "Version / address / ID": "8 cores [INFERRED from SoC]",
+        "Evidence tier": "SoC-family",
+        "DT identity / wiring": "cape.dtsi + CPU/clock nodes",
+        "Evidence status": "Family-known; board untested",
+        "NUC relevance": "Boot Linux native",
+        "Caveat / action": "CPU topology, regulators, frequency tables from final DT.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Platform",
+        "Component / IC": "LPDDR RAM",
+        "Version / address / ID": "Chip manufacturer / exact size unknown",
+        "Evidence tier": "Unknown",
+        "DT identity / wiring": "Reserved-memory regions in oneli base DTS",
+        "Evidence status": "Configuration only",
+        "NUC relevance": "Boot loader memory handoff",
+        "Caveat / action": "Do not guess RAM vendor, package or current SKU.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-oneli-base.dts#L15-L33"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Storage",
+        "Component / IC": "Qualcomm UFS host",
+        "Version / address / ID": "Controller at 0x01d84000",
+        "Evidence tier": "Inherited enabled by Moto",
+        "DT identity / wiring": "qcom,ufshc; lanes=2; supplies L7B/L9B",
+        "Evidence status": "DT-confirmed controller",
+        "NUC relevance": "Root filesystem / UFS",
+        "Caveat / action": "Vendor flash IC model/capacity not in this DTS.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L1905-L1917"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Storage",
+        "Component / IC": "Qualcomm Cape UFS PHY",
+        "Version / address / ID": "0x01d80000, 2 lanes",
+        "Evidence tier": "Inherited enabled by Moto",
+        "DT identity / wiring": "qcom,ufs-phy-qmp-v4-cape; enabled in Moto overlay",
+        "Evidence status": "DT-confirmed PHY",
+        "NUC relevance": "UFS link bring-up",
+        "Caveat / action": "Upstream uses qcom,sm8475-qmp-ufs-phy binding.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L71-L95"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "USB",
+        "Component / IC": "Synopsys DesignWare DWC3",
+        "Version / address / ID": "Controller @ 0x0a600000",
+        "Evidence tier": "Inherited SoC DT",
+        "DT identity / wiring": "compatible snps,dwc3; Qualcomm qcom,dwc-usb3-msm",
+        "Evidence status": "DT-confirmed controller",
+        "NUC relevance": "Hub, keyboard, storage, ethernet",
+        "Caveat / action": "Must configure PHY and role switching.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L4-L70"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "USB",
+        "Component / IC": "Qualcomm eUSB2 PHY",
+        "Version / address / ID": "0x088e3000",
+        "Evidence tier": "Inherited SoC DT",
+        "DT identity / wiring": "qcom,usb-snps-eusb2-phy",
+        "Evidence status": "DT-confirmed PHY",
+        "NUC relevance": "USB 2.0 data path",
+        "Caveat / action": "Paired with external repeater.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L80-L102"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "USB / DP",
+        "Component / IC": "Qualcomm QMP USB3/DP combo PHY",
+        "Version / address / ID": "0x088e8000",
+        "Evidence tier": "Inherited SoC DT",
+        "DT identity / wiring": "qcom,usb-ssphy-qmp-dp-combo",
+        "Evidence status": "DT-confirmed PHY",
+        "NUC relevance": "USB 3 and DP physical lanes",
+        "Caveat / action": "2026 mainline has exact sm8475 binding.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L102-L139"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "USB / DP",
+        "Component / IC": "Parade PS5169 redriver",
+        "Version / address / ID": "I2C 0x30; orientation GPIO91",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "parade,ps5169-redriver; qupv3_se18_i2c",
+        "Evidence status": "DT-confirmed named component",
+        "NUC relevance": "USB 3 / DP lane conditioning",
+        "Caveat / action": "Confirmed enabled via oneli overlay; mainline patch not merged in pinned snapshot.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-redriver.dtsi#L1-L10"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "USB",
+        "Component / IC": "NXP eUSB2 repeater",
+        "Version / address / ID": "I2C 0x4f; exact part number unknown",
+        "Evidence tier": "Moto common overlay",
+        "DT identity / wiring": "nxp,eusb2-repeater; reset pm8350c_gpio7",
+        "Evidence status": "Configured / selected",
+        "NUC relevance": "USB 2.0 electrical path",
+        "Caveat / action": "Do not treat generic NXP compatible as an exact chip SKU.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L121-L140"
+      },
+      {
+        "Priority": "P2",
+        "Subsystem": "USB",
+        "Component / IC": "Diodes eUSB2 repeater alternative",
+        "Version / address / ID": "I2C 0x6c; exact SKU unknown",
+        "Evidence tier": "Moto common overlay",
+        "DT identity / wiring": "diodes,eusb2-repeater",
+        "Evidence status": "DT explicitly disabled",
+        "NUC relevance": "Alternative hardware stuffing",
+        "Caveat / action": "NOT active in inspected DTS.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L141-L153"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "USB-C",
+        "Component / IC": "Qualcomm PMIC GLINK / UCSI Type-C",
+        "Version / address / ID": "UCSI connector graph",
+        "Evidence tier": "Inherited Moto common overlay",
+        "DT identity / wiring": "&ucsi connector <-> &usb0 port",
+        "Evidence status": "DT-confirmed topology",
+        "NUC relevance": "Role switch, dock, PD negotiation",
+        "Caveat / action": "Firmware protocol may differ from upstream.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L161-L183"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Video",
+        "Component / IC": "Qualcomm DisplayPort transmitter",
+        "Version / address / ID": "sde_dp, clocks, AUX GPIO2 / GPIO71",
+        "Evidence tier": "Razr display DT",
+        "DT identity / wiring": "mmi,aux-switch-enable-gpio; ...flip-gpio",
+        "Evidence status": "Razr-specific DT confirmed",
+        "NUC relevance": "External monitor",
+        "Caveat / action": "DP source exists; Linux monitor output untested.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L782-L804"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Video",
+        "Component / IC": "Qualcomm display controller / DPU",
+        "Version / address / ID": "MSM SDE / DP nodes",
+        "Evidence tier": "Inherited SoC / Moto display",
+        "DT identity / wiring": "sde display connectors include sde_dp",
+        "Evidence status": "DT-confirmed display graph",
+        "NUC relevance": "DRM/KMS desktop",
+        "Caveat / action": "Vendor SDE bindings are not directly upstream-compatible.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L280-L299"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Graphics",
+        "Component / IC": "Adreno 730 GPU",
+        "Version / address / ID": "Adreno 730 [INFERRED from SM8475]",
+        "Evidence tier": "Chipset specification",
+        "DT identity / wiring": "Exact GPU compatible not extracted in oneli DT",
+        "Evidence status": "SoC family only",
+        "NUC relevance": "3D acceleration",
+        "Caveat / action": "Firmware details and DRM support must be mapped.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Networking",
+        "Component / IC": "Qualcomm QCA6490 Wi-Fi",
+        "Version / address / ID": "QCA6490; silicon revision unknown",
+        "Evidence tier": "Inherited Cape DT",
+        "DT identity / wiring": "qcom,cnss-qca6490 at 0xb0000000",
+        "Evidence status": "DT-confirmed config, actual PCI ID unknown",
+        "NUC relevance": "Built-in Wi-Fi",
+        "Caveat / action": "ath11k WCN6855 path plausible but requires actual PCI + firmware check.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L3032-L3069"
+      },
+      {
+        "Priority": "P2",
+        "Subsystem": "Networking",
+        "Component / IC": "Bluetooth enable/control",
+        "Version / address / ID": "GPIO81; controller exact ID unknown",
+        "Evidence tier": "Inherited Cape DT",
+        "DT identity / wiring": "qcom,bt-en-gpio = tlmm 81",
+        "Evidence status": "Control line only",
+        "NUC relevance": "Not required for NUC",
+        "Caveat / action": "Do not claim specific Bluetooth IC.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L3032-L3040"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Networking",
+        "Component / IC": "Qualcomm PCIe 0 root complex",
+        "Version / address / ID": "SoC host @ 0x01c00000",
+        "Evidence tier": "SoC DT, not proven active",
+        "DT identity / wiring": "qcom,pci-msm; Wi-Fi references PCIe0 interconnect",
+        "Evidence status": "Controller exists / default disabled",
+        "NUC relevance": "Wi-Fi transport",
+        "Caveat / action": "Board enablement and actual PCI enumeration need checking.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-pcie.dtsi#L4-L49"
+      },
+      {
+        "Priority": "P2",
+        "Subsystem": "Expansion",
+        "Component / IC": "Qualcomm PCIe 1 root complex",
+        "Version / address / ID": "SoC host @ 0x01c08000",
+        "Evidence tier": "SoC DT, not proven routed",
+        "DT identity / wiring": "qcom,pci-msm; generic status=disabled",
+        "Evidence status": "Controller exists / default disabled",
+        "NUC relevance": "Potential expansion only",
+        "Caveat / action": "Physical accessibility not established.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-pcie.dtsi#L257-L303"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Qualcomm PM8350C PMIC",
+        "Version / address / ID": "Chip family PM8350C",
+        "Evidence tier": "Inherited Moto DT",
+        "DT identity / wiring": "pm8350c GPIO / regulator references",
+        "Evidence status": "DT-confirmed PMIC family",
+        "NUC relevance": "USB power, charging and power rails",
+        "Caveat / action": "Exact PMIC revision not present.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L82-L95"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Qualcomm PM8350B PMIC",
+        "Version / address / ID": "Chip family PM8350B",
+        "Evidence tier": "Inherited Moto DT",
+        "DT identity / wiring": "pm8350b GPIO controls in flip charger",
+        "Evidence status": "DT-confirmed PMIC family",
+        "NUC relevance": "Charge mode control",
+        "Caveat / action": "Paired low/high load controls.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L97-L121"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Qualcomm PMK8350 ADC / thermal",
+        "Version / address / ID": "PMK8350",
+        "Evidence tier": "Razr thermal DT",
+        "DT identity / wiring": "pmk8350_adc_tm sensor references",
+        "Evidence status": "DT-confirmed family",
+        "NUC relevance": "Thermal monitoring",
+        "Caveat / action": "Need correct TSENS/ADC mapping under Linux.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-thermal-overlay.dtsi#L7-L36"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Qualcomm RPMh regulator subsystem",
+        "Version / address / ID": "regulator-type pmic5-ldo",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "pm8350c_l11 = 3.0V; supplies for panels",
+        "Evidence status": "DT-confirmed supply",
+        "NUC relevance": "System rail sequencing",
+        "Caveat / action": "Do not assume regulators can be left disabled.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L124-L146"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Motorola main battery charge manager",
+        "Version / address / ID": "Qualcomm PMIC GLINK / Motorola logic",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "mmi,qti-glink-charger; main battery enabled",
+        "Evidence status": "DT-confirmed software interface",
+        "NUC relevance": "Sustained charging and PD",
+        "Caveat / action": "Main battery chemistry/capacity not yet established.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/waipio-moto-common-charger.dtsi#L1-L30"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "SG Micro SGM41516D flip charger",
+        "Version / address / ID": "SGM41516D; I2C 0x6b",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "compatible sgm,sgm41516D; charge IRQ GPIO51",
+        "Evidence status": "DT-confirmed component",
+        "NUC relevance": "Secondary battery charging",
+        "Caveat / action": "Probe and control require exact mainline driver or adaptation.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L225-L257"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Texas Instruments BQ27426 flip gauge",
+        "Version / address / ID": "BQ27426; I2C 0x55",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "compatible ti,bq27426; design-capacity 712",
+        "Evidence status": "DT-confirmed component",
+        "NUC relevance": "Secondary battery state",
+        "Caveat / action": "Enabled in overlay; 712 is mAh profile value, not measured capacity.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L194-L210"
+      },
+      {
+        "Priority": "P2",
+        "Subsystem": "Power",
+        "Component / IC": "Cellwise CW2217 flip gauge alternative",
+        "Version / address / ID": "CW2217; I2C 0x64",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "compatible cellwise,cw2217; status disabled",
+        "Evidence status": "DT explicitly disabled",
+        "NUC relevance": "Alternate flip battery gauge",
+        "Caveat / action": "Do not claim both gauges are populated/active.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L212-L223"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Flip battery",
+        "Version / address / ID": "Design capacity 712 mAh (DTS)",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "NM40_ATL_712MAH; charging profile",
+        "Evidence status": "Profile specified",
+        "NUC relevance": "Dual-battery management",
+        "Caveat / action": "Battery hardware aging and live configuration unverified.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L197-L209"
+      },
+      {
+        "Priority": "P1",
+        "Subsystem": "Power",
+        "Component / IC": "Motorola capacity charge limit policy",
+        "Version / address / ID": "Lower 65%, upper 80% after override",
+        "Evidence tier": "Motorola DT override",
+        "DT identity / wiring": "waipio common 65-75%; oneli overrides upper to 80%",
+        "Evidence status": "DT-confirmed settings",
+        "NUC relevance": "Long-term plugged operation",
+        "Caveat / action": "May not exist automatically in mainline without vendor logic.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L277-L279"
+      },
+      {
+        "Priority": "P0",
+        "Subsystem": "Thermal",
+        "Component / IC": "Thermal sensors / trip tables",
+        "Version / address / ID": "PMIC ADC thermal channels",
+        "Evidence tier": "Razr-specific overlay",
+        "DT identity / wiring": "wifi-therm, msm-therm, chg-therm etc",
+        "Evidence status": "DT-confirmed configurations",
+        "NUC relevance": "Protect from heat under sustained load",
+        "Caveat / action": "Some zones disabled; values need normalisation to mainline.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-thermal-overlay.dtsi#L1-L110"
+      },
+      {
+        "Priority": "P2",
+        "Subsystem": "Display internal",
+        "Component / IC": "Primary OLED panel candidates",
+        "Version / address / ID": "NT37701 / ILI7838A, vendor variants",
+        "Evidence tier": "Razr display overlay",
+        "DT identity / wiring": "Multiple vendor panel .dtsi includes, exact unit unknown",
+        "Evidence status": "Variant definitions only",
+        "NUC relevance": "Not needed for headless NUC",
+        "Caveat / action": "Do not assume all listed displays are fitted.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L1-L17"
+      },
+      {
+        "Priority": "P2",
+        "Subsystem": "Display internal",
+        "Component / IC": "Secondary 800x600 panel",
+        "Version / address / ID": "BOE panel DT candidate",
+        "Evidence tier": "Razr display overlay",
+        "DT identity / wiring": "mot_boe_269_800x600_cmd",
+        "Evidence status": "DT-described panel",
+        "NUC relevance": "Not needed for NUC",
+        "Caveat / action": "Actual display SKU not uniquely proven.",
+        "Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L173-L190"
+      }
+    ],
+    "Linux Drivers": [
+      {
+        "Subsystem": "CPU / scheduling",
+        "Kernel driver / stack": "ARM64 / PSCI",
+        "Support state (as of snapshot)": "Upstream infrastructure",
+        "Scope": "ARM64/Qualcomm",
+        "Exact ID / match": "Generic, CPU topology still needs final DT",
+        "Status / limitations": "No Razr-specific kernel boot verified.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/arch/arm64/kernel/smp.c",
+        "Development / documentation URL": "https://wiki.postmarketos.org/wiki/Qualcomm_Snapdragon_8_Gen_1/8%2B_Gen_1/7%2B_Gen_2_%28SM8450/SM8475/SM7475%29",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "SoC clocks",
+        "Kernel driver / stack": "gcc-sm8450.c",
+        "Support state (as of snapshot)": "Upstream exact SM8475 match",
+        "Scope": "SM8475",
+        "Exact ID / match": "qcom,sm8475-gcc match; SM8475 frequency tables",
+        "Status / limitations": "Verified on pinned upstream snapshot; other clocks need integration.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/clk/qcom/gcc-sm8450.c#L3405-L3455",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "Regulators",
+        "Kernel driver / stack": "qcom-rpmh-regulator",
+        "Support state (as of snapshot)": "Upstream generic",
+        "Scope": "Qualcomm RPMh PMIC",
+        "Exact ID / match": "Compatible families; actual supply constraints from Motorola DT",
+        "Status / limitations": "Board PMIC mapping not validated.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/regulator/qcom-rpmh-regulator.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "UFS host",
+        "Kernel driver / stack": "ufs-qcom",
+        "Support state (as of snapshot)": "Upstream driver exists",
+        "Scope": "Qualcomm UFS",
+        "Exact ID / match": "Motorola qcom,ufshc at 0x1d84000",
+        "Status / limitations": "Board and mainline DT conversion required.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/ufs/host/ufs-qcom.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "UFS PHY",
+        "Kernel driver / stack": "phy-qcom-qmp-ufs",
+        "Support state (as of snapshot)": "Upstream exact SM8475 match",
+        "Scope": "SM8475",
+        "Exact ID / match": "qcom,sm8475-qmp-ufs-phy; SM8475 tables",
+        "Status / limitations": "Verified SM8475 tables and match in pinned upstream.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/phy/qualcomm/phy-qcom-qmp-ufs.c#L1719-L1753",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "USB controller",
+        "Kernel driver / stack": "dwc3 + dwc3-qcom",
+        "Support state (as of snapshot)": "Upstream driver exists",
+        "Scope": "Qualcomm USB3 DWC3",
+        "Exact ID / match": "Motorola snps,dwc3 at 0xa600000",
+        "Status / limitations": "Requires USB role switch, PHY, regulator and connector graph.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/usb/dwc3/dwc3-qcom.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "USB / DisplayPort PHY",
+        "Kernel driver / stack": "phy-qcom-qmp-combo",
+        "Support state (as of snapshot)": "Upstream exact SM8475 match",
+        "Scope": "SM8475",
+        "Exact ID / match": "qcom,sm8475-qmp-usb3-dp-phy",
+        "Status / limitations": "Merged 6 Aug 2026, tested 10 Gbit/s USB and HBR2 DP on another SM8475 platform, NOT Razr.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/phy/qualcomm/phy-qcom-qmp-combo.c#L5403-L5409",
+        "Development / documentation URL": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git/+/9583243a524c0ea4dd08541900ab2c7da95ce13f",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "USB-C Type-C / PD",
+        "Kernel driver / stack": "ucsi_glink",
+        "Support state (as of snapshot)": "Upstream implementation",
+        "Scope": "Qualcomm PMIC GLINK",
+        "Exact ID / match": "Motorola UCSI connector endpoint to USB role switch",
+        "Status / limitations": "PD docking and charging not confirmed on Razr.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/usb/typec/ucsi/ucsi_glink.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "USB-C redriver",
+        "Kernel driver / stack": "Parade PS5169",
+        "Support state (as of snapshot)": "Patch submitted; absent from pinned mainline",
+        "Scope": "Parade PS5169",
+        "Exact ID / match": "Motorola parade,ps5169-redriver at I2C 0x30",
+        "Status / limitations": "August 2026 v3 patch; tested on ThinkPhone. Vendor driver exists. Port to new upstream binding likely needed.",
+        "Driver / Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/drivers/usb/misc/ssusb-redriver-ps5169.c",
+        "Development / documentation URL": "https://lists.openwall.net/linux-kernel/2026/08/11/241",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "USB eUSB2 PHY",
+        "Kernel driver / stack": "Qualcomm eUSB2 PHY",
+        "Support state (as of snapshot)": "Upstream SoC PHY support partial/unverified exact",
+        "Scope": "Cape eUSB2",
+        "Exact ID / match": "Motorola qcom,usb-snps-eusb2-phy; external repeater",
+        "Status / limitations": "Do not confuse Qualcomm PMIC repeater upstream driver with Razr external NXP repeater.",
+        "Driver / Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L80-L102",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "USB eUSB2 repeater",
+        "Kernel driver / stack": "NXP eUSB2 repeater",
+        "Support state (as of snapshot)": "No exact upstream match established",
+        "Scope": "NXP I2C repeater",
+        "Exact ID / match": "Motorola nxp,eusb2-repeater at 0x4f",
+        "Status / limitations": "Mainline phy-qcom-eusb2-repeater has qcom PMIC compatibles, not this NXP binding.",
+        "Driver / Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L120-L159",
+        "Development / documentation URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/phy/qualcomm/phy-qcom-eusb2-repeater.c#L300-L323",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "Display controller",
+        "Kernel driver / stack": "msm DRM/KMS / DPU",
+        "Support state (as of snapshot)": "Upstream driver exists",
+        "Scope": "Qualcomm DPU",
+        "Exact ID / match": "Oneli sde_dp clock and AUX routes given",
+        "Status / limitations": "Qualcomm Android SDE DT format differs from upstream DRM bindings.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/gpu/drm/msm/msm_drv.c",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "DisplayPort output",
+        "Kernel driver / stack": "msm DP controller",
+        "Support state (as of snapshot)": "Upstream subsystem driver exists",
+        "Scope": "SM8475 DP + board DP AUX GPIO",
+        "Exact ID / match": "Oneli DP AUX switch GPIO2 and flip GPIO71",
+        "Status / limitations": "Desktop external display mode set and hotplug unverified.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/gpu/drm/msm/dp/dp_display.c",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Adreno GPU",
+        "Kernel driver / stack": "MSM DRM + Mesa Freedreno/Turnip",
+        "Support state (as of snapshot)": "Upstream stack exists; Razr unverified",
+        "Scope": "Adreno 730 [INFERRED from SoC]",
+        "Exact ID / match": "GPU family expected from Snapdragon 8+ Gen1",
+        "Status / limitations": "Specific firmware requirements, acceleration and display integration unverified.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/gpu/drm/msm/msm_drv.c",
+        "Development / documentation URL": "https://docs.mesa3d.org/drivers/freedreno.html",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Wi-Fi",
+        "Kernel driver / stack": "ath11k PCI",
+        "Support state (as of snapshot)": "Upstream WCN6855 family; QCA6490 mapping unverified",
+        "Scope": "QCA6490 per Motorola cape.dtsi",
+        "Exact ID / match": "qcom,cnss-qca6490; wlan-rc-num=0",
+        "Status / limitations": "Do NOT mark Razr Wi-Fi working: determine actual PCI ID, HW revision, board-2.bin and WLAN calibration.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/net/wireless/ath/ath11k/pci.c",
+        "Development / documentation URL": "https://wireless.docs.kernel.org/en/latest/en/users/drivers/ath11k.html",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "PCIe host",
+        "Kernel driver / stack": "Qualcomm PCIe / DesignWare",
+        "Support state (as of snapshot)": "Upstream host driver exists",
+        "Scope": "SM8475 board DT unknown",
+        "Exact ID / match": "cape-pcie.dtsi exposes pcie0 and pcie1",
+        "Status / limitations": "Both generic cape nodes disabled in inspected file, later overlays may enable; runtime unknown.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/pci/controller/dwc/pcie-qcom.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "Battery fuel gauge",
+        "Kernel driver / stack": "bq27xxx_battery_i2c",
+        "Support state (as of snapshot)": "Upstream exact chip match",
+        "Scope": "TI BQ27426",
+        "Exact ID / match": "ti,bq27426 at I2C 0x55, flip battery",
+        "Status / limitations": "Match verified in mainline I2C id and OF tables. Initialization/profiles still to validate.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/power/supply/bq27xxx_battery_i2c.c#L250-L290",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Alternative fuel gauge",
+        "Kernel driver / stack": "Cellwise CW2217",
+        "Support state (as of snapshot)": "No exact upstream driver established",
+        "Scope": "Cellwise CW2217(B)",
+        "Exact ID / match": "cellwise,cw2217 at I2C 0x64",
+        "Status / limitations": "Explicitly DISABLED in Motorola overlay; do not treat as installed working chip.",
+        "Driver / Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L212-L223",
+        "Development / documentation URL": "",
+        "Priority": "P2"
+      },
+      {
+        "Subsystem": "Secondary charger",
+        "Kernel driver / stack": "SGM41516D",
+        "Support state (as of snapshot)": "No exact upstream driver established",
+        "Scope": "SG Micro SGM41516D",
+        "Exact ID / match": "sgm,sgm41516D at I2C 0x6b",
+        "Status / limitations": "Flip battery charger, downstream initialization documented; no exact upstream path verified.",
+        "Driver / Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L225-L274",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Primary battery PMIC",
+        "Kernel driver / stack": "qcom_battmgr + PMIC GLINK",
+        "Support state (as of snapshot)": "Upstream driver exists; Motorola protocol integration unknown",
+        "Scope": "Qualcomm PMIC GLINK",
+        "Exact ID / match": "qcom,battery-charger / mmi,qti-glink-charger",
+        "Status / limitations": "Motorola dual-battery charge policy and vendor extensions need study.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/power/supply/qcom_battmgr.c",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Thermal sensors",
+        "Kernel driver / stack": "qcom-tsens and PMIC ADC TM",
+        "Support state (as of snapshot)": "Upstream driver infrastructure exists",
+        "Scope": "Cape + PM8350 ADC",
+        "Exact ID / match": "Oneli thermal zones, Wi-Fi thermal input",
+        "Status / limitations": "Trip values and regulators from vendor DT require translation; some zones disabled.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/thermal/qcom/tsens.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "CPU scaling",
+        "Kernel driver / stack": "qcom-cpufreq-hw",
+        "Support state (as of snapshot)": "Upstream driver exists",
+        "Scope": "Qualcomm hardware cpufreq",
+        "Exact ID / match": "Platform-specific frequency/OPP/thermal interactions",
+        "Status / limitations": "Actual Snapdragon 8+ Gen1 operating points need validation.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/cpufreq/qcom-cpufreq-hw.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "Remote subsystem firmware",
+        "Kernel driver / stack": "qcom_q6v5_pas",
+        "Support state (as of snapshot)": "Upstream driver exists",
+        "Scope": "Qualcomm ADSP/CDSP and peers",
+        "Exact ID / match": "SoC DT reserved-memory and remoteproc blocks",
+        "Status / limitations": "Depends on proprietary signed firmware; may be needed indirectly for Wi-Fi/charging.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/remoteproc/qcom_q6v5_pas.c",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Power-off / restart",
+        "Kernel driver / stack": "Qualcomm PMIC PON + PSCI",
+        "Support state (as of snapshot)": "Upstream framework exists",
+        "Scope": "Board PMIC",
+        "Exact ID / match": "Power key / PON specific DT",
+        "Status / limitations": "Must validate correct shutdown / automatic reboot headless.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/power/reset/qcom-pon.c",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      },
+      {
+        "Subsystem": "Generic USB peripherals",
+        "Kernel driver / stack": "HID / USB mass storage / USB ethernet",
+        "Support state (as of snapshot)": "Upstream standard drivers",
+        "Scope": "USB host",
+        "Exact ID / match": "No special Moto hardware",
+        "Status / limitations": "Works once host mode and dock power are working; not tested on Razr.",
+        "Driver / Motorola source URL": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/drivers/hid/usbhid/usbmouse.c",
+        "Development / documentation URL": "",
+        "Priority": "P0"
+      },
+      {
+        "Subsystem": "Systemd / cgroups",
+        "Kernel driver / stack": "Kernel config features",
+        "Support state (as of snapshot)": "Upstream Linux supported",
+        "Scope": "Running kernel config unknown",
+        "Exact ID / match": "Motorola GKI config sample has CONFIG_CGROUPS=y",
+        "Status / limitations": "Booting Debian means verifying actual chosen kernel build, not merely GKI defconfig.",
+        "Driver / Motorola source URL": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/arch/arm64/configs/gki_defconfig",
+        "Development / documentation URL": "",
+        "Priority": "P1"
+      }
+    ],
+    "DT Nodes": [
+      {
+        "Layer": "Root",
+        "Source file": "cape-moto-oneli-base.dts",
+        "Node / include": "/ includes cape-moto-common-base.dtsi",
+        "Relevant property": "ADSP memory 0x85700000 size 0x2800000; video 0x9fd00000 size 0x700000",
+        "NUC function": "Base DT reserved memory",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-oneli-base.dts#L15-L32"
+      },
+      {
+        "Layer": "Root",
+        "Source file": "cape-v2-moto-oneli-base.dts",
+        "Node / include": "/ includes cape-v2-moto-common-base.dtsi",
+        "Relevant property": "Alternative Cape SoC revision base",
+        "NUC function": "Select proper SoC stepping",
+        "Evidence state": "Variant",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-v2-moto-oneli-base.dts#L15-L32"
+      },
+      {
+        "Layer": "Includes",
+        "Source file": "cape-moto-common-base.dtsi",
+        "Node / include": "include cape.dtsi",
+        "Relevant property": "Common CPU/SoC nodes",
+        "NUC function": "SoC inheritance",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-base.dtsi#L13-L29"
+      },
+      {
+        "Layer": "Includes",
+        "Source file": "cape-moto-common-overlay-base.dtsi",
+        "Node / include": "includes cape-pmic-overlay.dtsi and waipio-thermal-overlay.dtsi",
+        "Relevant property": "Also enables UFS, eUSB2, USB connector graph",
+        "NUC function": "Board shared hardware",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L17-L20"
+      },
+      {
+        "Layer": "Includes",
+        "Source file": "cape-oneli-common-overlay.dtsi",
+        "Node / include": "include cape-moto-common-overlay-base, cape-moto-common-overlay",
+        "Relevant property": "Also charger / sensors / flip peripherals",
+        "NUC function": "Main oneli variant config",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L16-L24"
+      },
+      {
+        "Layer": "Overlays",
+        "Source file": "cape-oneli-evt1-overlay.dts",
+        "Node / include": "moto,oneli; board-id 0x45 0xA100",
+        "Relevant property": "Early EVT1 board",
+        "NUC function": "Revision select",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-evt1-overlay.dts#L16-L24"
+      },
+      {
+        "Layer": "Overlays",
+        "Source file": "cape-oneli-dvt1b-overlay.dts",
+        "Node / include": "moto,oneli; board-id 0x45 0xB1B0",
+        "Relevant property": "DVT1B board",
+        "NUC function": "Revision select",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-dvt1b-overlay.dts#L16-L23"
+      },
+      {
+        "Layer": "Overlays",
+        "Source file": "cape-oneli-dvt2a-overlay.dts",
+        "Node / include": "moto,oneli; board-id 0x45 0xB2A0",
+        "Relevant property": "DVT2A board",
+        "NUC function": "Revision select",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-dvt2a-overlay.dts#L16-L24"
+      },
+      {
+        "Layer": "Overlays",
+        "Source file": "cape-oneli-pvt-overlay.dts",
+        "Node / include": "moto,oneli; board-id 0x45 0xC000",
+        "Relevant property": "PVT board",
+        "NUC function": "Revision select",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-pvt-overlay.dts#L16-L24"
+      },
+      {
+        "Layer": "USB",
+        "Source file": "cape-usb.dtsi",
+        "Node / include": "&soc/usb0/dwc3@a600000",
+        "Relevant property": "qcom,dwc-usb3-msm; snps,dwc3; 0x0a600000",
+        "NUC function": "USB host/device",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L4-L72"
+      },
+      {
+        "Layer": "USB PHY",
+        "Source file": "cape-usb.dtsi",
+        "Node / include": "eusb2_phy0: hsphy@88e3000",
+        "Relevant property": "qcom,usb-snps-eusb2-phy",
+        "NUC function": "USB 2.0 physical",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L80-L102"
+      },
+      {
+        "Layer": "USB PHY",
+        "Source file": "cape-usb.dtsi",
+        "Node / include": "usb_qmp_dp_phy: ssphy@88e8000",
+        "Relevant property": "qcom,usb-ssphy-qmp-dp-combo",
+        "NUC function": "USB 3 / DisplayPort physical",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi#L103-L140"
+      },
+      {
+        "Layer": "USB2 Repeater",
+        "Source file": "cape-moto-common-overlay-base.dtsi",
+        "Node / include": "qupv3_se5_i2c/eusb2_repeater@4f",
+        "Relevant property": "nxp,eusb2-repeater; reset pm8350c gpio7",
+        "NUC function": "USB2 link",
+        "Evidence state": "Direct selected",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L121-L140"
+      },
+      {
+        "Layer": "USB2 Repeater",
+        "Source file": "cape-moto-common-overlay-base.dtsi",
+        "Node / include": "qupv3_se5_i2c/eusb2_repeater@6c",
+        "Relevant property": "diodes,eusb2-repeater; status disabled",
+        "NUC function": "Alternative, not enabled",
+        "Evidence state": "Disabled",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L141-L153"
+      },
+      {
+        "Layer": "USB role",
+        "Source file": "cape-moto-common-overlay-base.dtsi",
+        "Node / include": "&usb0 <-> &ucsi graph",
+        "Relevant property": "usb-role-switch; remote-endpoint reciprocal links",
+        "NUC function": "Host/device role and connector",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L161-L183"
+      },
+      {
+        "Layer": "USB Redriver",
+        "Source file": "cape-oneli-common-overlay.dtsi",
+        "Node / include": "&qupv3_se18_i2c -> redriver@30",
+        "Relevant property": "ps5169 via included cape-moto-common-redriver",
+        "NUC function": "DP / superspeed signal conditioning",
+        "Evidence state": "Enabled oneli",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L148-L160"
+      },
+      {
+        "Layer": "USB Redriver",
+        "Source file": "cape-moto-common-redriver.dtsi",
+        "Node / include": "redriver@30",
+        "Relevant property": "orientation-gpio TLMM91; compatible parade,ps5169-redriver",
+        "NUC function": "USB C orientation",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-redriver.dtsi#L1-L10"
+      },
+      {
+        "Layer": "DisplayPort",
+        "Source file": "cape-sde-display-oneli-common-base.dtsi",
+        "Node / include": "&sde_dp",
+        "Relevant property": "AUX switch enable TLMM2, flip TLMM71; DP clock array",
+        "NUC function": "External monitor",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L782-L804"
+      },
+      {
+        "Layer": "DisplayPort",
+        "Source file": "cape-sde-oneli.dts",
+        "Node / include": "&sde_dp",
+        "Relevant property": "delete qcom,mst-enable",
+        "NUC function": "DP MST disabled by vendor DT",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-oneli.dts#L10-L14"
+      },
+      {
+        "Layer": "Display",
+        "Source file": "cape-sde-display-oneli-common-base.dtsi",
+        "Node / include": "&sde / display connectors",
+        "Relevant property": "sde_dsi, sde_dsi1, sde_dp, writeback etc",
+        "NUC function": "Display outputs",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L280-L299"
+      },
+      {
+        "Layer": "UFS",
+        "Source file": "cape.dtsi",
+        "Node / include": "ufshc_mem: ufshc@1d84000",
+        "Relevant property": "lanes 2, 0x1d84000, ICE registers and PHY linkage",
+        "NUC function": "Embedded UFS",
+        "Evidence state": "SoC default disabled",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L1905-L1936"
+      },
+      {
+        "Layer": "UFS",
+        "Source file": "cape-moto-common-overlay-base.dtsi",
+        "Node / include": "&ufsphy_mem and &ufshc_mem",
+        "Relevant property": "status ok; L5B/L10C/L7B/L9B supply",
+        "NUC function": "Enables internal storage",
+        "Evidence state": "Moto enabled",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L71-L95"
+      },
+      {
+        "Layer": "Wi-Fi",
+        "Source file": "cape.dtsi",
+        "Node / include": "wlan: qcom,cnss-qca6490@b0000000",
+        "Relevant property": "TLMM80 WLAN enable; TLMM81 BT enable; TLMM82 switch",
+        "NUC function": "Wireless chipset config",
+        "Evidence state": "Inherited generic cape",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L3032-L3069"
+      },
+      {
+        "Layer": "PCIe",
+        "Source file": "cape-pcie.dtsi",
+        "Node / include": "pcie0 / pcie1",
+        "Relevant property": "pcie0=0x1c00000, pcie1=0x1c08000; default disabled",
+        "NUC function": "Wi-Fi host / future expansion",
+        "Evidence state": "Generic SoC disabled",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-pcie.dtsi#L4-L49"
+      },
+      {
+        "Layer": "Charging",
+        "Source file": "cape.dtsi",
+        "Node / include": "qcom,pmic_glink / battery_charger",
+        "Relevant property": "PMIC_RTR_ADSP_APPS; Qualcomm battery protocol",
+        "NUC function": "Primary charging transport",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L1331-L1352"
+      },
+      {
+        "Layer": "Charging",
+        "Source file": "waipio-moto-common-charger.dtsi",
+        "Node / include": "mmi_charger / qti_glink_charger",
+        "Relevant property": "lower limit 65%, upper common limit 75%; overridden to 80%",
+        "NUC function": "Motorola charge policy",
+        "Evidence state": "Motorola vendor-only",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/waipio-moto-common-charger.dtsi#L1-L26"
+      },
+      {
+        "Layer": "Charging",
+        "Source file": "cape-oneli-common-overlay.dtsi",        "Node / include": "sgm4154x@6B",
+        "Relevant property": "sgm,sgm41516D; TLMM51 IRQ; PMIC GPIO2 EN",
+        "NUC function": "Secondary flip battery charger",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L225-L274"
+      },
+      {
+        "Layer": "Fuel gauge",
+        "Source file": "cape-oneli-common-overlay.dtsi",
+        "Node / include": "bq27426-battery-flip@55",
+        "Relevant property": "ti,bq27426; design-capacity 712 mAh",
+        "NUC function": "Flip fuel gauge",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L195-L210"
+      },
+      {
+        "Layer": "Fuel gauge",
+        "Source file": "cape-oneli-common-overlay.dtsi",
+        "Node / include": "cw2217b-battery-flip@64",
+        "Relevant property": "cellwise,cw2217; status disabled",
+        "NUC function": "Alternate flip gauge",
+        "Evidence state": "Explicitly disabled",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L212-L223"
+      },
+      {
+        "Layer": "Power",
+        "Source file": "cape-oneli-common-overlay.dtsi",
+        "Node / include": "&pm8350c_gpios / &pm8350b_gpios / &L8C",
+        "Relevant property": "charge, regulator, redriver control",
+        "NUC function": "Board power",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L82-L159"
+      },
+      {
+        "Layer": "Thermal",
+        "Source file": "cape-oneli-thermal-overlay.dtsi",
+        "Node / include": "&thermal_zones",
+        "Relevant property": "msm-therm, chg-therm, wifi-therm, etc",
+        "NUC function": "SoC and board temperature",
+        "Evidence state": "Direct, mixed disabled",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-thermal-overlay.dtsi#L1-L109"
+      },
+      {
+        "Layer": "Panel",
+        "Source file": "cape-sde-display-oneli-common-base.dtsi",
+        "Node / include": "primary / secondary DSI",
+        "Relevant property": "Multiple vendor primary panels and BOE 800x600 secondary",
+        "NUC function": "Internal screens",
+        "Evidence state": "Variant options",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L1-L17"
+      },
+      {
+        "Layer": "Security / boot",
+        "Source file": "cape-moto-oneli-base.dts",
+        "Node / include": "Reserved memory",
+        "Relevant property": "ADSP/video reserved regions",
+        "NUC function": "Boot stability / remote processors",
+        "Evidence state": "Direct",
+        "Pinned Motorola URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-oneli-base.dts#L15-L32"
+      }
+    ],
+    "Source Index": [
+      {
+        "Ref": "M01",
+        "Layer": "Base DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-moto-oneli-base.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Original oneli base and reserved-memory override",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-oneli-base.dts"
+      },
+      {
+        "Ref": "M02",
+        "Layer": "Base DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-v2-moto-oneli-base.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Cape v2 base and reserved-memory override",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-v2-moto-oneli-base.dts"
+      },
+      {
+        "Ref": "M03",
+        "Layer": "SoC DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-moto-common-base.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Includes cape.dtsi, base model",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-base.dtsi"
+      },
+      {
+        "Ref": "M04",
+        "Layer": "SoC DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-v2-moto-common-base.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Includes cape-v2.dtsi",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-v2-moto-common-base.dtsi"
+      },
+      {
+        "Ref": "M05",
+        "Layer": "SoC DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "SoC nodes, UFS, Wi-Fi, PMIC GLINK and clocks",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi"
+      },
+      {
+        "Ref": "M06",
+        "Layer": "SoC DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-v2.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Alternative SoC revision base",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-v2.dtsi"
+      },
+      {
+        "Ref": "M07",
+        "Layer": "SoC DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-usb.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Qualcomm DWC3 + eUSB2 + USB/DP PHY",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-usb.dtsi"
+      },
+      {
+        "Ref": "M08",
+        "Layer": "SoC DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-pcie.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "PCIe controllers; base status disabled",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-pcie.dtsi"
+      },
+      {
+        "Ref": "M09",
+        "Layer": "Board overlay",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-common-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Oneli peripherals, PS5169, flip charger and gauge",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi"
+      },
+      {
+        "Ref": "M10",
+        "Layer": "Board overlay",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-moto-common-overlay-base.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "UFS enablement, eUSB2 repeater and USB role graph",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi"
+      },
+      {
+        "Ref": "M11",
+        "Layer": "Board overlay",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-moto-common-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Motorola common overlay",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay.dtsi"
+      },
+      {
+        "Ref": "M12",
+        "Layer": "USB",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-moto-common-redriver.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "PS5169 compatible I2C node and orientation GPIO",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-redriver.dtsi"
+      },
+      {
+        "Ref": "M13",
+        "Layer": "Power",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/waipio-moto-common-charger.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Motorola charging and PMIC GLINK properties",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/waipio-moto-common-charger.dtsi"
+      },
+      {
+        "Ref": "M14",
+        "Layer": "Power",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/waipio-li-charger-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Additional Qualcomm/Motorola charger configuration",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/waipio-li-charger-overlay.dtsi"
+      },
+      {
+        "Ref": "M15",
+        "Layer": "Power",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-pmic-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Cape PMIC overlays",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-pmic-overlay.dtsi"
+      },
+      {
+        "Ref": "M16",
+        "Layer": "Thermal",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-thermal-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Razr thermal zone and sensing setup",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-thermal-overlay.dtsi"
+      },
+      {
+        "Ref": "M17",
+        "Layer": "Revision",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-evt1-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Early engineering EVT1 board",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-evt1-overlay.dts"
+      },
+      {
+        "Ref": "M18",
+        "Layer": "Revision",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-dvt1b-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "DVT1b board",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-dvt1b-overlay.dts"
+      },
+      {
+        "Ref": "M19",
+        "Layer": "Revision",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-dvt2a-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "DVT2a board",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-dvt2a-overlay.dts"
+      },
+      {
+        "Ref": "M20",
+        "Layer": "Revision",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-pvt-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Production-validation board",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-pvt-overlay.dts"
+      },
+      {
+        "Ref": "M21",
+        "Layer": "Other DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-evt1-sensor-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Phone sensors, not NUC-critical",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-evt1-sensor-overlay.dtsi"
+      },
+      {
+        "Ref": "M22",
+        "Layer": "Other DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-touchscreen-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Phone touchscreen config, not NUC-critical",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-touchscreen-overlay.dtsi"
+      },
+      {
+        "Ref": "M23",
+        "Layer": "Other DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-fingerprint.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Fingerprint config, not NUC-critical",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-fingerprint.dtsi"
+      },
+      {
+        "Ref": "M24",
+        "Layer": "Other DT",
+        "Repository": "kernel-devicetree",
+        "File path": "qcom/cape-oneli-haptics-overlay.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "90fa7be1db5bd47202673d4431408659149a7359",
+        "Content": "Haptics config, not NUC-critical",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-haptics-overlay.dtsi"
+      },
+      {
+        "Ref": "M25",
+        "Layer": "Display",
+        "Repository": "kernel-display-devicetree",
+        "File path": "display/cape-sde-oneli.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "80b207bf35be5da38375e755506f136558ad24b5",
+        "Content": "Oneli top-level display; removes DP MST property",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-oneli.dts"
+      },
+      {
+        "Ref": "M26",
+        "Layer": "Display",
+        "Repository": "kernel-display-devicetree",
+        "File path": "display/cape-sde-display-oneli-common-base.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "80b207bf35be5da38375e755506f136558ad24b5",
+        "Content": "DP AUX GPIOs, display clocks and panel candidates",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi"
+      },
+      {
+        "Ref": "M27",
+        "Layer": "Display",
+        "Repository": "kernel-display-devicetree",
+        "File path": "display/cape-sde-display-oneli-common.dtsi",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "80b207bf35be5da38375e755506f136558ad24b5",
+        "Content": "Include wrapper for oneli display",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common.dtsi"
+      },
+      {
+        "Ref": "M28",
+        "Layer": "Display",
+        "Repository": "kernel-display-devicetree",
+        "File path": "display/cape-sde-display-oneli-dvt2a-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "80b207bf35be5da38375e755506f136558ad24b5",
+        "Content": "Display overlay for DVT2A/PVT",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-dvt2a-overlay.dts"
+      },
+      {
+        "Ref": "M29",
+        "Layer": "Display",
+        "Repository": "kernel-display-devicetree",
+        "File path": "display/cape-sde-display-oneli-dvt1b-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "80b207bf35be5da38375e755506f136558ad24b5",
+        "Content": "Display overlay for DVT1b",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-dvt1b-overlay.dts"
+      },
+      {
+        "Ref": "M30",
+        "Layer": "Display",
+        "Repository": "kernel-display-devicetree",
+        "File path": "display/cape-sde-display-oneli-evt1-overlay.dts",
+        "Release branch": "android-12-release-ssl",
+        "Pinned commit": "80b207bf35be5da38375e755506f136558ad24b5",
+        "Content": "Display overlay for EVT1",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-evt1-overlay.dts"
+      },
+      {
+        "Ref": "M31",
+        "Layer": "Vendor kernel",
+        "Repository": "kernel-msm",
+        "File path": "Makefile",
+        "Release branch": "android-12-release-s3sl32.16-72-46",
+        "Pinned commit": "9511d6b2dc469e5bd836992e3bdd6d19ace112e0",
+        "Content": "Kernel version 5.10.101 in inspected Android 12 branch",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/Makefile"
+      },
+      {
+        "Ref": "M32",
+        "Layer": "Vendor kernel",
+        "Repository": "kernel-msm",
+        "File path": "arch/arm64/configs/gki_defconfig",
+        "Release branch": "android-12-release-s3sl32.16-72-46",
+        "Pinned commit": "9511d6b2dc469e5bd836992e3bdd6d19ace112e0",
+        "Content": "Generic kernel config, not proven running phone .config",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/arch/arm64/configs/gki_defconfig"
+      },
+      {
+        "Ref": "M33",
+        "Layer": "Vendor driver",
+        "Repository": "kernel-msm",
+        "File path": "drivers/usb/misc/ssusb-redriver-ps5169.c",
+        "Release branch": "android-12-release-s3sl32.16-72-46",
+        "Pinned commit": "9511d6b2dc469e5bd836992e3bdd6d19ace112e0",
+        "Content": "PS5169 redriver implementation",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/drivers/usb/misc/ssusb-redriver-ps5169.c"
+      },
+      {
+        "Ref": "M34",
+        "Layer": "Vendor driver",
+        "Repository": "kernel-msm",
+        "File path": "drivers/soc/qcom/pmic_glink.c",
+        "Release branch": "android-12-release-s3sl32.16-72-46",
+        "Pinned commit": "9511d6b2dc469e5bd836992e3bdd6d19ace112e0",
+        "Content": "Downstream PMIC GLINK implementation",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/drivers/soc/qcom/pmic_glink.c"
+      },
+      {
+        "Ref": "M35",
+        "Layer": "Vendor driver",
+        "Repository": "kernel-msm",
+        "File path": "drivers/power/supply/qcom/qpnp-smb5.c",
+        "Release branch": "android-12-release-s3sl32.16-72-46",
+        "Pinned commit": "9511d6b2dc469e5bd836992e3bdd6d19ace112e0",
+        "Content": "Qualcomm charger reference code",
+        "Check": "Directly inspected",
+        "Permalink": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/drivers/power/supply/qcom/qpnp-smb5.c"
+      }
+    ],
+    "Board Revisions": [
+      {
+        "Revision": "EVT1",
+        "Meaning": "Early engineering validation",
+        "Board ID (DTS)": "0x45 0xA100",
+        "Oneli overlay": "cape-oneli-evt1-overlay.dts",
+        "Qualification": "Confirmed source overlay only; not device HW revision.",
+        "Pinned file URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-evt1-overlay.dts#L16-L24"
+      },
+      {
+        "Revision": "DVT1b",
+        "Meaning": "Design validation 1b",
+        "Board ID (DTS)": "0x45 0xB1B0",
+        "Oneli overlay": "cape-oneli-dvt1b-overlay.dts",
+        "Qualification": "Confirmed source overlay only; not device HW revision.",
+        "Pinned file URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-dvt1b-overlay.dts#L16-L24"
+      },
+      {
+        "Revision": "DVT2a",
+        "Meaning": "Design validation 2a",
+        "Board ID (DTS)": "0x45 0xB2A0",
+        "Oneli overlay": "cape-oneli-dvt2a-overlay.dts",
+        "Qualification": "Confirmed source overlay only; not device HW revision.",
+        "Pinned file URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-dvt2a-overlay.dts#L16-L24"
+      },
+      {
+        "Revision": "PVT",
+        "Meaning": "Production validation",
+        "Board ID (DTS)": "0x45 0xC000",
+        "Oneli overlay": "cape-oneli-pvt-overlay.dts",
+        "Qualification": "Likely retail candidate [INFERRED], must read live selected DT.",
+        "Pinned file URL": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-pvt-overlay.dts#L16-L24"
+      }
+    ],
+    "Open Questions": [
+      {
+        "ID": "C01",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "Actual firmware and board revision",
+        "Current evidence": "Android 12 sources are old snapshot; device OS build unknown",
+        "Next verification": "Read Android build ID, kernel version, board-id, selected device tree and DTBO",
+        "Blocks": "Correct base for mainline DT",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-pvt-overlay.dts"
+      },
+      {
+        "ID": "C02",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "Safe, reversible boot test",
+        "Current evidence": "No exact boot.img or boot method checked on this phone",
+        "Next verification": "Confirm fastboot capabilities and backup partitions; test non-destructive boot route",
+        "Blocks": "First mainline boot",
+        "Source / pointer": "https://source.android.com/docs/core/architecture/bootloader/locking_unlocking"
+      },
+      {
+        "ID": "C03",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "SM8475 mainline device tree",
+        "Current evidence": "Generic SM8475 upstream SoC .dtsi absent as standalone in checked tree; driver support ahead of full board tree",
+        "Next verification": "Adapt existing SM8450 + SM8475 patches and oneli overlays to upstream binding conventions",
+        "Blocks": "All peripherals",
+        "Source / pointer": "https://github.com/torvalds/linux/blob/a5ebb76233b79db01e82e061173cb73c6d2b5c6b/arch/arm64/boot/dts/qcom/sm8450.dtsi"
+      },
+      {
+        "ID": "C04",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "Wireless identification and firmware",
+        "Current evidence": "QCA6490 DT name; exact HW revision, PCI ID, calibration unknown",
+        "Next verification": "Read running Android PCI enumeration, kernel log and firmware locations",
+        "Blocks": "Wi-Fi",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape.dtsi#L3032-L3069"
+      },
+      {
+        "ID": "C05",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "PS5169 upstream adaptation",
+        "Current evidence": "Motorola driver exists; v3 upstream proposed; not in Oct 10 Linux master snapshot",
+        "Next verification": "Integrate / update patch after verifying latest state and adapt DT binding",
+        "Blocks": "USB3 + DP switching",
+        "Source / pointer": "https://lists.openwall.net/linux-kernel/2026/08/11/241"
+      },
+      {
+        "ID": "C06",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "NXP eUSB2 repeater support",
+        "Current evidence": "Motorola NXP binding @0x4f; no exact mainline match verified",
+        "Next verification": "Find model/driver or port downstream implementation",
+        "Blocks": "USB2 host / dock",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L121-L159"
+      },
+      {
+        "ID": "C07",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "Simultaneous USB-C DP + peripherals + power",
+        "Current evidence": "SM8475 PHY proven on other device, no Razr Linux demo",
+        "Next verification": "Test with known-good USB-C dock; validate DP, USB2/USB3, PD in each role",
+        "Blocks": "NUC external I/O",
+        "Source / pointer": "https://kernel.googlesource.com/pub/scm/linux/kernel/git/torvalds/linux.git/+/9583243a524c0ea4dd08541900ab2c7da95ce13f"
+      },
+      {
+        "ID": "C08",
+        "Priority": "P1",
+        "Unknown / milestone blocker": "Flip-battery charging / power policy",
+        "Current evidence": "SGM41516D and BQ27426 identified; proprietary policy and dual battery logic",
+        "Next verification": "Inspect Motorola charger source, decide minimal safe driver path; verify charge regulation",
+        "Blocks": "Sustained mains operation",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-common-overlay.dtsi#L195-L288"
+      },
+      {
+        "ID": "C09",
+        "Priority": "P1",
+        "Unknown / milestone blocker": "Primary battery manager",
+        "Current evidence": "Motorola extensions to PMIC GLINK and combined charge policy",
+        "Next verification": "Compare qcom_battmgr upstream with Motorola PMIC GLINK and test telemetry",
+        "Blocks": "Charging and capacity reporting",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/drivers/soc/qcom/pmic_glink.c"
+      },
+      {
+        "ID": "C10",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "SoC power / thermal",
+        "Current evidence": "Running Linux sustained load not tested",
+        "Next verification": "Validate cooling, CPUfreq, TSENS trips, governors, forced-shutdown",
+        "Blocks": "Safe compute / performance",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-oneli-thermal-overlay.dtsi"
+      },
+      {
+        "ID": "C11",
+        "Priority": "P1",
+        "Unknown / milestone blocker": "DisplayPort / DRM/KMS",
+        "Current evidence": "Vendor DP AUX and MST property differs; no desktop output validation",
+        "Next verification": "Bring up MSM DP KMS; test modesetting without internal panel",
+        "Blocks": "Linux desktop",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-oneli.dts"
+      },
+      {
+        "ID": "C12",
+        "Priority": "P1",
+        "Unknown / milestone blocker": "GPU firmware / Mesa acceleration",
+        "Current evidence": "Adreno family expected, firmware path and accelerated result not verified",
+        "Next verification": "Identify required signed blobs; test drm device and Mesa Freedreno",
+        "Blocks": "Desktop acceleration",
+        "Source / pointer": "https://docs.mesa3d.org/drivers/freedreno.html"
+      },
+      {
+        "ID": "C13",
+        "Priority": "P0",
+        "Unknown / milestone blocker": "UFS boot rootfs / partition risks",
+        "Current evidence": "UFS controller and PHY identified but mainline not booted on oneli",
+        "Next verification": "Boot initramfs without touching UFS partitions; then read-only probe",
+        "Blocks": "Debian root filesystem",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-overlay-base.dtsi#L71-L95"
+      },
+      {
+        "ID": "C14",
+        "Priority": "P1",
+        "Unknown / milestone blocker": "Arm boot handoff / DTB overlays",
+        "Current evidence": "Early boot firmware + board_id overlay selection unknown",
+        "Next verification": "Export live dtb/dtbo + cmdline + memory carveouts under Android",
+        "Blocks": "Stable boot",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-oneli-base.dts"
+      },
+      {
+        "ID": "C15",
+        "Priority": "P2",
+        "Unknown / milestone blocker": "Firmware licensing / reproducibility",
+        "Current evidence": "Modem/ADSP/Wi-Fi signed firmware may be required",
+        "Next verification": "Inventory firmware partition and licensing; keep binary files separate",
+        "Blocks": "Wi-Fi/power dependent services",
+        "Source / pointer": "https://wiki.postmarketos.org/wiki/Qualcomm_Snapdragon_8_Gen_1/8%2B_Gen_1/7%2B_Gen_2_%28SM8450/SM8475/SM7475%29"
+      },
+      {
+        "ID": "C16",
+        "Priority": "P1",
+        "Unknown / milestone blocker": "Version and source alignment",
+        "Current evidence": "Selected Android 12 branch corresponds to S3SL32.16-72-46, not necessarily this phone",
+        "Next verification": "Match branch against phone build fingerprint; inspect later Motorola branches if different",
+        "Blocks": "Accurate source mapping",
+        "Source / pointer": "https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/Makefile"
+      }
+    ],
+    "Guide": [
+      {
+        "Type": "Scope",
+        "Topic": "Research snapshot",
+        "Reference / interpretation": "2026-10-11; target Motorola Razr 2022 (oneli), ARM64 native mainline NUC; no phone boot, flash or physical measurement was performed."
+      },
+      {
+        "Type": "Evidence legend",
+        "Topic": "Razr-specific",
+        "Reference / interpretation": "Direct value in oneli-specific overlay / Motorola display-oneli file."
+      },
+      {
+        "Type": "Evidence legend",
+        "Topic": "Inherited",
+        "Reference / interpretation": "Value in Cape/Qualcomm shared DT that is referenced by oneli source; may still be overridden by revision and active overlays."
+      },
+      {
+        "Type": "Evidence legend",
+        "Topic": "Disabled",
+        "Reference / interpretation": "Present as an alternative in source; must not be counted as working/fitted hardware."
+      },
+      {
+        "Type": "Evidence legend",
+        "Topic": "[INFERRED]",
+        "Reference / interpretation": "Reasonable SoC-level inference, NOT verified part or active configuration."
+      },
+      {
+        "Type": "Linux status",
+        "Topic": "Upstream exact match",
+        "Reference / interpretation": "An exact compatible or chip ID was found in inspected upstream source snapshot. Still NOT a Razr boot test."
+      },
+      {
+        "Type": "Linux status",
+        "Topic": "Upstream driver exists",
+        "Reference / interpretation": "Kernel driver file exists, but board/SKU support not demonstrated or reviewed fully."
+      },
+      {
+        "Type": "Linux status",
+        "Topic": "Patch submitted",
+        "Reference / interpretation": "Found a public proposed driver, not in the inspected Linus master snapshot."
+      },
+      {
+        "Type": "Linux status",
+        "Topic": "Unknown",
+        "Reference / interpretation": "No confirmed corresponding mainline driver or installed hardware revision."
+      },
+      {
+        "Type": "Reproducibility",
+        "Topic": "Motorola kernel",
+        "Reference / interpretation": "android-12-release-s3sl32.16-72-46 @ 9511d6b2dc469e5bd836992e3bdd6d19ace112e0"
+      },
+      {
+        "Type": "Reproducibility",
+        "Topic": "Motorola device tree",
+        "Reference / interpretation": "android-12-release-ssl @ 90fa7be1db5bd47202673d4431408659149a7359"
+      },
+      {
+        "Type": "Reproducibility",
+        "Topic": "Motorola display tree",
+        "Reference / interpretation": "android-12-release-ssl @ 80b207bf35be5da38375e755506f136558ad24b5"
+      },
+      {
+        "Type": "Reproducibility",
+        "Topic": "Mainline snapshot",
+        "Reference / interpretation": "Linus Linux master @ a5ebb76233b79db01e82e061173cb73c6d2b5c6b (2026-10-10 commit)"
+      },
+      {
+        "Type": "Important correction",
+        "Topic": "Parade PS5169",
+        "Reference / interpretation": "Mainline PHY already merged, but PS5169 redriver driver was NOT found in inspected upstream master; vendor + patch available."
+      },
+      {
+        "Type": "Important correction",
+        "Topic": "Two flip gauges",
+        "Reference / interpretation": "BQ27426 active in source, CW2217 explicitly disabled; these are alternative configurations, not two active gauges."
+      },
+      {
+        "Type": "Important correction",
+        "Topic": "No proven Razr mainline",
+        "Reference / interpretation": "Chipset driver existence does not establish native Linux support for this device."
+      },
+      {
+        "Type": "Important correction",
+        "Topic": "Kernel version",
+        "Reference / interpretation": "Kernel 5.10.101 is from inspected source branch Makefile, not validated against current phone kernel."
+      },
+      {
+        "Type": "Boundary",
+        "Topic": "Device tree completeness",
+        "Reference / interpretation": "A cross-referenced source-tree/overlay map, not a compiled/decompiled fully resolved DTB from this particular phone."
+      }
+    ]
+  }
+}
