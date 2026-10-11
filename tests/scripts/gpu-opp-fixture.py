@@ -20,7 +20,7 @@ STALE_MHZ = {818, 791, 734, 640, 599, 545, 492, 421, 350, 317}
 
 def apply_proposal(kernel: Path, handoff: Path) -> None:
     source = handoff.read_text()
-    matches = re.findall(r"(?ms)^\\x60\\x60\\x60dts\\s*\\n(.*?)^\\x60\\x60\\x60\\s*$", source)
+    matches = re.findall(r"(?ms)^```dts\s*\n(.*?)^```\s*$", source)
     if len(matches) != 1:
         raise ValueError(f"expected exactly one DTS proposal block; found {len(matches)}")
     patch = matches[0]
