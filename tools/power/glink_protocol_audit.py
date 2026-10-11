@@ -28,7 +28,7 @@ OPCODES = (
     ("BC_WLS_STATUS_SET", "BATTMGR_WLS_PROPERTY_SET"),
 )
 FIELDS = (
-    ("battery_property_id", 23),
+    ("battery_property_id", 24),
     ("usb_property_id", 10),
     ("wireless_property_id", 7),
 )
@@ -93,7 +93,7 @@ def compare_sources(vendor, upstream):
     if mismatches:
         print("MISMATCH: " + ", ".join(mismatches))
         return 1
-    print("PASS: 8 shared opcode values and 40 shared property IDs match sources.")
+    print("PASS: 8 shared opcode values and 41 shared property IDs match sources.")
     return 0
 
 
