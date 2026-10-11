@@ -1,6 +1,10 @@
 name: Oneli VPU and GPU firmware filesystem inventory
 
 on:
+  pull_request:
+    paths:
+      - 'scripts/inspect-oneli-lp-firmware.py'
+      - '.github/workflows/vpu-stock-filesystems.yml'
   workflow_dispatch:
 
 permissions:
