@@ -1,0 +1,226 @@
+{
+  "device": "Motorola razr 2022 oneli public reference",
+  "record_type": "source-hashed filesystem firmware inventory; not runtime evidence",
+  "archive": {
+    "filename": "XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip",
+    "bytes": 4353164507,
+    "sha256": "620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c",
+    "installed_on_handset": "not byte-verified"
+  },
+  "reconstruction": {
+    "chunks": 16,
+    "format": "Android sparse v1 block chunks, typed RAW/FILL/DONT_CARE/CRC",
+    "virtual_bytes": 11811160064,
+    "allocated_bytes": 8305434624,
+    "verified_lp_geometry": true
+  },
+  "evidence": {
+    "workflow_run": 38179484005,
+    "conclusion": "success",
+    "github_head_sha": "712b05975255ec20ea27180160d96b028c48392b",
+    "tested_pr_checkout_sha": "a15f4c52d994bd58354dd8990a65a229cafe2387",
+    "artifact_id": 11716598793,
+    "artifact_sha256": "17d26c88a54e6068ec779375f35257d41b246bb55aa7645ff1d020dc265b0f56",
+    "raw_ELF_PT_LOAD_offsets_in_artifact": true
+  },
+  "tools": {
+    "lpunpack_git_commit": "c59b8f3b069c5a8aa438a049fa4a091177172434",
+    "lpunpack_git_blob": "9671d1d731d28f04f0d65dad0dacb2110da87029",
+    "python": "3.12.3-0ubuntu2.1",
+    "e2fsprogs": "1.47.0-2.4~exp1ubuntu4.1",
+    "erofs_utils": "1.7.1-1build2",
+    "util_linux": "2.39.3-9ubuntu6.6"
+  },
+  "searched_filesystems": [
+    {
+      "container": "super:product_a",
+      "format": "ext4",
+      "files_examined": 4104
+    },
+    {
+      "container": "super:system_a",
+      "format": "ext4",
+      "files_examined": 2819
+    },
+    {
+      "container": "super:system_b",
+      "format": "ext4",
+      "files_examined": 110
+    },
+    {
+      "container": "super:system_ext_a",
+      "format": "ext4",
+      "files_examined": 1682
+    },
+    {
+      "container": "super:vendor_a",
+      "format": "ext4",
+      "files_examined": 3503
+    },
+    {
+      "container": "super:vendor_dlkm_a",
+      "format": "ext4",
+      "files_examined": 315
+    },
+    {
+      "container": "dspso.bin",
+      "format": "ext4",
+      "files_examined": 83
+    }
+  ],
+  "unsearched_containers": [
+    {
+      "container": "super:product_b",
+      "reason": "no recognized filesystem; empty/placeholder LP image"
+    },
+    {
+      "container": "super:system_ext_b",
+      "reason": "no recognized filesystem; empty/placeholder LP image"
+    },
+    {
+      "container": "super:vendor_b",
+      "reason": "no recognized filesystem; empty/placeholder LP image"
+    },
+    {
+      "container": "super:vendor_dlkm_b",
+      "reason": "no recognized filesystem; empty/placeholder LP image"
+    },
+    {
+      "container": "radio.img",
+      "reason": "file/blkid: data, format unidentified; NOT a negative search"
+    },
+    {
+      "container": "BTFM.bin",
+      "reason": "Android sparse v1 detected, not unpacked; NOT a negative search"
+    },
+    {
+      "container": "vendor_boot.img",
+      "reason": "Android vendor_boot v4 structural sections inspected, not mounted"
+    },
+    {
+      "container": "boot.img",
+      "reason": "Android bootimg header recognized, not searched as filesystem"
+    },
+    {
+      "container": "recovery.img",
+      "reason": "Android bootimg header recognized, not searched as filesystem"
+    },
+    {
+      "container": "dtbo.img",
+      "reason": "four DTB candidates parsed, not a firmware filesystem"
+    }
+  ],
+  "matched_firmware_files": [
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/gmu_gen70000.bin",
+      "sha256": "b2d3f0e2a98fd6259ab9ffef16df63265542e6cc9a970d53d476e823d432042a",
+      "bytes": 57272,
+      "format": "unclassified from prefix"
+    },
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/venus_4mb.mbn",
+      "sha256": "bca5aca3437f1d6d459315f113caadfe8aaa6daaa1b0d8f9d26b19187623c576",
+      "bytes": 1853012,
+      "format": "ELF32",
+      "pt_load_segments": 18,
+      "qc_image_version_string": "video-firmware.2.6-466e8c1821b7bcb40f3030213432bebb5cf37d1a",
+      "security_note": "ELF segment flags parsed; signature/certificate authenticity NOT validated"
+    },
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/venus_4mb_unsigned.mbn",
+      "sha256": "640f904892008d84b60ad65044082a353515890d4dcaaef193ff9df292ab74bd",
+      "bytes": 1853012,
+      "format": "ELF32",
+      "pt_load_segments": 18,
+      "qc_image_version_string": "video-firmware.2.6-466e8c1821b7bcb40f3030213432bebb5cf37d1a",
+      "security_note": "ELF segment flags parsed; signature/certificate authenticity NOT validated"
+    },
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/venus_4mb_v6.mbn",
+      "sha256": "659851d86290016ac2d78cb0d2ba2f850a2bfffe34484e2e629b85b246132918",
+      "bytes": 1853012,
+      "format": "ELF32",
+      "pt_load_segments": 18,
+      "qc_image_version_string": "video-firmware.2.6-466e8c1821b7bcb40f3030213432bebb5cf37d1a",
+      "security_note": "ELF segment flags parsed; signature/certificate authenticity NOT validated"
+    },
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/venus_4mb_v7.mbn",
+      "sha256": "8701e250e8782374cb2ce452b64e7c32525c0224bacf16c3f43728c73eb72203",
+      "bytes": 1860200,
+      "format": "ELF32",
+      "pt_load_segments": 18,
+      "qc_image_version_string": "video-firmware.2.6-466e8c1821b7bcb40f3030213432bebb5cf37d1a",
+      "security_note": "ELF segment flags parsed; signature/certificate authenticity NOT validated"
+    },
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/venus_v6.mbn",
+      "sha256": "d4c01160448f94ad2ebd2ec5e5a6f4d7285a9889a7bb48d059de42febfe032f8",
+      "bytes": 1853012,
+      "format": "ELF32",
+      "pt_load_segments": 18,
+      "qc_image_version_string": "video-firmware.2.6-466e8c1821b7bcb40f3030213432bebb5cf37d1a",
+      "security_note": "ELF segment flags parsed; signature/certificate authenticity NOT validated"
+    },
+    {
+      "container": "super:vendor_a",
+      "path": "firmware/venus_v7.mbn",
+      "sha256": "28d602ea7257a61e2586d01cce2dcee66d5a54ef6fcb5bc00699ee87d3131369",
+      "bytes": 1860200,
+      "format": "ELF32",
+      "pt_load_segments": 18,
+      "qc_image_version_string": "video-firmware.2.6-466e8c1821b7bcb40f3030213432bebb5cf37d1a",
+      "security_note": "ELF segment flags parsed; signature/certificate authenticity NOT validated"
+    }
+  ],
+  "version_and_name_scope": {
+    "vpu20_4v": "not found in scanned filesystems",
+    "a730_sqe": "not found by a730 name in scanned filesystems",
+    "a730_zap": "not found by a730/zap name in scanned filesystems",
+    "gmu_gen70000": "found in vendor_a",
+    "c500_gmu": "not searched by initial filename regex; needs broader scan",
+    "other_unrecognized_firmware": "not exhaustively identified"
+  },
+  "vendor_boot": {
+    "version": 4,
+    "page_size": 4096,
+    "header_size": 2128,
+    "ramdisk_size": 13335589,
+    "ramdisk_offset": 4096,
+    "ramdisk_sha256": "5309c9a46937648872e84b94c2cbd592ad41c0fe2efc6be0319d497056f8986e",
+    "dtb_size": 958962,
+    "dtb_offset": 13340672,
+    "dtb_region_sha256": "88b605e746f829545f3a5ceabc8ac669eee803db1397d32cc7f49ec91fbba71e",
+    "ramdisk_table_entries": 1,
+    "ramdisk_entry_size": 108,
+    "ramdisk_fragment_type": 1,
+    "ramdisk_fragment_board_id": "all zeros",
+    "bootconfig_bytes": 85,
+    "bootconfig_offset": 14307328,
+    "bootconfig_keys": [
+      "androidboot.hardware",
+      "androidboot.memcg",
+      "androidboot.usbcontroller"
+    ]
+  },
+  "dtbo": {
+    "sha256": "daf02eb24af55cf4c20569db51b5bca70f0550d035846672ef3054f0c0484bd0",
+    "candidate_count": 4,
+    "all_roots": "oneli; qcom,cape-mtp/qcom,cape/qcom,mtp/moto,oneli",
+    "selected_variant": "unknown"
+  },
+  "conclusions": {
+    "firmware_signature_verification": false,
+    "pas_authentication": false,
+    "hfi_negotiation": false,
+    "hardware_decode": false,
+    "firmware_name_for_iris_driver": "unresolved: observed venus*.mbn do not prove compatibility with vendor vidc firmware-name vpu20_4v",
+    "boot_DT_integrated": false
+  }
+}
