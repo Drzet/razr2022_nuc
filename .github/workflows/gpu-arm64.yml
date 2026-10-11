@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: Drzet/linux
-          ref: 4955f07a94ea3c51e423e34d819ac3f76f1c9d37
+          ref: 3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
           path: kernel
           persist-credentials: false
           fetch-depth: 1
@@ -41,7 +41,7 @@ jobs:
           set -Eeuo pipefail
           mkdir -p evidence
           trap 'printf "%s\n" "$?" > evidence/build-exit-code.txt' EXIT
-          test "$(git -C kernel rev-parse HEAD)" = 4955f07a94ea3c51e423e34d819ac3f76f1c9d37
+          test "$(git -C kernel rev-parse HEAD)" = 3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
           {
             printf 'project_sha=%s\n' "$GITHUB_SHA"
             printf 'kernel_sha=%s\n' "$(git -C kernel rev-parse HEAD)"
