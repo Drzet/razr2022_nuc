@@ -1,124 +1,104 @@
-# Second review: next assignments and concurrency
+# Third coordinator review and next assignments
 
-Reviewed 2026-10-11 after the second subsystem round. This supersedes the task queue in [the first review](FIRST_REVIEW.md). At that review the phone was unavailable; the later stock ADB evidence update below supersedes that access/identity statement. No native Linux hardware success is claimed. Read this file from coordinator **main**, even when working on an older subsystem branch.
+2026-10-11, after the third subsystem round. Supersedes the queue in [SECOND_REVIEW.md](SECOND_REVIEW.md). The latest ADB attempt was unsuccessful; plan without hardware access. Earlier [stock Android observations](oneli_stock_android14_adb_hardware_capture_2026-10-11.md) remain valid within their scope. Target: XT2251-1 PVT, hwrev 0xC000, SKU dn, observed Android 14 U2SLS34.1-42-14-11. User plans to unlock when the phone is fully in their possession; this is a future device-test prerequisite, not an offline development blocker.
 
-## Stock-device evidence update — 2026-10-11, after second review
+## Assessment and verified gates
 
-Read [the physical stock Android ADB capture](oneli_stock_android14_adb_hardware_capture_2026-10-11.md) before continuing hardware-specific assumptions. The coordinator reviewed the committed report and its internal evidence distinctions; this review did not independently re-run ADB or inspect the original archives. The report is the provenance record for the supplied observations.
+This round delivered substantial compile, schema, source and firmware-container evidence. It has not demonstrated native boot or peripheral operation. Coordinator checked branch changes, completed Actions results and selected logs, including the actual archive SHA, normal Iris modpost and Boot's full-schema/FDT results. No stock firmware binaries were independently extracted during this review.
 
-- **Known target:** XT2251-1, PVT, hwrev 0xC000, SKU dn; installed fingerprint `motorola/oneli_ge/oneli:14/U2SLS34.1-42-14-11/e37c37-31202:user/release-keys`. These replace the previous broad unknown-revision/build statements. PVT does not uniquely establish numeric board-id/msm-id or the selected DTBO entry.
-- **Access:** stock ADB was briefly available, then the phone was disconnected. No continuing hardware access or native Linux validation is assumed. Boot state was green/locked, slot A. Future custom-image boot testing requires resolving the bootloader prerequisite; no unlocking/flashing is authorized by this documentation update.
-- **Firmware:** prioritize the previously selected `U2SLS34.1-42-14-11` public package. Its version matches the observed build label; verify its fingerprint/metadata, region and content before treating it as the exact installed image. VPU remains the single archive acquisition/inventory owner, Boot owns boot/vendor_boot/DTBO interpretation.
-- **DT archives:** the report records a symlink-only archive and a directory-only archive with zero property files. Do not use either as a resolved DT or derive `reg` values/sizes from node names. Keep the hashes and property-read failure recorded; no need to repeat the same inaccessible export while offline.
-
-| Owner | Adjustment to current assignment |
-| --- | --- |
-| Boot | Use oneli PVT overlays as the primary board-source candidate; reconcile Android 12 sources with the observed Android 14 build. Track locked bootloader and observed A/B partition names. Do not hard-code stock /dev/block/sd* paths into native packaging or infer image header format from partition names. Numeric board IDs, loaded overlays and packing parameters remain unresolved. |
-| Power | Incorporate registered main GLINK, Motorola aggregation and secondary I2C supplies at 0x55/0x6b as stock runtime evidence. The charger reports model sgm41516D with an inconsistent TI manufacturer string: separate driver-reported identity from a silicon-ID read, which was not captured. Bus number 1 is not an upstream DT label; translate controller address 0x988000 against the selected source. Treat current/status/capacity snapshots as observations, not validated policy, wiring or battery-health estimates. |
-| USB | Record successful stock gadget/ADB configuration and advertised sink+host role support. Use simultaneous sink power + host data as a future dock acceptance case. Historical host events do not identify the peripheral or prove a powered dock. Repeater identity/reset and mainline role handling remain open. |
-| DisplayPort | Record registered DP connector, disabled at capture. No active output, EDID, link training or AUX/PS5169 wiring was tested; graph/binding work and its dependencies remain unchanged. |
-| GPU | A stock DRM render node under the display device is not an Adreno/Mesa acceleration test. Existing firmware/profile/module assignments remain unchanged. |
-| VPU | Stock directory names corroborate the presence of named memory regions only. Obtain actual DT properties and firmware from the matching reference archive; no carveout size or HFI compatibility is newly established. |
-| Userspace | No change to independent QEMU/network/SSH milestone. Native integration must use Boot's verified packaging contract, not the observed stock block-device numbering. |
-
-All agents can continue their current independent assignments. The new observation changes evidence and target selection, not the integration ordering. Next optional physical session should prioritize a powered dock with USB peripheral and monitor on stock Android, recording roles and actual display output. Native hardware tests remain deferred.
-
-## Independently checked outcomes
-
-The coordinator inspected branch source/diffs and completed GitHub run/job records. Boot, GPU and Userspace job logs were also inspected to establish scope/failure causes. Reports of source-level hardware findings remain qualified as in the originating handoffs.
-
-| Owner | Reviewed kernel / project head | Outcome and limitation |
+| Workstream | Reviewed head(s) | Result |
 | --- | --- | --- |
-| Boot | kernel `3825dc6afb0f5e102845b32811ce0f518c0b4bbf`; coordinator main `7bdf284` | UART QUP parent and interconnect fix committed; disabled UFS rail candidates staged. [Run 38164785277](https://github.com/Drzet/linux/actions/runs/38164785277) completed successfully, including oneli DTB compilation. Schema checks select **only ARM/qcom and SM8450 TLMM**; they do not establish correctness of the new regulator, UFS or other nodes. |
-| GPU | kernel `4955f07a94ea3c51e423e34d819ac3f76f1c9d37`; project `c066afb` | Compiled temporary OPP fixture passed per [record](https://github.com/Drzet/razr2022_nuc/blob/c066afb/tests/results/2026-10-11-gpu-opp-fixture.md). Actual Boot tree does not yet contain it. [Module run 38164004265](https://github.com/Drzet/razr2022_nuc/actions/runs/38164004265) **failed**: missing Module.symvers and unresolved DRM/kernel symbols in isolated M= build. This is not evidence that the chip-ID edit is incorrect. |
-| USB | kernel `6ab3f710b2c8e9a455bc356673ca67293ad4d322`; project `17e97a7` | PHY binding CI passed. Repeater tuning, enable/reset and rail gaps documented. No USB driver or board enablement yet. |
-| VPU | kernel `9bc913217b9051f515970c4b65770efb3374e33a`; project `056f2a459bf1505e08be12ccf9a5ae0d23a1698e` | Five-commit RFC profile/binding exists. [Run 38165380924](https://github.com/Drzet/razr2022_nuc/actions/runs/38165380924) passed host audit and candidate compile/schema jobs. Isolated module build uses KBUILD_MODPOST_WARN=1, so full dependency-resolved module validation is still absent. No firmware downloaded. |
-| Power | kernel remains `cb9105e`; reports/script in coordinator main | Rail and protocol audit delivered; Boot has staged disabled rail subset. Six synthetic tests are not execution of the real kernel parser. Full checked-in source-comparison CLI run is not recorded. |
-| DisplayPort | kernel remains baseline `a5ebb7623`; report in coordinator main | Vendor software AUX truth table identified; physical part identity remains unresolved. No DP driver/board implementation. Source graph assertions are not DT schema tests. |
-| Userspace | project `b15c1dd292fface8928d8b70369472ac637cbe92` | [Run 38165284627](https://github.com/Drzet/razr2022_nuc/actions/runs/38165284627) built the Debian ARM64 rootfs successfully, then QEMU failed immediately: `failed to find romfile "efi-virtio.rom"`. No guest boot yet. Current package list/harness does not implement SSH/network acceptance. |
+| Boot | kernel `6eec6ddd7842622668c937a466a8db47d20517b1`; project `e569b55` | [Run 38175014232](https://github.com/Drzet/linux/actions/runs/38175014232) passes target oneli compilation and all-applicable schema validation with no direct schema diagnostics. FDT audit: 39 reservations, zero overlaps, 888 parsed references, 13 GPU OPPs. **35 active-to-disabled provider references remain warnings**, not proven harmless dependencies. |
+| GPU | kernel `4955f07a94ea3c51e423e34d819ac3f76f1c9d37`; project `5f0b60b` | [Full Image/modules run 38174090675](https://github.com/Drzet/razr2022_nuc/actions/runs/38174090675) **passed**, superseding pending handoff wording. [Committed Boot OPP run 38174125440](https://github.com/Drzet/razr2022_nuc/actions/runs/38174125440) passed. CX, bandwidth and firmware behavior remain unresolved. |
+| VPU | kernel `7f1d729b6f458f1e76efe2894eb3c544bc9db856`; project `810be63` | [Run 38170604512](https://github.com/Drzet/razr2022_nuc/actions/runs/38170604512) passes complete ARM64 Image/modules with ordinary modpost and Iris binding checks. Signed firmware extraction and probe contract remain incomplete; shared UBWC addition is explicitly [INFERRED]. |
+| USB | kernel `87d7277ced4c562e2379ee58aaed5c5fd7db4f32`; project `e898742` | [Run 38170306651](https://github.com/Drzet/linux/actions/runs/38170306651) passes temporary PS5169 **x86 object** compile and candidate binding checks. Driver is fetched/patched in CI, not yet a durable kernel patch series. USB2 and Type-C contracts exist. |
+| Power | kernel `3b02b11bc5abdc5c453fa4af16b71bd8e44c2056`; project `0f7ab81` | [Source audit](https://github.com/Drzet/razr2022_nuc/actions/runs/38168888153), [ARM64 objects](https://github.com/Drzet/razr2022_nuc/actions/runs/38169526109) and [real UML KUnit 3/3](https://github.com/Drzet/razr2022_nuc/actions/runs/38169484188) passed. Production helper fixes signed temperature arithmetic; no charging/transport runtime test. |
+| DisplayPort | kernel unchanged baseline; project `9ae0c3f` | [Run 38174309894](https://github.com/Drzet/razr2022_nuc/actions/runs/38174309894) passes 23 pinned source assertions, offline replay and corruption rejection. USB/Power graph agreement recorded. AUX part/binding remains unresolved. |
+| Userspace | implementation `ce17ea82c55a453ef593a7d0cbcb4f78520b2e67`; handoff `f785ae4` | Ownership and SSH/network implementation added. [Previous run 38177212005](https://github.com/Drzet/razr2022_nuc/actions/runs/38177212005) failed because package systemd-networkd was unavailable; replacement runs 38177545171/38177548051 were cancelled. Latest [run 38177877133](https://github.com/Drzet/razr2022_nuc/actions/runs/38177877133) at documentation head `f785ae444e904fe030baa8d745102d25a1fe2cde` is **in progress at review**. No complete guest SSH pass accepted yet. |
 
-Handoff statements that these completed jobs are still pending are now stale. Keep historical handoffs intact; append exact new run results.
+## Shared stock evidence is now usable
 
-## Work allocation: no whole agent needs to wait
+VPU's [stock manifest](https://github.com/Drzet/razr2022_nuc/blob/810be63/docs/vpu/2026-10-11-public-stock-reference-manifest.md) and [boot/DTBO report](https://github.com/Drzet/razr2022_nuc/blob/810be63/docs/vpu/2026-10-11-public-stock-boot-dtbo.md) replace the old download blocker. [Acquisition run 38169190369](https://github.com/Drzet/razr2022_nuc/actions/runs/38169190369) downloaded 4,353,164,507 bytes, SHA-256 `620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c`. Boot and vendor_boot headers are v4; four DTBO candidates were parsed and hashed. Matching build label is not proof of identical installed bytes or selected overlay.
 
-| Agent | Work that starts immediately | Gate only for the dependent step |
+The archive was deleted at job completion, so it is **not a retained binary workspace**. One controlled reacquisition or bounded member fetch for deeper analysis is expected. VPU owns acquisition/extraction tooling, not every subsystem's interpretation. Publish machine-readable, source-hashed metadata for consumers. No proprietary binaries in Git or automatically published artifacts.
+
+**Correction to overly strong handoff wording:** the signed VPU/ZAP files have not been located. Their residence in super/vendor is not established. Inspect the actual image/mount layout, including the already listed `radio.img`, rather than assuming all firmware is in super. Outer ZIP absence is not filesystem absence.
+
+## VPU — first priority: actual firmware and resource evidence
+
+1. Extend the controlled stock job to inspect filesystem/partition containers and locate `vpu20_4v*`, A730 ZAP, SQE and GMU files wherever they reside. Identify image format before extraction. Reconstruct Android sparse chunks using an appropriate format-aware tool; do not concatenate them as raw bytes. Pin extraction tools and preserve package/member/filesystem provenance, paths, sizes, hashes and QC version strings where present.
+2. Publish a shared manifest even if a named file is absent: enumerate which filesystems were searched. Inspect split MDT/Bxx or MBN/ELF formats actually found, including load ranges and signature metadata where parsable. Do not infer secure acceptance or HFI compatibility from a filename, string or successful host audit.
+3. Export derived DTB/DTBO and vendor_boot metadata requested by Boot/USB/Power/DP in the same workflow. Use shared issue #10 for requests; consumers must not duplicate uncontrolled multi-GB downloads.
+4. Reconcile Iris DMA/IOMMU, clock/OPP, bandwidth and UBWC assumptions against the extracted reference. Ask GPU to review the shared SoC UBWC match. The successful build closes the compiler gate; repeating it unchanged is not the next research milestone.
+
+Acceptance: actual firmware file manifest or a precisely scoped negative search; identified resource changes; a Boot-facing disabled VPU node contract only for justified fields. Runtime PAS/HFI/decode remain deferred. If the archive lacks needed identities, report that bounded result rather than inventing a profile.
+
+## Boot — first priority: packaging and dependency closure
+
+1. Interpret vendor_boot v4 fully: embedded DTB region, vendor ramdisk table/fragments, bootconfig, alignment and compression; inspect all four DTBO roots for numeric board-id/msm-id and variant differences. Table-level zero IDs do not mean embedded root identity properties are absent. PVT matching may establish a **reference candidate**, not the live bootloader's choice.
+2. Reconstruct the reference DT composition offline if its inputs/selection rules are known. Export a per-variant resource/property comparison for consumers. If composition cannot be proven, keep standalone fragments and missing base/selection inputs explicit.
+3. Prepare a no-flash boot-image packaging prototype from verified header fields, with an unpack/repack structural roundtrip. Define how a mainline kernel/initramfs/DT replaces the reference inputs; do not replay stock bootconfig or vendor ramdisk blindly. Publish a machine-readable packaging contract for Userspace; no native boot success claim.
+4. Classify the 35 active-to-disabled provider warnings by exact consumer/provider: minimal CPU/console/interrupt/timer/memory dependencies, inherited unused consumers, deferred subsystem dependencies or checker limitations. Fix or disable justified unnecessary consumers; do not whitelist all warnings just because inherited. Retain regression checks for the intended minimal boot dependency set.
+5. Stage the available USB2-first contract against the chosen binding and Power range contract, keeping unresolved repeater and powered consumers disabled. Re-run target schema/FDT checks for the new committed tree. VPU staging waits for its source-supported contract, not merely a compiling driver.
+
+Acceptance: reference image-layout/variant report, structural packaging roundtrip, classified dependency warnings and exact source-only USB2 staging commit. These tasks do not need the phone.
+
+## GPU — source fixes now, firmware consumption when available
+
+1. Record the now-completed full module build pass in the handoff; no unchanged rebuild needed.
+2. Independently confirm and fix the discarded return from `a6xx_gmu_pwrlevels_probe()` in the pinned GMU probe path if correct cleanup/error propagation is demonstrable. Coordinator source inspection confirms the return is presently discarded. Keep this a narrow patch separate from chip ID and unproven power-vote changes; validate error-path cleanup and compilation.
+3. Turn CX floor and bandwidth-index findings into a concrete mapping/implementation proposal with evidence per field. Distinguish firmware-supplied behavior from host votes; do not directly copy vendor bus indexes into the upstream table. If sources cannot justify translation, explicitly hold that feature instead of creating guessed numeric votes.
+4. Review VPU's shared SM8475 UBWC addition against GPU/display consumers. Consume the common firmware manifest to compare SQE/GMU versions and signed ZAP path; firmware authentication still awaits hardware.
+
+Acceptance: bounded error-handling fix or reasoned rejection, UBWC review, and an actionable disposition of CX/bandwidth gaps. Keep board GPU disabled until its enablement contract is supportable.
+
+## USB — make the tested candidate durable
+
+1. Convert the verified runner-only PS5169 import/repairs into an attributable reviewable kernel series on the USB branch (or an owned USB candidate branch). Preserve original authorship, separate include repairs and VCC/VIO changes, and record original patch provenance/source hashes. The result must not depend on scripts silently rewriting source at build time.
+2. Compile the resulting driver for ARM64 with complete dependency-resolved linking and validate its binding. Review supply sequencing, unwind and suspend/resume paths, plus the board's enable-versus-reset contract. Object-only x86 success is an intermediate gate already completed.
+3. Compare NXP/Diodes statuses, repeater reset/tuning and PS5169 enable/supply/EQ data across the four actual stock DTBO candidates and any base DT from Boot. Produce a per-variant diff; both compatible strings being present does not identify the enabled device. Use reference PVT evidence where supportable.
+4. Supply Boot exact binding commits and any corrected USB2 contract. Physical chip identity may remain unresolved after this bounded stock audit; do not alias a part from matching registers alone.
+
+Acceptance: durable PS5169 candidate and ARM64 link pass, stock-derived variant matrix and updated Boot contract. Native USB enumeration is still deferred.
+
+## Power — targeted driver work and stock comparison
+
+1. Record completed KUnit/source gates; prepare the existing signed-temperature series for integration as a standalone fix, excluding inherited old Boot commits. Its tests exercise the production helper, not the GLINK transport.
+2. Audit the exact Motorola SGM41516D implementation and combined-battery policy: register definitions, identity checks, conversions, charger ownership and aggregation. Separate generally reusable driver support from Motorola policy. Give a concrete patch plan or precise missing evidence; no blanket alias to SGM41542.
+3. Compare stock PVT regulator/consumer properties from Boot's extraction with the source-derived rail contract, particularly unresolved parent supplies. Hardware observations support stock topology; they do not identify an unobserved parent wire or full firmware protocol.
+4. Use the upcoming combined kernel build for dependency-complete battmgr validation rather than scheduling another unchanged large isolated kernel build. Retain UML tests as the meaningful arithmetic regression gate.
+
+Acceptance: integration-ready temperature patch list, charger/policy gap matrix and any stock-backed rail corrections. Active charging and electrical validation remain held.
+
+## DisplayPort — bounded final offline task, then wait
+
+Your reproducible source audit and graph agreement are complete; do not repeat them unchanged.
+
+Inspect Boot/VPU's four reference DTBO variants and available base DT for actual AUX switch identity, GPIO2/71 properties and enabled routing. Compare to the existing software truth table and generic mux NONE-state behavior. Produce one variant/evidence matrix and a binding disposition. If the actual part or a justified binding remains unknowable, **pause AUX/board enablement pending new evidence or hardware**. No speculative compatible and no endless generic source audits.
+
+USB candidate review and graph documentation can proceed concurrently. DP enablement still waits on USB driver/connector, justified AUX binding and Boot-owned DT. This is now a legitimate scoped hold, not a reason to keep inventing tasks.
+
+## Userspace — finish one real pass, then connect native artifacts
+
+1. Let the latest corrected job finish, inspect all steps and publish its final outcome. Repair actual failures until guest systemd, networking, authenticated SSH, clean shutdown and tar ownership roundtrip all pass. Do not mark code changes as validation or leave a failed gate labelled pending.
+2. Avoid repeated push/PR runs cancelling useful work. Batch fixes and scope triggers; one completed exact-SHA run is the gate. Confirm the latest service package choice from the pinned Debian rootfs contents.
+3. Strengthen the native artifact validator: currently a matching directory name, modules.dep and any .ko file do not establish module ABI compatibility. Check actual module vermagic against kernel release, manifest hashes, initramfs module contents and required firmware records. Add negative fixtures for a deliberately mismatched module and tampered artifact. Unknown firmware requirements must remain unresolved, not pass as an empty JSON object.
+4. After the generic Debian-kernel gate passes, consume a coordinator-selected mainline Image plus matching modules in a **separate QEMU virt** test using the virtual machine's DT. This tests the project kernel/userspace interface; it must not use the oneli DT or be called phone emulation. Native phone packaging consumes Boot's contract independently.
+
+Acceptance: a completed boot/network/SSH result, meaningful module/artifact consistency checks, then a pinned project-kernel QEMU run when supplied. Desktop/Docker expansion waits until the base gate passes.
+
+## Concurrency and integration milestone
+
+| Agent | Work now | Wait only for |
 | --- | --- | --- |
-| Boot | Broader oneli schema checks, flattened-memory audit, adoption of reviewed disabled GPU OPP proposal | Power evidence before active rail enablement; VPU firmware inventory before stock-specific boot packaging; USB/DP driver/binding contract before their board enablement |
-| GPU | Repair module CI; close profile/CX-vote audit | Boot's committed OPP change before validating integrated board; VPU inventory for stock ZAP hashes |
-| USB | Compile/repair PS5169 candidate, investigate repeater support, define USB2-first DT contract | Power rail contract and repeater evidence before active board enablement; Boot for shared DT commit |
-| VPU | Full module build, schema/driver contract audit, hosted firmware acquisition | Boot only for combined disabled-node DT validation; hardware only for runtime firmware/decode |
-| Power | Reproduce source comparison, assess concrete GLINK code defects, rail-parent audit | Firmware/board evidence for unresolved physical mapping; device only for electrical/charging validation |
-| DisplayPort | Reproducible routing checks, narrow AUX binding investigation, agreement on graph contract | USB connector/PS5169 implementation and valid AUX compatible before final board graph enablement |
-| Userspace | Fix QEMU startup and tar ownership; add networking/SSH smoke test | Exact Boot kernel/modules/boot contract only for native oneli image integration |
+| VPU | Container/firmware extraction and resource reconciliation | Actual phone for authentication/decode |
+| Boot | Packaging parser, dependency classification, disabled USB2 staging | Shared extracted members/metadata for specific reference comparisons |
+| GPU | Error propagation, vote analysis, UBWC review | Common firmware manifest for binary comparison |
+| USB | Durable PS5169 series and ARM64 linking | Stock variant metadata for board-specific corrections |
+| Power | Charger/policy audit and fix preparation | Stock rail properties for remaining mappings |
+| DP | One stock AUX variant audit when metadata arrives; USB candidate review | New AUX identity/binding evidence after that; then native hardware |
+| Userspace | Complete QEMU/SSH gate and artifact validator | Selected kernel artifacts only for mainline-kernel smoke test |
 
-**Critical dependency chains:** Power/USB proposals → Boot shared DT; GPU OPP proposal → Boot committed DT → integrated GPU check; USB Type-C/PS5169 + AUX binding → Boot DP graph. VPU and Userspace build work run alongside these. A draft contract can be agreed before another agent's implementation is complete.
+Coordinator's next integration target: an explicit candidate commit set from Boot, GPU chip-ID, USB PHY binding and the standalone Power fix, retaining unready hardware consumers disabled. Include VPU and PS5169 only as separately reviewed experimental candidates with their assumptions recorded. No integration has occurred in this review. Coordinator owns integration and aggregate status; Boot owns shared DT. Record resulting SHAs and run a combined Image/modules/oneli DT/schema build before using artifacts in Userspace. Do not confuse independent branch passes with this combined gate.
 
-## Boot — current priority
-
-1. Broaden validation of the **oneli DTB** to all applicable schemas, particularly RPMh regulator providers and UFS PHY/host. Current workflow runs broad dtbs_check over the tree but filters schemas to ARM/TLMM; optimize it to validate the actual target without losing schema coverage. Inspect diagnostics, not only the make exit status; separate inherited baseline issues from newly introduced ones.
-2. Extract reserved-memory and supply/clock/power-domain phandles from the compiled FDT. Turn the textual zero-overlap result into a reproducible check of the actual artifact, including enabled ancestors and disabled consumers.
-3. Review and apply the GPU OPP replacement from [GPU issue #4](https://github.com/Drzet/razr2022_nuc/issues/4) and [pinned GPU handoff](https://github.com/Drzet/razr2022_nuc/blob/c066afb/docs/handoffs/gpu-2026-10-11.md), keeping GPU disabled. Run the GPU owner's check against the **committed** DTB. Module compilation and OPP static integration need not wait on one another; successful OPP transcription does not resolve CX-vote or runtime correctness.
-4. Request a concrete USB2-first node proposal and updated Power rail contract. Keep source-uncertain consumers disabled. Do not duplicate firmware downloading: consume the VPU-owned manifest. Boot owns stock boot/vendor_boot/DTBO analysis and image-packaging parameters once supplied.
-
-Acceptance: exact new SHA, all-applicable target schema report, flattened-memory/phandle report, committed disabled OPP candidate with thirteen-entry check. Do not enable UFS from vendor initial voltages alone.
-
-## GPU — current priority
-
-1. Fix module CI using a dependency-complete in-tree kernel/modules build with normal modpost errors. Retain .config, Module.symvers, module output, commands and hashes. Do not copy VPU's unresolved-symbol warning workaround as an acceptance gate. Correct artifact paths to match the selected build mode.
-2. Supply Boot an exact reviewable OPP change and run the existing checker against Boot's resulting SHA. Keep this distinct from the already-passed disposable fixture.
-3. Close the source-level CX/GMU/RPMh vote mapping and revision-quirk comparison. Identify concrete remaining unsupported operations rather than repeating the broad profile-reuse hypothesis. Read the shared VPU firmware manifest when available; avoid a second multi-GB download.
-
-Acceptance: full dependency-resolved MSM module pass and source disposition of corner/profile gaps. Hardware rendering and signed ZAP acceptance remain deferred.
-
-## USB — current priority
-
-1. Split USB2 debugging from USB3/DP. Deliver a Boot-ready, source-cited USB2/eUSB PHY, controller, I2C and supply proposal with unresolved repeater elements explicitly disabled. USB2 planning must not wait on PS5169 or the AUX mux.
-2. Investigate the PS5169 series beyond the reported broken v3: find a corrected revision, or fix its compile failures locally while preserving attribution. Compile the candidate independently of oneli. Resolve binding representation of enable versus reset and both VCC/VIO supplies; no guessed GPIO semantics. A maintainer-corrected release is not required before doing our own attributable compile fixes.
-3. Separate repeater identity from missing tuning support. Trace the three source-backed register overrides, reset sequencing and any chip-ID checks into a narrowly scoped driver/binding proposal. No PTN3222-family compatible may be asserted solely from the matching address/register map.
-4. Agree with DP and Power on connector ports and GPIO91 ownership, referring to [issue #3](https://github.com/Drzet/razr2022_nuc/issues/3). Publish one versioned graph contract for Boot, not competing board edits.
-
-Acceptance: independently compilable candidate where supportable, USB2-first proposal, and precise disposition of remaining repeater/PS5169 gaps. Actual identity reads and enumeration stay deferred.
-
-## VPU — current priority
-
-1. Replace the warning-tolerant isolated module gate with a complete in-tree Image/modules build. Retain full .config and populated Module.symvers; fail unresolved symbols normally. Host ABI fixtures remain useful but separate.
-2. Audit the RFC schema against what the driver actually requires. It currently permits only two power domains while sm8475_data requests additional `mxc`/`mmcx` OPP domains, and operating-points-v2 is optional although the probe calls dev_pm_opp_of_add_table. Reconcile those contracts before asking Boot for a candidate node. Also justify the mandatory two-IOMMU mapping: two vendor context-bank nodes do not by themselves establish a correct single-device mainline mapping.
-3. Replace or explicitly isolate SM8250-derived bandwidth, DMA, capacity and corner assumptions. Resolve UBWC initialization semantics using the actual provider path. Keep the RFC unenabled; it is not ready to represent operational VPU support.
-4. **Own one shared firmware acquisition job.** Try the already identified public archive from a GitHub-hosted runner, record HTTP/DNS outcome, enforce bounded transfer/time and generate a package/member hash manifest. The chat container's DNS or binary-fetch limitation is an environment blocker, not proof the archive is unavailable from Actions. Inspect the inventory utility's DTBO bounds before treating malformed tables as valid. Supply Boot DTB/DTBO/boot metadata, GPU SQE/GMU/ZAP inventory and Power relevant source/overlay evidence. Keep binaries out of Git and do not publish proprietary firmware artifacts automatically.
-
-Acceptance: clean dependency-resolved build, corrected schema/resource contract, and real firmware manifest or an exact hosted-download failure. Secure firmware acceptance and decode remain phone-only.
-
-## Power — current priority
-
-1. Execute the exact committed tools/power/glink_protocol_audit.py against both pinned original source files and retain inputs' hashes plus output. Add a small independent CI job; report source comparison and synthetic fixtures separately.
-2. Investigate the reported signed-temperature conversion and header-only notification ACK differences in the real qcom_battmgr code. If a defect is established independently of an unobserved firmware assumption, prepare a narrow patch and tests that exercise the real parser/conversion behavior. The current fixtures merely pack/unpack synthetic structures; they do not demonstrate the kernel accepts them. A Motorola-specific behavior assumption stays labelled [INFERRED].
-3. Give Boot a reviewed parent/consumer/voltage contract for staged UFS and proposed USB rails. Do not equate vendor initial voltage with the full allowable range. Resolve what sources establish and list the exact missing physical connections; keep charging control disabled while unsupported.
-
-Acceptance: reproducible pinned-source pass, justified parser-fix disposition, and updated rail contract. No need to wait for Boot to perform these tasks.
-
-## DisplayPort — bounded independent work, then a specific hold
-
-1. Commit the 23 reported source assertions as a reproducible script/test with pinned inputs. This supplies durable evidence rather than prose counts alone.
-2. Agree the connector/retimer/AUX graph and GPIO ownership with USB now. Preserve the newly found vendor software truth table; do not re-open software polarity as unknown. Physical switch identity/wiring remains separate.
-3. Investigate a valid binding path for the independent AUX switch: source/BOM/stock-DT identification first; assess whether the existing generic GPIO-controlled driver/binding can support a justified extension without inventing a part. If no evidence closes this, publish a bounded blocker and stop speculative node implementation.
-
-Acceptance: reproducible routing evidence and agreed graph contract. **Hold actual board DP enablement** until USB supplies its connector/PS5169 implementation and AUX binding identity is supportable. This hold does not require waiting to finish steps 1–3.
-
-## Userspace — current priority
-
-1. Fix the observed QEMU startup error (`efi-virtio.rom`). Make the emulated device/network configuration explicit and ensure required host resources exist. First obtain a real guest boot/systemd pass; the rootfs build already passed, so do not report the whole build as unstarted.
-2. Fix a source-reviewed archive defect: build-userspace.sh uses tar `--owner=0 --group=0`, changing **all** rootfs archive ownership to root. Preserve original numeric UID/GID values. The ext4 image is populated directly from the source tree, so testing only that image would miss corruption of the separately exported tar. Verify ownership of representative non-root-owned files after tar extraction and compare with the source rootfs.
-3. Add user provisioning, SSH server, explicit virtual-network configuration and a host-to-guest SSH command acceptance test using an ephemeral CI key. Current packages contain no SSH server and the smoke service powers off immediately after its serial sentinel; revise lifecycle so networking/SSH can actually be tested before shutdown. Record a failed boot separately from a failed SSH check.
-4. Update the Boot contract with machine-readable native kernel release, matching module directory, initramfs and firmware inputs. Test generic userspace now; wait for an exact native kernel/modules artifact only for oneli integration. Keep desktop/Docker expansion behind the base boot/network/SSH milestone.
-
-Acceptance: preserved rootfs ownership plus a completed QEMU boot/systemd/network/SSH run with artifact hashes. No dependency on phone access or completed native boot support.
-
-## Coordination and integration gates
-
-Work on assigned branches. Boot alone commits shared SoC/board DT. Agents update their own handoffs/result files and propose main changes; the coordinator owns aggregate STATUS/NEXT_TASKS to avoid concurrent overwrites. Never copy a stale branch-wide STATUS over main.
-
-Kernel integration remains a separate explicit step: exact selected commits, dependency-complete build, target DT/schema results and ordered provenance. The VPU RFC is excluded from operational claims. Userspace workflow repair is independent of kernel integration. Mainline baseline remains unchanged.
-
-Each next handoff must list: exact head, completed run conclusion, actual tested SHA (including PR test-merge SHA if applicable), artifacts/config, remaining bounded blocker, and who consumes the deliverable. Do not stop with a job still running and call the assignment validated.
-
-Physical validation is deferred for all agents: bootloader/console, firmware authorization, rendering/decode, USB/DP signaling, charging and thermal behavior. Archive acquisition, build failures, schema coverage and graph agreement are **not** physical-hardware blockers.
+Firmware acquisition should be centralized, while interpretation is distributed. Exact immutable project/kernel revisions, generated configuration, logs and final run conclusions belong in every handoff. Successful past checks should not be rerun merely to keep an agent occupied. No firmware/bootloader runtime gate is satisfied by these offline tests.
