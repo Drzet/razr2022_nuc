@@ -28,6 +28,7 @@ security="https://snapshot.debian.org/archive/debian-security/$DEBIAN_SNAPSHOT/"
 cp userspace/inputs.env "$evidence/inputs.env"
 cp scripts/build-userspace.sh "$evidence/build-userspace.sh"
 cp scripts/smoke-qemu.sh "$evidence/smoke-qemu.sh"
+cp scripts/verify-rootfs-ownership.sh "$evidence/verify-rootfs-ownership.sh"
 # Ubuntu 24.04 keyring predates Debian 13 keys. Verify pinned Debian FTP-master keys.
 wget -q -O "$work/archive-key-13.asc" https://ftp-master.debian.org/keys/archive-key-13.asc
 wget -q -O "$work/archive-key-13-security.asc" https://ftp-master.debian.org/keys/archive-key-13-security.asc
@@ -68,12 +69,47 @@ chmod 0755 "$root/usr/sbin/policy-rc.d"
 mount -t proc proc "$root/proc"
 mount -t sysfs sysfs "$root/sys"
 mount --bind /dev "$root/dev"
-echo "chroot ROOTFS apt-get update; apt-get install systemd-sysv udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64" >> "$evidence/commands.txt"
+echo "chroot ROOTFS apt-get update; apt-get install systemd-sysv systemd-networkd udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 openssh-server sudo" >> "$evidence/commands.txt"
 chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 | tee "$evidence/apt-update.log"
-chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends systemd-sysv udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 2>&1 | tee "$evidence/apt-install.log"
+chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends systemd-sysv systemd-networkd udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 openssh-server sudo 2>&1 | tee "$evidence/apt-install.log"
 chroot "$root" /usr/bin/dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > "$evidence/packages.tsv"
 [[ "$(chroot "$root" dpkg --print-architecture)" == arm64 ]]
 chroot "$root" passwd -l root > "$evidence/root-lock.log" 2>&1
+# Account is provisionable in the generic tar, but receives no authorized key there.
+chroot "$root" useradd -m -s /bin/bash -U razr
+chroot "$root" usermod -p "$(openssl passwd -6 "$(openssl rand -hex 32)")" razr
+mkdir -p "$root/etc/ssh/sshd_config.d" "$root/etc/systemd/network"
+cat > "$root/etc/ssh/sshd_config.d/90-razr.conf" <<'SSHD'
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+AllowUsers razr
+SSHD
+cat > "$root/etc/systemd/network/80-razr-qemu.network" <<'NET'
+[Match]
+Driver=virtio_net
+[Network]
+DHCP=ipv4
+NET
+systemctl --root="$root" enable systemd-networkd.service ssh.service > "$evidence/services-enable.log" 2>&1
+# Host SSH keys are unique per boot, never distributed in the rootfs.
+rm -f "$root"/etc/ssh/ssh_host_*
+cat > "$root/etc/systemd/system/razr-ssh-hostkeys.service" <<'KEYS'
+[Unit]
+Description=Generate unique SSH host keys
+Before=ssh.service
+ConditionPathExists=!/etc/ssh/ssh_host_ed25519_key
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ssh-keygen -A
+[Install]
+WantedBy=multi-user.target
+KEYS
+systemctl --root="$root" enable razr-ssh-hostkeys.service >> "$evidence/services-enable.log" 2>&1
+mkdir -p "$root/usr/local/share"
+printf 'UID/GID preservation fixture\n' > "$root/usr/local/share/razr-ownership-fixture"
+chown 1234:1235 "$root/usr/local/share/razr-ownership-fixture"
 mkdir -p "$root/usr/local/libexec" "$root/etc/systemd/system/multi-user.target.wants"
 cat > "$root/usr/local/libexec/razr-userspace-smoke" <<'SMOKE'
 #!/bin/sh
@@ -83,14 +119,14 @@ test "$(dpkg --print-architecture)" = arm64
 test -d /run/systemd/system
 grep -Eq '(^| )razr.smoke=1( |$)' /proc/cmdline
 printf 'RAZR_USERSPACE_SMOKE_PASS arch=arm64 init=systemd\n' > /dev/console
-systemctl --no-block poweroff
+# Host must complete network and SSH acceptance before shutdown.
 SMOKE
 chmod 0755 "$root/usr/local/libexec/razr-userspace-smoke"
 cat > "$root/etc/systemd/system/razr-userspace-smoke.service" <<'UNIT'
 [Unit]
 Description=QEMU-only ARM64 userspace smoke verification
 ConditionKernelCommandLine=razr.smoke=1
-After=local-fs.target systemd-udevd.service
+After=local-fs.target systemd-udevd.service systemd-networkd.service
 [Service]
 Type=oneshot
 ExecStart=/usr/local/libexec/razr-userspace-smoke
@@ -110,14 +146,25 @@ cp "$work/vmlinuz" "$evidence/qemu-vmlinuz"
 cp "$work/initrd.img" "$evidence/qemu-initrd.img"
 chroot "$root" apt-get clean
 rm -f "$root/usr/sbin/policy-rc.d" "$root/usr/bin/qemu-aarch64-static" "$root/var/log/bootstrap.log" "$root/var/lib/dbus/machine-id" "$root/etc/resolv.conf"
+rm -f "$root"/etc/ssh/ssh_host_*
 : > "$root/etc/machine-id"
 umount "$root/dev"
 umount "$root/sys"
 umount "$root/proc"
 echo 'tar sorted rootfs -> rootfs.tar.zst; mkfs.ext4 -d rootfs -> rootfs.ext4' >> "$evidence/commands.txt"
-tar --sort=name --numeric-owner --owner=0 --group=0 --mtime="@$SOURCE_DATE_EPOCH" --pax-option=delete=atime,delete=ctime -C "$root" -cf - . | zstd -T0 -12 -o "$evidence/rootfs.tar.zst"
+tar --sort=name --numeric-owner --mtime="@$SOURCE_DATE_EPOCH" --pax-option=delete=atime,delete=ctime -C "$root" -cf - . | zstd -T0 -12 -o "$evidence/rootfs.tar.zst"
+bash scripts/verify-rootfs-ownership.sh "$root" "$evidence/rootfs.tar.zst" "$evidence"
+# Ephemeral CI SSH credential lives in the disposable QEMU disk only, NOT the tar.
+ssh-keygen -q -t ed25519 -N '' -f "$work/ssh_id_ed25519"
+ssh-keygen -lf "$work/ssh_id_ed25519.pub" > "$evidence/ssh-ci-public-fingerprint.txt"
+install -d -m 0700 "$root/home/razr/.ssh"
+install -m 0600 "$work/ssh_id_ed25519.pub" "$root/home/razr/.ssh/authorized_keys"
+chown -R "$(chroot "$root" id -u razr):$(chroot "$root" id -g razr)" "$root/home/razr/.ssh"
+install -d -m 0755 "$root/etc/sudoers.d"
+printf 'razr ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff\n' > "$root/etc/sudoers.d/99-qemu-only"
+chmod 0440 "$root/etc/sudoers.d/99-qemu-only"
 truncate -s "$ROOTFS_SIZE_MIB"M "$work/rootfs.ext4"
 mkfs.ext4 -F -q -L RAZRROOT -d "$root" "$work/rootfs.ext4" > "$evidence/mkfs.log" 2>&1
 sha256sum "$work/rootfs.ext4" > "$evidence/qemu-disk-sha256.txt"
-(cd "$evidence" && sha256sum rootfs.tar.zst qemu-vmlinuz qemu-initrd.img packages.tsv inputs.env > SHA256SUMS)
+(cd "$evidence" && sha256sum rootfs.tar.zst qemu-vmlinuz qemu-initrd.img packages.tsv inputs.env ownership-verification.txt > SHA256SUMS)
 echo 'Built Debian ARM64 userspace and generic virt disk, not oneli boot firmware.'
