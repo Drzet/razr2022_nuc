@@ -1,7 +1,8 @@
 name: ARM64 native artifact contract fixtures
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches: ['razr/userspace']
     paths:
       - '.github/workflows/userspace-native-contract.yml'
       - 'scripts/validate-native-kernel-inputs.py'
