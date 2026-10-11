@@ -5,7 +5,7 @@
 ## Offline results and next gate (2026-10-11)
 
 - [Pinned vendor AUX-routing investigation](../../docs/displayport_oneli_aux_routing_2026-10-11.md) establishes **vendor software** outputs: GPIO2/GPIO71 = `1/0` when disconnected, `0/0` in DP CC1, `0/1` in DP CC2. Exact physical mux IC and runtime polarity remain unknown.
-- 13/13 pinned-source assertions passed for the vendor GPIO path and existing mainline GPIO-SBU logic/binding. This is **source validation, not DT schema or hardware verification**.
+- 13/13 GPIO/mux plus 10/10 baseline graph pinned-source assertions passed for the vendor GPIO path and existing mainline GPIO-SBU logic/binding. This is **source validation, not DT schema or hardware verification**.
 - No switch compatible can be justified from available oneli hardware evidence. Do **not** create a false GPIO-SBU compatible or enable DP in the board tree simply to make `dtbs_check` pass; the independently-controlled SBU mux and USB/PS5169 graph must first be identified.
 - [Cross-subsystem coordination issue #3](https://github.com/Drzet/razr2022_nuc/issues/3) tracks the Type-C connector, PS5169, GPIO91 and DP/AUX ownership.
 - **All matrix entries below are deferred until the handset and required dock/monitor become available.** A subsequent passing CI DTB/schema check is not an on-device DP test.
