@@ -29,10 +29,11 @@ for ((i=0;i<150;i++)); do
 done
 [[ "$(cat "$evidence/qemu-boot-status.txt")" == passed ]] || fail 'BOOT_FAILED: no guest systemd marker'
 echo pending > "$evidence/qemu-ssh-status.txt"
+echo 'guest SSH command checks architecture, PID 1, configured IPv4 and prints routing evidence' > "$evidence/ssh-acceptance-contract.txt"
 opts=(-i "$work/ssh_id_ed25519" -p "$port" -o BatchMode=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no
  -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=3 -o ConnectionAttempts=1)
-for ((i=0;i<90;i++)); do
-  if ssh "${opts[@]}" razr@127.0.0.1 'test "$(dpkg --print-architecture)" = arm64 && test "$(cat /proc/1/comm)" = systemd && test -d /run/systemd/system && ip -4 route show default | grep -q default && echo RAZR_NETWORK_SSH_PASS' > "$evidence/ssh-command.log" 2>&1; then
+for ((i=0;i<36;i++)); do
+  if ssh "${opts[@]}" razr@127.0.0.1 'printf "RAZR_SSH_CONNECTED arch=%s pid1=%s\\n" "$(dpkg --print-architecture)" "$(cat /proc/1/comm)"; ip -4 -o address show scope global; ip -4 route show; test "$(dpkg --print-architecture)" = arm64 && test "$(cat /proc/1/comm)" = systemd && test -d /run/systemd/system && ip -4 -o address show scope global | grep -q "inet " && echo RAZR_NETWORK_SSH_PASS' > "$evidence/ssh-command.log" 2>&1; then
     if grep -Fq RAZR_NETWORK_SSH_PASS "$evidence/ssh-command.log"; then echo passed > "$evidence/qemu-ssh-status.txt"; break; fi
   fi
   kill -0 "$pid" 2>/dev/null || break
