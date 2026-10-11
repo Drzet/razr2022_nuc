@@ -1,0 +1,39 @@
+name: Oneli boot v4 structural prototype tests
+
+on:
+  push:
+    branches: [razr/boot]
+    paths:
+      - 'scripts/oneli_boot_v4_layout.py'
+      - 'tests/test_oneli_boot_v4_layout.py'
+      - '.github/workflows/boot-layout.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-boot-layout:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Run synthetic boot/vb v4 roundtrip and corruption tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          {
+            echo "project=$GITHUB_SHA"
+            python3 --version
+            sha256sum scripts/oneli_boot_v4_layout.py tests/test_oneli_boot_v4_layout.py
+          } > evidence/identity.txt
+          python3 -m unittest discover -s tests -p 'test_oneli_boot_v4_layout.py' -v 2>&1 | tee evidence/test.log
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: boot-layout-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30
