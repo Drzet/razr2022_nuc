@@ -1,0 +1,65 @@
+name: Power temperature conversion KUnit runtime
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/power-battmgr-kunit.yml'
+  push:
+    branches: [razr/power]
+    paths:
+      - '.github/workflows/power-battmgr-kunit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  uml-temperature-kunit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      KERNEL_SHA: 3b02b11bc5abdc5c453fa4af16b71bd8e44c2056
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Drzet/linux
+          ref: ${{ env.KERNEL_SHA }}
+          path: kernel
+          persist-credentials: false
+      - name: Install UML build dependencies
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gcc make bc flex bison libssl-dev libelf-dev
+      - name: Boot Linux UML and execute real KUnit decoder suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          printf '%s\n'             "kernel: Drzet/linux@${KERNEL_SHA}"             "checkout: $(git -C kernel rev-parse HEAD)"             "GCC: $(gcc --version | head -1)"             "Python: $(python3 --version)" | tee evidence/inputs.txt
+          cat > power.kunitconfig <<'CONFIG'
+          CONFIG_KUNIT=y
+          CONFIG_KUNIT_ALL_TESTS=n
+          CONFIG_BATTERY_QCOM_BATTMGR_KUNIT_TEST=y
+          CONFIG
+          python3 kernel/tools/testing/kunit/kunit.py run \
+            --arch=um --jobs=4 --timeout=180 \
+            --build_dir="$GITHUB_WORKSPACE/kunit-build" \
+            --kunitconfig="$GITHUB_WORKSPACE/power.kunitconfig" \
+            'qcom-battmgr-temperature*' 2>&1 | tee evidence/kunit.log
+          cp kunit-build/.config evidence/uml.config
+          grep -q '^CONFIG_BATTERY_QCOM_BATTMGR_KUNIT_TEST=y$' evidence/uml.config
+          grep -q '^CONFIG_KUNIT=y$' evidence/uml.config
+          grep -E '^CONFIG_(KUNIT|BATTERY_QCOM_BATTMGR_KUNIT_TEST)=' evidence/uml.config | tee evidence/resolved-config.txt
+          sha256sum kunit-build/linux evidence/uml.config | tee evidence/artifacts.sha256
+      - name: Preserve runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-temperature-kunit-uml
+          path: evidence/
+          if-no-files-found: warn
