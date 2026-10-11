@@ -1,0 +1,47 @@
+# Subsystem handoff: Boot round 3, GPU OPPs and full compiled-DTB audit
+
+- Date/originating chat: 2026-10-11, Boot after second coordinator assignment.
+- Read exact coordinator main: `AGENTS.md` blob `f0ecba39e81d08bad0a9b6320b04826e354b67ea`, `docs/NEXT_TASKS.md` blob `96d377b19ed0528c8568d9b2d2f180b6dc7b7373`. Coordinator aggregate status belongs only to coordinator.
+- Kernel: `Drzet/linux` branch `razr/boot`, current source head **`31e107507f5eac6c2c37c7b8f5c466298cadcde3`**; upstream baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`, predecessor `3825dc6afb0f5e102845b32811ce0f518c0b4bbf`.
+- Project tests/handoff: `Drzet/razr2022_nuc` branch `razr/boot` (branch created from coordinator main `98f6bd1fd441a2d0bca1596346a9aca3756bd0af`, not a main status rewrite); script commit `ceb102384214cbaa714e9ebf88765fe97f786ea4`. Branch head changes as this handoff is edited.
+- Peer code required at integration: GPU chip-ID catalog `4955f07a94ea3c51e423e34d819ac3f76f1c9d37` **not integrated**; USB driver/binding and VPU patch branches also **not integrated**.
+- Evidence distinction: source researched and kernel DTS implemented; kernel oneli DTB compiled before broader checks; *new full-schema / compiled-FDT run pending at first document commit*. No kernel image, module, phone boot, or hardware validation in this round.
+
+## Source-backed changes
+
+1. Kernel [`9b37ea4953eada0837b18421ce6b74beebfe0a2b`](https://github.com/Drzet/linux/commit/9b37ea4953eada0837b18421ce6b74beebfe0a2b): adopt GPU owner's **exact thirteen-frequency** replacement in Boot's `sm8475.dtsi`; delete all ten distinct SM8450-only OPP child names, override 220 MHz inherited corner, set `qcom,adreno-730.2` compatible. `&gpu` **explicitly disabled**. Inputs: [GPU handoff](https://github.com/Drzet/razr2022_nuc/blob/c066afb/docs/handoffs/gpu-2026-10-11.md), [review/issue #4](https://github.com/Drzet/razr2022_nuc/issues/4), Motorola `kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359` `qcom/cape-gpu.dtsi`. Separate CX votes, ACD, bus configuration and signed oneli ZAP remain unsupported/unknown; operating-points transcription does not make GPU ready.
+2. Project [`ceb102384214cbaa714e9ebf88765fe97f786ea4`](https://github.com/Drzet/razr2022_nuc/commit/ceb102384214cbaa714e9ebf88765fe97f786ea4): add pure stdlib compiled-FDT checker `tests/scripts/check-oneli-dtb.py`. Reads DTB binary tokens, traverses enabled/disabled ancestor status, validates memory-reg intervals for overlap, full 13 GPU rates and numeric RPMh levels, UART7 ancestor state, supply/clock/power-domain and other named provider references. Writes JSON report. It does **not** substitute for `dtbs_check` or establish physical memory layout.
+3. Kernel [`31e107507f5eac6c2c37c7b8f5c466298cadcde3`](https://github.com/Drzet/linux/commit/31e107507f5eac6c2c37c7b8f5c466298cadcde3): change `.github/workflows/razr-oneli-dt.yml` from ARM/TLMM-only checks to (a) **all Linux binding schema compilation**, (b) **exact one oneli DTB** checked with `CHECK_DTBS=y`, (c) pinned source-independent compiled DTB Python FDT audit and decompile, with logs and `.config`/DTB artifact. Checker source pinned by immutable project SHA above. No master/baseline CI modifications.
+4. PVT stock Android 14 ADB capture (source: [capture report](https://github.com/Drzet/razr2022_nuc/blob/main/docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md)): **[HARDWARE-OBSERVED]** XT2251-1, PVT, `0xC000`, SKU `dn`, Android 14 fingerprint `motorola/oneli_ge/oneli:14/U2SLS34.1-42-14-11/e37c37-31202:user/release-keys`, `bootloader locked/green`, current A/B slot `_a`. Original Motorola Android12 `cape-oneli-pvt-overlay.dts` source contains `qcom,board-id = <0x45 0xC000>` and `qcom,msm-id = <530 0x10000>, <531 0x10000>, <540 0x10000>`. The observed PVT/hwrev makes that overlay the primary **source candidate**, but no loaded numeric `qcom,board-id`/`qcom,msm-id` properties were readable through restricted ADB. Source snapshot and observed installed Android14 vendor DT are not assumed identical.
+5. Stock A/B partition names boot, vendor_boot, dtbo, recovery, vbmeta, abl, xbl and others were [HARDWARE-OBSERVED] via symlinks. These are **not** proof of image-header version, mkbootimg offsets/page size, kernel compression, selected DTBO index or any correct native packing recipe. No stock partition contents have been read. VPU owns reference firmware archive acquisition/inventory; Boot will interpret pinned boot/vendor_boot/DTBO member metadata from that shared inventory. No second large download requested.
+
+## Current validation work and scope
+
+- Earlier [Boot run 38164785277](https://github.com/Drzet/linux/actions/runs/38164785277) passed oneli compilation and ARM/TLMM-filtered checks, **not** whole-board schema coverage.
+- GPU owner's [disposable fixture run 38164310160](https://github.com/Drzet/razr2022_nuc/actions/runs/38164310160) passed a 13-entry OPP check using runner-local source injection. It does not test committed Boot board DTS.
+- Kernel [run 38173868096](https://github.com/Drzet/linux/actions/runs/38173868096) at GPU DTS SHA `9b37ea4` passed oneli DTB compile; older ARM/TLMM schema scope. Final job status/log check to follow.
+- Kernel **[round-3 run 38174062138](https://github.com/Drzet/linux/actions/runs/38174062138)** at SHA `31e107507f5eac6c2c37c7b8f5c466298cadcde3` and script `ceb102384214cbaa714e9ebf88765fe97f786ea4`. It is running at first document commit; **do not call complete**, inspect job conclusion and warnings. Exact commands from workflow:
+  `make O=out defconfig`
+  `make O=out -j"$(nproc)" qcom/sm8475-motorola-oneli.dtb`
+  `make O=out -j"$(nproc)" dt_binding_check`
+  `rm -f out/arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dtb`
+  `make O=out -j"$(nproc)" CHECK_DTBS=y qcom/sm8475-motorola-oneli.dtb`
+  `python3 project-audit/tests/scripts/check-oneli-dtb.py out/arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dtb --output evidence/oneli-fdt-audit.json`.
+  `dtc -I dtb -O dts -s -o evidence/sm8475-motorola-oneli.resolved.dts ...`.
+- Important: baseline `sm8450.dtsi` may have extant binding warnings; classify oneli-introduced failures separately by schema/node. `make` success without reviewing warnings does not establish pass.
+- No physical UART, UFS, GPU, Type-C or display runtime test. No kernel Image/module build in this branch validation.
+
+## Shared files and dependencies
+
+Boot modified only shared `arch/arm64/boot/dts/qcom/sm8475.dtsi` (OPP change) and Boot-specific `.github/workflows/razr-oneli-dt.yml`. No USB/Power/VPU/DP branches, integration branch, kernel baseline or coordinator aggregate `STATUS.md` were edited.
+
+- [GPU issue #4](https://github.com/Drzet/razr2022_nuc/issues/4): posted Boot acceptance SHA; GPU owner should validate full OPP checker against **committed** Boot DTB and continue CX/GMU/firmware profile assessment independently. Driver chip ID commit remains out of Boot.
+- [Power issue #9](https://github.com/Drzet/razr2022_nuc/issues/9): acknowledged versioned rail contract. UFS rail providers/consumers stay disabled; Motorola allowable *ranges* differ from initial fixed set-point placeholder constraints. PMIC BOB/S12B grouped upstream parent mapping from SM8450 HDK is **[INFERRED]**, do not invent fixed `vph_pwr`.
+- [USB2-first source contract](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/usb2_first_boot_contract_v1_2026-10-11.md) and [Type-C graph v1](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/typec_graph_contract_v1_2026-10-11.md) already available. USB proposes disabled SM8475 eUSB2 PHY, staged HS controller and PMIC GLINK connector port0; the exact repeater SKU/reset/driver remains unresolved. Only Boot may port shared DT; active PHY/repeater and DP graph held. No PS5169/DP required for source-only USB2 staging. USB binding and VIO candidate driver commits must be selected by integration coordinator separately. Connector port0 DWC3, port1 PS5169/QMP, port2 independent AUX; GPIO91 orientation under sole PMIC GLINK ownership, physical semantics [INFERRED] pending hardware.
+- VPU firmware owner must supply matching `U2SLS34.1-42-14-11` candidate's URL/hash, member hashes and `boot.img`, `vendor_boot.img`, `dtbo.img` metadata. No packaging values assumed from stock symlink paths.
+
+## Next gate
+
+1. Read completed run 38174062138, attach SHA/tool versions/config/log and warnings, fix any source/schema or checker defect without downgrading schema coverage; rerun until an exact final result is recorded.
+2. Expand disabled USB2 source staging only after combining the selected USB binding with reviewed Power rail dependencies. Keep actual consumers unpowered, and no generic NXP compatible without chip evidence.
+3. After VPU supplies firmware manifest, examine exact stock boot header and DTBO entries (public reference only); compare with observed PVT phone without assuming bootloader-selected numeric board-id.
