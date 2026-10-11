@@ -1,0 +1,85 @@
+name: GPU ARM64 MSM module validation
+
+on:
+  push:
+    branches: ['razr/gpu']
+    paths:
+      - '.github/workflows/gpu-arm64.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  msm-module:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 100
+    steps:
+      - name: Check out project GPU branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Check out exact GPU kernel patch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: 4955f07a94ea3c51e423e34d819ac3f76f1c9d37
+          path: kernel
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Install cross-compilation dependencies
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make bc bison flex libssl-dev libelf-dev python3 perl rsync cpio kmod zstd xz-utils dwarves 2>&1 | tee evidence/apt-install.log
+
+      - name: Compile kernel and MSM module
+        run: |
+          set -Eeuo pipefail
+          mkdir -p evidence
+          trap 'printf "%s\n" "$?" > evidence/build-exit-code.txt' EXIT
+          test "$(git -C kernel rev-parse HEAD)" = 4955f07a94ea3c51e423e34d819ac3f76f1c9d37
+          {
+            printf 'project_sha=%s\n' "$GITHUB_SHA"
+            printf 'kernel_sha=%s\n' "$(git -C kernel rev-parse HEAD)"
+            printf 'baseline_sha=%s\n' a5ebb76233b79db01e82e061173cb73c6d2b5c6b
+            printf 'run_url=https://github.com/%s/actions/runs/%s\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
+            printf 'runner_image=%s\n' "${ImageOS:-unknown}"
+            printf 'runner_image_version=%s\n' "${ImageVersion:-unknown}"
+            aarch64-linux-gnu-gcc --version
+            make --version
+            uname -a
+          } > evidence/environment.txt
+          dpkg-query -W -f='${Package}\t${Version}\n' > evidence/packages.tsv
+          export ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+          export KBUILD_BUILD_USER=razr-gpu KBUILD_BUILD_HOST=github-actions
+          export LC_ALL=C TZ=UTC
+          out="$PWD/kernel/.gpu-build"
+          {
+            echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig'
+            echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image'
+            echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) M=<absolute kernel/drivers/gpu/drm/msm path> modules'
+          } > evidence/commands.txt
+          set -o pipefail
+          make -C kernel O="$out" defconfig 2>&1 | tee evidence/configure.log
+          cp "$out/.config" evidence/kernel.config
+          grep -qx 'CONFIG_DRM_MSM=m' evidence/kernel.config
+          grep -E '^(CONFIG_DRM_MSM|CONFIG_SM_GCC_8450|CONFIG_SM_GPUCC_8450|CONFIG_QCOM_RPMH|CONFIG_QCOM_RPMHPD|CONFIG_ARM_SMMU|CONFIG_QCOM_AOSS_QMP)=' evidence/kernel.config > evidence/gpu-config-extract.txt || true
+          make -C kernel O="$out" -j"$(nproc)" Image 2>&1 | tee evidence/image-build.log
+          make -C kernel O="$out" -j"$(nproc)" M="$PWD/kernel/drivers/gpu/drm/msm" modules 2>&1 | tee evidence/msm-module-build.log
+          test -s kernel/drivers/gpu/drm/msm/msm.ko
+          aarch64-linux-gnu-readelf -h kernel/drivers/gpu/drm/msm/msm.ko > evidence/msm-module-elf.txt
+          cp kernel/drivers/gpu/drm/msm/msm.ko evidence/msm.ko
+          sha256sum evidence/msm.ko evidence/kernel.config > evidence/SHA256SUMS
+
+      - name: Upload GPU module evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gpu-msm-module-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30
