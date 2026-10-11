@@ -11,3 +11,5 @@
 - Keep proprietary firmware binaries and generated images out of this repository. Track provenance, filenames and hashes instead.
 
 - The owner currently has no access to the phone. Continue source audits, public stock-firmware inspection, compilation, schema checks and suitable generic emulation. Label physical runtime tests deferred; do not call a public reference image the installed firmware.
+
+- Coordinator owns aggregate `docs/STATUS.md` and `docs/NEXT_TASKS.md`. Subsystem agents update their own handoffs/results on assigned branches and propose coordination changes; do not overwrite aggregate status from stale branches. Read coordinator main for the latest assignments and dependency gates.
