@@ -30,3 +30,5 @@ All source links use pinned Motorola or upstream Linux commit IDs where availabl
 - [Status and milestones](STATUS.md)
 - [Architecture and integration workflow](WORKFLOW.md)
 - [Subsystem handoff template](templates/subsystem-handoff.md)
+
+- [postmarketOS source and reuse review (11 October 2026)](postmarketos_review_2026-10-11.md) — pinned package/tooling sources, community SM8475 references and packaging recommendation
