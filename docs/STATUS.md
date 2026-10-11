@@ -1,6 +1,6 @@
 # Project status
 
-Updated 2026-10-11, second coordinator review. Phone unavailable; no hardware validation. Current instructions and concurrency gates: [NEXT_TASKS.md](NEXT_TASKS.md).
+Updated 2026-10-11 with subsequent stock Android ADB capture. Brief physical inspection is recorded; the phone is now disconnected. No native Linux hardware validation. Current instructions and concurrency gates: [NEXT_TASKS.md](NEXT_TASKS.md).
 
 | Workstream | Current evidence | Next gate |
 | --- | --- | --- |
@@ -13,6 +13,10 @@ Updated 2026-10-11, second coordinator review. Phone unavailable; no hardware va
 | DisplayPort | [Vendor software AUX truth table and graph audit](displayport_oneli_aux_routing_2026-10-11.md); no implementation | Reproducible checks and graph agreement; enablement awaits USB + valid AUX binding |
 | Userspace | Project `b15c1dd292fface8928d8b70369472ac637cbe92`; [rootfs built, QEMU startup failed](https://github.com/Drzet/razr2022_nuc/actions/runs/38165284627) on missing ROM | Fix QEMU and tar ownership; add real networking/SSH acceptance |
 
-All seven agents have immediate independent work. Only the integration steps identified in NEXT_TASKS.md must wait on other deliverables. No integration kernel or validated oneli boot-image recipe exists. Public firmware is still unacquired, and actual installed firmware/board revision is unknown.
+All seven agents have immediate independent work. Only the integration steps identified in NEXT_TASKS.md must wait on other deliverables. No integration kernel or validated oneli boot-image recipe exists. The capture identifies XT2251-1 PVT (hwrev 0xC000, SKU dn), Android 14 U2SLS34.1-42-14-11, locked/green bootloader and active slot A. Public archive contents, exact loaded DT properties and native image packaging remain unverified.
 
 Historical handoffs retain their original observation times. The completed run outcomes above supersede their pending-job statements. Researched, implemented, compiled, schema-tested, emulated and hardware-tested remain distinct evidence categories.
+
+## Subsequent stock-device evidence
+
+[ADB capture report](oneli_stock_android14_adb_hardware_capture_2026-10-11.md): registered dual-battery/GLINK topology and stock charging observations; configured USB gadget and advertised dual-role combinations; registered but inactive DP connector. No usable DT property export, firmware extraction or native boot was obtained. See the evidence update at the top of NEXT_TASKS.md for owner-specific consequences. The build table above remains the second-review snapshot; this evidence review does not claim a new audit of later subsystem commits.

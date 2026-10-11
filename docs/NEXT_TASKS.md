@@ -1,6 +1,27 @@
 # Second review: next assignments and concurrency
 
-Reviewed 2026-10-11 after the second subsystem round. This supersedes the task queue in [the first review](FIRST_REVIEW.md). The phone is unavailable. No hardware success is claimed. Read this file from coordinator **main**, even when working on an older subsystem branch.
+Reviewed 2026-10-11 after the second subsystem round. This supersedes the task queue in [the first review](FIRST_REVIEW.md). At that review the phone was unavailable; the later stock ADB evidence update below supersedes that access/identity statement. No native Linux hardware success is claimed. Read this file from coordinator **main**, even when working on an older subsystem branch.
+
+## Stock-device evidence update — 2026-10-11, after second review
+
+Read [the physical stock Android ADB capture](oneli_stock_android14_adb_hardware_capture_2026-10-11.md) before continuing hardware-specific assumptions. The coordinator reviewed the committed report and its internal evidence distinctions; this review did not independently re-run ADB or inspect the original archives. The report is the provenance record for the supplied observations.
+
+- **Known target:** XT2251-1, PVT, hwrev 0xC000, SKU dn; installed fingerprint `motorola/oneli_ge/oneli:14/U2SLS34.1-42-14-11/e37c37-31202:user/release-keys`. These replace the previous broad unknown-revision/build statements. PVT does not uniquely establish numeric board-id/msm-id or the selected DTBO entry.
+- **Access:** stock ADB was briefly available, then the phone was disconnected. No continuing hardware access or native Linux validation is assumed. Boot state was green/locked, slot A. Future custom-image boot testing requires resolving the bootloader prerequisite; no unlocking/flashing is authorized by this documentation update.
+- **Firmware:** prioritize the previously selected `U2SLS34.1-42-14-11` public package. Its version matches the observed build label; verify its fingerprint/metadata, region and content before treating it as the exact installed image. VPU remains the single archive acquisition/inventory owner, Boot owns boot/vendor_boot/DTBO interpretation.
+- **DT archives:** the report records a symlink-only archive and a directory-only archive with zero property files. Do not use either as a resolved DT or derive `reg` values/sizes from node names. Keep the hashes and property-read failure recorded; no need to repeat the same inaccessible export while offline.
+
+| Owner | Adjustment to current assignment |
+| --- | --- |
+| Boot | Use oneli PVT overlays as the primary board-source candidate; reconcile Android 12 sources with the observed Android 14 build. Track locked bootloader and observed A/B partition names. Do not hard-code stock /dev/block/sd* paths into native packaging or infer image header format from partition names. Numeric board IDs, loaded overlays and packing parameters remain unresolved. |
+| Power | Incorporate registered main GLINK, Motorola aggregation and secondary I2C supplies at 0x55/0x6b as stock runtime evidence. The charger reports model sgm41516D with an inconsistent TI manufacturer string: separate driver-reported identity from a silicon-ID read, which was not captured. Bus number 1 is not an upstream DT label; translate controller address 0x988000 against the selected source. Treat current/status/capacity snapshots as observations, not validated policy, wiring or battery-health estimates. |
+| USB | Record successful stock gadget/ADB configuration and advertised sink+host role support. Use simultaneous sink power + host data as a future dock acceptance case. Historical host events do not identify the peripheral or prove a powered dock. Repeater identity/reset and mainline role handling remain open. |
+| DisplayPort | Record registered DP connector, disabled at capture. No active output, EDID, link training or AUX/PS5169 wiring was tested; graph/binding work and its dependencies remain unchanged. |
+| GPU | A stock DRM render node under the display device is not an Adreno/Mesa acceleration test. Existing firmware/profile/module assignments remain unchanged. |
+| VPU | Stock directory names corroborate the presence of named memory regions only. Obtain actual DT properties and firmware from the matching reference archive; no carveout size or HFI compatibility is newly established. |
+| Userspace | No change to independent QEMU/network/SSH milestone. Native integration must use Boot's verified packaging contract, not the observed stock block-device numbering. |
+
+All agents can continue their current independent assignments. The new observation changes evidence and target selection, not the integration ordering. Next optional physical session should prioritize a powered dock with USB peripheral and monitor on stock Android, recording roles and actual display output. Native hardware tests remain deferred.
 
 ## Independently checked outcomes
 

@@ -10,6 +10,6 @@
 - Record baseline selections and changes in `configs/baseline.json` and `docs/WORKFLOW.md`. The initial null fields mean no baseline has been selected.
 - Keep proprietary firmware binaries and generated images out of this repository. Track provenance, filenames and hashes instead.
 
-- The owner currently has no access to the phone. Continue source audits, public stock-firmware inspection, compilation, schema checks and suitable generic emulation. Label physical runtime tests deferred; do not call a public reference image the installed firmware.
+- A brief stock Android ADB session was captured on 2026-10-11; read `docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md` for observed board/build identity and its limits. The phone was then disconnected; do not assume ongoing access or native validation. Continue source audits, public stock-firmware inspection, compilation, schema checks and suitable generic emulation. Label physical runtime tests deferred; do not call a public reference image the installed firmware.
 
 - Coordinator owns aggregate `docs/STATUS.md` and `docs/NEXT_TASKS.md`. Subsystem agents update their own handoffs/results on assigned branches and propose coordination changes; do not overwrite aggregate status from stale branches. Read coordinator main for the latest assignments and dependency gates.
