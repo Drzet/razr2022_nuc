@@ -1,0 +1,35 @@
+name: ARM64 native artifact contract fixtures
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/userspace-native-contract.yml'
+      - 'scripts/validate-native-kernel-inputs.py'
+      - 'tests/userspace/test_native_contract.py'
+      - 'userspace/native-kernel-inputs.example.json'
+permissions:
+  contents: read
+jobs:
+  negative-fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout coordinator code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install native artifact inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang kmod cpio initramfs-tools-core zstd xz-utils
+      - name: Validate parser and run positive/negative fixtures
+        run: |
+          python3 -m py_compile scripts/validate-native-kernel-inputs.py tests/userspace/test_native_contract.py
+          python3 tests/userspace/test_native_contract.py 2>&1 | tee native-contract-fixtures.log
+      - name: Retain fixture transcript
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-native-contract-${{ github.run_id }}-${{ github.run_attempt }}
+          path: native-contract-fixtures.log
+          retention-days: 30
