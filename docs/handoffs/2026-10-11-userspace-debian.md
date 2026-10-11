@@ -88,3 +88,31 @@ Commands are defined in `userspace/README.md`; QEMU's effective command, rootfs 
 Machine-readable template: `userspace/native-kernel-inputs.example.json`; validator: `scripts/validate-native-kernel-inputs.py`. Required exact `kernel_commit`, `kernel_release`, Image/config/oneli DTB paths, same-release modules directory with modules.dep, native initramfs path, licensed firmware manifest/directory and evidence-backed packaging manifest are intentionally **null** until Boot delivers real artifacts. Source-level schema presence does not make them available. No stock block-device numbers, boot header offsets or DTBO selection were guessed from the limited stock ADB capture.
 
 **Remaining acceptance blocker:** Obtain a completed rootfs ownership roundtrip plus a real systemd boot marker, networkd/DHCP route, ephemeral-key SSH command and guest exit 0 from the *same* tested implementation. Hardware boot, Qualcomm storage, console, firmware acceptance and peripherals remain deferred, and cannot be inferred from `virt`.
+
+## Third coordinator review follow-up — 2026-10-11
+
+Read coordinator **main** `docs/STATUS.md` blob `1f3babd216fdfffd1d30e21bf286ae8838c72454` and full `docs/NEXT_TASKS.md` blob `fd33173324a2a97befcd87238271b36fa949ac74` (also current AGENTS/WORKFLOW). No aggregate main files, kernel baseline, or other subsystem branches changed.
+
+### Independently inspected QEMU evidence
+
+**Completed** run [38177877133](https://github.com/Drzet/razr2022_nuc/actions/runs/38177877133), job `114584033705`, source branch `f785ae444e904fe030baa8d745102d25a1fe2cde`, PR test-merge `1417fedd35f9fe217ad02953321696e8f092acef` (from `environment.txt`), **overall failure at SSH command check**. Downloaded evidence artifact ID `11717192325` and inspected the archive rather than relying on workflow status alone.
+
+- Debian 13 `trixie` ARM64 bootstrap and rootfs tarball: PASS; builder exit code 0. Generic QEMU distribution kernel release `6.12.111+deb13-arm64`. `rootfs.tar.zst` SHA256 `2bdec49277b2ab79ccde1d84d7447c8342bd2e27a5c207468fc381d339825028`; `qemu-vmlinuz` `5028c424ee9fd0f4d18c38269122e30e3d084deb1b13404ab070a3f478ddd30a`; `qemu-initrd.img` `df154b816eef1d7aebdb3b2ef4e3e031074708b33aad48a4fbdc69601ffa6d2d`; `packages.tsv` `076deee0067b4012c4fde96bc6ae3e10fc89a18e80840157f9cf5e761cd9d703`.
+- Exact Debian package examples: `linux-image-arm64=6.12.111-1`, `systemd=257.13-1~deb13u1`, `openssh-server=1:10.0p1-7+deb13u4`. Hosted Ubuntu 24.04.5; QEMU `8.2.2`.
+- Archive **UID/GID extraction test passed**: `home/razr` source/extracted `1000:1000:700`; `usr/local/share/razr-ownership-fixture` source/extracted `1234:1235:644`.
+- Generic QEMU arm64 Debian kernel booted and emitted exact `RAZR_USERSPACE_SMOKE_PASS arch=arm64 init=systemd`; `systemd-networkd.service` and `ssh.service` started, target reached multi-user.
+- `ssh-command.log` shows an accepted host SSH key followed by `Failed to connect to system scope bus via local transport: No such file or directory`. **[INFERRED]** This error is produced by the prior `systemctl is-active systemd-networkd` test in the non-root SSH command; the log does not contain a separate explicit key-authentication-success marker, but executing that guest command and returning its error is evidence that SSH authentication and remote command execution worked. The network/SSH combined gate **failed**; no clean-shutdown success was recorded.
+
+Follow-up commit `69d8810398cfa72b7dfa4b2807be7b9d5375aba9` replaces the user-bus-dependent `systemctl` call with PID 1 and IPv4 route checks. The QEMU acceptance step still must prove boot marker + route + remote authenticated command + exit 0 in one run.
+
+### Native artifact gate: meaningful negative fixtures
+
+New native contract validator commits: `a46bb56842eb44737c8363b514c4668e328c3a21` and `c375475d9e69fdd71e6e5663a418a9a3269f765b`, fixtures `04195d8c5c6890cd93edc72d7996400f49e9de71`, contract input template `44b4e1e6d15881cb6e39000ccab41f736d282a3a`. Schema v2 verifies AArch64 ELF + module vermagic, exhaustive compressed/native module SHA256 mappings, modules.dep hash, actual extracted initramfs module and firmware bytes, kernel Image/config/DTB/initrd/packaging manifest hashes, and refuses empty/unknown firmware requirements.
+
+[Completed fast CI run 38179683577](https://github.com/Drzet/razr2022_nuc/actions/runs/38179683577), job `114589402535`, **SUCCESS** (6 tests/6 passing, 4.806 seconds). Branch SHA `ed536a2745286552166fd929018f407ba28ba9ab`; **actual PR merge SHA** `2b623aa24b4469b254ff9ffd2b0900bfc944fe7a`. See `tests/results/2026-10-11-userspace-native-contract.md`. These are synthetic ARM64 ELF module/firmware tests, *not* validation of Drzet/linux modules. Module symbol CRCs, actual firmware requirements and phone secure loading remain unproven.
+
+### CI scheduling and consumers
+
+The original rootfs workflow's duplicate push and PR triggers caused repeated cancellations. Commit `9a3d091f6dcf3d9dc3df7eea26b47bd108444507` removes the push trigger and scopes PR paths to actual generic rootfs/QEMU inputs. A separate lightweight fixture workflow validates native artifact parser changes. A replay workflow `d6d58b8c7ccc377a5fe79ddbe5767f41f6f06721` reuses the fully-hashed prior Debian rootfs tarball while assembling a **disposable** QEMU disk with a unique transient SSH key, avoiding a repeated >200 MB snapshot bootstrap for SSH harness debugging. Replay must record mixed source and harness SHA accurately; it cannot replace a clean full-build test at one final revision.
+
+Boot consumes `docs/userspace_boot_contract.md` and `userspace/native-kernel-inputs.example.json` after the coordinator publishes exact Image/config/modules/DTB/firmware inputs. The **project-kernel QEMU virt** trial is a separate future gate, after the generic Debian-kernel pass, and must use QEMU's DT, never oneli's. No coordinator-selected combined project kernel with fully matching modules is presently supplied or accepted for this task. [INFERRED] Such a build can be used for generic virtual ABI tests once the coordinator identifies it, not as Qualcomm hardware emulation.
