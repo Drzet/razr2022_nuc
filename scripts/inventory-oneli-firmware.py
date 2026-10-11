@@ -42,19 +42,29 @@ def digest_file(path):
 
 
 def dtbo_header(data):
-    """Android DT table header is big-endian. Report selection candidates, not selected DTB."""
+    """Parse bounded big-endian Android DTBO table and validate image bounds.
+
+    A parsed entry identifies a package candidate, NOT a bootloader selection.
+    """
     if len(data) < 32 or struct.unpack_from(">I", data)[0] != DTBO_MAGIC:
         return {"state": "unrecognized_dtbo_header"}
     magic, total, header, ent_size, ent_count, offset, page, version = struct.unpack_from(">8I", data)
-    if header < 32 or ent_size < 32 or ent_count > 10000 or offset > total:
+    if (header < 32 or header > total or ent_size < 32
+            or ent_count > 10000 or total > len(data)
+            or offset < header or offset > total
+            or ent_count * ent_size > total - offset):
         return {"state": "invalid_dtbo_header", "entry_count": ent_count}
     entries = []
+    table_end = offset + ent_count * ent_size
     for i in range(ent_count):
         pos = offset + i * ent_size
-        if pos + 32 > len(data):
-            return {"state": "truncated_dtbo_entries", "entries": entries}
         vals = struct.unpack_from(">8I", data, pos)
-        entries.append({"index": i, "dt_size": vals[0], "dt_offset": vals[1],
+        size, location = vals[:2]
+        if (size == 0 or location < table_end or location > total
+                or size > total - location):
+            return {"state": "invalid_dtbo_entry_bounds", "entry_index": i,
+                    "entry_count": ent_count}
+        entries.append({"index": i, "dt_size": size, "dt_offset": location,
                         "id": vals[2], "rev": vals[3], "custom": list(vals[4:])})
     return {"state": "parsed_candidate_table", "total_size": total,
             "entry_size": ent_size, "entry_count": ent_count,
@@ -63,10 +73,15 @@ def dtbo_header(data):
 
 
 def inventory_zip(path):
-    output = {"archive": digest_file(path), "entries": [], "dtbo_candidates": []}
+    output = {"archive": digest_file(path), "entries": [], "dtbo_candidates": [],
+              "zip_members": [], "firmware_member_hash_state": "direct members only"}
     with zipfile.ZipFile(path) as zf:
         for entry in zf.infolist():
             name = entry.filename
+            output["zip_members"].append({
+                "name": name, "uncompressed_bytes": entry.file_size,
+                "compressed_bytes": entry.compress_size,
+                "crc32": f"{entry.CRC:08x}"})
             if not any(marker in name.lower() for marker in MARKERS):
                 continue
             item = {"name": name, "uncompressed_bytes": entry.file_size,
