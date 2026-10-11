@@ -1,0 +1,11 @@
+# Project coordination rules
+
+- Read `docs/STATUS.md`, `docs/WORKFLOW.md` and the relevant investigation before changing project decisions or subsystem status.
+- Use the hardware database in `docs/` as the primary structured evidence source; consult newer focused investigations for unresolved additions. Preserve evidence provenance and qualify inferred hardware claims with `[INFERRED]`.
+- Keep kernel source, device trees, bindings and driver changes in `Drzet/linux`. Do not duplicate them here or import whole Android source trees.
+- Do not invent GPIOs, firmware names, configuration symbols, build parameters or successful test results. Record missing inputs explicitly.
+- Keep researched, implemented, build-tested and hardware-tested evidence separate. A merge or upstream driver match does not prove operation on this phone.
+- Use `docs/templates/subsystem-handoff.md` for subsystem handoffs. Record exact commits, dependencies, shared files and results.
+- Coordinate changes to shared board/SoC device trees and configuration before integration. Preserve concurrent work; do not overwrite another subsystem's updates.
+- Record baseline selections and changes in `configs/baseline.json` and `docs/WORKFLOW.md`. The initial null fields mean no baseline has been selected.
+- Keep proprietary firmware binaries and generated images out of this repository. Track provenance, filenames and hashes instead.

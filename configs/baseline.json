@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "unselected",
+  "kernel_repository": "https://github.com/Drzet/linux",
+  "upstream_repository": "https://github.com/torvalds/linux",
+  "upstream_commit": null,
+  "board_support_commit": null,
+  "integration_commit": null,
+  "toolchain": null,
+  "configuration_base": null,
+  "configuration_fragments": [],
+  "external_patchsets": [],
+  "image_preparation": null
+}

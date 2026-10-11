@@ -1,0 +1,53 @@
+# Architecture and coordination
+
+Decision recorded: 2026-10-11. Scope: native mainline Linux, with separate subsystem chats and this project repository as the durable coordination record.
+
+## Repository responsibilities
+
+- `Drzet/linux`: one kernel source of truth, containing board/SoC device trees, bindings, drivers and a traceable patch history. Leave its default upstream branch unchanged by project development.
+- `Drzet/razr2022_nuc`: evidence, configuration fragments, baseline metadata, build/image tooling, firmware inventory, validation procedures and results.
+- Motorola and other external trees: references pinned to exact revisions. Port justified changes as individual commits, preserving authorship, source links and applicable licensing. Record unmerged patchset versions and dependencies.
+
+The kernel fork is being arranged by the user. Its creation and a suitable upstream baseline have not yet been verified here. Do not treat the Linux commit used in the hardware audit as a build-baseline decision.
+
+## Planned kernel branches
+
+These names describe the agreed structure; they do not assert that branches already exist.
+
+| Branch | Responsibility | Dependency |
+| --- | --- | --- |
+| `razr/boot` | Shared board support, minimal boot and diagnostic output | Selected upstream commit |
+| `razr/gpu` | GPU enablement and rendering | Explicit `razr/boot` commit |
+| `razr/usb` | USB host/device, Type-C role and orientation work | Explicit `razr/boot` commit |
+| `razr/displayport` | External display routing and output | Board support plus required USB/Type-C commits |
+| `razr/vpu` | Decoder platform support and firmware interface | Explicit `razr/boot` commit |
+| `razr/power` | Power, charging and thermal integration | Explicit `razr/boot` commit |
+| `razr/integration` | Combined candidates for validation | Recorded subsystem commits |
+
+Use one selected upstream baseline across active work. Each handoff names exact dependency commits; branch names alone are insufficient. Coordinate shared device-tree changes through board support, keeping bindings and device-tree changes in separate commits. Introduce additional subsystem branches when there is concrete work to own.
+
+## Integration procedure
+
+1. Record a subsystem handoff using the template. Identify shared files and unresolved assumptions.
+2. Resolve dependencies and shared-file conflicts; integrate only the reviewed commit set. Record whether it was merged or cherry-picked, including resulting SHAs where changed.
+3. Build the combined kernel and affected device trees; validate bindings when changed. Preserve commands, tool versions, resulting configuration and logs.
+4. Record device tests independently of compilation. Keep failures and regressions visible.
+5. Update `STATUS.md` with evidence links. Tag hardware-tested integration commits with the scope of tests in the tag/release record. An integration branch may contain candidates that are not yet hardware-tested.
+
+Do not rewrite a published integration commit used by a recorded test. Baseline changes require a recorded reason, new exact upstream SHA and a re-evaluation of dependent branches.
+
+## Reproducible build record
+
+`configs/baseline.json` records the selected project inputs once known. Each actual build also needs a completed `tests/templates/build-record.md` containing the exact kernel and project revisions, ordered fragments, toolchain, external patches, firmware manifest, commands, image preparation inputs and artifact hashes. Preserve the generated kernel configuration with the build evidence.
+
+The initial structure deliberately contains no guessed kernel config or boot-image commands. Populate those after checking the selected kernel and the phone's boot requirements.
+
+## First milestones
+
+1. Verify the fork and select a suitable upstream commit based on subsystem evidence.
+2. Establish a clean ARM64 kernel and device-tree build from recorded inputs.
+3. Implement minimal board support using the hardware evidence and actual boot artifacts.
+4. Demonstrate native boot with usable diagnostic output and record the exact image/commit.
+5. Integrate subsystem work incrementally; test standalone decode before browser acceleration.
+
+Research for GPU, VPU, USB and power can proceed while boot support is developed. The VPU driver approach remains unresolved: an Iris platform extension is a hypothesis to validate, not an accepted implementation result.

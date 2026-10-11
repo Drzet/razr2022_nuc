@@ -24,3 +24,9 @@ Source-backed research for building a native mainline Linux kernel for Motorola 
 All source links use pinned Motorola or upstream Linux commit IDs where available. `Evidence tier` distinguishes Razr-specific vs inherited SoC data; `Support state` does not imply a working Razr port.
 
 **Unverified:** device's running firmware/DTB, actual QCA6490 revision/firmware, DisplayPort and USB dock operation under mainline, battery charging policy. No kernel flashing or boot tests were performed.
+
+## Project coordination
+
+- [Status and milestones](STATUS.md)
+- [Architecture and integration workflow](WORKFLOW.md)
+- [Subsystem handoff template](templates/subsystem-handoff.md)
