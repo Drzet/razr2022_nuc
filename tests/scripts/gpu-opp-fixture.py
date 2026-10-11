@@ -39,8 +39,11 @@ def apply_proposal(kernel: Path, handoff: Path) -> None:
 
 
 def fdtget(dtb: Path, *args: str) -> list[str]:
-    run = subprocess.run(["fdtget", *args[:1], str(dtb), *args[1:]],
-                         capture_output=True, text=True, check=True)
+    if args[0] == "-t":
+        cmd = ["fdtget", "-t", args[1], str(dtb), *args[2:]]
+    else:
+        cmd = ["fdtget", args[0], str(dtb), *args[1:]]
+    run = subprocess.run(cmd, capture_output=True, text=True, check=True)
     return run.stdout.split()
 
 
