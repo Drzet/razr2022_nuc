@@ -99,7 +99,7 @@ def decode_android_sparse(source, target):
             elif kind == 0xcac2:
                 if size != chdr + 4 or ptr + 4 > len(source):
                     raise ValueError("invalid sparse FILL extent")
-                word = source[ptr:ptr+4]
+                word = bytes(source[ptr:ptr+4])
                 ptr += 4
                 tile = word * (1024*1024 // 4)
                 todo = span
