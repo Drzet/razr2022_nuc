@@ -88,8 +88,8 @@ jobs:
         run: |
           {
             echo "## ARM64 baseline build"
-            echo "- Kernel commit: `$BASELINE_SHA`"
-            echo "- Project commit: `$GITHUB_SHA`"
+            printf "%s\n" "- Kernel commit: $BASELINE_SHA"
+            printf "%s\n" "- Project commit: $GITHUB_SHA"
             echo "- Job status before summary: $BUILD_STATUS"
             echo "- Targets: ARM64 defconfig, Image and dtbs."
             echo "- No modules build, DT schema validation or hardware test is claimed."

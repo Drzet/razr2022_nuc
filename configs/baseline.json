@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "selected-build-unverified",
+  "status": "baseline-image-dtbs-build-tested",
   "kernel_repository": "https://github.com/Drzet/linux",
   "upstream_repository": "https://github.com/torvalds/linux",
   "upstream_commit": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
