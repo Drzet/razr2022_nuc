@@ -1,0 +1,62 @@
+name: GPU GMU modified-object ARM64 compile
+
+on:
+  push:
+    branches: ['razr/gpu']
+    paths:
+      - '.github/workflows/gpu-gmu-object.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gmu-object:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: 3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
+          path: kernel
+          persist-credentials: false
+      - name: Install ARM64 cross-compilation prerequisites
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make bc bison flex libssl-dev libelf-dev python3 2>&1 | tee evidence/apt-install.log
+      - name: Compile modified GMU object with kernel Kbuild
+        run: |
+          set -Eeuo pipefail
+          trap 'echo "$?" > evidence/exit-code.txt' EXIT
+          test "$(git -C kernel rev-parse HEAD)" = 3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
+          export ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- LC_ALL=C
+          out="$PWD/kernel/.gmu-object-build"
+          {
+            echo "kernel=3baaec593ae7c701e95e0c3df2d56c33d3aed4f3"
+            echo "project=$GITHUB_SHA"
+            echo "runner=${ImageOS:-unknown} ${ImageVersion:-unknown}"
+            aarch64-linux-gnu-gcc --version
+          } > evidence/environment.txt
+          make -C kernel O="$out" defconfig 2>&1 | tee evidence/configure.log
+          cp "$out/.config" evidence/kernel.config
+          grep -qx 'CONFIG_DRM_MSM=m' evidence/kernel.config
+          make -C kernel O="$out" -j"$(nproc)" drivers/gpu/drm/msm/adreno/a6xx_gmu.o 2>&1 | tee evidence/compile.log
+          object="$out/drivers/gpu/drm/msm/adreno/a6xx_gmu.o"
+          test -s "$object"
+          aarch64-linux-gnu-readelf -h "$object" > evidence/object-ELF.txt
+          grep -q "Machine:.*AArch64" evidence/object-ELF.txt
+          sha256sum "$object" evidence/kernel.config > evidence/SHA256SUMS
+          echo "PASS: changed a6xx_gmu.o built for AArch64; not a module modpost test" | tee evidence/summary.txt
+      - name: Save object compile evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gpu-gmu-object-${{ github.run_id }}
+          path: evidence/
+          retention-days: 30
