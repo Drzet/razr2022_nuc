@@ -1,0 +1,62 @@
+# Subsystem handoff: DisplayPort / external display / Motorola oneli
+
+- Date and originating chat: 2026-10-11; dedicated DisplayPort chat, Linux on Motorola Razr 2022.
+- Repository / branch / exact commit: `Drzet/linux`, `razr/displayport`, head **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`** (branch created at selected baseline; **no DisplayPort kernel patch committed**). Research is committed to `Drzet/razr2022_nuc` in this handoff.
+- Upstream baseline SHA: **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`**.
+- Required board-support and other subsystem SHAs: board-support prerequisite **`cb9105ebeb9485e31d044d4fa69396b415523669`** (`razr/boot`; reviewed only, not integrated here); `razr/usb` was observed at **`0119d73b40bed1041278cf9307bdec9c17880618`**, which contains only an eUSB2 PHY binding addition and **is not a sufficient or integrated DP prerequisite**. USB/Type-C integration SHA remains **undetermined** until USB provides a handoff. Regulator/PMIC prerequisite from `razr/power`: **undetermined**.
+- Evidence stage: **researched: yes; implemented: no; build-tested: no; hardware-tested: no**. This document is an implementation proposal and test plan, not a successful port.
+
+## Changes and provenance
+
+Read `AGENTS.md`, `docs/STATUS.md`, `docs/WORKFLOW.md`, `docs/templates/subsystem-handoff.md`, the initial hardware database, the newer oneli audit, baseline comparison, and Boot handoff before investigating. Fixed references:
+
+- Mainline `Drzet/linux` baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`: `arch/arm64/boot/dts/qcom/sm8450.dtsi`; `drivers/gpu/drm/msm/dp/{dp_display.c,dp_drm.c,dp_aux.c}`; `drivers/phy/qualcomm/phy-qcom-qmp-combo.c`; `drivers/soc/qcom/pmic_glink_altmode.c`; `drivers/usb/typec/ucsi/ucsi_glink.c`; `drivers/usb/typec/mux/gpio-sbu-mux.c`; `Documentation/devicetree/bindings/{display/msm/dp-controller.yaml,display/msm/qcom,sm8450-mdss.yaml,usb/gpio-sbu-mux.yaml,soc/qcom/qcom,pmic-glink.yaml}`. Pinned browser base: https://github.com/Drzet/linux/tree/a5ebb76233b79db01e82e061173cb73c6d2b5c6b
+- Boot head `cb9105ebeb9485e31d044d4fa69396b415523669`: `sm8475.dtsi` inherits the SM8450 display graph, sets exact SM8475 QMP USB3/DP compatible; oneli board DTS currently enables neither MDSS nor DP. https://github.com/Drzet/linux/commit/cb9105ebeb9485e31d044d4fa69396b415523669
+- Motorola display DT `80b207bf35be5da38375e755506f136558ad24b5`: `display/cape-sde-display-oneli-common-base.dtsi` (`&sde_dp`, `mmi,aux-switch-enable-gpio = <&tlmm 2 0x00>`, `mmi,aux-switch-flip-gpio = <&tlmm 71 0x00>`); `display/cape-sde-oneli.dts` removes `qcom,mst-enable`. https://github.com/MotorolaMobilityLLC/kernel-display-devicetree/blob/80b207bf35be5da38375e755506f136558ad24b5/display/cape-sde-display-oneli-common-base.dtsi#L782-L804
+- Motorola board DT `90fa7be1db5bd47202673d4431408659149a7359`: `qcom/cape-oneli-common-overlay.dtsi` enables the PS5169 redriver on QUP SE18 I2C, `qcom/cape-moto-common-redriver.dtsi` describes I2C address `0x30`, power `S10B` and orientation GPIO91; `qcom/cape-moto-common-overlay-base.dtsi` describes firmware-managed UCSI/USB role graph; `qcom/cape-usb.dtsi` describes USB/DP physical path. https://github.com/MotorolaMobilityLLC/kernel-devicetree/blob/90fa7be1db5bd47202673d4431408659149a7359/qcom/cape-moto-common-redriver.dtsi
+- Motorola PS5169 vendor driver `kernel-msm` `9511d6b2dc469e5bd836992e3bdd6d19ace112e0`: `drivers/usb/misc/ssusb-redriver-ps5169.c`. Upstream-compatible driver work was submitted in August 2026 but is **not in this pinned kernel**; review source and binding at integration rather than copying its downstream register sequence. https://github.com/MotorolaMobilityLLC/kernel-msm/blob/9511d6b2dc469e5bd836992e3bdd6d19ace112e0/drivers/usb/misc/ssusb-redriver-ps5169.c ; https://lists.openwall.net/linux-kernel/2026/08/11/241
+
+### Actual pinned-kernel DRM/DP status
+
+1. `mdss` is `qcom,sm8450-mdss`; its DPU `mdss_mdp` already routes DPU INTF0 to `mdss_dp0_in`. The inherited `mdss_dp0` at `0x0ae90000` matches the current DRM driver via `qcom,sm8450-dp`, `qcom,sm8350-dp`; DP clocks, interrupts, PHY reference and display power/OPP references are present. `mdss` and `mdss_dp0` are disabled initially.
+2. DP transmitter output `mdss_dp0_out` and QMP input `usb_1_qmpphy_dp_in` are reciprocal. The PHY has additional Type-C/USB graph ports, `mode-switch` and `orientation-switch`, initially disabled. Boot overrides its compatible to `qcom,sm8475-qmp-usb3-dp-phy`. Exact SM8475 PHY driver support exists on the pinned baseline.
+3. The QMP combo driver implements the Type-C mode/orientation switches and registers a DRM AUX bridge. The baseline Qualcomm PMIC GLINK Alt Mode driver presents a DisplayPort hotplug bridge, DP modes and orientation to Type-C consumers. MSM DRM/DP can attach a downstream bridge at output port 1. Therefore **there is no demonstrated necessity for a new MSM DRM/DP transmitter driver**.
+4. Motorola's vendor `mmi,aux-switch-enable-gpio` and `mmi,aux-switch-flip-gpio` are **not accepted by the existing mainline DP controller binding**. Mainline `gpio-sbu-mux` has Type-C mode/orientation callbacks; the board's two signals make it a candidate, not a confirmed match. **[INFERRED]** GPIO2 controls SBU/AUX path enable and GPIO71 selects SBU orientation; the GPIO *identity* is source-backed, but electrical active polarity, switching order, IC part, and whether the generic mux behaviour suffices require validation. The generic binding requires a documented specific switch compatible before the `gpio-sbu-mux` fallback; **do not invent or silently choose one**. Motorola disables `&fsa4480` in its oneli display include; do not assume an FSA4480 is present.
+5. The vendor disables DP MST. Start with one SST output; do not carry vendor `qcom,mst-enable`/delete-property into mainline or assert an MST hardware limitation.
+6. [INFERRED] SM8450 DPU/MDSS/DP compatible values retained from the upstream base will function for basic SM8475 DP output. They match source-level register layout but have **no oneli build, register or hardware proof**. Verify clocks, power domain and OPPs under load. DP audio and MST are out of initial acceptance scope.
+
+### Required implementation and proposed board DT, NOT yet applied
+
+- Boot-owned shared board tree `arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dts`: after regulator/USB prerequisites are in place and reviewed, propose `&mdss { status = "okay"; };` and `&mdss_dp0 { status = "okay"; };`. Existing DPU/DP/PHY reciprocal endpoints and their clock/power/OPP arrays should remain unchanged unless real evidence identifies a mismatch. Verify the inherited DPU and exact DP0 graph, and enable no unrelated DSI panel. Do not add unverified `data-lanes` or `link-frequencies`.
+- USB-owned shared board/SoC DT: enable SM8475 QMP combo PHY with verified supplies and route PMIC GLINK `connector@0` port 1 through PS5169 to `usb_1_qmpphy_out`; port 0 connects to the actual current DWC3 USB role endpoint; preserve PHY port 2 to DP0. Translate Motorola's older `&usb0` / child DWC3 layout to the baseline `&usb_1` layout. Supply exact USB hub/role and power configuration only after USB owner has validated them.
+- USB-owned PS5169: add reviewed upstream-compatible I2C redriver driver and binding on `qupv3_se18_i2c` at `0x30`, its real regulator and pinctrl, Type-C mode/orientation/retimer graph. Coordinate **single-source GPIO91 orientation**; Motorola PS5169 uses GPIO91, but mainline PMIC GLINK also can consume an orientation GPIO. Avoid conflicting GPIO ownership.
+- DisplayPort-owned AUX sideband proposal: inspect actual oneli firmware/live DT or schematics and determine GPIO2/71 signal polarity, mux part number and whether generic `gpio-sbu-mux` behavior matches. If compatible with a documented GPIO-SBU switch, propose a Type-C `port@2` graph path and schema-valid mux node, with `enable-gpios`/ `select-gpios` polarities confirmed; if not, implement a narrowly scoped supported switch driver and binding on `razr/displayport` with provenance. Do **not** attach the SBU switch as a DP controller vendor GPIO hack or claim current driver support before identification. Boot incorporates the resulting shared board DTS proposal only after USB integration review.
+- Confirm PMIC GLINK firmware emits compatible DP Alt Mode events, pin assignments and HPD; the Linux side handles Type-C forwarding, PHY mode, AUX switching and DRM link/modeset. Firmware ownership must not be conflated with a Linux driver gap.
+- DRM driver patch **only if traced probe, AUX, HPD, link or KMS failure establishes a real mismatch**. New `qcom,sm8475-dp`/MDSS compatibles or clock/OPP changes also need driver and binding evidence, not a speculative alias.
+
+### Explicit dependency / ownership sequence
+
+1. Boot exact `cb9105eb...`: SM8475 include and oneli board labels. Needs DTB/schema build, not hardware-proven.
+2. Power exact SHA **pending**: real LDO/GDSC supplies and safe sustained operation.
+3. USB exact integration SHA **pending**: firmware PMIC GLINK/UCSI Alt Mode, USB role/connector graphs, QMP USB3/DP PHY, PS5169 redriver I2C + supplies, orientation policy. `0119d73...` is a partial binding patch, **not** DP-ready USB.
+4. DisplayPort: verified GPIO-SBU/AUX mapping and possibly a driver/binding commit on `razr/displayport`. Provide an exact SHA when real code is committed.
+5. Boot integrates the reviewed DP board modifications as a **new Boot-owned commit**; integration branch combines exact Boot/Power/USB/DisplayPort commits with recorded resulting SHAs.
+6. Build, DT schema, then external-monitor hardware tests separately.
+
+## Shared files and integration
+
+Kernel branch `razr/displayport` currently changes **no files**. No merges, cherry-picks, DT modifications, driver modifications or baseline changes occurred in this subsystem. The proposed changes to `arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dts` and (if justified) `sm8475.dtsi` are **requests to Boot**, not committed edits. Connector port/Type-C PS5169 topology is owned by USB. Potential new AUX/SBU driver and binding are DisplayPort-owned and should be a separate reviewed commit; only use an existing mainline binding if the actual part is confirmed. No integration SHAs exist.
+
+## Validation
+
+- **Research/source review performed**: pinned Motorola DP/AUX GPIO source, oneli MST deletion, PS5169 board wiring; pinned mainline SM8450 DPU->DP0->QMP graph, DP controller binding/driver compatible, QMP switch/AUX bridge, PMIC GLINK Alt Mode/HPD driver, GPIO-SBU binding and driver; read Boot and partial USB heads by exact SHA. These are source-level findings, not execution tests.
+- **Build-tested**: **no**. No DTB, schema, kernel module or full kernel build performed; toolchain/configuration not recorded. No claimed build success.
+- **Hardware-tested**: **no**. No target firmware/build ID, hardware board revision, live DTB/DTBO, USB/PD/DP plug traces, EDID, HPD or modeset logs. No display or dock claimed functional.
+- Detailed future procedure: [DisplayPort dock/display test plan](../../tests/procedures/2026-10-11-displayport-dock.md).
+
+## Blockers and next test
+
+1. Obtain target oneli firmware/build ID, selected live DTB/DTBO and actual PCB revision; verify Motorola GPIO2/71 mux hardware, polarity and PS5169 GPIO91 semantics. **Acceptance**: uniquely identified signal/control truth table and permissible Linux binding or justified custom switch driver, all evidence linked.
+2. Obtain USB handoff/commit implementing QMP PHY, eUSB/USB role, connector, PS5169 and GLINK Alt Mode, and Power's regulator dependencies. **Acceptance**: reviewed exact SHA(s), bindings/DTB schema pass, no GPIO91 conflicts, Type-C plug orientation and DP Alt Mode notifications visible.
+3. Boot owner integrates minimal `mdss` and `mdss_dp0` enablement in oneli board DTS after USB/Power gates. **Acceptance**: kernel + DTB + `dtbs_check` with logs at exact versions/SHAs and no schema violations.
+4. Attach a known-good DP Alt Mode USB-C dock/adapter and monitor, both rotations; validate KMS connector, hotplug, DPCD/EDID, 1080p60 **only if advertised** and repeated hotplug. **Acceptance**: recorded target revision/firmware, connector connected/disconnected accurately, valid EDID and stable modeset without new kernel errors; then separately test combined USB2/USB3 and PD power. See linked procedure.
