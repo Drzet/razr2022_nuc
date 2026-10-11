@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
       - name: Input and syntax checks
         run: |
-          bash -n scripts/build-userspace.sh scripts/smoke-qemu.sh
+          bash -n scripts/build-userspace.sh scripts/smoke-qemu.sh scripts/verify-rootfs-ownership.sh
           source userspace/inputs.env
           test "$DEBIAN_ARCH" = arm64
           test "$DEBIAN_SUITE" = trixie
@@ -41,10 +41,10 @@ jobs:
         run: |
           mkdir -p evidence
           sudo apt-get update 2>&1 | tee evidence/host-apt-update.log
-          sudo apt-get install -y --no-install-recommends debootstrap qemu-user-static binfmt-support qemu-system-arm debian-archive-keyring e2fsprogs zstd xz-utils ca-certificates gnupg wget 2>&1 | tee evidence/host-apt-install.log
+          sudo apt-get install -y --no-install-recommends debootstrap qemu-user-static binfmt-support qemu-system-arm debian-archive-keyring e2fsprogs zstd xz-utils ca-certificates gnupg wget ipxe-qemu openssh-client openssl 2>&1 | tee evidence/host-apt-install.log
       - name: Build ARM64 Debian root filesystem
         run: sudo env GITHUB_SHA="$GITHUB_SHA" bash scripts/build-userspace.sh "$RUNNER_TEMP/razr-userspace-build" "$GITHUB_WORKSPACE/evidence"
-      - name: Emulate boot to userspace service
+      - name: Emulate guest boot, DHCP and authenticated SSH
         run: bash scripts/smoke-qemu.sh "$RUNNER_TEMP/razr-userspace-build" "$GITHUB_WORKSPACE/evidence"
       - name: Retain all build evidence
         if: always()
