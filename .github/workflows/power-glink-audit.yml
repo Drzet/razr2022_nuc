@@ -1,0 +1,62 @@
+name: Power PMIC GLINK source and synthetic fixture audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - razr/power
+    paths:
+      - '.github/workflows/power-glink-audit.yml'
+      - 'tools/power/glink_protocol_audit.py'
+
+permissions:
+  contents: read
+
+jobs:
+  source-and-fixture-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download exact pinned C source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence/input
+          vendor_sha=9511d6b2dc469e5bd836992e3bdd6d19ace112e0
+          upstream_sha=a5ebb76233b79db01e82e061173cb73c6d2b5c6b
+          vendor_url="https://raw.githubusercontent.com/MotorolaMobilityLLC/kernel-msm/${vendor_sha}/drivers/power/supply/qti_battery_charger.c"
+          upstream_url="https://raw.githubusercontent.com/Drzet/linux/${upstream_sha}/drivers/power/supply/qcom_battmgr.c"
+          printf '%s\n' "vendor: MotorolaMobilityLLC/kernel-msm@${vendor_sha}" "url: ${vendor_url}" "upstream: Drzet/linux@${upstream_sha}" "url: ${upstream_url}" > evidence/inputs.txt
+          curl -fLsS --retry 3 --max-time 90 -o evidence/input/vendor.c "$vendor_url"
+          curl -fLsS --retry 3 --max-time 90 -o evidence/input/upstream.c "$upstream_url"
+          test -s evidence/input/vendor.c
+          test -s evidence/input/upstream.c
+          sha256sum evidence/input/vendor.c evidence/input/upstream.c tools/power/glink_protocol_audit.py | tee evidence/sha256.txt
+          printf 'checkout commit: %s\n' "$(git rev-parse HEAD)" | tee evidence/checkout.txt
+          python3 --version | tee evidence/python-version.txt
+
+      - name: Run pinned-source checks and independent synthetic fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/power/glink_protocol_audit.py \
+            --vendor evidence/input/vendor.c \
+            --upstream evidence/input/upstream.c \
+            2>&1 | tee evidence/audit.log
+
+      - name: Preserve checks and source hashes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: power-glink-audit
+          path: |
+            evidence/audit.log
+            evidence/inputs.txt
+            evidence/sha256.txt
+            evidence/checkout.txt
+            evidence/python-version.txt
+          if-no-files-found: warn
