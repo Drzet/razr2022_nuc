@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/Drzet/linux",
+  "kernel_commit": null,
+  "kernel_release": null,
+  "image_path": null,
+  "config_path": null,
+  "dtb_path": null,
+  "modules_directory": null,
+  "initramfs_path": null,
+  "firmware_manifest_path": null,
+  "firmware_directory": null,
+  "boot_packaging_manifest_path": null,
+  "evidence_stage": "awaiting-native-Boot-artifacts"
+}
