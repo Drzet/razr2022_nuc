@@ -24,6 +24,7 @@ jobs:
           persist-credentials: false
       - name: Install FDT inspection tool
         run: |
+          set -euo pipefail
           mkdir -p evidence
           sudo apt-get update 2>&1 | tee evidence/apt-update.log
           sudo apt-get install -y --no-install-recommends device-tree-compiler \
@@ -32,6 +33,7 @@ jobs:
           python3 --version | tee evidence/python-version.txt
       - name: Inspect bounded public ZIP byte ranges and individual members
         run: |
+          set -euo pipefail
           python3 scripts/inspect-oneli-stock-ranges.py \
             --json-out evidence/stock-zip-range-metadata.json \
             2>&1 | tee evidence/range-inspection.log
@@ -47,6 +49,7 @@ jobs:
       - name: Scope
         if: always()
         run: |
+          set -euo pipefail
           {
             echo "## Oneli stock metadata via ZIP64 byte ranges"
             echo "No whole-archive download, no proprietary artifacts published."
