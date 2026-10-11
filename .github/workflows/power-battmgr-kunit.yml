@@ -44,6 +44,7 @@ jobs:
           cat > power.kunitconfig <<'CONFIG'
           CONFIG_KUNIT=y
           CONFIG_KUNIT_ALL_TESTS=n
+          CONFIG_POWER_SUPPLY=y
           CONFIG_BATTERY_QCOM_BATTMGR_KUNIT_TEST=y
           CONFIG
           python3 kernel/tools/testing/kunit/kunit.py run \
