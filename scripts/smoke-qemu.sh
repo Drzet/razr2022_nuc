@@ -6,10 +6,10 @@ port=${RAZR_QEMU_SSH_PORT:-2222}
 [[ "$port" =~ ^[0-9]+$ && "$port" -ge 1024 && "$port" -le 65535 ]]
 [[ "$(cat "$evidence/build-exit-code.txt")" == 0 ]]
 [[ -s "$work/vmlinuz" && -s "$work/initrd.img" && -s "$work/rootfs.ext4" && -s "$work/ssh_id_ed25519" ]]
-test -r /usr/share/qemu/efi-virtio.rom || { echo "Missing efi-virtio.rom: install ipxe-qemu" >&2; exit 2; }
-sha256sum /usr/share/qemu/efi-virtio.rom > "$evidence/qemu-rom-sha256.txt"
+test -r /usr/lib/ipxe/qemu/efi-virtio.rom || { echo "Missing efi-virtio.rom: install ipxe-qemu" >&2; exit 2; }
+sha256sum /usr/lib/ipxe/qemu/efi-virtio.rom > "$evidence/qemu-rom-sha256.txt"
 qemu-system-aarch64 --version > "$evidence/qemu-version.txt"
-cmd=(qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -accel tcg -nodefaults -nographic -monitor none -serial stdio -no-reboot
+cmd=(qemu-system-aarch64 -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 2048 -smp 2 -accel tcg -nodefaults -nographic -monitor none -serial stdio -no-reboot
  -kernel "$work/vmlinuz" -initrd "$work/initrd.img"
  -append "console=ttyAMA0,115200 root=/dev/vda rw rootwait systemd.unit=multi-user.target razr.smoke=1"
  -drive "file=$work/rootfs.ext4,if=none,format=raw,id=vd0" -device virtio-blk-device,drive=vd0
