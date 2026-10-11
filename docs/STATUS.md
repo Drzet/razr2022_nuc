@@ -18,7 +18,7 @@ Stages are evidence fields, not a single success label. Partial research and fai
 | USB / Type-C | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Resolve controller, role/orientation and redriver dependencies |
 | DisplayPort | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Specify routing and USB/Type-C dependencies |
 | VPU | [Focused investigation](razr2022_vpu_investigation_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Validate firmware/protocol and upstream platform approach |
-| Power / charging / thermal | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Establish device-specific policy and boot dependencies |
+| Power / charging / thermal | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) and [Power handoff](handoffs/2026-10-11-power-oneli.md) | No power-specific kernel patch; research branch `razr/power` based on Boot `cb9105e` | Not recorded | Not recorded | Integrate Boot-owned regulator DT proposal; verify live GLINK/dual-battery/thermal evidence |
 
 ## Open coordination decisions
 
@@ -32,6 +32,7 @@ Stages are evidence fields, not a single success label. Partial research and fai
 Place completed handoffs in `docs/handoffs/` using [the template](templates/subsystem-handoff.md), then link them from this page. The coordinator reconciles dependencies and selects integration order; subsystem chats supply code and evidence.
 
 - [2026-10-11 boot / SM8475 / oneli handoff](handoffs/2026-10-11-boot-oneli.md) (implemented; no build or hardware results).
+- [2026-10-11 power / regulators / charging / thermal handoff](handoffs/2026-10-11-power-oneli.md) (researched; no power-specific kernel implementation, build or hardware results).
 
 ## Build automation
 
