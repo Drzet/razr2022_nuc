@@ -25,3 +25,15 @@ Validation boundary: QEMU -machine virt exposes a synthetic PL011 serial device,
 Kernel and Boot-specific obligations are in docs/userspace_boot_contract.md.
 
 The native Boot input JSON template is `userspace/native-kernel-inputs.example.json`. `scripts/validate-native-kernel-inputs.py` rejects absent kernel release/module/initramfs/firmware inputs. It cannot run a meaningful native integration test until Boot delivers pinned artifacts. See `docs/userspace_boot_contract.md`.
+
+## Verified emulation and native-kernel boundary
+
+[QEMU replay run 38180287160](https://github.com/Drzet/razr2022_nuc/actions/runs/38180287160) **passed** Debian ARM64 systemd boot, guest virtio IPv4 address, authenticated host-to-guest SSH and an orderly poweroff (QEMU exit 0). It consumed the already hashed rootfs archive from run 38177877133 rather than rebuilding it; see `tests/results/2026-10-11-userspace-qemu-replay.md`. That source run independently verified tar numeric ownership preservation. The guest's captured `eth0` was `10.0.2.15/24`, with a connected route but **no default IPv4 route**, so internet egress is not an acceptance claim.
+
+`scripts/smoke-qemu.sh` deliberately checks network interface configuration and an authenticated remote command without relying on `systemctl is-active` in a minimal image lacking a normal system bus for unprivileged SSH sessions. It still requires the boot sentinel and guest-initiated systemd shutdown / QEMU exit 0. The replay CI downloads a pinned prior build artifact, checks `SHA256SUMS`, and injects a fresh disposable SSH public key only after extracting the deployable rootfs tar.
+
+The expensive full rootfs workflow `.github/workflows/userspace-qemu.yml` is intentionally scoped to deliberate edits of that workflow file on `razr/userspace`, plus manual dispatch. Ordinary PR documentation updates do not cancel or restart a multi-minute build. The fast native-contract fixture workflow and artifact replay workflow run only on their own relevant branch changes or manual dispatch.
+
+The native kernel contract is now **schema version 2**. `userspace/native-kernel-inputs.example.json` retains unresolved SHA/config/module/firmware fields as null until Boot supplies a validated build. `scripts/validate-native-kernel-inputs.py` verifies file/module hashes, real AArch64 ELF vermagic, initramfs extracted module bytes and explicitly inventoried firmware. Six synthetic positive/negative fixtures passed in [run 38179683577](https://github.com/Drzet/razr2022_nuc/actions/runs/38179683577). This does not make any Drzet/linux kernel ABI or Qualcomm firmware hardware-tested.
+
+A later **project-kernel QEMU virt** test will use only the coordinator-selected exact mainline Image/config + matching modules and a QEMU virtual DT, never the oneli DT. The image/module set is not yet supplied by the coordinator; do not silently substitute Debian's kernel or one independent subsystem branch.
