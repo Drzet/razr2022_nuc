@@ -26,22 +26,26 @@ jobs:
           persist-credentials: false
       - name: Verify host test tooling
         run: |
+          set -euo pipefail
           mkdir -p evidence
           python3 --version | tee evidence/python-version.txt
           cc --version | head -n 1 | tee evidence/compiler-version.txt
       - name: Synthetic Python parser and layout checks
         run: |
+          set -euo pipefail
           python3 scripts/audit-vpu-hfi.py --self-test | tee evidence/python-selftest.txt
           python3 -m py_compile scripts/audit-vpu-hfi.py scripts/inventory-oneli-firmware.py
           python3 tests/vpu/test-inventory.py -v 2>&1 | tee evidence/inventory-fixture-tests.log
       - name: Synthetic host C layout smoke test (not an ARM64 target build)
         run: |
+          set -euo pipefail
           cc -std=c11 -Wall -Wextra -Werror -pedantic \
             -o evidence/hfi-host-layout tests/vpu/hfi-host-layout.c \
             2>&1 | tee evidence/host-compile.log
           ./evidence/hfi-host-layout
       - name: Fetch pinned public host sources and compare ABI
         run: |
+          set -euo pipefail
           python3 scripts/audit-vpu-hfi.py \
             --json-out evidence/vpu-hfi-audit.json 2>&1 | tee evidence/vpu-hfi-audit.log
       - name: Upload reproducible evidence
@@ -55,6 +59,7 @@ jobs:
       - name: Scope statement
         if: always()
         run: |
+          set -euo pipefail
           {
             echo "## VPU host ABI audit"
             echo "Kernel baseline: a5ebb76233b79db01e82e061173cb73c6d2b5c6b"
@@ -80,6 +85,7 @@ jobs:
           persist-credentials: false
       - name: Install ARM64 and schema toolchain
         run: |
+          set -euo pipefail
           mkdir -p evidence
           sudo apt-get update 2>&1 | tee evidence/apt-update.log
           sudo apt-get install -y --no-install-recommends \
@@ -96,6 +102,7 @@ jobs:
           git -C kernel rev-parse HEAD | tee evidence/kernel-sha.txt
       - name: Build complete ARM64 kernel Image and modules with ordinary modpost
         run: |
+          set -euo pipefail
           mkdir -p out
           make -C kernel O="$PWD/out" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig \
             2>&1 | tee evidence/defconfig.log
@@ -117,6 +124,7 @@ jobs:
           git -C kernel rev-parse HEAD | tee evidence/tested-kernel-sha.txt
       - name: Check SM8475 Iris schema
         run: |
+          set -euo pipefail
           export PATH="$PWD/schema-venv/bin:$PATH"
           make -C kernel ARCH=arm64 O="$PWD/out" \
             DT_SCHEMA_FILES=Documentation/devicetree/bindings/media/qcom,sm8475-iris.yaml \
@@ -132,6 +140,7 @@ jobs:
       - name: Build scope statement
         if: always()
         run: |
+          set -euo pipefail
           {
             echo "## VPU ARM64 candidate"
             echo "Kernel commit: 7f1d729b6f458f1e76efe2894eb3c544bc9db856"
