@@ -1,10 +1,6 @@
 name: Motorola oneli radio packed firmware reference audit
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/inspect-oneli-moto-radio.py'
-      - '.github/workflows/vpu-radio-reference.yml'
   workflow_dispatch:
 
 permissions:
