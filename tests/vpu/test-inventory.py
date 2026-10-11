@@ -32,6 +32,22 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual(result["dtbo_candidates"][0]["entries"][0]["rev"], 2)
             self.assertEqual(result["entries"][0]["name"], "dtbo.img")
 
+    def test_reject_out_of_bounds_dtbo_table_and_entry(self):
+        magic = inventory.DTBO_MAGIC
+        # Table claims 2 entries but image holds only one entry.
+        truncated = struct.pack(">8I", magic, 64, 32, 32, 2, 32, 4096, 0)
+        self.assertEqual(inventory.dtbo_header(truncated + b"\0" * 32)["state"],
+                         "invalid_dtbo_header")
+        # Single entry extends beyond the advertised image size.
+        header = struct.pack(">8I", magic, 68, 32, 32, 1, 32, 4096, 0)
+        overflow = struct.pack(">8I", 8, 64, 530, 2, 0, 0, 0, 0)
+        self.assertEqual(inventory.dtbo_header(header + overflow + b"\0" * 4)["state"],
+                         "invalid_dtbo_entry_bounds")
+        # Entry overlaps the table itself.
+        overlap = struct.pack(">8I", 4, 48, 530, 2, 0, 0, 0, 0)
+        self.assertEqual(inventory.dtbo_header(header + overlap + b"\0" * 4)["state"],
+                         "invalid_dtbo_entry_bounds")
+
     def test_fake_firmware_marker_and_digest(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d) / "extracted"
