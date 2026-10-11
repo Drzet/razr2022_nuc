@@ -1,9 +1,6 @@
 name: Oneli public stock reference inventory (bounded)
 
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/vpu-stock-acquire.yml'
   workflow_dispatch:
 
 permissions:
