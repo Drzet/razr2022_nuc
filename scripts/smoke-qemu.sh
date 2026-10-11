@@ -1,20 +1,50 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-work=$(realpath "$1")
-evidence=$(realpath "$2")
-[[ -s "$work/vmlinuz" && -s "$work/initrd.img" && -s "$work/rootfs.ext4" ]]
+work=$(realpath "${1:?work}")
+evidence=$(realpath "${2:?evidence}")
+port=${RAZR_QEMU_SSH_PORT:-2222}
+[[ "$port" =~ ^[0-9]+$ && "$port" -ge 1024 && "$port" -le 65535 ]]
 [[ "$(cat "$evidence/build-exit-code.txt")" == 0 ]]
-cat > "$evidence/qemu-command.txt" <<'COMMAND'
-qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -accel tcg -nographic -monitor none -serial stdio -no-reboot -kernel vmlinuz -initrd initrd.img -append "console=ttyAMA0,115200 root=/dev/vda rw rootwait systemd.unit=multi-user.target razr.smoke=1" -drive file=rootfs.ext4,if=none,format=raw,id=vd0 -device virtio-blk-device,drive=vd0
-COMMAND
+[[ -s "$work/vmlinuz" && -s "$work/initrd.img" && -s "$work/rootfs.ext4" && -s "$work/ssh_id_ed25519" ]]
+test -r /usr/share/qemu/efi-virtio.rom || { echo "Missing efi-virtio.rom: install ipxe-qemu" >&2; exit 2; }
+sha256sum /usr/share/qemu/efi-virtio.rom > "$evidence/qemu-rom-sha256.txt"
+qemu-system-aarch64 --version > "$evidence/qemu-version.txt"
+cmd=(qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -accel tcg -nodefaults -nographic -monitor none -serial stdio -no-reboot
+ -kernel "$work/vmlinuz" -initrd "$work/initrd.img"
+ -append "console=ttyAMA0,115200 root=/dev/vda rw rootwait systemd.unit=multi-user.target razr.smoke=1"
+ -drive "file=$work/rootfs.ext4,if=none,format=raw,id=vd0" -device virtio-blk-device,drive=vd0
+ -netdev "user,id=net0,restrict=on,hostfwd=tcp:127.0.0.1:$port-:22" -device virtio-net-device,netdev=net0,mac=52:54:00:12:34:56)
+printf '%q ' "${cmd[@]}" > "$evidence/qemu-command.txt"
+printf '\n' >> "$evidence/qemu-command.txt"
+timeout --signal=TERM --kill-after=10s 600s "${cmd[@]}" > "$evidence/qemu-serial.log" 2>&1 &
+pid=$!
+cleanup() { kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; }
+trap cleanup EXIT
+fail() { echo "$1" >&2; tail -n 100 "$evidence/qemu-serial.log" >&2; tail -n 30 "$evidence/ssh-command.log" 2>/dev/null >&2 || true; exit 1; }
+echo pending > "$evidence/qemu-boot-status.txt"
+for ((i=0;i<150;i++)); do
+  if grep -Fq 'RAZR_USERSPACE_SMOKE_PASS arch=arm64 init=systemd' "$evidence/qemu-serial.log"; then echo passed > "$evidence/qemu-boot-status.txt"; break; fi
+  kill -0 "$pid" 2>/dev/null || break
+  sleep 2
+done
+[[ "$(cat "$evidence/qemu-boot-status.txt")" == passed ]] || fail 'BOOT_FAILED: no guest systemd marker'
+echo pending > "$evidence/qemu-ssh-status.txt"
+opts=(-i "$work/ssh_id_ed25519" -p "$port" -o BatchMode=yes -o PreferredAuthentications=publickey -o PasswordAuthentication=no
+ -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=3 -o ConnectionAttempts=1)
+for ((i=0;i<90;i++)); do
+  if ssh "${opts[@]}" razr@127.0.0.1 'test "$(dpkg --print-architecture)" = arm64 && test -d /run/systemd/system && test "$(systemctl is-active systemd-networkd)" = active && ip -4 route show default | grep -q default && echo RAZR_NETWORK_SSH_PASS' > "$evidence/ssh-command.log" 2>&1; then
+    if grep -Fq RAZR_NETWORK_SSH_PASS "$evidence/ssh-command.log"; then echo passed > "$evidence/qemu-ssh-status.txt"; break; fi
+  fi
+  kill -0 "$pid" 2>/dev/null || break
+  sleep 2
+done
+[[ "$(cat "$evidence/qemu-ssh-status.txt")" == passed ]] || fail 'SSH_FAILED: no authenticated guest command after successful boot'
+ssh "${opts[@]}" razr@127.0.0.1 'sudo -n /usr/bin/systemctl poweroff' >> "$evidence/ssh-command.log" 2>&1 || true
 set +e
-timeout --signal=TERM --kill-after=15s 300s qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 2048 -smp 2 -accel tcg -nographic -monitor none -serial stdio -no-reboot -kernel "$work/vmlinuz" -initrd "$work/initrd.img" -append "console=ttyAMA0,115200 root=/dev/vda rw rootwait systemd.unit=multi-user.target razr.smoke=1" -drive file="$work/rootfs.ext4",if=none,format=raw,id=vd0 -device virtio-blk-device,drive=vd0 > "$evidence/qemu-serial.log" 2>&1
+wait "$pid"
 rc=$?
 set -e
 echo "$rc" > "$evidence/qemu-exit-code.txt"
-if [[ "$rc" -ne 0 ]] || ! grep -Fq 'RAZR_USERSPACE_SMOKE_PASS arch=arm64 init=systemd' "$evidence/qemu-serial.log"; then
-  echo "QEMU smoke failed: exit=$rc" >&2
-  tail -n 100 "$evidence/qemu-serial.log" >&2
-  exit 1
-fi
-echo 'QEMU_SMOKE_PASS: ARM64 userspace service ran and system powered off'
+trap - EXIT
+[[ "$rc" -eq 0 ]] || fail "SHUTDOWN_FAILED: QEMU exit=$rc"
+echo 'QEMU_SYSTEMD_NETWORK_SSH_PASS'
