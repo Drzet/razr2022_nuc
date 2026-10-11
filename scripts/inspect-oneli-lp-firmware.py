@@ -146,17 +146,60 @@ def inspect_partition(image, name, mountpoint, extract_dir):
 def inspect_vendor_boot(blob):
     with blob.open("rb") as f:
         head = f.read(4096)
-    if head[:8] != b"VNDRBOOT":
+    if head[:8] != b"VNDRBOOT" or len(head) < 2128:
         return {"recognized_header": False}
     version, page = struct.unpack_from("<2I", head, 8)
-    kernel_addr, ramdisk_addr, vendor_ramdisk_size = struct.unpack_from("<3I", head, 16)
-    # Android vendor_boot v4: header fields are aligned but some fields are
-    # after fixed-size command line and board name. Avoid guessing offsets:
-    # expose only universally stable prefix and exact hash for Boot's decoder.
-    return {"magic": "VNDRBOOT", "version": version, "page_size": page,
-            "kernel_addr": kernel_addr, "ramdisk_addr": ramdisk_addr,
-            "vendor_ramdisk_size": vendor_ramdisk_size,
-            "complete_v4_table_parse": False}
+    kernel_addr, ramdisk_addr, ramdisk_size = struct.unpack_from("<3I", head, 16)
+    tags_addr = struct.unpack_from("<I", head, 2076)[0]
+    name = head[2080:2096].split(b"\0", 1)[0].decode("ascii", "replace")
+    header_size, dtb_size = struct.unpack_from("<2I", head, 2096)
+    dtb_addr = struct.unpack_from("<Q", head, 2104)[0]
+    table_size, table_count, entry_size, bootconfig_size = struct.unpack_from("<4I", head, 2112)
+    if version != 4 or page not in (2048, 4096, 8192, 16384) or header_size > page:
+        raise ValueError("unexpected vendor_boot v4 structural header")
+    align = lambda n: (n + page - 1) // page * page
+    ramdisk_offset = align(header_size)
+    dtb_offset = ramdisk_offset + align(ramdisk_size)
+    table_offset = dtb_offset + align(dtb_size)
+    config_offset = table_offset + align(table_size)
+    result = {
+        "magic": "VNDRBOOT", "version": version, "page_size": page,
+        "board_name": name, "kernel_addr": kernel_addr, "ramdisk_addr": ramdisk_addr,
+        "tags_addr": tags_addr, "header_size": header_size,
+        "vendor_ramdisk_bytes": ramdisk_size, "vendor_ramdisk_offset": ramdisk_offset,
+        "dtb_bytes": dtb_size, "dtb_address": dtb_addr, "dtb_offset": dtb_offset,
+        "ramdisk_table_bytes": table_size, "ramdisk_table_count": table_count,
+        "ramdisk_table_entry_bytes": entry_size, "ramdisk_table_offset": table_offset,
+        "bootconfig_bytes": bootconfig_size, "bootconfig_offset": config_offset,
+        "validation": "public reference header/layout only, not bootloader selection",
+        "ramdisk_table_entries": []
+    }
+    if config_offset + bootconfig_size > blob.stat().st_size or table_count > 4096:
+        raise ValueError("vendor_boot v4 sections exceed image bounds")
+    with blob.open("rb") as f:
+        for name, start, size in (("vendor_ramdisk_sha256", ramdisk_offset, ramdisk_size),
+                                  ("dtb_region_sha256", dtb_offset, dtb_size),
+                                  ("ramdisk_table_sha256", table_offset, table_size),
+                                  ("bootconfig_sha256", config_offset, bootconfig_size)):
+            f.seek(start)
+            data = f.read(size)
+            result[name] = hashlib.sha256(data).hexdigest()
+            if name == "bootconfig_sha256":
+                result["bootconfig_keys"] = sorted(set(
+                    row.split(b"=", 1)[0].strip().decode("ascii", "replace")
+                    for row in data.splitlines() if b"=" in row))[:160]
+        if entry_size >= 108 and table_count * entry_size <= table_size:
+            f.seek(table_offset)
+            for i in range(table_count):
+                entry = f.read(entry_size)
+                size, offset, typ = struct.unpack_from("<3I", entry)
+                fragment_name = entry[12:44].split(b"\0", 1)[0].decode("ascii", "replace")
+                board_ids = list(struct.unpack_from("<16I", entry, 44))
+                result["ramdisk_table_entries"].append({
+                    "index": i, "name": fragment_name, "type": typ,
+                    "offset": offset, "size": size,
+                    "board_id": board_ids})
+    return result
 
 
 def main():
@@ -185,7 +228,7 @@ def main():
         raise RuntimeError(f"unreadable lpunpack metadata: {meta.stdout[:900]}") from e
     # Metadata contains only structural partition addresses/names.
     result["logical_partition_metadata"] = metadata
-    partitions = metadata.get("partition_table", [])
+    partitions = metadata.get("partitions", metadata.get("partition_table", []))
     if not partitions:
         raise RuntimeError("no logical partitions found; cannot claim negative search")
     print("logical partitions:", [row.get("name") for row in partitions], flush=True)
@@ -212,7 +255,7 @@ def main():
         finally:
             image.unlink(missing_ok=True)
     with zipfile.ZipFile(a.stock_zip) as zf:
-        for name in ("radio.img", "dspso.bin", "BTFM.bin", "vendor_boot.img", "boot.img", "recovery.img"):
+        for name in ("radio.img", "dspso.bin", "BTFM.bin", "vendor_boot.img", "boot.img", "recovery.img", "dtbo.img"):
             if name not in zf.namelist():
                 result["outer_image_candidates"].append({"container": name, "state": "not_in_archive"})
                 continue
@@ -220,7 +263,15 @@ def main():
             with zf.open(name) as src, target.open("wb") as dest:
                 shutil.copyfileobj(src, dest, 1024*1024)
             try:
-                if name == "vendor_boot.img":
+                if name == "dtbo.img":
+                    import importlib.util
+                    spec = importlib.util.spec_from_file_location(
+                        "stock_ranges", Path(__file__).with_name("inspect-oneli-stock-ranges.py"))
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    info = {"container": name, "state": "four_DTB_candidates_inspected",
+                            **binary_metadata(target), "dtbo": mod.dtbo_inspect(target.read_bytes())}
+                elif name == "vendor_boot.img":
                     info = {"container": name, **binary_metadata(target),
                             "vendor_boot": inspect_vendor_boot(target),
                             "state": "structural_header_inspected_not_filesystem"}
