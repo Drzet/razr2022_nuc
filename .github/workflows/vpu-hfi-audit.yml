@@ -1,7 +1,8 @@
 name: VPU pinned host ABI audit
 
 on:
-  pull_request:
+  push:
+    branches: [razr/vpu]
     paths:
       - 'scripts/audit-vpu-hfi.py'
       - 'scripts/inventory-oneli-firmware.py'
@@ -112,7 +113,7 @@ jobs:
             out/.config | tee evidence/iris-config.txt
           # No M= isolation, KBUILD_MODPOST_WARN, KBUILD_MODPOST_NOFINAL or WERROR overrides.
           make -C kernel O="$PWD/out" ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-            -j2 Image modules 2>&1 | tee evidence/full-arm64-build.log
+            -j4 Image modules 2>&1 | tee evidence/full-arm64-build.log
           test -s out/arch/arm64/boot/Image
           test -s out/Module.symvers
           test -s out/drivers/media/platform/qcom/iris/qcom-iris.ko
