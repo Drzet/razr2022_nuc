@@ -69,9 +69,9 @@ chmod 0755 "$root/usr/sbin/policy-rc.d"
 mount -t proc proc "$root/proc"
 mount -t sysfs sysfs "$root/sys"
 mount --bind /dev "$root/dev"
-echo "chroot ROOTFS apt-get update; apt-get install systemd-sysv systemd-networkd udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 openssh-server sudo" >> "$evidence/commands.txt"
+echo "chroot ROOTFS apt-get update; apt-get install systemd-sysv udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 openssh-server sudo" >> "$evidence/commands.txt"
 chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get update 2>&1 | tee "$evidence/apt-update.log"
-chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends systemd-sysv systemd-networkd udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 openssh-server sudo 2>&1 | tee "$evidence/apt-install.log"
+chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends systemd-sysv udev iproute2 kmod ca-certificates e2fsprogs initramfs-tools linux-image-arm64 openssh-server sudo 2>&1 | tee "$evidence/apt-install.log"
 chroot "$root" /usr/bin/dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' > "$evidence/packages.tsv"
 [[ "$(chroot "$root" dpkg --print-architecture)" == arm64 ]]
 chroot "$root" passwd -l root > "$evidence/root-lock.log" 2>&1
