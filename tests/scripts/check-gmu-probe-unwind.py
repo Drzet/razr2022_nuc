@@ -81,9 +81,11 @@ def negative_cases(source: str) -> None:
             "/* removed GX detach */",
         ),
     }
+    original_function = function_body(source)
     for label, (old, new) in changes.items():
-        assert old in source, f"self-test setup missing expected case: {label}"
-        mutant = source.replace(old, new, 1)
+        assert old in original_function, f"self-test setup missing expected case: {label}"
+        mutant_function = original_function.replace(old, new, 1)
+        mutant = source.replace(original_function, mutant_function, 1)
         try:
             verify(mutant)
         except AssertionError:
