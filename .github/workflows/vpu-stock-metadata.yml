@@ -1,10 +1,6 @@
 name: Oneli public ZIP64 range metadata (no full download)
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/inspect-oneli-stock-ranges.py'
-      - '.github/workflows/vpu-stock-metadata.yml'
   workflow_dispatch:
 
 permissions:
