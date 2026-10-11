@@ -1,6 +1,6 @@
 # Reproducible Debian ARM64 rootfs
 
-This userspace is independent of the Motorola stock Android boot image. Inputs live in inputs.env: Debian trixie arm64, snapshot.debian.org/archive/debian and debian-security as of 2026-10-11T00:00:00Z, 3072 MiB QEMU test disk. Debian signatures are checked; neither archive signature verification nor the secure hardware boot chain is bypassed.
+This userspace is independent of the Motorola stock Android boot image. Inputs live in inputs.env: Debian trixie arm64, snapshot.debian.org/archive/debian and debian-security as of 2026-10-11T00:00:00Z, 3072 MiB QEMU test disk. Debian 13 archive signing keys are downloaded from Debian FTP-master and their exact published SHA256 sums are checked (main 6f1d277429dd7ffedcc6f8688a7ad9a458859b1139ffa026d1eeaadcbffb0da7; security 844c07d242db37f283afab9d5531270a0550841e90f9f1a9c3bd599722b808b7). Signature verification remains enabled; this says nothing about the separate secure hardware boot chain.
 
 The build script is scripts/build-userspace.sh. It performs a cross-architecture qemu-debootstrap of the signed Debian minbase, installs systemd-sysv, udev, iproute2, kmod, ca-certificates, e2fsprogs, initramfs-tools and linux-image-arm64, then writes a rootfs tarball and disposable ext4 disk. It records exact package versions, project SHA, host tool versions, apt and debootstrap logs, commands, kernel release and artifact SHA256 values. The Debian kernel and modules are present only to support this *generic emulator* milestone; Boot must replace them with the native project build before any physical test.
 
@@ -8,7 +8,7 @@ Run on Ubuntu 24.04 with sudo/root, a working binfmt_misc interpreter and networ
 
 ~~~bash
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends debootstrap qemu-user-static binfmt-support qemu-system-arm debian-archive-keyring e2fsprogs zstd xz-utils ca-certificates
+sudo apt-get install -y --no-install-recommends debootstrap qemu-user-static binfmt-support qemu-system-arm debian-archive-keyring e2fsprogs zstd xz-utils ca-certificates gnupg wget
 mkdir -p evidence
 sudo env GITHUB_SHA="$(git rev-parse HEAD)" bash scripts/build-userspace.sh /tmp/razr-userspace-build "$PWD/evidence"
 bash scripts/smoke-qemu.sh /tmp/razr-userspace-build "$PWD/evidence"
