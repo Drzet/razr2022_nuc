@@ -144,8 +144,8 @@ def inspect_partition(image, name, mountpoint, extract_dir):
     b = call(["blkid", "-p", "-o", "value", "-s", "TYPE", str(image)])
     out["blkid_type"] = b.stdout.strip() if b.returncode == 0 else None
     typ = out["blkid_type"]
-    if typ == "ext4":
-        cmd = ["sudo", "mount", "-t", "ext4", "-o", "loop,ro,noload", str(image), str(mountpoint)]
+    if typ in ("ext2", "ext3", "ext4"):
+        cmd = ["sudo", "mount", "-t", typ, "-o", "loop,ro,noload" if typ == "ext4" else "loop,ro", str(image), str(mountpoint)]
     elif typ in ("erofs", "vfat", "squashfs", "f2fs"):
         cmd = ["sudo", "mount", "-t", typ, "-o", "loop,ro", str(image), str(mountpoint)]
     else:
