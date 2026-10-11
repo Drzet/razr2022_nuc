@@ -19,7 +19,7 @@ Native mainline Linux port for the Motorola Razr 2022 (`oneli`, Snapdragon 8+ Ge
 | `firmware/` | Firmware inventories, hashes, provenance and extraction notes |
 | `tests/` | Validation procedures and recorded build/device results |
 
-Kernel source, drivers, bindings and device trees belong in the planned [Drzet/linux](https://github.com/Drzet/linux) fork. This repository coordinates that work and records exact inputs and results. Motorola sources remain pinned references.
+Kernel source, drivers, bindings and device trees belong in the [Drzet/linux](https://github.com/Drzet/linux) fork. This repository coordinates that work and records exact inputs and results. Motorola sources remain pinned references.
 
 ## Evidence baseline
 
