@@ -1,0 +1,62 @@
+name: oneli DisplayPort pinned source assertions
+
+on:
+  push:
+    branches:
+      - razr/displayport
+    paths:
+      - tests/displayport/**
+      - .github/workflows/razr-displayport-source.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact project SHA
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Reproduce pinned Motorola and mainline source checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version
+          echo "Project SHA: $(git rev-parse HEAD)"
+          python3 tests/displayport/oneli_dp_source_audit.py             --cache "${RUNNER_TEMP}/oneli-dp-sources"             --output "${RUNNER_TEMP}/oneli-dp-report.json"
+          python3 tests/displayport/oneli_dp_source_audit.py             --cache "${RUNNER_TEMP}/oneli-dp-sources" --offline             --output "${RUNNER_TEMP}/oneli-dp-offline-report.json"
+          python3 - "${RUNNER_TEMP}/oneli-dp-report.json" <<'PY'
+          import json, sys
+          result = json.load(open(sys.argv[1], encoding="utf-8"))
+          assert len(result["sources"]) == 10
+          assert result["total"] == 23 and result["passed"] == 23
+          assert result["status"] == "passed"
+          print(f"VERIFIED: {result['passed']}/{result['total']} pinned-source assertions")
+          PY
+
+      - name: Detect corruption of pinned source
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '\n/* deliberately corrupted CI fixture */\n' >> "${RUNNER_TEMP}/oneli-dp-sources/vendor_aux.src"
+          if python3 tests/displayport/oneli_dp_source_audit.py             --cache "${RUNNER_TEMP}/oneli-dp-sources" --offline             --output "${RUNNER_TEMP}/should-not-pass.json"; then
+            echo "ERROR: mutated pinned Git source was accepted" >&2
+            exit 1
+          fi
+          test ! -f "${RUNNER_TEMP}/should-not-pass.json"
+          echo "VERIFIED: corrupted source rejected by Git blob check"
+
+      - name: Preserve pinned input hashes and assertions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: oneli-displayport-source-audit
+          path: |
+            ${{ runner.temp }}/oneli-dp-report.json
+            ${{ runner.temp }}/oneli-dp-offline-report.json
+          if-no-files-found: warn
