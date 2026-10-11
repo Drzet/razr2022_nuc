@@ -28,6 +28,15 @@ security="https://snapshot.debian.org/archive/debian-security/$DEBIAN_SNAPSHOT/"
 cp userspace/inputs.env "$evidence/inputs.env"
 cp scripts/build-userspace.sh "$evidence/build-userspace.sh"
 cp scripts/smoke-qemu.sh "$evidence/smoke-qemu.sh"
+# Ubuntu 24.04 keyring predates Debian 13 keys. Verify pinned Debian FTP-master keys.
+wget -q -O "$work/archive-key-13.asc" https://ftp-master.debian.org/keys/archive-key-13.asc
+wget -q -O "$work/archive-key-13-security.asc" https://ftp-master.debian.org/keys/archive-key-13-security.asc
+printf '6f1d277429dd7ffedcc6f8688a7ad9a458859b1139ffa026d1eeaadcbffb0da7  %s\n' "$work/archive-key-13.asc" | sha256sum -c - | tee "$evidence/key-verification.txt"
+printf '844c07d242db37f283afab9d5531270a0550841e90f9f1a9c3bd599722b808b7  %s\n' "$work/archive-key-13-security.asc" | sha256sum -c - | tee -a "$evidence/key-verification.txt"
+gpg --batch --yes --dearmor -o "$work/debian-main.gpg" "$work/archive-key-13.asc"
+gpg --batch --yes --dearmor -o "$work/debian-security.gpg" "$work/archive-key-13-security.asc"
+cat "$work/debian-main.gpg" "$work/debian-security.gpg" > "$work/debian-trixie-archive.gpg"
+sha256sum "$work/archive-key-13.asc" "$work/archive-key-13-security.asc" "$work/debian-trixie-archive.gpg" > "$evidence/key-sha256.txt"
 {
  echo "project_commit=$GITHUB_SHA"
  echo "suite=$DEBIAN_SUITE architecture=$DEBIAN_ARCH snapshot=$DEBIAN_SNAPSHOT"
@@ -40,11 +49,13 @@ cp scripts/smoke-qemu.sh "$evidence/smoke-qemu.sh"
  qemu-system-aarch64 --version
  dpkg-query -W -f='host_package=${Package}\t${Version}\n' debootstrap qemu-user-static qemu-system-arm debian-archive-keyring e2fsprogs zstd
 } > "$evidence/environment.txt" 2>&1
-echo "qemu-debootstrap --arch=arm64 --variant=minbase --keyring=/usr/share/keyrings/debian-archive-keyring.gpg trixie ROOTFS $mirror" > "$evidence/commands.txt"
-qemu-debootstrap --arch=arm64 --variant=minbase --keyring=/usr/share/keyrings/debian-archive-keyring.gpg trixie "$root" "$mirror" 2>&1 | tee "$evidence/debootstrap.log"
+echo "qemu-debootstrap --arch=arm64 --variant=minbase --keyring="$work/debian-trixie-archive.gpg" trixie ROOTFS $mirror" > "$evidence/commands.txt"
+qemu-debootstrap --arch=arm64 --variant=minbase --keyring="$work/debian-trixie-archive.gpg" trixie "$root" "$mirror" 2>&1 | tee "$evidence/debootstrap.log"
+mkdir -p "$root/etc/apt/keyrings"
+cp "$work/debian-trixie-archive.gpg" "$root/etc/apt/keyrings/razr-debian-trixie.gpg"
 cat > "$root/etc/apt/sources.list" <<APT
-deb [check-valid-until=no] $mirror trixie main
-deb [check-valid-until=no] $security trixie-security main
+deb [check-valid-until=no signed-by=/etc/apt/keyrings/razr-debian-trixie.gpg] $mirror trixie main
+deb [check-valid-until=no signed-by=/etc/apt/keyrings/razr-debian-trixie.gpg] $security trixie-security main
 APT
 printf 'Acquire::Check-Valid-Until "false";\n' > "$root/etc/apt/apt.conf.d/90-razr-snapshot"
 echo razr-debian > "$root/etc/hostname"
