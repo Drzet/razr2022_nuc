@@ -1,4 +1,4 @@
-name: GPU ARM64 MSM module validation
+name: GPU ARM64 complete MSM module validation
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
           sudo apt-get update 2>&1 | tee evidence/apt-update.log
           sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make bc bison flex libssl-dev libelf-dev python3 perl rsync cpio kmod zstd xz-utils dwarves 2>&1 | tee evidence/apt-install.log
 
-      - name: Compile kernel and MSM module
+      - name: Build kernel Image and complete in-tree modules
         run: |
           set -Eeuo pipefail
           mkdir -p evidence
@@ -60,20 +60,25 @@ jobs:
           out="$PWD/kernel/.gpu-build"
           {
             echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig'
-            echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image'
-            echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) M=<absolute kernel/drivers/gpu/drm/msm path> modules'
+            echo 'make -C kernel O=<absolute gpu build path> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) Image modules'
           } > evidence/commands.txt
           set -o pipefail
           make -C kernel O="$out" defconfig 2>&1 | tee evidence/configure.log
           cp "$out/.config" evidence/kernel.config
           grep -qx 'CONFIG_DRM_MSM=m' evidence/kernel.config
           grep -E '^(CONFIG_DRM_MSM|CONFIG_SM_GCC_8450|CONFIG_SM_GPUCC_8450|CONFIG_QCOM_RPMH|CONFIG_QCOM_RPMHPD|CONFIG_ARM_SMMU|CONFIG_QCOM_AOSS_QMP)=' evidence/kernel.config > evidence/gpu-config-extract.txt || true
-          make -C kernel O="$out" -j"$(nproc)" Image 2>&1 | tee evidence/image-build.log
-          make -C kernel O="$out" -j"$(nproc)" M="$PWD/kernel/drivers/gpu/drm/msm" modules 2>&1 | tee evidence/msm-module-build.log
-          test -s kernel/drivers/gpu/drm/msm/msm.ko
-          aarch64-linux-gnu-readelf -h kernel/drivers/gpu/drm/msm/msm.ko > evidence/msm-module-elf.txt
-          cp kernel/drivers/gpu/drm/msm/msm.ko evidence/msm.ko
-          sha256sum evidence/msm.ko evidence/kernel.config > evidence/SHA256SUMS
+          # Build all configured in-tree modules with normal modpost resolution.
+          # Building only M=drivers/gpu/drm/msm cannot populate Module.symvers.
+          make -C kernel O="$out" -j"$(nproc)" Image modules 2>&1 | tee evidence/in-tree-image-modules-build.log
+          test -s "$out/Module.symvers"
+          test -s "$out/drivers/gpu/drm/msm/msm.ko"
+          test -s "$out/arch/arm64/boot/Image"
+          cp "$out/Module.symvers" evidence/Module.symvers
+          aarch64-linux-gnu-readelf -h "$out/drivers/gpu/drm/msm/msm.ko" > evidence/msm-module-elf.txt
+          modinfo "$out/drivers/gpu/drm/msm/msm.ko" > evidence/msm-modinfo.txt
+          cp "$out/drivers/gpu/drm/msm/msm.ko" evidence/msm.ko
+          cp "$out/include/config/kernel.release" evidence/kernel.release
+          sha256sum evidence/msm.ko evidence/Module.symvers evidence/kernel.config evidence/kernel.release evidence/msm-module-elf.txt > evidence/SHA256SUMS
 
       - name: Upload GPU module evidence
         if: always()
