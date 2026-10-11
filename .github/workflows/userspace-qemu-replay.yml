@@ -1,7 +1,8 @@
 name: QEMU replay from verified Debian rootfs artifact
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches: ['razr/userspace']
     paths:
       - '.github/workflows/userspace-qemu-replay.yml'
       - 'scripts/smoke-qemu.sh'
