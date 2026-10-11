@@ -145,9 +145,9 @@ def ubwc_payload_expressions(body):
     board-provided ubwc_config; upstream derives values from qcom_ubwc_cfg_data.
     """
     result = {}
-    for key in sorted(set(re.findall(r"\\bHFI_PROP_UBWC_[A-Z0-9_]+\\b", body))):
+    for key in sorted(set(re.findall(r"\bHFI_PROP_UBWC_[A-Z0-9_]+\b", body))):
         idx = body.rfind(key)  # Vendor source also mentions IDs in comments.
-        assignments = list(re.finditer(r"\\bpayload\\s*=\\s*([^;]+);", body[:idx]))
+        assignments = list(re.finditer(r"\bpayload\s*=\s*([^;]+);", body[:idx]))
         result[key] = assignments[-1].group(1).strip() if assignments else None
     return result
 
@@ -170,13 +170,13 @@ def semantic_checks(vendor_src, upstream_src):
     upstream_builder = find_function(upstream_src, "iris_hfi_gen2_create_packet")
     semantic_delta = {
         "vendor_has_optional_ubwc_config_gate":
-            bool(re.search(r"if\\s*\\(!core->platform->data\\.ubwc_config\\)", vendor)),
+            bool(re.search(r"if\s*\(!core->platform->data\.ubwc_config\)", vendor)),
         "upstream_ubwc_source_is_smembacked_config":
             "core->ubwc_cfg" in upstream,
         "vendor_builder_checks_packet_capacity":
-            bool(re.search(r"packet_size\\s*<\\s*hdr->size\\s*\\+\\s*pkt_size", vendor_builder)),
+            bool(re.search(r"packet_size\s*<\s*hdr->size\s*\+\s*pkt_size", vendor_builder)),
         "upstream_builder_checks_packet_capacity":
-            bool(re.search(r"packet_size\\s*<\\s*hdr->size\\s*\\+\\s*pkt_size", upstream_builder)),
+            bool(re.search(r"packet_size\s*<\s*hdr->size\s*\+\s*pkt_size", upstream_builder)),
         "ubwc_payload_formula_differences":
             [{"property": key, "vendor": vendor_payloads.get(key),
               "upstream": upstream_payloads.get(key)}
