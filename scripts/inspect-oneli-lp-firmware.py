@@ -17,7 +17,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-FW_NAME = re.compile(r"(vpu20_4v|a730|gmu_gen7|zap(?:\.|_|$)|venus|vidc)", re.I)
+FW_NAME = re.compile(r"(vpu|a7\d\d|c500|gmu|sqe|zap|venus|vidc)", re.I)
 VERSION = re.compile(rb"QC_IMAGE_VERSION_STRING=([^\x00\r\n]{1,128})")
 MAX_FIRMWARE_SIZE = 128 * 1024**2
 
@@ -102,6 +102,41 @@ def scan_tree(root):
             "search_pattern": FW_NAME.pattern}
 
 
+def opaque_image_markers(image):
+    """Bounded magic/name offsets only; no image bytes or payload extraction."""
+    patterns = {
+        "ELF": b"\x7fELF", "Android_sparse": b"\x3a\xff\x26\xed",
+        "FAT": b"FAT", "Qualcomm_VPU_name": b"vpu20_4v",
+        "GMU_name": b"gmu", "SQE_name": b"sqe", "ZAP_name": b"zap",
+        "Venus_name": b"venus",
+    }
+    matches = {name: [] for name in patterns}
+    with image.open("rb") as stream:
+        location = 0
+        overlap = b""
+        while True:
+            block = stream.read(1024 * 1024)
+            if not block:
+                break
+            data = overlap + block
+            lower = data.lower()
+            base = location - len(overlap)
+            for name, magic in patterns.items():
+                cursor = 0
+                while len(matches[name]) < 40:
+                    i = lower.find(magic.lower(), cursor)
+                    if i < 0:
+                        break
+                    absolute = base + i
+                    if absolute >= location - len(overlap) and absolute not in matches[name]:
+                        matches[name].append(absolute)
+                    cursor = i + 1
+            location += len(block)
+            overlap = data[-31:]
+    return {"bytes_inspected": location,
+            "marker_offsets_not_validated_firmware_or_filesystem": {
+                name: offsets for name, offsets in matches.items() if offsets}}
+
 def inspect_partition(image, name, mountpoint, extract_dir):
     out = {"container": name, "image_bytes": image.stat().st_size, "image_sha256": digest(image)}
     f = call(["file", "-b", str(image)])
@@ -115,6 +150,8 @@ def inspect_partition(image, name, mountpoint, extract_dir):
         cmd = ["sudo", "mount", "-t", typ, "-o", "loop,ro", str(image), str(mountpoint)]
     else:
         out["state"] = "not_a_recognized_mountable_filesystem"
+        if name in ("radio.img", "BTFM.bin"):
+            out["opaque_signature_probe"] = opaque_image_markers(image)
         return out
     mounted = call(cmd)
     if mounted.returncode == 0:
