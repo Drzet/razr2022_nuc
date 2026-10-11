@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      KERNEL_SHA: 26d2fae5dd63d7c046b9b1f0f45a95e001d08f95
+      KERNEL_SHA: 3b02b11bc5abdc5c453fa4af16b71bd8e44c2056
       ARCH: arm64
       CROSS_COMPILE: aarch64-linux-gnu-
     steps:
