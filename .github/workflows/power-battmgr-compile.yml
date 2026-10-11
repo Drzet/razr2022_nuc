@@ -1,0 +1,80 @@
+name: Power Qualcomm battmgr kernel compile
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/power-battmgr-compile.yml'
+  push:
+    branches: [razr/power]
+    paths:
+      - '.github/workflows/power-battmgr-compile.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  arm64-battmgr-objects:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      KERNEL_SHA: 26d2fae5dd63d7c046b9b1f0f45a95e001d08f95
+      ARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install cross compiler
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gcc-aarch64-linux-gnu bc flex bison libssl-dev
+      - name: Checkout pinned Power kernel patch
+        uses: actions/checkout@v4
+        with:
+          repository: Drzet/linux
+          ref: ${{ env.KERNEL_SHA }}
+          path: kernel
+          persist-credentials: false
+      - name: Configure ARM64 and resolve requested symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          {
+            echo "selected kernel: Drzet/linux@${KERNEL_SHA}"
+            echo "resolved HEAD: $(git -C kernel rev-parse HEAD)"
+            echo "compiler: $(aarch64-linux-gnu-gcc --version | head -1)"
+            echo "make: $(make --version | head -1)"
+          } | tee evidence/inputs.txt
+          make -C kernel O="$GITHUB_WORKSPACE/out" defconfig 2>&1 | tee evidence/defconfig.log
+          kernel/scripts/config --file out/.config \
+            -e KUNIT \
+            -m QCOM_PMIC_GLINK \
+            -m BATTERY_QCOM_BATTMGR \
+            -m BATTERY_QCOM_BATTMGR_KUNIT_TEST
+          make -C kernel O="$GITHUB_WORKSPACE/out" olddefconfig 2>&1 | tee evidence/olddefconfig.log
+          cp out/.config evidence/arm64.config
+          grep -E '^(CONFIG_(KUNIT|QCOM_PMIC_GLINK|BATTERY_QCOM_BATTMGR|BATTERY_QCOM_BATTMGR_KUNIT_TEST)=|# CONFIG_(KUNIT|QCOM_PMIC_GLINK|BATTERY_QCOM_BATTMGR|BATTERY_QCOM_BATTMGR_KUNIT_TEST) is not set)' out/.config | tee evidence/resolved-symbols.txt
+          grep -q '^CONFIG_BATTERY_QCOM_BATTMGR=m$' out/.config
+          grep -q '^CONFIG_BATTERY_QCOM_BATTMGR_KUNIT_TEST=m$' out/.config
+      - name: Compile actual driver and KUnit test objects
+        shell: bash
+        run: |
+          set -euo pipefail
+          make -C kernel O="$GITHUB_WORKSPACE/out" -j4 prepare 2>&1 | tee evidence/prepare.log
+          make -C kernel O="$GITHUB_WORKSPACE/out" -j4 \
+            drivers/power/supply/qcom_battmgr.o \
+            drivers/power/supply/qcom_battmgr_test.o 2>&1 | tee evidence/compile.log
+          test -s out/drivers/power/supply/qcom_battmgr.o
+          test -s out/drivers/power/supply/qcom_battmgr_test.o
+          sha256sum out/drivers/power/supply/qcom_battmgr.o \
+            out/drivers/power/supply/qcom_battmgr_test.o | tee evidence/objects.sha256
+          echo "Compiled production parser and KUnit suite objects (NOT executed)." | tee evidence/scope.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: power-battmgr-arm64-compile
+          if-no-files-found: warn
+          path: evidence/
