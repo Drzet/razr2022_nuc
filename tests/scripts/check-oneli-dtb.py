@@ -223,20 +223,57 @@ def main():
     if uart is None or not uart.effective:
         errors.append("UART7 missing or disabled behind ancestor")
     suspicious = [r for r in refs if r["consumer_active"] and not r["provider_active"]]
-    # The inherited SoC description deliberately publishes several active
-    # clock controllers with disabled physical PHY clock parents. They are
-    # *reported* but not fatal. UART7 + QUP0 being live, however, requires
-    # their own directly referenced providers to be available.
-    uart_consumers = {uart.path, uart.parent.path} if uart else set()
-    critical = [r for r in suspicious if r["consumer"] in uart_consumers]
+
+    # First-boot contract: all optional peripheral families below remain
+    # off until their own providers/rails/driver handoffs are reviewed.
+    deferred = {
+        "/soc@0/codec@31e0000": "WSA2 LPASS macro",
+        "/soc@0/codec@3200000": "RX LPASS macro",
+        "/soc@0/codec@3220000": "TX LPASS macro",
+        "/soc@0/codec@3240000": "WSA LPASS macro",
+        "/soc@0/pinctrl@3440000": "LPASS LPI pinctrl",
+        "/soc@0/clock-controller@af00000": "DISPCC",
+        "/soc@0/usb@a600000": "DWC3 USB2",
+        "/soc@0/phy@88e3000": "eUSB2 PHY",
+        "/pmic-glink": "PMIC GLINK Type-C service",
+    }
+    for path, purpose in deferred.items():
+        n = nodes.get(path)
+        if n is None or n.effective:
+            errors.append("minimal boot must hold %s (%s)" % (purpose, path))
+    phy = nodes.get("/soc@0/phy@88e3000")
+    if phy is not None and "qcom,sm8475-snps-eusb2-phy" not in strlist(phy.props.get("compatible", b"")):
+        errors.append("incorrect eUSB2 PHY compatible (SM8450 inherited?)")
+
+    classifications = []
+    critical = []
+    for ref in suspicious:
+        path = ref["consumer"]
+        if path == "/soc@0/clock-controller@100000" and ref["property"] == "clocks":
+            # GCC must probe for CPU/console. Disabled parent PHY clock
+            # references are not considered harmless: hardware probe gate.
+            group = "BOOT_REQUIRED_GCC_WITH_DEFERRED_PHY_PARENT"
+        elif path == "/soc@0/clock-controller@af00000" and ref["property"] == "clocks":
+            group = "DEFERRED_DISPLAY_CLOCK_PARENT"
+        elif path.startswith("/soc@0/codec@") or path == "/soc@0/pinctrl@3440000":
+            group = "UNSAFE_ACTIVE_AUDIO_DEPENDENCY"
+        else:
+            group = "UNCLASSIFIED_ACTIVE_TO_DISABLED_DEPENDENCY"
+        classifications.append({"consumer": path, "provider": ref["provider"],
+                                "property": ref["property"], "classification": group})
+        if (group == "UNCLASSIFIED_ACTIVE_TO_DISABLED_DEPENDENCY"
+                or group == "UNSAFE_ACTIVE_AUDIO_DEPENDENCY"
+                or path in ({uart.path, uart.parent.path} if uart else set())):
+            critical.append(ref)
     if critical:
-        errors.append("UART7 or QUP0 references disabled providers: %d" % len(critical))
+        errors.append("%d unsafe/unclassified or UART7 references to disabled providers" % len(critical))
     report = {"input": str(args.dtb), "node_count": len(nodes),
               "reservation_count": len(regions), "reservations": regions,
               "overlaps": overlaps, "gpu": gpu,
               "uart7": {"path": uart.path, "effective": uart.effective} if uart else None,
               "phandle_references": refs, "reference_parse_errors": errors,
               "enabled_consumer_disabled_provider": suspicious,
+              "provider_dependency_classification": classifications,
               "critical_disabled_provider_references": critical,
               "pass": not errors}
     args.output.parent.mkdir(parents=True, exist_ok=True)
