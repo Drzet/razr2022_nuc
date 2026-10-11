@@ -8,11 +8,11 @@ Decision recorded: 2026-10-11. Scope: native mainline Linux, with separate subsy
 - `Drzet/razr2022_nuc`: evidence, configuration fragments, baseline metadata, build/image tooling, firmware inventory, validation procedures and results.
 - Motorola and other external trees: references pinned to exact revisions. Port justified changes as individual commits, preserving authorship, source links and applicable licensing. Record unmerged patchset versions and dependencies.
 
-The kernel fork `Drzet/linux` and read/write access were verified on 2026-10-11. Its default branch is `master`. A suitable upstream build baseline remains unselected. Do not treat the Linux commit used in the hardware audit as a build-baseline decision.
+The kernel fork `Drzet/linux` and read/write access were verified on 2026-10-11. Its default branch is `master`. On 2026-10-11, upstream commit `a5ebb76233b79db01e82e061173cb73c6d2b5c6b` was selected as the initial baseline and `razr/boot` was created at that SHA. This now deliberately matches the research snapshot; it is not yet build-validated. See [the comparison](sm8475_baseline_comparison_2026-10-11.md).
 
 ## Planned kernel branches
 
-These names describe the agreed structure; they do not assert that branches already exist.
+`razr/boot` exists at the pinned baseline. Other branch names below remain planned.
 
 | Branch | Responsibility | Dependency |
 | --- | --- | --- |
@@ -44,7 +44,7 @@ The initial structure deliberately contains no guessed kernel config or boot-ima
 
 ## First milestones
 
-1. Select a suitable upstream commit based on subsystem evidence; fork access is verified.
+1. Completed: pin the initial upstream commit and create `razr/boot`.
 2. Establish a clean ARM64 kernel and device-tree build from recorded inputs.
 3. Implement minimal board support using the hardware evidence and actual boot artifacts.
 4. Demonstrate native boot with usable diagnostic output and record the exact image/commit.

@@ -1,5 +1,5 @@
 # Kernel configuration and baseline
 
-`baseline.json` is an unselected baseline record. Null values and empty lists are unresolved inputs, not working defaults. The research database's upstream snapshot is not automatically the build baseline.
+`baseline.json` pins the initial upstream commit and names `razr/boot`. The selection is build-unverified. ARM64 defconfig is the clean-build starting point, not a working Razr configuration. Null fields remain unresolved; no external patchsets or configuration fragments have been applied.
 
-Add verified kernel configuration fragments here after the kernel revision is selected. Record their application order and retain the generated configuration with each build result. Kernel source and device trees belong in `Drzet/linux`.
+Record fragment application order and retain the generated configuration with each successful build. Kernel source and device trees belong in `Drzet/linux`. See [comparison and build blockers](../docs/sm8475_baseline_comparison_2026-10-11.md).

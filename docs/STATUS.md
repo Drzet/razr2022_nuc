@@ -13,7 +13,7 @@ Stages are evidence fields, not a single success label. Partial research and fai
 
 | Workstream | Research evidence | Implementation | Build evidence | Hardware evidence | Next handoff |
 | --- | --- | --- | --- | --- | --- |
-| Baseline / boot | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Select baseline, establish build and board-support plan |
+| Baseline / boot | [Baseline comparison](sm8475_baseline_comparison_2026-10-11.md) | `razr/boot` created at upstream baseline; no board patches yet | [Configuration attempt blocked](../tests/results/2026-10-11-baseline-build.md) | Not recorded | Provide build dependencies, then validate clean build and implement reconciled SoC support |
 | GPU | [Driver inventory](tables/linux_drivers.csv) | Not recorded | Not recorded | Not recorded | Pin relevant support and firmware requirements against selected baseline |
 | USB / Type-C | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Resolve controller, role/orientation and redriver dependencies |
 | DisplayPort | [Hardware audit](razr2022_linux_audit_readme_2026-10-11.md) | Not recorded | Not recorded | Not recorded | Specify routing and USB/Type-C dependencies |
@@ -22,10 +22,10 @@ Stages are evidence fields, not a single success label. Partial research and fai
 
 ## Open coordination decisions
 
-- Kernel fork `Drzet/linux` is verified, with read/write access and default branch `master` (2026-10-11). Upstream baseline and toolchain remain unselected.
+- Kernel fork `Drzet/linux` is verified, with read/write access and default branch `master` (2026-10-11). Upstream baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b` is selected; toolchain remains unavailable/unselected.
 - Actual device firmware and selected board revision remain unrecorded.
 - The VPU investigation adds sources not yet reconciled into the hardware database. Pin the appropriate source revision before reconciliation; preserve its current evidence qualifications.
-- No subsystem branches, kernel configs or image preparation parameters have been established by this scaffolding commit.
+- `razr/boot` exists. No board patches, completed kernel configuration, integration branch or image preparation parameters have been established.
 
 ## Handoffs
 

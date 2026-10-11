@@ -25,4 +25,4 @@ Kernel source, drivers, bindings and device trees belong in the [Drzet/linux](ht
 
 The [hardware audit overview](docs/razr2022_linux_audit_readme_2026-10-11.md) summarises the findings. The [machine-readable hardware database](docs/razr2022_native_linux_hardware_database_2026-10-11.json) contains components, upstream driver mappings, device-tree records, board revisions and source links. [Focused investigations](docs/README.md#focused-investigations) may contain newer findings awaiting reconciliation into that database.
 
-Research snapshot: **11 October 2026**. Native Linux boot, a working board device tree and a project kernel build have not yet been demonstrated in the committed evidence. The upstream research snapshot is not a selected build baseline.
+Research snapshot: **11 October 2026**. Native Linux boot, a working board device tree and a project kernel build have not yet been demonstrated in the committed evidence. The initial kernel baseline is now pinned in `configs/baseline.json`; its clean build is blocked on environment dependencies.

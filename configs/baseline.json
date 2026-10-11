@@ -1,14 +1,16 @@
 {
   "schema_version": 1,
-  "status": "unselected",
+  "status": "selected-build-unverified",
   "kernel_repository": "https://github.com/Drzet/linux",
   "upstream_repository": "https://github.com/torvalds/linux",
-  "upstream_commit": null,
+  "upstream_commit": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
   "board_support_commit": null,
   "integration_commit": null,
   "toolchain": null,
-  "configuration_base": null,
+  "configuration_base": "arch/arm64/configs/defconfig",
   "configuration_fragments": [],
   "external_patchsets": [],
-  "image_preparation": null
+  "image_preparation": null,
+  "board_support_branch": "razr/boot",
+  "selected_date": "2026-10-11"
 }
