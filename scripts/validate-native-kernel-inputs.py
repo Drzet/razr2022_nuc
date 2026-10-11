@@ -101,30 +101,43 @@ def validate(data, root):
     cp = subprocess.run(["lsinitramfs", str(paths["initramfs_path"])],
                         capture_output=True, text=True, check=True)
     contents = set(line.removeprefix("./") for line in cp.stdout.splitlines())
-    for rel in required_modules:
-        matched = any(x.endswith("/lib/modules/" + release + "/" + rel) or
-                      x == "lib/modules/" + release + "/" + rel or
-                      x == "usr/lib/modules/" + release + "/" + rel for x in contents)
-        require(matched, f"required module absent from initramfs: {rel}")
-    fw_manifest = json.loads(paths["firmware_manifest_path"].read_text())
-    require(fw_manifest.get("schema_version") == 1 and fw_manifest.get("status") == "complete",
-            "firmware requirements unresolved; refuse empty or incomplete manifest")
-    fw_entries = fw_manifest.get("required_files")
-    require(isinstance(fw_entries, list) and fw_entries, "firmware manifest must identify required files")
-    require(fw_manifest.get("unknown_requirements") == [], "unknown firmware requirements remain unresolved")
-    fw_output = {}
-    for row in fw_entries:
-        require(isinstance(row, dict), "invalid firmware record")
-        name, sha, consumer = row.get("path"), row.get("sha256"), row.get("consumer")
-        require(isinstance(name, str) and name and isinstance(consumer, str) and consumer,
-                "firmware path and consumer required")
-        path = checked_path(dirs["firmware_directory"], name)
-        fw_output[name] = sha_match(path, sha, "firmware " + name)
-        require(isinstance(row.get("in_initramfs"), bool), "firmware initramfs requirement must be explicit")
-        if row["in_initramfs"]:
-            require(any(x.endswith("/lib/firmware/" + name) or x == "lib/firmware/" + name or
-                        x == "usr/lib/firmware/" + name for x in contents),
-                    f"required firmware absent from initramfs: {name}")
+    with tempfile.TemporaryDirectory() as expanded:
+        subprocess.run(["unmkinitramfs", str(paths["initramfs_path"]), expanded],
+                       check=True, capture_output=True)
+        extracted = sorted(p for p in Path(expanded).rglob("*") if p.is_file())
+        def embedded_file(suffix):
+            matches = [p for p in extracted if p.as_posix().endswith("/" + suffix)]
+            require(len(matches) == 1, "expected exactly one initramfs file: " + suffix)
+            return matches[0]
+        for rel in required_modules:
+            suffix = "lib/modules/" + release + "/" + rel
+            require(any(x == suffix or x.endswith("/" + suffix) for x in contents),
+                    f"required module missing from initramfs listing: {rel}")
+            embedded = embedded_file(suffix)
+            sha_match(embedded, expected[rel], "initramfs module " + rel)
+            require(vermagic_for(embedded, release) == mod_output[rel],
+                    "initramfs module vermagic disagreement: " + rel)
+        fw_manifest = json.loads(paths["firmware_manifest_path"].read_text())
+        require(fw_manifest.get("schema_version") == 1 and fw_manifest.get("status") == "complete",
+                "firmware requirements unresolved; refuse empty or incomplete manifest")
+        fw_entries = fw_manifest.get("required_files")
+        require(isinstance(fw_entries, list) and fw_entries, "firmware manifest must identify required files")
+        require(fw_manifest.get("unknown_requirements") == [], "unknown firmware requirements remain unresolved")
+        fw_output = {}
+        for row in fw_entries:
+            require(isinstance(row, dict), "invalid firmware record")
+            name, sha, consumer = row.get("path"), row.get("sha256"), row.get("consumer")
+            require(isinstance(name, str) and name and isinstance(consumer, str) and consumer,
+                    "firmware path and consumer required")
+            path = checked_path(dirs["firmware_directory"], name)
+            fw_output[name] = sha_match(path, sha, "firmware " + name)
+            require(isinstance(row.get("in_initramfs"), bool), "firmware initramfs requirement must be explicit")
+            if row["in_initramfs"]:
+                suffix = "lib/firmware/" + name
+                require(any(x == suffix or x.endswith("/" + suffix) for x in contents),
+                        f"required firmware missing from initramfs listing: {name}")
+                sha_match(embedded_file(suffix), sha, "initramfs firmware " + name)
+
     package_manifest = json.loads(paths["boot_packaging_manifest_path"].read_text())
     require(package_manifest.get("status") == "verified", "boot packaging remains unresolved")
     result["module_count"] = len(all_modules)
