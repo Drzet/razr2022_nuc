@@ -1,0 +1,116 @@
+name: Oneli VPU and GPU firmware filesystem inventory
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/reconstruct-oneli-super.py'
+      - 'scripts/inspect-oneli-lp-firmware.py'
+      - '.github/workflows/vpu-stock-filesystems.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: stock-filesystems-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image-and-firmware-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    env:
+      STOCK_URL: https://mirrors-obs-1.lolinet.com/firmware/lenomola/2022/oneli/official/RETGB/XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip
+      ZIP_SHA256: 620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c
+      LP_SOURCE_COMMIT: c59b8f3b069c5a8aa438a049fa4a091177172434
+      LP_SOURCE_BLOB: 9671d1d731d28f04f0d65dad0dacb2110da87029
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Install filesystem inspection packages, preserve exact package versions
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          df -h "$RUNNER_TEMP" | tee evidence/disk-before-cleanup.txt
+          # CI runner ships Android SDKs, multiple language runtimes and
+          # tool caches; freeing them avoids exhausting a shared small SSD.
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/hostedtoolcache /usr/local/share/powershell
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends \
+            erofs-utils e2fsprogs util-linux file python3 git unzip curl \
+            device-tree-compiler 2>&1 | tee evidence/apt-install.log
+          dpkg-query -W erofs-utils e2fsprogs util-linux file python3 git unzip curl \
+            device-tree-compiler | tee evidence/installed-tool-versions.txt
+          python3 --version | tee evidence/python-version.txt
+          df -h "$RUNNER_TEMP" | tee evidence/disk-after-cleanup.txt
+          python3 -m py_compile scripts/reconstruct-oneli-super.py scripts/inspect-oneli-lp-firmware.py
+
+      - name: Fetch the exact immutable lpunpack source and verify its Git blob
+        run: |
+          set -euo pipefail
+          mkdir -p third_party
+          curl --fail --location --silent --show-error --max-time 60 \
+            "https://raw.githubusercontent.com/unix3dgforce/lpunpack/$LP_SOURCE_COMMIT/lpunpack.py" \
+            --output third_party/lpunpack.py
+          actual=$(git hash-object third_party/lpunpack.py)
+          echo "$actual" | tee evidence/lpunpack-git-blob.txt
+          test "$actual" = "$LP_SOURCE_BLOB"
+          python3 -m py_compile third_party/lpunpack.py
+          printf '%s\n' "$LP_SOURCE_COMMIT" > evidence/lpunpack-source-commit.txt
+
+      - name: Acquire previously hashed reference ROM with bounded transfer
+        run: |
+          set -euo pipefail
+          df -h "$RUNNER_TEMP" | tee evidence/disk-before-download.txt
+          curl --fail --location --silent --show-error --retry 2 \
+            --connect-timeout 20 --max-time 1500 --max-filesize 4700000000 \
+            --output "$RUNNER_TEMP/oneli-stock.zip" \
+            --write-out 'http_code=%{http_code}\ncontent_type=%{content_type}\nsize_download=%{size_download}\ntime_total=%{time_total}\n' \
+            "$STOCK_URL" 2>&1 | tee evidence/transfer-metrics.txt
+          printf '%s  %s\n' "$ZIP_SHA256" "$RUNNER_TEMP/oneli-stock.zip" | sha256sum -c - \
+            2>&1 | tee evidence/source-hash-validation.log
+          stat -c '%s' "$RUNNER_TEMP/oneli-stock.zip" | tee evidence/stock-size.txt
+          df -h "$RUNNER_TEMP" | tee evidence/disk-after-download.txt
+
+      - name: Convert typed Android sparse chunks and inspect logical partitions
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/oneli-filesystems"
+          python3 -u scripts/reconstruct-oneli-super.py \
+            --stock-zip "$RUNNER_TEMP/oneli-stock.zip" \
+            --output "$RUNNER_TEMP/oneli-super.raw" \
+            --json-out evidence/sparse-reconstruction.json \
+            2>&1 | tee evidence/sparse-reconstruction.log
+          df -h "$RUNNER_TEMP" | tee evidence/disk-after-reconstruction.txt
+          python3 -u scripts/inspect-oneli-lp-firmware.py \
+            --stock-zip "$RUNNER_TEMP/oneli-stock.zip" \
+            --raw-super "$RUNNER_TEMP/oneli-super.raw" \
+            --lp-tool third_party/lpunpack.py \
+            --work-dir "$RUNNER_TEMP/oneli-filesystems" \
+            --json-out evidence/all-filesystems-firmware-manifest.json \
+            2>&1 | tee evidence/partition-inspection.log
+          git rev-parse HEAD | tee evidence/tested-project-sha.txt
+
+      - name: Upload only derived non-proprietary metadata
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-firmware-filesystem-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: State scope and cleanup
+        if: always()
+        run: |
+          set -euo pipefail
+          {
+            echo "## Motorola oneli public-stock filesystem search"
+            echo "Pinned Android 14 ZIP SHA256: $ZIP_SHA256"
+            echo "Source-pinned lpunpack at $LP_SOURCE_COMMIT (blob $LP_SOURCE_BLOB)"
+            echo "Android sparse chunks interpreted by committed Python v1 RAW/FILL/DONT_CARE/CRC parser, not concatenated."
+            echo "Only text metadata, hashes, filesystem status and load-range descriptors are uploaded."
+            echo "No stock image, signed firmware, HFI handshake, selected DTBO or real hardware claim."
+          } >> "$GITHUB_STEP_SUMMARY"
+          rm -rf "$RUNNER_TEMP/oneli-stock.zip" "$RUNNER_TEMP/oneli-super.raw" "$RUNNER_TEMP/oneli-filesystems"
