@@ -174,3 +174,14 @@ The earlier fifth-round note above said the proposed \`boot/\` and \`lib/modules
 
 Boot has created the isolated source candidate \`Drzet/linux:razr/integration-candidate\` workflow SHA \`2b5acf108ae37040ac1e652e029bb37f5609e886\`; [initial full build 38292394177](https://github.com/Drzet/linux/actions/runs/38292394177) was **in progress** at last checked status. Actual Boot bundle and project-kernel QEMU test remain **not accepted** until the full build finishes, binaries/digests are inspected, and Userspace runs new initramfs/systemd/SSH/\`modprobe dummy\`/shutdown. The fresh Debian-distro QEMU test remains a separate completed milestone, not this test.
 
+
+
+## Fifth-round combined-kernel project QEMU acceptance (2026-10-12)
+
+Boot/Userspace producer contract was acknowledged in [issue #13](https://github.com/Drzet/razr2022_nuc/issues/13); source producer project Boot commit `18b68b8babf48a67b518ab410f08390d401de9b4` and pinned config `6a80ab302e9e2cf5aaf3ca0187baec106e985ade`. This supersedes the earlier proposed alternate ZIP tree; `normalize-boot-combined-bundle.py` adapts the actual Boot manifest to the unchanged Userspace schema-v3 validation.
+
+**New completed milestone:** Boot artifact build [38292394177](https://github.com/Drzet/linux/actions/runs/38292394177) produced immutable combined Image/config/Module.symvers/oneli DTB/1,702 matching modules for exact kernel `2b5acf108ae37040ac1e652e029bb37f5609e886`; userspace [CI 38297826535](https://github.com/Drzet/razr2022_nuc/actions/runs/38297826535) at `afe416c477069659c7943f7de4b4f2fe9af39fa3` fully PASSED after generating matching initramfs and disposable Debian disk. Boot+rootfs SHA256 verified; ARM64 module/ELF/preflight and final schema v3 passed; QEMU virt booted actual Drzet/linux Image with systemd, authenticated SSH, IPv4 `10.0.2.15/24`, real in-guest `modprobe dummy` and `/proc/modules` confirmation, and systemd poweroff/QEMU exit 0. Evidence artifact `11768979982`. No default IPv4 route/external internet assertion. All device/hardware tests remain pending.
+
+Userspace new workflow `.github/workflows/userspace-project-kernel-qemu.yml` commits: `5ee16022ded2f90de36362ac77e500c35621e385` first wired, `618d9d4eb447fecebcfda369c7f63cbd9ef89223` corrected test report path, `afe416c477069659c7943f7de4b4f2fe9af39fa3` corrected `sudo cp -a` evidence ownership. First two red workflow statuses were CI bookkeeping failures, **not guest-kernel failures**; their logs and fixed green run are detailed at [the canonical result](../../tests/results/2026-10-12-userspace-project-kernel-qemu.md).
+
+Next gate: coordinator reviews and promotes selected integration candidate; native Boot v2 remains structural reference only, with no phone execution or approved native packaging.
