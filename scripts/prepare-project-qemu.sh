@@ -58,6 +58,29 @@ need(isinstance(expected, dict) and set(expected) == {p.relative_to(modules_dir)
 for p in files:
     rel = p.relative_to(modules_dir).as_posix()
     need(hashlib.sha256(p.read_bytes()).hexdigest() == expected[rel], "module SHA mismatch: " + rel)
+    # Detect a mismatched-release module before creating a VM image.
+    import gzip
+    import lzma
+    import subprocess
+    import tempfile
+    if p.name.endswith(".ko.xz"):
+        elf = lzma.decompress(p.read_bytes())
+    elif p.name.endswith(".ko.gz"):
+        elf = gzip.decompress(p.read_bytes())
+    elif p.name.endswith(".ko.zst"):
+        elf = subprocess.run(["zstd", "-dc", str(p)], check=True, capture_output=True).stdout
+    else:
+        elf = p.read_bytes()
+    need(len(elf) >= 20 and elf[:4] == bytes((127, 69, 76, 70)) and
+         elf[4] == 2 and elf[5] == 1 and int.from_bytes(elf[18:20], "little") == 183,
+         "module is not AArch64 ELF: " + rel)
+    with tempfile.TemporaryDirectory() as temp:
+        unpacked = pathlib.Path(temp) / "module.ko"
+        unpacked.write_bytes(elf)
+        magic = subprocess.run(["modinfo", "-F", "vermagic", str(unpacked)],
+                               check=True, capture_output=True, text=True).stdout.strip()
+    need(magic.split() and magic.split()[0] == release,
+         "module vermagic release mismatch: " + rel)
 dep = modules_dir / "modules.dep"
 need(dep.is_file() and hashlib.sha256(dep.read_bytes()).hexdigest() == sha.get("modules_dep"),
      "matching depmod index required")
