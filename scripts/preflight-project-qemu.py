@@ -11,9 +11,9 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-HASH = re.compile(r"[0-9a-f]{64}\\Z")
-COMMIT = re.compile(r"[0-9a-f]{40}\\Z")
-RELEASE = re.compile(r"[A-Za-z0-9._+~-]+\\Z")
+HASH = re.compile(r"[0-9a-f]{64}\Z")
+COMMIT = re.compile(r"[0-9a-f]{40}\Z")
+RELEASE = re.compile(r"[A-Za-z0-9._+~-]+\Z")
 MODULES = (".ko", ".ko.gz", ".ko.xz", ".ko.zst")
 
 def need(ok, why):
@@ -60,7 +60,7 @@ def module_vermagic(path):
                            capture_output=True).stdout
     else:
         b = path.read_bytes()
-    need(len(b) >= 20 and b[:4] == b"\\x7fELF" and b[4] == 2 and
+    need(len(b) >= 20 and b[:4] == b"\x7fELF" and b[4] == 2 and
          b[5] == 1 and int.from_bytes(b[18:20], "little") == 183,
          "not AArch64 ELF module: " + path.name)
     with tempfile.TemporaryDirectory() as tmp:
@@ -173,9 +173,9 @@ def main():
     try:
         r = inspect(a.bundle_root)
     except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as e:
-        ap.exit(1, "PROJECT_QEMU_PREFLIGHT_FAILED: " + str(e) + "\\n")
+        ap.exit(1, "PROJECT_QEMU_PREFLIGHT_FAILED: " + str(e) + "\n")
     if a.output:
-        a.output.write_text("".join(k + "=" + shlex.quote(str(v)) + "\\n" for k, v in r.items()))
+        a.output.write_text("".join(k + "=" + shlex.quote(str(v)) + "\n" for k, v in r.items()))
     print("PROJECT_QEMU_PREFLIGHT_PASS release=" + r["RELEASE"] + " module=" + r["MODULE"])
 
 if __name__ == "__main__":
