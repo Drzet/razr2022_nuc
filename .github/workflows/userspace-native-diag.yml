@@ -24,7 +24,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends qemu-system-arm zstd binutils cpio
+          sudo apt-get install -y --no-install-recommends qemu-system-arm ipxe-qemu zstd binutils cpio
           python3 -m py_compile scripts/build-native-diag.py tests/userspace/test_native_diag.py
           python3 tests/userspace/test_native_diag.py
           mkdir -p boot-download boot-root tool-root
@@ -85,11 +85,12 @@ jobs:
       - name: QEMU virt actual PID1 without disk or Debian
         run: |
           set -Eeuo pipefail
+          test -r /usr/lib/ipxe/qemu/efi-virtio.rom
           cmdline='console=ttyAMA0,115200 rdinit=/init razr.diag_test_shutdown=1'
-          printf 'qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v1/qemu-command.txt
+          printf 'qemu-system-aarch64 -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v1/qemu-command.txt
           set +e
-          timeout --kill-after=10s 160s qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 \
-            -nographic -serial stdio -monitor none -no-reboot -kernel boot-root/Image \
+          timeout --kill-after=10s 160s qemu-system-aarch64 -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2 \
+            -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel boot-root/Image \
             -initrd native-diag-v1/oneli-diag-initramfs.cpio.gz \
             -append "$cmdline" > native-diag-v1/qemu-serial.log 2>&1
           rc=$?
