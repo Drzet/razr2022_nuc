@@ -86,7 +86,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           cmdline='console=ttyAMA0,115200 rdinit=/init razr.diag_test_shutdown=1'
-          printf 'qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v1/qemu-command.txt
+          printf 'qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v1/qemu-command.txt
           set +e
           timeout --kill-after=10s 160s qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 \
             -nographic -serial stdio -monitor none -no-reboot -kernel boot-root/Image \
@@ -95,11 +95,19 @@ jobs:
           rc=$?
           set -e
           printf '%s\n' "$rc" > native-diag-v1/qemu-exit-code.txt
-          test "$rc" -eq 0
+          if [ "$rc" -ne 0 ]; then
+            tail -n 120 native-diag-v1/qemu-serial.log >&2
+            echo "QEMU native diag failed, exit=$rc" >&2
+            exit 1
+          fi
           for marker in RAZR_NATIVE_DIAG_PID1=1 "RAZR_NATIVE_DIAG_RELEASE=$KERNEL_RELEASE" \
             RAZR_NATIVE_DIAG_MOUNT_FAILURES=0 RAZR_NATIVE_DIAG_READY_V1 \
             RAZR_NATIVE_DIAG_QEMU_SHUTDOWN 'reboot: Power down'; do
-            grep -aFq "$marker" native-diag-v1/qemu-serial.log
+            if ! grep -aFq "$marker" native-diag-v1/qemu-serial.log; then
+              tail -n 120 native-diag-v1/qemu-serial.log >&2
+              echo "missing serial marker: $marker" >&2
+              exit 1
+            fi
           done
       - name: Publish exact manifest and verify all hashes
         run: |
