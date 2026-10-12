@@ -69,7 +69,7 @@ jobs:
           sudo cp -a "$work/evidence/." project-evidence/
           test -s "$work/initrd.img"
           test -s "$work/rootfs.ext4"
-          test -s "$work/validation/native-v3-validation.json"
+          test -s "$work/evidence/native-v3-validation.json"
       - name: Boot actual combined kernel and verify guest systemd SSH modprobe poweroff
         env:
           RAZR_PROJECT_KERNEL_RELEASE: '7.3.0-rc6-g2b5acf108ae3'
