@@ -36,7 +36,7 @@ class Preflight(unittest.TestCase):
         subprocess.run(["clang", "--target=aarch64-linux-gnu", "-c", "-x", "c",
                         "-o", str(self.module), "-"], input=code.encode(),
                        capture_output=True, check=True)
-        self.dep = self.module.parents[2] / "modules.dep"
+        self.dep = self.module.parents[3] / "modules.dep"
         self.dep.write_text("kernel/drivers/net/dummy.ko:\n")
         filemap = {
             "image": "boot/Image",
