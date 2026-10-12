@@ -69,6 +69,15 @@ lsinitramfs "$work/initrd.img" | grep -Eq '(^|/)init$' || {
   echo 'No /init in new kernel initramfs' >&2
   exit 1
 }
+# Boot publishes NO initramfs hash; finalize actual new initramfs first, then
+# run the existing full v3 content/ELF/module gate on the generated manifest.
+python3 "$script_dir/finalize-project-qemu-manifest.py" \
+  --bundle-root "$bundle" --initramfs "$work/initrd.img" \
+  --output-root "$work/validation"
+python3 "$script_dir/validate-native-kernel-inputs.py" \
+  "$work/validation/native-inputs-v3.json" \
+  --artifact-root "$work/validation" \
+  --output "$work/evidence/native-v3-validation.json"
 truncate -s 3072M "$work/rootfs.ext4"
 mkfs.ext4 -q -F -L RAZRROOT -d "$root" "$work/rootfs.ext4"
 echo 0 > "$work/evidence/build-exit-code.txt"
