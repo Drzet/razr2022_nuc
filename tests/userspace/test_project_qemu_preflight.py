@@ -149,6 +149,35 @@ class Preflight(unittest.TestCase):
         self.manifest["qemu_virt_config"]["required_builtin"].remove("CONFIG_VIRTIO_NET")
         self.assertIn("omits mandatory QEMU", self.check(False).stderr)
 
+    def test_prepare_shell_calls_real_preflight_before_rootfs_io(self):
+        self.check(True)
+        stage = SCRIPT.with_name("prepare-project-qemu.sh")
+        output = Path(self.tmp.name) / "would-write-here"
+        p = subprocess.run(["bash", str(stage), str(self.root),
+                            str(self.root / "unavailable-rootfs.tar.zst"),
+                            "0" * 64, str(output)],
+                           capture_output=True, text=True)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("PROJECT_QEMU_PREFLIGHT_PASS", p.stdout)
+        self.assertFalse(output.exists(), "stage wrote files before rootfs hash check")
+
+    def test_prepare_shell_blocks_wrong_release_before_writing(self):
+        raw = self.module.read_bytes()
+        self.module.write_bytes(raw.replace(RELEASE.encode(),
+                          b"6.12.992-combined-fixture-arm64"))
+        self.manifest["modules_sha256"]["kernel/drivers/net/dummy.ko"] = digest(self.module)
+        self.manifest_path.write_text(json.dumps(self.manifest))
+        stage = SCRIPT.with_name("prepare-project-qemu.sh")
+        output = Path(self.tmp.name) / "must-not-write-here"
+        p = subprocess.run(["bash", str(stage), str(self.root),
+                            str(self.root / "unavailable-rootfs.tar.zst"),
+                            "0" * 64, str(output)],
+                           capture_output=True, text=True)
+        self.assertNotEqual(p.returncode, 0)
+        self.assertIn("PROJECT_QEMU_PREFLIGHT_FAILED", p.stderr)
+        self.assertIn("wrong-release module vermagic", p.stderr)
+        self.assertFalse(output.exists())
+
     def test_boot_oneli_dtb_does_not_become_qemu_dtb(self):
         self.check(True)
         self.assertNotIn("oneli_dtb_path", self.manifest["qemu_virt_config"])
