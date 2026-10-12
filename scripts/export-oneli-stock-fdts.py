@@ -274,10 +274,8 @@ def region_fdts(data):
         pos = data.find(b"\xd0\x0d\xfe\xed", p)
         if pos < 0:
             break
-        if pos % 4:
-            invalid.append({"offset": pos, "reason": "unaligned_fdt_magic"})
-            p = pos + 4
-            continue
+        # Android vendor_boot may concatenate FDTs without padding. FDT
+        # structure offsets are aligned relative to each FDT, not the region.
         try:
             result = inspect_fdt(data, pos, {"member": "vendor_boot.img", "region": "dtb",
                          "offset_in_dtb_region": pos})
