@@ -240,7 +240,12 @@
         "tested_commit": "78aa7b8a67aa3d79d3cc027f3eed820e4e9fb114"
       },
       "independent_aosp_parser": {
-        "result": "not-yet-tested"
+        "result": "passed-synthetic",
+        "run_id": 38280888156,
+        "tested_project_sha": "bdf6512626ba261f1e17c546acd864c2a24e973d",
+        "upstream_derived_tools_repository": "ntherning/mkbootimg",
+        "upstream_derived_tools_commit": "7209a7164f1772db43f92928012c86a00f6202ff",
+        "test_scope": "independent AOSP mkbootimg and unpack_bootimg on size-changed synthetic v4 boot/vendor_boot, payload SHA256 and alignment; no real stock payload"
       },
       "signed_native_composition": {
         "result": "blocked-explicit-native-placement-and-AVB-contract"
