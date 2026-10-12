@@ -15,3 +15,5 @@
 - Coordinator owns aggregate `docs/STATUS.md` and `docs/NEXT_TASKS.md`. Subsystem agents update their own handoffs/results on assigned branches and propose coordination changes; do not overwrite aggregate status from stale branches. Read coordinator main for the latest assignments and dependency gates.
 
 - Latest user update: follow-up ADB was unsuccessful; plan without hardware access. Preserve earlier stock observations. The owner intends to unlock when the device is fully in their possession; do not treat unlock as an offline coding blocker. Follow scoped holds in NEXT_TASKS rather than repeating completed audits.
+
+- Fourth review (2026-10-12): read `docs/FOURTH_REVIEW.md` and current `docs/NEXT_TASKS.md`. Firmware location is resolved; per-FDT stock properties remain a separate shared export. Both uploaded live-DT archives contain zero property files. Centralize bounded member retrieval; do not repeat full ROM scans or unchanged CI on documentation-only updates.
