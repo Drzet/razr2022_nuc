@@ -45,7 +45,8 @@ class NativeContract(unittest.TestCase):
             "dtb_path": "boot/oneli.dtb",
             "initramfs_path": "boot/initrd.img",
             "firmware_manifest_path": "manifests/firmware.json",
-            "boot_packaging_manifest_path": "manifests/boot.json"
+            "boot_packaging_manifest_path": "manifests/boot.json",
+            "native_header_inputs_path": "manifests/explicit-native-header.json"
         }
         for k in ("image_path", "config_path", "module_symvers_path", "dtb_path"):
             p = self.root / self.paths[k]
@@ -62,7 +63,7 @@ class NativeContract(unittest.TestCase):
         }
         for k, val in (("firmware_manifest_path", fw_manifest),
                        ("boot_packaging_manifest_path", {
-                           "schema": "oneli-native-boot-packaging-contract-v1",
+                           "schema": "oneli-native-boot-packaging-contract-v2",
                            "reference_images": {
                                "boot": {"header_version": 4, "header_bytes": 1584,
                                         "os_version_raw": None},
@@ -70,10 +71,28 @@ class NativeContract(unittest.TestCase):
                                                "page_bytes": 4096, "ramdisk_table_entries": 1,
                                                "ramdisk_table_entry_bytes": 108,
                                                "ramdisk_fragment_type": 1,
-                                               "ramdisk_fragment_board_id_words": [0] * 16}},
+                                               "ramdisk_fragment_board_id_words": [0] * 16,
+                                               "kernel_addr": 32768, "ramdisk_addr": 16777216,
+                                               "tags_addr": 256, "dtb_addr": 32505856,
+                                               "embedded_dtb_count": 2,
+                                               "embedded_dtb_roots": [
+                                                   {"relative_offset": 0},
+                                                   {"relative_offset": 479481}]}},
                            "prototype": {"flash_recipe": False, "candidate_signed": False,
-                                         "boot_tested": False},
-                           "fixture": True})):
+                                         "boot_tested": False, "native_ready": False,
+                                         "hardware_accepted": False,
+                                         "implicit_reference_placement_inheritance": False,
+                                         "header_inputs_require_explicit_os_version": True,
+                                         "header_inputs_fields":
+                                         ["os_version_raw", "kernel_addr", "ramdisk_addr",
+                                          "tags_addr", "dtb_addr", "purpose", "phone_boot_validated"],
+                                         "requires_explicit_payload_paths": ["header-inputs"]},
+                           "fixture": True}),
+                       ("native_header_inputs_path", {
+                           "os_version_raw": 0, "kernel_addr": 32768,
+                           "ramdisk_addr": 16777216, "tags_addr": 256,
+                           "dtb_addr": 32505856, "purpose": "structural-only",
+                           "phone_boot_validated": False})):
             p = self.root / self.paths[k]
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(json.dumps(val))
@@ -157,7 +176,7 @@ class NativeContract(unittest.TestCase):
 
     def test_qemu_virt_empty_scoped_requirements(self):
         self.manifest["target_environment"] = "qemu_virt"
-        for name in ("dtb_path", "boot_packaging_manifest_path"):
+        for name in ("dtb_path", "boot_packaging_manifest_path", "native_header_inputs_path"):
             del self.manifest[name]
             del self.manifest["sha256"][name]
         self.manifest["firmware_directory"] = None
@@ -198,6 +217,26 @@ class NativeContract(unittest.TestCase):
         self.assertTrue(p["structural_reference_audited"])
         self.assertFalse(p["native_composition_ready"])
         self.assertFalse(p["hardware_accepted"])
+
+    def test_boot_v2_missing_header_rejected(self):
+        self.manifest["native_header_inputs_path"] = None
+        self.assertIn("relative path required", self.check(False).stderr)
+
+    def test_boot_v2_null_os_version_rejected(self):
+        path = self.root / self.paths["native_header_inputs_path"]
+        header = json.loads(path.read_text())
+        header["os_version_raw"] = None
+        path.write_text(json.dumps(header))
+        self.manifest["sha256"]["native_header_inputs_path"] = hash_file(path)
+        self.assertIn("native header os_version_raw requires explicit", self.check(False).stderr)
+
+    def test_boot_v1_manifest_rejected(self):
+        path = self.root / self.paths["boot_packaging_manifest_path"]
+        header = json.loads(path.read_text())
+        header["schema"] = "oneli-native-boot-packaging-contract-v1"
+        path.write_text(json.dumps(header))
+        self.manifest["sha256"]["boot_packaging_manifest_path"] = hash_file(path)
+        self.assertIn("Boot v2 reference contract required", self.check(False).stderr)
 
     def test_missing_firmware_in_initramfs_rejected(self):
         (self.initroot / "usr/lib/firmware/fixture.bin").unlink()
