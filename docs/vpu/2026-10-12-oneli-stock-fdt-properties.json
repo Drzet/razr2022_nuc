@@ -11,7 +11,13 @@
     "member_sha256": {
       "dtbo.img": "daf02eb24af55cf4c20569db51b5bca70f0550d035846672ef3054f0c0484bd0",
       "vendor_boot.img": "1c27e22565f6f50919812bfcb5254cea2f3b629d98f5c26a7b54f5ece452036e"
-    }
+    },
+    "actual_tested_pr_checkout_sha": "3dfc56966217dbcadb7107d4df5c913a043b996a",
+    "full_json_sha256": "1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+    "full_json_bytes": 15862099,
+    "parser_git_blob_sha1": "273517eeb62f7333f678b2722d4389743757982e",
+    "zip_range_reader_git_blob_sha1": "3ca9cacaaf441b8563839b6de971c95c10fe0430",
+    "python_version": "3.12.3"
   },
   "vendor_boot": {
     "version": 4,
