@@ -1,0 +1,143 @@
+{
+  "schema": "oneli-native-early-initramfs-interface-v1",
+  "revision": 1,
+  "owner": "Boot",
+  "date": "2026-10-12",
+  "state": "proposed-awaiting-userspace-ack",
+  "acceptance_scope": "offline-native-structure-and-qemu-virt-diag-only",
+  "kernel": {
+    "repository": "Drzet/linux",
+    "branch_accepted": "razr/integration",
+    "commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "release": "7.3.0-rc6-g2b5acf108ae3",
+    "image_relative_to_accepted_bundle": "Image",
+    "image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "config_relative_to_accepted_bundle": "kernel.config",
+    "config_sha256": "c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e",
+    "board_dtb_relative_to_accepted_bundle": "sm8475-motorola-oneli.dtb",
+    "board_dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03"
+  },
+  "userspace_payload": {
+    "directory": "native-diag-v1",
+    "cpio_path": "oneli-diag-initramfs.cpio",
+    "compressed_path": "oneli-diag-initramfs.cpio.gz",
+    "manifest_path": "oneli-diag-payload-v1.json",
+    "cpio_format": "newc",
+    "cpio_alignment_bytes": 4,
+    "compression": "gzip",
+    "compression_parameters": "gzip -n -9 (mtime zero in gzip wrapper)",
+    "numeric_owner": {"uid": 0, "gid": 0},
+    "file_mtime_unix": 0,
+    "entry_order": "C-locale lexicographically sorted relative paths",
+    "required_paths": ["/init", "/bin/sh", "/dev", "/proc", "/sys", "/run", "/tmp"],
+    "init": {
+      "path": "/init",
+      "executable": true,
+      "pid1": true,
+      "mount": ["/proc:proc", "/sys:sysfs", "/dev:devtmpfs", "/run:tmpfs"],
+      "diagnostic_output": ["/dev/console", "/dev/kmsg", "/run/oneli-diag"],
+      "capture": ["uname -a", "/proc/cmdline", "/proc/device-tree/compatible", "mount failures", "probe/kernel-log failures"],
+      "persistent_storage_writes": false,
+      "reboot_required": false,
+      "terminate_only_on_explicit_operator_or_qemu_test_command": true
+    },
+    "module_requirements": "userspace-to-justify-against-accepted-config",
+    "firmware_requirements": "userspace-to-justify-against-minimal-profile",
+    "required_manifest_keys": [
+      "schema", "interface", "kernel_commit", "kernel_release", "kernel_image_sha256",
+      "board_dtb_sha256", "cpio_relative_path", "cpio_sha256", "compressed_relative_path",
+      "compressed_sha256", "compression", "cpio_format", "numeric_owner",
+      "init_path", "init_sha256", "modules", "firmware", "qemu_validation"
+    ]
+  },
+  "profiles": {
+    "qemu_virt": {
+      "device_tree": "QEMU-generated; do not pass oneli.dtb",
+      "kernel_cmdline": "QEMU-owned; may include console=ttyAMA0",
+      "runtime_result": "required-userspace-independent-pid1-test",
+      "rootfs": "none"
+    },
+    "oneli_native": {
+      "device_tree": "accepted mainline oneli dtb; runtime bootloader selection unverified",
+      "kernel_cmdline": null,
+      "kernel_cmdline_state": "blocked-requires-review-of-loader-append-policy-and-physical-output",
+      "console_source": "mainline /chosen stdout-path serial0:115200n8 -> UART7 serial@99c000",
+      "console_linux_name_source": "qcom_geni_serial.c ttyMSM, alias serial0",
+      "physical_uart_connection": null,
+      "physical_uart_connection_state": "unknown-no-established-accessible-pads-or-voltage",
+      "pstore_reserved_memory": null,
+      "pstore_state": "disabled-until-carveout-and-readout-validated",
+      "usb_gadget": "excluded",
+      "ufs_root": "excluded",
+      "persistent_storage_writes": "forbidden"
+    }
+  },
+  "android_v4_reference": {
+    "classification": "public-stock-reference-not-installed-payload",
+    "source_commit": "dadd330c3f09f715372da94091f04166f9f0c141",
+    "evidence": "docs/vpu/evidence/focused-stock-properties.json",
+    "boot_img_sha256": "287b3b5e3c61dec6a40f2b9203942b57533df206b0ed2ef16ecdb6bbe01e305d",
+    "header_version": 4,
+    "header_size": 1584,
+    "page_size": 4096,
+    "packed_os_version": 402653593,
+    "cmdline_bytes": 0,
+    "reserved_u32": [0,0,0,0],
+    "signature_size": 4096,
+    "signature_sha256": "030600e25f969311812014a82fcb3edf10871be255cb59b74452d1e8926cf869",
+    "vendor_boot_img_sha256": "1c27e22565f6f50919812bfcb5254cea2f3b629d98f5c26a7b54f5ece452036e",
+    "stock_vendor_addresses": {
+      "kernel_addr": 32768, "ramdisk_addr": 16777216, "tags_addr": 256, "dtb_addr": 32505856
+    },
+    "stock_vendor_ramdisk_compression": "legacy-lz4",
+    "stock_bootconfig_size": 85,
+    "stock_vendor_ramdisk_table_entry_bytes": 108,
+    "stock_dtb_base_sha256": [
+      "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+      "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843"
+    ],
+    "pvt_overlay_index3_sha256": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad"
+  },
+  "host_only_candidate_policy": {
+    "boot_header_version": 4,
+    "vendor_boot_header_version": 4,
+    "page_bytes": 4096,
+    "os_version_raw": 0,
+    "os_version_reason": "deliberate Android OS-version-unset value for non-Android payload, not the stock policy",
+    "boot_cmdline": "",
+    "boot_cmdline_reason": "intentionally empty in host-only structural profile, not a confirmed native console profile",
+    "boot_signature_bytes": 0,
+    "boot_signature_reason": "deliberately unsigned: never reuse stock signature",
+    "reserved_u32": [0,0,0,0],
+    "vendor_load_addresses_source": "stock reference numbers for structural comparison only; not approved phone placement",
+    "generic_ramdisk": "Userspace compressed diagnostic newc",
+    "vendor_ramdisk": "new purpose-built minimal fragment only; never copy stock vendor ramdisk implicitly",
+    "vendor_ramdisk_type": 1,
+    "vendor_ramdisk_type_name": "platform",
+    "vendor_ramdisk_name": "native-diag",
+    "vendor_ramdisk_board_id_words": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    "bootconfig": "",
+    "bootconfig_reason": "intentionally zero length for structural host test; no Android stock keys copied",
+    "vendor_cmdline": "",
+    "vendor_cmdline_reason": "intentionally empty pending loader policy",
+    "dtb_source": "one mainline oneli dtb, NOT reference stock two-base composition",
+    "avb_metadata": null,
+    "avb_state": "separate-partition-chain-unresolved",
+    "flash_approved": false,
+    "hardware_accepted": false
+  },
+  "fail_closed_before_native_candidate": [
+    "userspace_acknowledgement",
+    "payload_hash_and_pid1_validation",
+    "exact_vendor_ramdisk_and_header_input_approval",
+    "explicit_loader_placement_and_DT_policy",
+    "boot_cmdline_and_physical_diagnostic_output_policy",
+    "AVB_partition_disposition"
+  ],
+  "notes": [
+    "A structurally valid host-only v4 candidate is not bootloader acceptance.",
+    "Reference boot-v4 signature is not AVB and cannot authenticate changed data.",
+    "PVT overlay index 3 against stock base DTs is reference analysis only; it must never be applied to the mainline oneli DTB.",
+    "See docs/oneli-native-early-initramfs-interface-v1.md for executable contract and unresolved gates."
+  ]
+}
