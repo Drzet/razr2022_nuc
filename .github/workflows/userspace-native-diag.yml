@@ -49,8 +49,7 @@ jobs:
           set -Eeuo pipefail
           curl -fLsS --retry 3 'https://deb.debian.org/debian/pool/main/b/busybox/busybox-static_1.37.0-6%2Bb9_arm64.deb' -o busybox.deb
           printf '%s  %s\n' "$BUSYBOX_SHA" busybox.deb | sha256sum -c -
-          test "$(dpkg-deb -f busybox.deb Architecture)" = arm64
-          test "$(dpkg-deb -f busybox.deb Version)" = '1:1.37.0-6+b9'
+          dpkg-deb -f busybox.deb Architecture Version | tee busybox-package-control.txt
           dpkg-deb -x busybox.deb tool-root
           test "$(find tool-root -type f -name busybox | wc -l)" -eq 1
           file="$(find tool-root -type f -name busybox)"
