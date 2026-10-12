@@ -1,10 +1,6 @@
 name: Oneli bounded public stock FDT property export
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/export-oneli-stock-fdts.py'
-      - '.github/workflows/vpu-fdt-properties.yml'
   workflow_dispatch:
 
 permissions:
