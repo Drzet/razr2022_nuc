@@ -1,3 +1,5 @@
+> **2026-10-12 supplement:** the strict full ARM64 `Image modules` job [38178986611](https://github.com/Drzet/razr2022_nuc/actions/runs/38178986611) is now **completed SUCCESS** for GPU kernel `3baaec593ae7c701e95e0c3df2d56c33d3aed4f3`, tested project `649aafdf4b00766c2c22cae34f2212b7c71c94d5`, artifact [11717571590](https://github.com/Drzet/razr2022_nuc/actions/runs/38178986611/artifacts/11717571590). Also, VPU has since **located SQE, GMU and ZAP**. See [the fifth-round current evidence report](../gpu_stock_fdt_firmware_vote_review_2026-10-12.md); this handoff's pending/unlocated wording is retained only as historical test status.
+
 # Subsystem handoff: GPU fourth round, GMU probe error handling and shared UBWC
 
 - Date / originating chat: 2026-10-11, GPU owner responding to coordinator third-review `docs/NEXT_TASKS.md` (on main).
