@@ -308,9 +308,9 @@ def vendor_boot(buf):
     if ver != 4 or hsz < 2112 or page not in (2048, 4096, 8192, 16384):
         raise ValueError("unexpected vendor_boot v4 format")
     rd = align(hsz, page)
-    dt = rd + align(ramdisk_sz)
-    tbl = dt + align(dtbsz)
-    cfg = tbl + align(table_sz)
+    dt = rd + align(ramdisk_sz, page)
+    tbl = dt + align(dtbsz, page)
+    cfg = tbl + align(table_sz, page)
     if cfg + config_sz > len(buf) or table_n > 2048 or table_n * entry_sz > table_sz:
         raise ValueError("vendor_boot section bounds invalid")
     fields["offsets"] = {"vendor_ramdisk": rd, "embedded_dtb": dt,
