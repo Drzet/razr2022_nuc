@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -101,6 +102,128 @@ class Preflight(unittest.TestCase):
             self.assertNotEqual(p.returncode, 0, p.stdout)
             self.assertIn("PROJECT_QEMU_PREFLIGHT_FAILED", p.stderr)
         return p
+
+    def make_boot_producer_bundle(self):
+        """Synthesize Boot's actual artifact-root tree and preflight JSON, not our old layout."""
+        dest = Path(self.tmp.name) / "boot-producer"
+        dest.mkdir()
+        files = {"Image": "boot/Image", "kernel.config": "boot/kernel.config",
+                 "Module.symvers": "boot/Module.symvers",
+                 "kernel.release": "boot/kernel.release",
+                 "sm8475-motorola-oneli.dtb": "boot/oneli.dtb"}
+        for name, old in files.items():
+            shutil.copy2(self.root / old, dest / name)
+        shutil.copy2(dest / "kernel.config", dest / ".config")
+        shutil.copytree(self.root / ("lib/modules/" + RELEASE),
+                        dest / ("modules/" + RELEASE))
+        logs = dest / "logs"
+        logs.mkdir()
+        (logs / "toolchain.txt").write_text("clang AArch64 cross synthetic fixture\n")
+        fw = {"schema_version": 2, "target_environment": "qemu_virt",
+              "assessment": "complete", "required_files": [], "unknown_requirements": [],
+              "zero_requirements_reason":
+              "No proprietary Qualcomm firmware used by this synthetic QEMU virt profile"}
+        (dest / "firmware-qemu-virt.json").write_text(json.dumps(fw))
+        original = self.manifest
+        p = {
+            "schema_version": 3, "repository": "https://github.com/Drzet/linux",
+            "target_environment": "qemu_virt",
+            "kernel_commit": SHA, "kernel_release": RELEASE,
+            "same_build": {
+                "build_id": original["build_id"],
+                "kernel_commit": SHA, "kernel_release": RELEASE,
+                "image_sha256": digest(dest / "Image"),
+                "config_sha256": digest(dest / "kernel.config"),
+                "module_symvers_sha256": digest(dest / "Module.symvers")},
+            "image_path": "Image", "config_path": "kernel.config",
+            "module_symvers_path": "Module.symvers",
+            "modules_directory": "modules/" + RELEASE,
+            "initramfs_path": None, "initramfs_modules": [],
+            "firmware_manifest_path": "firmware-qemu-virt.json",
+            "dtb_path": None, "boot_packaging_manifest_path": None,
+            "modules_sha256": original["modules_sha256"],
+            "qemu_runtime_module": original["qemu_runtime_module"],
+            "sha256": {
+                "image_path": digest(dest / "Image"),
+                "config_path": digest(dest / "kernel.config"),
+                "module_symvers_path": digest(dest / "Module.symvers"),
+                "initramfs_path": None,
+                "firmware_manifest_path": digest(dest / "firmware-qemu-virt.json"),
+                "modules_dep": digest(dest / ("modules/" + RELEASE + "/modules.dep"))},
+        }
+        (dest / "qemu-native-inputs.v3.preflight.json").write_text(json.dumps(p))
+        (dest / "module-sha256.json").write_text(json.dumps(original["modules_sha256"]))
+        srcs = [{"original": SHA, "result": SHA} for _ in range(7)]
+        b = {"schema": "oneli-combined-build-manifest-v1",
+             "kernel_commit": SHA, "kernel_release": RELEASE,
+             "build_id": original["build_id"],
+             "module_tree": "modules/" + RELEASE,
+             "module_count": len(original["modules_sha256"]),
+             "module_sha256_manifest": "module-sha256.json",
+             "files_sha256": {x: digest(dest / x) for x in files},
+             "modules_dep_sha256": p["sha256"]["modules_dep"],
+             "qemu_runtime_module": "dummy",
+             "source_config_project_commit":
+             "6a80ab302e9e2cf5aaf3ca0187baec106e985ade",
+             "replayed_commits": srcs,
+             "scope": "source build and static FDT schema only; phone untested"}
+        (dest / "build-manifest.json").write_text(json.dumps(b))
+        self.refresh_boot_checksum_list(dest)
+        return dest
+
+    @staticmethod
+    def refresh_boot_checksum_list(root):
+        lines = []
+        for p in sorted(root.rglob("*")):
+            if p.is_file() and p.name != "SHA256SUMS":
+                lines.append(digest(p) + "  " + p.relative_to(root).as_posix() + "\n")
+        (root / "SHA256SUMS").write_text("".join(lines))
+
+    def normalize(self, boot, success):
+        adapter = SCRIPT.with_name("normalize-boot-combined-bundle.py")
+        target = Path(self.tmp.name) / "normalized"
+        p = subprocess.run([sys.executable, str(adapter),
+                            "--boot-root", str(boot),
+                            "--output-root", str(target)],
+                           capture_output=True, text=True)
+        if success:
+            self.assertEqual(p.returncode, 0, p.stderr)
+            self.assertIn("BOOT_COMBINED_BUNDLE_NORMALIZED", p.stdout)
+        else:
+            self.assertNotEqual(p.returncode, 0, p.stdout)
+            self.assertIn("BOOT_BUNDLE_ADAPTER_FAILED", p.stderr)
+        return target, p
+
+    def test_boot_authoritative_bundle_normalizes_and_preflights(self):
+        boot = self.make_boot_producer_bundle()
+        target, result = self.normalize(boot, True)
+        q = subprocess.run([sys.executable, str(SCRIPT),
+                            "--bundle-root", str(target)],
+                           capture_output=True, text=True)
+        self.assertEqual(q.returncode, 0, q.stderr)
+        self.assertIn("PROJECT_QEMU_PREFLIGHT_PASS", q.stdout)
+        self.assertEqual((target / "producer-record/build-manifest.json").read_bytes(),
+                         (boot / "build-manifest.json").read_bytes())
+
+    def test_boot_bundle_rejects_tampered_image(self):
+        boot = self.make_boot_producer_bundle()
+        (boot / "Image").write_bytes(b"tampered upstream kernel bytes")
+        self.assertIn("SHA256SUMS mismatch", self.normalize(boot, False)[1].stderr)
+
+    def test_boot_bundle_rejects_hidden_config_drift(self):
+        boot = self.make_boot_producer_bundle()
+        (boot / ".config").write_text("CONFIG_MODULES=n\n")
+        self.refresh_boot_checksum_list(boot)
+        self.assertIn("hidden .config differs", self.normalize(boot, False)[1].stderr)
+
+    def test_boot_bundle_rejects_invented_prebuilt_initramfs(self):
+        boot = self.make_boot_producer_bundle()
+        path = boot / "qemu-native-inputs.v3.preflight.json"
+        data = json.loads(path.read_text())
+        data["initramfs_path"] = "fake-prebuilt-initramfs.img"
+        path.write_text(json.dumps(data))
+        self.refresh_boot_checksum_list(boot)
+        self.assertIn("nonexistent initramfs", self.normalize(boot, False)[1].stderr)
 
     def test_valid_bundle_preflight_direct(self):
         self.check(True)
