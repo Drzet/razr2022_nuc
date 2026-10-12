@@ -65,7 +65,7 @@ class TestV4(unittest.TestCase):
             files = {}
             for name, content in [
                 ("kernel", b"mainline kernel"), ("initramfs", b"new initramfs"),
-                ("dtb", b"not-stock-dtb"), ("vendor_ramdisk", b"explicit vendor ramdisk"),
+                ("dtb", bytes.fromhex("d00dfeed") + (40).to_bytes(4, "big") + bytes(32)), ("vendor_ramdisk", b"explicit vendor ramdisk"),
                 ("bootconfig", b"custom.key = 3\n")]:
                 path = root / name
                 path.write_bytes(content)
@@ -127,7 +127,7 @@ class TestV4(unittest.TestCase):
             root = Path(name)
             bp, vp, _, vendor = sample_pair(root)
             one_size = 479481
-            magic = b"\\xd0\\x0d\\xfe\\xed"
+            magic = bytes.fromhex("d00dfeed")
             one = magic + one_size.to_bytes(4, "big") + b"A" * (one_size - 8)
             two = magic + one_size.to_bytes(4, "big") + b"B" * (one_size - 8)
             unpadded = one + two
