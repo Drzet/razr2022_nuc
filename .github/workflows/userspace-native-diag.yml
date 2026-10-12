@@ -25,7 +25,8 @@ jobs:
           set -Eeuo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends qemu-system-arm zstd binutils cpio
-          python3 -m py_compile scripts/build-native-diag.py
+          python3 -m py_compile scripts/build-native-diag.py tests/userspace/test_native_diag.py
+          python3 tests/userspace/test_native_diag.py
           mkdir -p boot-download boot-root tool-root
       - name: Fetch contract and accepted combined Image
         env:
@@ -46,7 +47,7 @@ jobs:
       - name: Fetch SHA-pinned Debian ARM64 BusyBox-static package
         run: |
           set -Eeuo pipefail
-          curl -fLsS --retry 3 'https://deb.debian.org/debian/pool/main/b/busybox/busybox-static_1%3a1.37.0-6%2bb9_arm64.deb' -o busybox.deb
+          curl -fLsS --retry 3 'https://deb.debian.org/debian/pool/main/b/busybox/busybox-static_1.37.0-6%2Bb9_arm64.deb' -o busybox.deb
           printf '%s  %s\n' "$BUSYBOX_SHA" busybox.deb | sha256sum -c -
           test "$(dpkg-deb -f busybox.deb Architecture)" = arm64
           test "$(dpkg-deb -f busybox.deb Version)" = '1:1.37.0-6+b9'
@@ -70,7 +71,15 @@ jobs:
           r=Path('native-diag-v1')
           expected=[x['path'] for x in json.loads((r/'newc-listing.json').read_text())]
           assert (r/'external-cpio-list.txt').read_text().splitlines() == expected
-          PY
+                    PY
+          mkdir -p extracted-cpio
+          (cd extracted-cpio && sudo cpio --quiet --no-absolute-filenames -idum < ../native-diag-v1/oneli-diag-initramfs.cpio)
+          test "$(sudo stat -c %u:%g extracted-cpio/init)" = '0:0'
+          test "$(sudo stat -c %u:%g extracted-cpio/bin/busybox)" = '0:0'
+          test "$(sudo stat -c %a extracted-cpio/init)" = '755'
+          sha256sum extracted-cpio/init
+          (cd native-diag-v1 && gzip -dc oneli-diag-initramfs.cpio.gz | cpio -t --quiet > external-gzip-cpio-list.txt)
+          cmp native-diag-v1/external-cpio-list.txt native-diag-v1/external-gzip-cpio-list.txt
           cp contract.json native-diag-v1/boot-native-interface-v1.json
           cp boot-hashes.log native-diag-v1/boot-hashes.log
       - name: QEMU virt actual PID1 without disk or Debian
