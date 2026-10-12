@@ -26,29 +26,192 @@
     "cpio_alignment_bytes": 4,
     "compression": "gzip",
     "compression_parameters": "gzip -n -9 (mtime zero in gzip wrapper)",
-    "numeric_owner": {"uid": 0, "gid": 0},
+    "numeric_owner": {
+      "uid": 0,
+      "gid": 0
+    },
     "file_mtime_unix": 0,
     "entry_order": "C-locale lexicographically sorted relative paths",
-    "required_paths": ["/init", "/bin/sh", "/dev", "/proc", "/sys", "/run", "/tmp"],
+    "required_paths": [
+      "/init",
+      "/bin/sh",
+      "/dev",
+      "/proc",
+      "/sys",
+      "/run",
+      "/tmp"
+    ],
     "init": {
       "path": "/init",
       "executable": true,
       "pid1": true,
-      "mount": ["/proc:proc", "/sys:sysfs", "/dev:devtmpfs", "/run:tmpfs"],
-      "diagnostic_output": ["/dev/console", "/dev/kmsg", "/run/oneli-diag"],
-      "capture": ["uname -a", "/proc/cmdline", "/proc/device-tree/compatible", "mount failures", "probe/kernel-log failures"],
+      "mount": [
+        "/proc:proc",
+        "/sys:sysfs",
+        "/dev:devtmpfs",
+        "/run:tmpfs"
+      ],
+      "diagnostic_output": [
+        "/dev/console",
+        "/dev/kmsg",
+        "/run/oneli-diag"
+      ],
+      "capture": [
+        "uname -a",
+        "/proc/cmdline",
+        "/proc/device-tree/compatible",
+        "mount failures",
+        "probe/kernel-log failures"
+      ],
       "persistent_storage_writes": false,
       "reboot_required": false,
-      "terminate_only_on_explicit_operator_or_qemu_test_command": true
+      "terminate_only_on_explicit_operator_or_qemu_test_command": true,
+      "ready_marker": "RAZR_NATIVE_DIAG_READY_V1"
     },
     "module_requirements": "userspace-to-justify-against-accepted-config",
     "firmware_requirements": "userspace-to-justify-against-minimal-profile",
     "required_manifest_keys": [
-      "schema", "interface", "kernel_commit", "kernel_release", "kernel_image_sha256",
-      "board_dtb_sha256", "cpio_relative_path", "cpio_sha256", "compressed_relative_path",
-      "compressed_sha256", "compression", "cpio_format", "numeric_owner",
-      "init_path", "init_sha256", "modules", "firmware", "qemu_validation"
-    ]
+      "schema",
+      "interface",
+      "kernel_commit",
+      "kernel_release",
+      "kernel_image_sha256",
+      "board_dtb_sha256",
+      "cpio_relative_path",
+      "cpio_sha256",
+      "compressed_relative_path",
+      "compressed_sha256",
+      "compression",
+      "cpio_format",
+      "numeric_owner",
+      "init_path",
+      "init_sha256",
+      "modules",
+      "module_requirement_rationale",
+      "firmware",
+      "firmware_requirement_rationale",
+      "tool_provenance",
+      "qemu_validation"
+    ],
+    "manifest_field_contract": {
+      "schema": {
+        "type": "literal",
+        "value": "oneli-native-diag-payload-v1"
+      },
+      "interface": {
+        "type": "literal",
+        "value": "oneli-native-early-initramfs-interface-v1"
+      },
+      "kernel_commit": {
+        "type": "literal",
+        "value": "2b5acf108ae37040ac1e652e029bb37f5609e886"
+      },
+      "kernel_release": {
+        "type": "literal",
+        "value": "7.3.0-rc6-g2b5acf108ae3"
+      },
+      "kernel_image_sha256": {
+        "type": "literal",
+        "value": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939"
+      },
+      "board_dtb_sha256": {
+        "type": "literal",
+        "value": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03"
+      },
+      "cpio_relative_path": {
+        "type": "literal",
+        "value": "oneli-diag-initramfs.cpio"
+      },
+      "compressed_relative_path": {
+        "type": "literal",
+        "value": "oneli-diag-initramfs.cpio.gz"
+      },
+      "cpio_sha256": {
+        "type": "sha256-hex",
+        "value": null
+      },
+      "compressed_sha256": {
+        "type": "sha256-hex",
+        "value": null
+      },
+      "compression": {
+        "type": "literal",
+        "value": "gzip"
+      },
+      "cpio_format": {
+        "type": "literal",
+        "value": "newc"
+      },
+      "numeric_owner": {
+        "type": "literal",
+        "value": {
+          "uid": 0,
+          "gid": 0
+        }
+      },
+      "init_path": {
+        "type": "literal",
+        "value": "/init"
+      },
+      "init_sha256": {
+        "type": "sha256-hex",
+        "value": null
+      },
+      "modules": {
+        "type": "array",
+        "item_shape": {
+          "relative_path": "string",
+          "sha256": "sha256-hex",
+          "reason": "string"
+        }
+      },
+      "module_requirement_rationale": {
+        "type": "nonempty-string"
+      },
+      "firmware": {
+        "type": "array",
+        "item_shape": {
+          "relative_path": "string",
+          "sha256": "sha256-hex",
+          "reason": "string"
+        }
+      },
+      "firmware_requirement_rationale": {
+        "type": "nonempty-string"
+      },
+      "tool_provenance": {
+        "type": "nonempty-object",
+        "required_fields": [
+          "name",
+          "version",
+          "source",
+          "sha256_or_package_revision"
+        ]
+      },
+      "qemu_validation": {
+        "type": "object",
+        "required_fields": [
+          "result",
+          "qemu_generated_dtb",
+          "debian_rootfs_used",
+          "pid1_verified",
+          "kernel_release_verified",
+          "ready_marker",
+          "exit_code",
+          "serial_log_relative_path",
+          "serial_log_sha256"
+        ],
+        "expected": {
+          "result": "pass",
+          "qemu_generated_dtb": true,
+          "debian_rootfs_used": false,
+          "pid1_verified": true,
+          "kernel_release_verified": true,
+          "ready_marker": "RAZR_NATIVE_DIAG_READY_V1",
+          "exit_code": 0
+        }
+      }
+    }
   },
   "profiles": {
     "qemu_virt": {
@@ -82,12 +245,20 @@
     "page_size": 4096,
     "packed_os_version": 402653593,
     "cmdline_bytes": 0,
-    "reserved_u32": [0,0,0,0],
+    "reserved_u32": [
+      0,
+      0,
+      0,
+      0
+    ],
     "signature_size": 4096,
     "signature_sha256": "030600e25f969311812014a82fcb3edf10871be255cb59b74452d1e8926cf869",
     "vendor_boot_img_sha256": "1c27e22565f6f50919812bfcb5254cea2f3b629d98f5c26a7b54f5ece452036e",
     "stock_vendor_addresses": {
-      "kernel_addr": 32768, "ramdisk_addr": 16777216, "tags_addr": 256, "dtb_addr": 32505856
+      "kernel_addr": 32768,
+      "ramdisk_addr": 16777216,
+      "tags_addr": 256,
+      "dtb_addr": 32505856
     },
     "stock_vendor_ramdisk_compression": "legacy-lz4",
     "stock_bootconfig_size": 85,
@@ -108,14 +279,36 @@
     "boot_cmdline_reason": "intentionally empty in host-only structural profile, not a confirmed native console profile",
     "boot_signature_bytes": 0,
     "boot_signature_reason": "deliberately unsigned: never reuse stock signature",
-    "reserved_u32": [0,0,0,0],
+    "reserved_u32": [
+      0,
+      0,
+      0,
+      0
+    ],
     "vendor_load_addresses_source": "stock reference numbers for structural comparison only; not approved phone placement",
     "generic_ramdisk": "Userspace compressed diagnostic newc",
     "vendor_ramdisk": "new purpose-built minimal fragment only; never copy stock vendor ramdisk implicitly",
     "vendor_ramdisk_type": 1,
     "vendor_ramdisk_type_name": "platform",
     "vendor_ramdisk_name": "native-diag",
-    "vendor_ramdisk_board_id_words": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    "vendor_ramdisk_board_id_words": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
     "bootconfig": "",
     "bootconfig_reason": "intentionally zero length for structural host test; no Android stock keys copied",
     "vendor_cmdline": "",
