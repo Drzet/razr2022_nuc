@@ -32,8 +32,10 @@
     "firmware_manifest_path": null,
     "dtb_path": null,
     "boot_packaging_manifest_path": null,
-    "modules_dep": null
+    "modules_dep": null,
+    "native_header_inputs_path": null
   },
   "boot_contract_stage": "stock-reference-structure-only; native composition, physical acceptance unresolved",
-  "evidence_stage": "awaiting-Boot-approved-native-composition"
+  "evidence_stage": "awaiting-Boot-approved-native-composition",
+  "native_header_inputs_path": null
 }
