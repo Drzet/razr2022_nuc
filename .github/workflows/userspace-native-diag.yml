@@ -63,49 +63,50 @@ jobs:
           python3 scripts/build-native-diag.py build --contract contract.json \
             --image boot-root/Image --config boot-root/kernel.config \
             --dtb boot-root/sm8475-motorola-oneli.dtb --busybox "$ARM64_BUSYBOX" \
-            --interface-blob "$INTERFACE_BLOB" --output native-diag-v1
-          (cd native-diag-v1 && gzip -t oneli-diag-initramfs.cpio.gz && cpio --quiet -t < oneli-diag-initramfs.cpio > external-cpio-list.txt)
+            --interface-blob "$INTERFACE_BLOB" --output native-diag-v2
+          (cd native-diag-v2 && gzip -t oneli-diag-initramfs.cpio.gz && cpio --quiet -t < oneli-diag-initramfs.cpio > external-cpio-list.txt)
           python3 - <<'PY'
           import json
           from pathlib import Path
-          r=Path('native-diag-v1')
+          r=Path('native-diag-v2')
           expected=[x['path'] for x in json.loads((r/'newc-listing.json').read_text())]
           assert (r/'external-cpio-list.txt').read_text().splitlines() == expected
           PY
           mkdir -p extracted-cpio
-          (cd extracted-cpio && sudo cpio --quiet --no-absolute-filenames -idum < ../native-diag-v1/oneli-diag-initramfs.cpio)
+          (cd extracted-cpio && sudo cpio --quiet --no-absolute-filenames -idum < ../native-diag-v2/oneli-diag-initramfs.cpio)
           test "$(sudo stat -c %u:%g extracted-cpio/init)" = '0:0'
           test "$(sudo stat -c %u:%g extracted-cpio/bin/busybox)" = '0:0'
           test "$(sudo stat -c %a extracted-cpio/init)" = '755'
           sha256sum extracted-cpio/init
-          (cd native-diag-v1 && gzip -dc oneli-diag-initramfs.cpio.gz | cpio -t --quiet > external-gzip-cpio-list.txt)
-          cmp native-diag-v1/external-cpio-list.txt native-diag-v1/external-gzip-cpio-list.txt
-          cp contract.json native-diag-v1/boot-native-interface-v1.json
-          cp boot-hashes.log native-diag-v1/boot-hashes.log
+          (cd native-diag-v2 && gzip -dc oneli-diag-initramfs.cpio.gz | cpio -t --quiet > external-gzip-cpio-list.txt)
+          cmp native-diag-v2/external-cpio-list.txt native-diag-v2/external-gzip-cpio-list.txt
+          cp contract.json native-diag-v2/boot-native-interface-v1.json
+          cp boot-hashes.log native-diag-v2/boot-hashes.log
       - name: QEMU virt actual PID1 without disk or Debian
         run: |
           set -Eeuo pipefail
           test -r /usr/lib/ipxe/qemu/efi-virtio.rom
-          cmdline='console=ttyAMA0,115200 rdinit=/init razr.diag_test_shutdown=1'
-          printf 'qemu-system-aarch64 -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v1/qemu-command.txt
+          # CI-only fixture appears in the kernel's dmesg command-line entry. No /init test hook.
+          cmdline='console=ttyAMA0,115200 rdinit=/init razr.diag_test_shutdown=1 razr.diag_probe_error_fixture=RAZR_NATIVE_PROBE_ERROR_FIXTURE_CI_ONLY'
+          printf 'qemu-system-aarch64 -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v2/qemu-command.txt
           set +e
           timeout --kill-after=10s 160s qemu-system-aarch64 -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2 \
             -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot -kernel boot-root/Image \
-            -initrd native-diag-v1/oneli-diag-initramfs.cpio.gz \
-            -append "$cmdline" > native-diag-v1/qemu-serial.log 2>&1
+            -initrd native-diag-v2/oneli-diag-initramfs.cpio.gz \
+            -append "$cmdline" > native-diag-v2/qemu-serial.log 2>&1
           rc=$?
           set -e
-          printf '%s\n' "$rc" > native-diag-v1/qemu-exit-code.txt
+          printf '%s\n' "$rc" > native-diag-v2/qemu-exit-code.txt
           if [ "$rc" -ne 0 ]; then
-            tail -n 120 native-diag-v1/qemu-serial.log >&2
+            tail -n 120 native-diag-v2/qemu-serial.log >&2
             echo "QEMU native diag failed, exit=$rc" >&2
             exit 1
           fi
           for marker in RAZR_NATIVE_DIAG_PID1=1 "RAZR_NATIVE_DIAG_RELEASE=$KERNEL_RELEASE" \
             RAZR_NATIVE_DIAG_MOUNT_FAILURES=0 RAZR_NATIVE_DIAG_READY_V1 \
             RAZR_NATIVE_DIAG_QEMU_SHUTDOWN 'reboot: Power down'; do
-            if ! grep -aFq "$marker" native-diag-v1/qemu-serial.log; then
-              tail -n 120 native-diag-v1/qemu-serial.log >&2
+            if ! grep -aFq "$marker" native-diag-v2/qemu-serial.log; then
+              tail -n 120 native-diag-v2/qemu-serial.log >&2
               echo "missing serial marker: $marker" >&2
               exit 1
             fi
@@ -113,20 +114,20 @@ jobs:
       - name: Negative QEMU test holds diagnostics without explicit exit trigger
         run: |
           set -Eeuo pipefail
-          printf '%s\n' 'QEMU virt, no razr.diag_test_shutdown=1; must remain alive until host timeout' > native-diag-v1/qemu-hold-command.txt
+          printf '%s\n' 'QEMU virt, no razr.diag_test_shutdown=1; must remain alive until host timeout' > native-diag-v2/qemu-hold-command.txt
           set +e
-          timeout --signal=TERM --kill-after=5s 12s qemu-system-aarch64             -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2             -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot             -kernel boot-root/Image -initrd native-diag-v1/oneli-diag-initramfs.cpio.gz             -append 'console=ttyAMA0,115200 rdinit=/init'             > native-diag-v1/qemu-hold-serial.log 2>&1
+          timeout --signal=TERM --kill-after=5s 12s qemu-system-aarch64             -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2             -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot             -kernel boot-root/Image -initrd native-diag-v2/oneli-diag-initramfs.cpio.gz             -append 'console=ttyAMA0,115200 rdinit=/init razr.diag_probe_error_fixture=RAZR_NATIVE_PROBE_ERROR_FIXTURE_CI_ONLY'             > native-diag-v2/qemu-hold-serial.log 2>&1
           rc=$?
           set -e
-          printf '%s\n' "$rc" > native-diag-v1/qemu-hold-exit-code.txt
+          printf '%s\n' "$rc" > native-diag-v2/qemu-hold-exit-code.txt
           if [ "$rc" -ne 124 ]; then
-            tail -n 80 native-diag-v1/qemu-hold-serial.log >&2
+            tail -n 80 native-diag-v2/qemu-hold-serial.log >&2
             echo "unexpected QEMU hold exit=$rc" >&2
             exit 1
           fi
-          grep -aFq RAZR_NATIVE_DIAG_READY_V1 native-diag-v1/qemu-hold-serial.log
-          grep -aFq RAZR_NATIVE_DIAG_HOLD native-diag-v1/qemu-hold-serial.log
-          if grep -aEq 'RAZR_NATIVE_DIAG_QEMU_SHUTDOWN|reboot: Power down' native-diag-v1/qemu-hold-serial.log; then
+          grep -aFq RAZR_NATIVE_DIAG_READY_V1 native-diag-v2/qemu-hold-serial.log
+          grep -aFq RAZR_NATIVE_DIAG_HOLD native-diag-v2/qemu-hold-serial.log
+          if grep -aEq 'RAZR_NATIVE_DIAG_QEMU_SHUTDOWN|reboot: Power down' native-diag-v2/qemu-hold-serial.log; then
             echo 'diagnostic service unexpectedly initiated shutdown' >&2
             exit 1
           fi
@@ -135,16 +136,17 @@ jobs:
         run: |
           set -Eeuo pipefail
           python3 scripts/build-native-diag.py finalize --contract contract.json \
-            --directory native-diag-v1 --interface-blob "$INTERFACE_BLOB"
+            --directory native-diag-v2 --interface-blob "$INTERFACE_BLOB"
           python3 scripts/build-native-diag.py verify --contract contract.json \
-            --manifest native-diag-v1/oneli-diag-payload-v1.json
-          (cd native-diag-v1 && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
-          (cd native-diag-v1 && sha256sum -c SHA256SUMS)
+            --manifest native-diag-v2/oneli-diag-payload-v1.json
+          (cd native-diag-v2 && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+          (cd native-diag-v2 && sha256sum -c SHA256SUMS)
           echo RAZR_NATIVE_DIAG_ARTIFACT_PASS
+          echo RAZR_NATIVE_DIAG_CONSOLE_SUMMARY_V2_PASS
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: native-diag-v1-${{ github.run_id }}-${{ github.run_attempt }}
-          path: native-diag-v1/
+          name: native-diag-v2-${{ github.run_id }}-${{ github.run_attempt }}
+          path: native-diag-v2/
           retention-days: 30
           if-no-files-found: warn
