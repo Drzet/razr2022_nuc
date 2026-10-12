@@ -8,6 +8,10 @@ on:
       - 'scripts/validate-native-kernel-inputs.py'
       - 'tests/userspace/test_native_contract.py'
       - 'userspace/native-kernel-inputs.example.json'
+      - 'userspace/boot-reference-metadata-v1.json'
+      - 'scripts/audit-boot-reference-consumer.py'
+      - 'scripts/prepare-project-qemu.sh'
+      - 'scripts/smoke-qemu.sh'
 permissions:
   contents: read
 jobs:
@@ -27,10 +31,28 @@ jobs:
         run: |
           python3 -m py_compile scripts/validate-native-kernel-inputs.py tests/userspace/test_native_contract.py
           python3 tests/userspace/test_native_contract.py 2>&1 | tee native-contract-fixtures.log
+      - name: Verify pinned Boot and VPU reference metadata without firmware payloads
+        run: |
+          set -Eeuo pipefail
+          mkdir -p pinned-reference
+          curl --fail --location --retry 2 --silent --show-error \
+            https://raw.githubusercontent.com/Drzet/razr2022_nuc/12fd47873ed587ab7518c3ac747c747757e8005f/configs/oneli-boot-packaging-v1.json \
+            -o pinned-reference/boot-v1.json
+          curl --fail --location --retry 2 --silent --show-error \
+            https://raw.githubusercontent.com/Drzet/razr2022_nuc/1a59d79fda42a977956de8e06c3a60d44b2971f4/docs/vpu/2026-10-12-oneli-stock-fdt-properties.json \
+            -o pinned-reference/vpu-fdt.json
+          python3 scripts/audit-boot-reference-consumer.py \
+            --boot-v1 pinned-reference/boot-v1.json \
+            --vpu-fdt pinned-reference/vpu-fdt.json \
+            --userspace userspace/boot-reference-metadata-v1.json \
+            --output native-reference-audit.json
+          bash -n scripts/prepare-project-qemu.sh scripts/smoke-qemu.sh
       - name: Retain fixture transcript
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: userspace-native-contract-${{ github.run_id }}-${{ github.run_attempt }}
-          path: native-contract-fixtures.log
+          path: |
+            native-contract-fixtures.log
+            native-reference-audit.json
           retention-days: 30
