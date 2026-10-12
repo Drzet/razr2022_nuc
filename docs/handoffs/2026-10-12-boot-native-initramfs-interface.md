@@ -1,0 +1,31 @@
+# Subsystem handoff: Boot native early-initramfs interface v1
+
+- **Date/originating chat:** 2026-10-12. Boot, after sixth coordinator review. Read coordinator `AGENTS.md`, `docs/STATUS.md`, `docs/NEXT_TASKS.md`, `docs/WORKFLOW.md`, `docs/SIXTH_REVIEW.md`; Boot sixth-round handoff and current branch head before work.
+- **Repository/branch:** `Drzet/razr2022_nuc:razr/boot`; prior head `8f1ed3dac1315852eaba95d3b855000130adb909`. Current deliverables: machine contract `8446e93c22848d50b33e2a71fb45a20c4fd1bf69`, explanatory contract `6b97a7ac10cab6ba7cdd7d65b5f50a46853dbda4`, stale sixth handoff correction `8d1fbccf79a65e8c2573301e2115d7ce0bd60af4`, machine blocked result `2071239a94bdabeded0d68ec04b26cb0101dc207`. This handoff's own commit advances the head.
+- **Baseline:** `a5ebb76233b79db01e82e061173cb73c6d2b5c6b` unchanged. Accepted combined kernel is `Drzet/linux:razr/integration` **`2b5acf108ae37040ac1e652e029bb37f5609e886`**, not native-phone accepted. No kernel source/DT/CI changes in this Boot task.
+- **Evidence levels:** stock reference **researched**; combined Image/modules/oneli schema and real matching Debian QEMU **accepted/build-tested** (by coordinator); versioned native contract **implemented as data/docs**; standalone diagnostic initramfs **not produced/tested**; host-only native image **not produced/tested**; hardware **not tested**.
+
+## Changes and provenance
+
+1. Versioned Boot↔Userspace native diagnostic contract: [`configs/oneli-native-early-initramfs-interface-v1.json`](../../configs/oneli-native-early-initramfs-interface-v1.json) and [explanatory interface](../oneli-native-early-initramfs-interface-v1.md). Kernel Image/config/DTB identities from coordinator's accepted `configs/accepted-integration-2026-10-12.json`. Deterministic newc+gzip, numeric root ownership, `/init` PID1 mount/read-only diagnostics, no-Debian-disk QEMU virt test, manifest and SHA handoff. QEMU stays independent of the oneli DT/cmdline/Android headers.
+2. Reference fields formerly `null` in historical packaging-v2 **now populated in new v1 native interface** from [VPU focused source](https://github.com/Drzet/razr2022_nuc/blob/dadd330c3f09f715372da94091f04166f9f0c141/docs/vpu/evidence/focused-stock-properties.json): packed OS version **402653593**, empty stock cmdline, zero reserved words, boot-v4 signature section **4096 bytes** and SHA256 `030600e25f969311812014a82fcb3edf10871be255cb59b74452d1e8926cf869`. These are **public-stock reference**. The unsigned structural **host-only** selection deliberately sets OS version 0, signature section 0, cmdline empty and bootconfig empty; stock signature is not portable authentication and AVB is separate.
+3. Console from pinned oneli DTS `/chosen`/UART7 and pinned `qcom_geni_serial.c`, with `ttyMSM` source-backed but physical connector/voltage/bootloader cmdline **unknown**. `ramoops` has neither an approved carveout nor post-reboot readout. No fabricated physical serial, USB gadget, or storage diagnostic channel.
+4. [Fail-closed current packaging status](../../tests/results/2026-10-12-oneli-native-packaging-blocked.json) records **not generated**, separately naming accepted source/build evidence, missing Userspace payload/ack and native-only gates. No new ROM download or unapproved PVT binary construction. Existing symbolic PVT-to-two-base resolution stands; actual index-3 application remains optional source-solvable reference work not a prerequisite to this mainline-DTB host profile.
+5. Corrected previous sixth-round [handoff](2026-10-12-boot-sixth-round.md): its pending-build text is historical. Coordinator's [SIXTH_REVIEW](https://github.com/Drzet/razr2022_nuc/blob/main/docs/SIXTH_REVIEW.md) accepted [combined Image build 38292394177](https://github.com/Drzet/linux/actions/runs/38292394177) and [Debian QEMU run 38297826535](https://github.com/Drzet/razr2022_nuc/actions/runs/38297826535); do not rerun either unchanged milestone.
+
+## Shared files / integration
+
+Only Boot-owned `configs/`, `docs/`, `tests/results/` files on project `razr/boot` modified; no aggregate status/tasks edits, no `Drzet/linux` changes, no merge to `razr/integration`. Coordinator retains acceptance/promotion. Userspace **must ACK native v1** before producing its specialized `/init` payload. [Issue #13](https://github.com/Drzet/razr2022_nuc/issues/13) contains the native-interface handoff and earlier accepted combined producer discussion.
+
+## Validation
+
+Verified GitHub read-back of new JSON schema and the recovered signature/image fields, compared immutable kernel/DTB IDs with accepted coordinator manifest and source `qcom_geni_serial.c`/DTS. **No new executable CI or guest tests claimed.** Existing pinned synthetic AOSP v4 layout tests, and the accepted full build/QEMU pass, are prior evidence only; they do not exercise this new initramfs or native candidate.
+
+## Blockers and next test
+
+1. **Immediate Userspace dependency:** acknowledge exact v1 interface, publish hashed `native-diag-v1/` raw + compressed newc, manifest, ARM64 tooling and no-root-disk QEMU `/init` evidence. A combined Debian rootfs rerun is irrelevant.
+2. **Boot after handoff:** independently check archive, manifest and accepted Image identity; generate unsigned host-only v4 boot/vendor_boot under explicit structural profile if approved inputs suffice. Unpack using pinned AOSP-derived tool, compare section hashes, bounds, page alignment, vendor ramdisk descriptor and deliberate empty bootconfig. If a required field remains absent, emit a new machine-readable blocked result, not a guessed image.
+3. **Reference-only separate task:** source-hashed original FDT0/FDT1 and PVT index-3 `fdtoverlay` binary application if required; projections are not reversible. No repeat 4.35 GB scan; do not imply actual loader selection.
+4. **Phone-only gates:** Motorola accepts selected Image/DT, bootloader command line, observable UART or reviewed persistent log path, and separate AVB disposition. UFS/GPU/VPU/USB/DP/charging paths are not prerequisites.
+
+**Next owner:** Userspace, for exact new-interface acknowledgement and diagnostic payload. Boot can implement its independent host inspector after agreement; integration review belongs to coordinator.
