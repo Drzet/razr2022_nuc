@@ -231,8 +231,10 @@ def inspect_fdt(blob, at, provenance):
             v = other.get("properties", {}).get("status")
             ancestors.append({"path": parent, "status": "absent" if v is None else v.split(b"\0", 1)[0].decode("ascii", "replace")})
             parent = parent.rsplit("/", 1)[0] or "/"
+        # Keep vendor-specific IOVA/bandwidth/routing keys on focal nodes.
+        focal = re.search(r"vidc@|context-bank|_cb$|apps-smmu@|clock-controller@aaf|qcom,gdsc@aaf|interconnect@|eusb2_repeater@|redriver@30|ps5169|aux|sbu|pmic_glink|qcom,ucsi|rpmh-regulator|qmp", n["path"], re.I)
         chosen = {k: render_prop(k, v) for k, v in props.items()
-                  if PROPERTY_HINT.search(k) or k in ("#address-cells", "#size-cells", "phandle", "linux,phandle",
+                  if focal or PROPERTY_HINT.search(k) or k in ("#address-cells", "#size-cells", "phandle", "linux,phandle",
                        "qcom,board-id", "qcom,msm-id", "qcom,pmic-id") or
                   n["path"].startswith(("/__fixups__", "/__local_fixups__", "/__symbols__"))}
         out_nodes.append({"path": n["path"], "status": state, "ancestor_status": ancestors,
