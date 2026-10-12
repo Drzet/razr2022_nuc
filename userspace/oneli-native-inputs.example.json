@@ -1,0 +1,39 @@
+{
+  "schema_version": 3,
+  "repository": "https://github.com/Drzet/linux",
+  "target_environment": "oneli_native",
+  "kernel_commit": null,
+  "kernel_release": null,
+  "same_build": {
+    "build_id": null,
+    "kernel_commit": null,
+    "kernel_release": null,
+    "image_sha256": null,
+    "config_sha256": null,
+    "module_symvers_sha256": null
+  },
+  "image_path": null,
+  "config_path": null,
+  "module_symvers_path": null,
+  "modules_directory": null,
+  "initramfs_path": null,
+  "initramfs_modules": null,
+  "zero_initramfs_modules_reason": null,
+  "firmware_manifest_path": null,
+  "firmware_directory": null,
+  "dtb_path": null,
+  "boot_packaging_manifest_path": null,
+  "modules_sha256": null,
+  "sha256": {
+    "image_path": null,
+    "config_path": null,
+    "module_symvers_path": null,
+    "initramfs_path": null,
+    "firmware_manifest_path": null,
+    "dtb_path": null,
+    "boot_packaging_manifest_path": null,
+    "modules_dep": null
+  },
+  "boot_contract_stage": "stock-reference-structure-only; native composition, physical acceptance unresolved",
+  "evidence_stage": "awaiting-Boot-approved-native-composition"
+}
