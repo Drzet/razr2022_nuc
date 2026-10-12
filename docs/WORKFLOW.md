@@ -59,3 +59,7 @@ Boot may prepare and build the isolated `razr/integration-candidate` specified i
 ## Sixth-review acceptance (2026-10-12)
 
 Coordinator accepted and promoted `2b5acf108ae37040ac1e652e029bb37f5609e886` unchanged to `razr/integration` after reviewing the exact combined diff, complete artifacts and project-kernel guest evidence. See `configs/accepted-integration-2026-10-12.json`. This supersedes earlier candidate-only/planned language; the upstream baseline remains unchanged. No hardware-tested tag or phone acceptance is implied. Future candidate changes remain separate until reviewed. The next milestone and staged owner dependencies are in NEXT_TASKS.
+
+## Seventh-review host packaging acceptance (2026-10-12)
+
+Diskless diagnostic payload run 38307910388 and unsigned host packaging run 38310449244 are accepted for their limited scopes, with coordinator-verified downloaded artifacts. See `configs/accepted-native-host-2026-10-12.json`. Kernel integration is unchanged. Native loader/DT/ramdisk/command-line behavior and physical diagnostic access remain unresolved; use current NEXT_TASKS rather than repeating the completed construction work.

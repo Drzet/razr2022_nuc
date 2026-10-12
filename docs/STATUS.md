@@ -1,23 +1,23 @@
 # Project status
 
-Updated 2026-10-12, sixth coordinator review. **The first combined kernel and matching-kernel Debian QEMU milestone has passed.** Coordinator promoted the exact tested commit `2b5acf108ae37040ac1e652e029bb37f5609e886` to `Drzet/linux:razr/integration`. No native phone execution has been tested.
+Updated 2026-10-12, seventh coordinator review. **The diagnostic initramfs runs without a disk, and Boot has packaged its exact bytes into independently inspected unsigned boot/vendor_boot images.** Current readiness: **host-validated; device handoff unresolved**.
 
-Read [SIXTH_REVIEW.md](SIXTH_REVIEW.md) for independently verified evidence and reviewed heads, [accepted build manifest](../configs/accepted-integration-2026-10-12.json) for hashes, and [NEXT_TASKS.md](NEXT_TASKS.md) for staged assignments.
+See [SEVENTH_REVIEW.md](SEVENTH_REVIEW.md), [accepted host artifact record](../configs/accepted-native-host-2026-10-12.json), and [NEXT_TASKS.md](NEXT_TASKS.md).
 
-| Workstream | Current accepted result | Next action |
+| Workstream | Accepted result | Next step |
 | --- | --- | --- |
-| Boot/integration | Image, 1,702 modules, oneli DT/schema and complete artifact bundle passed; coordinator checked all 1,735 bundle checksums | Native early-initramfs interface, diagnostic-output prerequisites and host-validated packaging |
-| Userspace | Exact combined Image booted Debian/systemd in QEMU; real dummy module load, IPv4/SSH and exit-0 poweroff passed | After Boot interface agreement, build/test minimal diagnostic initramfs and hand exact artifact to Boot |
-| VPU | Missing properties closed; durable metadata and host loader bounds accepted; SMMU mask semantics resolved | Optional independent bounded DMA ownership design; Iris remains excluded |
-| GPU | 13×7 stock properties and exact 12×3 HFI numerical crosswalk passed; prior patches build in integration | Pause; CX-floor ownership/dynamic bandwidth policy unresolved |
-| Power | PVT L8C fragment only boot-on; read-only driver write risks documented; signed-temperature patch builds in integration | Pause; no new gauge/charge-control driver selected |
-| USB | Prior PS5169 full build/binding/fault tests accepted | Board profile/lifecycle work queued after native packaging |
-| DisplayPort | Reference AUX matrix complete | Hold pending actual AUX part evidence |
+| Integration | Exact combined kernel `2b5acf108ae37040ac1e652e029bb37f5609e886`, complete modules/DTB and Debian QEMU test | Preserve unchanged |
+| Userspace | Deterministic diagnostic cpio; diskless PID1/QEMU shutdown and resident HOLD tests pass | Emit bounded probe-error summary on console, test and publish revised payload |
+| Boot | Exact diagnostic payload packaged; independent AOSP pack/unpack/hash checks pass | Bounded loader placement, DT/ramdisk/cmdline and accessible diagnostic-route decision |
+| VPU | Prior evidence/loader checks accepted | Optional independent DMA ownership design only |
+| GPU / Power | Sixth-review source and integration findings accepted | Paused |
+| USB | Prior experimental driver build accepted | Queued |
+| DisplayPort | Source matrix complete | AUX identity hold |
 
-Verified runs: [combined build 38292394177](https://github.com/Drzet/linux/actions/runs/38292394177), [project-kernel guest 38297826535](https://github.com/Drzet/razr2022_nuc/actions/runs/38297826535), [focused stock fields 38291543595](https://github.com/Drzet/razr2022_nuc/actions/runs/38291543595), [loader audit 38292192600](https://github.com/Drzet/razr2022_nuc/actions/runs/38292192600), [GPU crosswalk 38297688741](https://github.com/Drzet/razr2022_nuc/actions/runs/38297688741).
+Coordinator downloaded and verified Userspace artifact 11772559465 (15 checksums) and Boot artifact 11774750168 (8 checksums). Runs [38307910388](https://github.com/Drzet/razr2022_nuc/actions/runs/38307910388) and [38310449244](https://github.com/Drzet/razr2022_nuc/actions/runs/38310449244) passed. Image/ramdisk/DTB sections independently hash-match accepted inputs. No native phone test has occurred.
 
-**Next milestone:** offline construction/validation of an initramfs-only native early-boot image path. Boot defines the interface first; Userspace acknowledges, then their implementation work can overlap. No all-agent concurrent round. Completed VPU extraction no longer blocks consumers.
+The current host images deliberately use empty command lines/bootconfig and unsigned headers with reference address fields. These choices have not been established as Motorola-native behavior. Physical console access and a reversible device test path remain unresolved. The payload records detailed errors in RAM but currently omits their body from console output; the next Userspace change addresses that narrow defect.
 
-Physical gates remain actual Motorola bootloader/DT selection, accessible diagnostic output, secure firmware loading, GPU/VPU execution, USB/DP and electrical/thermal/charging behavior. Unlock is not an offline coding blocker. UFS rootfs and high-speed peripherals are not prerequisites for the early initramfs milestone. The seven [PHY clock warnings](GCC_PHY_CLOCK_RECLASSIFICATION.md) retain their source-based downgraded severity.
+Run Boot's decision task and Userspace's independent output fix. Boot consumes new payload hashes only after the new test. Do not start a blanket subsystem round or rerun unchanged kernel/packaging jobs. Actual stock DTBO application is optional reference work, not a reason to reopen completed host validation.
 
-Previous queues and findings remain historical: [fifth review](FIFTH_REVIEW.md), [fifth assignments](FIFTH_ASSIGNMENTS.md). Their missing-artifact, missing-property and pending-build statements are superseded by this review.
+Earlier milestone: [sixth review](SIXTH_REVIEW.md), [accepted integration](../configs/accepted-integration-2026-10-12.json). The seven PHY clock references retain their prior downgraded severity; UFS rootfs and advanced peripherals are not early-initramfs prerequisites.

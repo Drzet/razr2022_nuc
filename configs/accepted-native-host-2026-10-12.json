@@ -1,0 +1,80 @@
+{
+  "schema": "oneli-native-host-validation-result-v1",
+  "date": "2026-10-12",
+  "subsystem": "Boot",
+  "branch": "razr/boot",
+  "tested_project_commit": "1e35aad6b6a856f6f86cdf9ba897aee5004e9abd",
+  "source_inputs": {
+    "kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "kernel_release": "7.3.0-rc6-g2b5acf108ae3",
+    "kernel_artifact_id": 11768562884,
+    "kernel_archive_sha256": "5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896",
+    "kernel_image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "oneli_mainline_dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+    "userspace_commit": "0bd65e40466254c47b63f4f671f758946209fec5",
+    "userspace_artifact_id": 11772559465,
+    "userspace_zip_sha256": "9637a4a5e0090482428e6b9c8e8011a46131f831407352f40e381ba25fb6df6f",
+    "userspace_cpio_sha256": "6805a3482e2946c3aca60f52c9c91711f5cde5720e30a5230df3fb4829e2ea4e",
+    "userspace_gzip_sha256": "3d7a08022bdff062455099d509d54c9aa571cb9c289d89a431b7edb892846f3b"
+  },
+  "ci": {
+    "run": 38310449244,
+    "job": 115014596145,
+    "conclusion": "success",
+    "artifact_id": 11774750168,
+    "artifact_name": "oneli-native-host-only-v1",
+    "artifact_zip_sha256": "79b865936a426e76971bacb0b91fe5a9ec0943430ae0e0cbdf4af8d477daf378",
+    "artifact_sha256sums_entries_verified": 8,
+    "source_negative_unit_tests": 4,
+    "independent_aosp_unpack": "pass",
+    "independent_aosp_pack_section_crosscheck": "pass"
+  },
+  "outputs": {
+    "boot_v4": {
+      "bytes": 53395456,
+      "sha256": "f47686e4cff28d9491ece814dd6c91c6f22eab32b3061a46f9bb935ae1fcda74",
+      "kernel_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+      "generic_ramdisk_sha256": "3d7a08022bdff062455099d509d54c9aa571cb9c289d89a431b7edb892846f3b",
+      "header_version": 4,
+      "os_version_raw": 0,
+      "signature_size": 0,
+      "cmdline": ""
+    },
+    "vendor_boot_v4": {
+      "bytes": 118784,
+      "sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572",
+      "dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+      "page_bytes": 4096,
+      "vendor_fragment_type": "platform",
+      "vendor_fragment_name": "native-diag",
+      "vendor_fragment_sha256": "af39e1c19af478aef7a03be98efa9d9baa228fb9f93e3842d6d7b14a1465a459",
+      "vendor_fragment_role": "gzip-compressed empty newc, structurally explicit, no stock files",
+      "fragment_table_entries": 1,
+      "bootconfig_bytes": 0,
+      "cmdline": ""
+    }
+  },
+  "header_policy": "explicit structural-only addresses copied from pinned public stock reference; not approved native placement",
+  "validation_scope": "offline structure only; neither a proven Motorola-loader accepted image nor an approved flash candidate",
+  "native_flash_approved": false,
+  "physical_hardware_tested": false,
+  "avb_signed": false,
+  "native_requirements_unresolved": [
+    "actual Motorola bootloader header/load/DT/ramdisk selection",
+    "native boot cmdline merge and physical UART/console observation",
+    "secure boot and AVB disposition with reversible testing",
+    "phone acceptance and real early kernel output"
+  ],
+  "optional_reference_not_required": "Actual PVT index-3 overlay apply to both original stock base FDTs remains separate reference-only work",
+  "coordinator_review": {
+    "review": "docs/SEVENTH_REVIEW.md",
+    "accepted": "host-validated-device-handoff-unresolved",
+    "zip_hashes_checked": true,
+    "userspace_internal_checksums": 15,
+    "boot_internal_checksums": 8,
+    "raw_header_payload_slices_independently_checked": true,
+    "pid1_positive_exit": 0,
+    "pid1_expected_hold_timeout_exit": 124,
+    "diagnostic_limitation": "Probe-error body currently goes to volatile RAM only; console receives section markers. Physical diagnostic transport unresolved."
+  }
+}
