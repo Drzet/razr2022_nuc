@@ -1,10 +1,6 @@
 name: Oneli focused omitted stock property extraction
 
 on:
-  pull_request:
-    paths:
-      - 'scripts/export-oneli-focused-stock-gaps.py'
-      - '.github/workflows/vpu-focused-gaps.yml'
   workflow_dispatch:
 
 permissions:
