@@ -85,8 +85,8 @@ def parse_firmware(d, target):
 
 def inspect_boot_packaging(d):
     # Structural reference evidence MUST NOT be promoted to native/physical readiness.
-    require(d.get("schema") == "oneli-native-boot-packaging-contract-v1",
-            "Boot v1 reference contract required; generic status=verified not supported")
+    require(d.get("schema") == "oneli-native-boot-packaging-contract-v2",
+            "Boot v2 reference contract required; generic status=verified not supported")
     v = d.get("reference_images", {}).get("vendor_boot", {})
     b = d.get("reference_images", {}).get("boot", {})
     require(v.get("header_version") == 4 and v.get("header_bytes") == 2128 and
@@ -97,12 +97,41 @@ def inspect_boot_packaging(d):
             v.get("ramdisk_fragment_board_id_words") == [0] * 16,
             "stock fragment descriptor differs from published reference")
     proto = d.get("prototype", {})
-    require(proto.get("flash_recipe") is False and proto.get("candidate_signed") is False
-            and proto.get("boot_tested") is False, "reference stage must not claim boot success")
+    require(proto.get("flash_recipe") is False and proto.get("candidate_signed") is False and
+            proto.get("boot_tested") is False and proto.get("native_ready") is False and
+            proto.get("hardware_accepted") is False,
+            "reference stage must not claim boot success")
+    require(proto.get("implicit_reference_placement_inheritance") is False and
+            proto.get("header_inputs_require_explicit_os_version") is True and
+            proto.get("header_inputs_fields") ==
+            ["os_version_raw", "kernel_addr", "ramdisk_addr", "tags_addr",
+             "dtb_addr", "purpose", "phone_boot_validated"] and
+            "header-inputs" in proto.get("requires_explicit_payload_paths", []),
+            "Boot v2 must require explicit candidate header inputs")
+    require(all(v.get(k) is not None for k in
+                ("kernel_addr", "ramdisk_addr", "tags_addr", "dtb_addr")),
+            "missing observed stock reference load addresses (not native approval)")
+    require(v.get("embedded_dtb_count") == 2 and
+            [p.get("relative_offset") for p in v.get("embedded_dtb_roots", [])] ==
+            [0, 479481], "reference embedded base FDT layout unresolved")
     return {"structural_reference_audited": True, "native_composition_ready": False,
             "hardware_accepted": False, "boot_os_version_unresolved": b.get("os_version_raw") is None,
             "reference_addresses": {k: v.get(k) for k in
                                     ("kernel_addr", "ramdisk_addr", "tags_addr", "dtb_addr")}}
+
+def inspect_native_header_inputs(d):
+    fields = ("os_version_raw", "kernel_addr", "ramdisk_addr", "tags_addr", "dtb_addr")
+    require(isinstance(d, dict), "native header inputs must be explicit JSON")
+    require(d.get("purpose") in ("structural-only", "reviewed-native"),
+            "unsupported native header purpose")
+    for key in fields:
+        value, bits = d.get(key), (64 if key == "dtb_addr" else 32)
+        require(type(value) is int and 0 <= value < (1 << bits),
+                f"native header {key} requires explicit unsigned {bits}-bit integer")
+    require(d.get("phone_boot_validated") is False,
+            "native header must not claim handset validation")
+    return {"purpose": d["purpose"], "native_load_addresses_approved": False,
+            "hardware_accepted": False}
 
 def same_build(data, sha):
     b = data.get("same_build")
@@ -129,11 +158,12 @@ def validate(data, root):
     require(isinstance(declared, dict), "sha256 map must be supplied")
     paths = {k: checked_path(root, data.get(k)) for k in FILES}
     if target == "oneli_native":
-        for name in ("dtb_path", "boot_packaging_manifest_path"):
+        for name in ("dtb_path", "boot_packaging_manifest_path", "native_header_inputs_path"):
             paths[name] = checked_path(root, data.get(name))
     else:
         require(data.get("dtb_path") is None and
-                data.get("boot_packaging_manifest_path") is None,
+                data.get("boot_packaging_manifest_path") is None and
+                data.get("native_header_inputs_path") is None,
                 "QEMU virt must use its own DT; oneli packaging forbidden")
     dirs = {k: checked_path(root, data.get(k), "directory") for k in DIRS}
     result = {"kernel_commit": data["kernel_commit"], "kernel_release": release, "inputs": {}}
@@ -141,6 +171,9 @@ def validate(data, root):
         result["inputs"][k] = sha_match(p, declared.get(k), k)
     result["same_build"] = same_build(data, declared)
     result["target_environment"] = target
+    if target == "oneli_native":
+        result["native_header_inputs"] = inspect_native_header_inputs(
+            json.loads(paths["native_header_inputs_path"].read_text()))
     result["packaging"] = (inspect_boot_packaging(json.loads(paths["boot_packaging_manifest_path"].read_text()))
                            if target == "oneli_native" else
                            {"not_applicable": True, "native_composition_ready": False,
