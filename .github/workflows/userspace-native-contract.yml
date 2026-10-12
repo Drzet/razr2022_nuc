@@ -29,6 +29,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends clang kmod cpio initramfs-tools-core zstd xz-utils
       - name: Validate parser and run positive/negative fixtures
         run: |
+          set -Eeuo pipefail
           python3 -m py_compile scripts/validate-native-kernel-inputs.py tests/userspace/test_native_contract.py
           python3 tests/userspace/test_native_contract.py 2>&1 | tee native-contract-fixtures.log
       - name: Verify pinned Boot and VPU reference metadata without firmware payloads
