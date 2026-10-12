@@ -29,3 +29,8 @@ Verified GitHub read-back of new JSON schema and the recovered signature/image f
 4. **Phone-only gates:** Motorola accepts selected Image/DT, bootloader command line, observable UART or reviewed persistent log path, and separate AVB disposition. UFS/GPU/VPU/USB/DP/charging paths are not prerequisites.
 
 **Next owner:** Userspace, for exact new-interface acknowledgement and diagnostic payload. Boot can implement its independent host inspector after agreement; integration review belongs to coordinator.
+
+## Typed-interface completion and verification
+
+- Subsequent machine-interface refinement: `a7119d5f6b1c1f8be8fbbc018dbefcfccf796c7e` explicitly declares each required payload manifest field/type/value, module/firmware requirement rationales and `RAZR_NATIVE_DIAG_READY_V1` QEMU marker. The explanatory document was aligned at `31728461beb4da5f7a179bd7a6ee6560f63945ba`. **These revisions precede Userspace ACK; use this updated interface, not just the initial creation commit.**
+- Read-back comparison against current coordinator accepted manifest and pinned VPU focused source yielded **12/12 static data checks PASS**: Image/config/DTB IDs, release, stock OS value, signature hash/length, member identities, reference addresses, unsigned/blocked policy and typed-key completeness. This is **not** an executable cpio, new QEMU, binary overlay or phone test.
