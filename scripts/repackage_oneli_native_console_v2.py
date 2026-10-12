@@ -91,7 +91,7 @@ def main():
         ("kernel.config",kernel_lock["config_sha256"]),
         ("sm8475-motorola-oneli.dtb",kernel_lock["dtb_sha256"]),
     ):
-        need(base.digest(args.kernel_dir / name) == expected, f"kernel input {name} digest mismatch")
+        need(base.digest((args.kernel_dir / name).read_bytes()) == expected, f"kernel input {name} digest mismatch")
     need((args.kernel_dir / "kernel.release").read_text().strip() == kernel_lock["release"],
          "kernel release mismatch")
     config = set((args.kernel_dir / "kernel.config").read_text().splitlines())
