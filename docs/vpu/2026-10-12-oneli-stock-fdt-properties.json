@@ -1,0 +1,742 @@
+{
+  "schema": "oneli-stock-fdt-reference-properties-v1",
+  "grounding": "source SHA-verified public package, standalone FDTs, NOT composed or selected handset DT",
+  "project_evidence": {
+    "full_json_workflow_run": 38220276125,
+    "workflow_result": "success",
+    "artifact_id": 11734430639,
+    "artifact_sha256": "485ff37b87cff2e6432928cfd4c0d4168bb3c10af163f6e68b6adfba35a528ae",
+    "source_branch_commit": "2fe785c0d3712128d58443792afd7f77794461d9",
+    "source_full_zip_sha256": "620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c",
+    "member_sha256": {
+      "dtbo.img": "daf02eb24af55cf4c20569db51b5bca70f0550d035846672ef3054f0c0484bd0",
+      "vendor_boot.img": "1c27e22565f6f50919812bfcb5254cea2f3b629d98f5c26a7b54f5ece452036e"
+    }
+  },
+  "vendor_boot": {
+    "version": 4,
+    "header_size": 2128,
+    "page_size": 4096,
+    "kernel_addr": 32768,
+    "ramdisk_addr": 16777216,
+    "tags_addr": 256,
+    "dtb_addr": 32505856,
+    "vendor_ramdisk": {
+      "offset": 4096,
+      "bytes": 13335589,
+      "compression": "legacy-LZ4 (magic 02214c18)",
+      "sha256": "5309c9a46937648872e84b94c2cbd592ad41c0fe2efc6be0319d497056f8986e"
+    },
+    "embedded_dtb": {
+      "offset": 13340672,
+      "bytes": 958962,
+      "sha256": "88b605e746f829545f3a5ceabc8ac669eee803db1397d32cc7f49ec91fbba71e",
+      "two_unpadded_images": [
+        {
+          "offset": 0,
+          "size": 479481,
+          "sha256": "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+          "msm_id": [
+            530,
+            65536
+          ],
+          "nodes": 3027
+        },
+        {
+          "offset": 479481,
+          "size": 479481,
+          "sha256": "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843",
+          "msm_id": [
+            540,
+            65536
+          ],
+          "nodes": 3027
+        }
+      ]
+    },
+    "fragment_table": {
+      "count": 1,
+      "entry_size": 108,
+      "type": 1,
+      "board_ids": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "bootconfig": {
+      "bytes": 85,
+      "offset": 14307328,
+      "keys": [
+        "androidboot.hardware",
+        "androidboot.memcg",
+        "androidboot.usbcontroller"
+      ]
+    }
+  },
+  "dtbo_overlays": [
+    {
+      "index": 0,
+      "offset": 160,
+      "size": 227694,
+      "sha256": "10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19",
+      "board_id": [
+        69,
+        45488
+      ],
+      "nodes": 1661,
+      "fsa_fragments": [
+        75,
+        88
+      ],
+      "aux_fragment": 76,
+      "root_compatible": [
+        "qcom,cape-mtp",
+        "qcom,cape",
+        "qcom,mtp",
+        "moto,oneli"
+      ],
+      "root_msm_id": [
+        531,
+        65536,
+        540,
+        65536,
+        530,
+        65536
+      ],
+      "fsa4480_fixup_overlays": [
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@75/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        },
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@88/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        }
+      ],
+      "usb": {
+        "nxp": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "compatible": "nxp,eusb2-repeater",
+          "reg": [
+            79
+          ],
+          "status": "absent",
+          "ancestor_overlay_status": "ok",
+          "reset_gpio_cells": [
+            7,
+            7,
+            0
+          ],
+          "vdd18_supply": "unresolved fixup 0xffffffff",
+          "vdd3_supply": "unresolved fixup 0xffffffff",
+          "param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            100,
+            8
+          ],
+          "host_param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            36,
+            8
+          ]
+        },
+        "diodes": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@6c",
+          "compatible": "diodes,eusb2-repeater",
+          "reg": [
+            108
+          ],
+          "status": "disabled"
+        },
+        "ps5169": {
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "compatible": "parade,ps5169-redriver",
+          "reg": [
+            48
+          ],
+          "status": "ok",
+          "enable_gpio_cells": [
+            4294967295,
+            19,
+            0
+          ],
+          "orientation_gpio_cells": [
+            4294967295,
+            91,
+            0
+          ],
+          "vcc_supply": "external phandle fixup",
+          "vio_supply": "external phandle fixup",
+          "configuration": "29 triplets; exact raw array in full artifact"
+        }
+      },
+      "dp": {
+        "aux_control_fragment": "/fragment@76/__overlay__",
+        "enable_gpio_cells": [
+          4294967295,
+          2,
+          0
+        ],
+        "flip_gpio_cells": [
+          4294967295,
+          71,
+          0
+        ]
+      }
+    },
+    {
+      "index": 1,
+      "offset": 227854,
+      "size": 227761,
+      "sha256": "1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b",
+      "board_id": [
+        69,
+        45728
+      ],
+      "nodes": 1664,
+      "fsa_fragments": [
+        76,
+        89
+      ],
+      "aux_fragment": 77,
+      "root_compatible": [
+        "qcom,cape-mtp",
+        "qcom,cape",
+        "qcom,mtp",
+        "moto,oneli"
+      ],
+      "root_msm_id": [
+        531,
+        65536,
+        540,
+        65536,
+        530,
+        65536
+      ],
+      "fsa4480_fixup_overlays": [
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@76/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        },
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@89/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        }
+      ],
+      "usb": {
+        "nxp": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "compatible": "nxp,eusb2-repeater",
+          "reg": [
+            79
+          ],
+          "status": "absent",
+          "ancestor_overlay_status": "ok",
+          "reset_gpio_cells": [
+            7,
+            7,
+            0
+          ],
+          "vdd18_supply": "unresolved fixup 0xffffffff",
+          "vdd3_supply": "unresolved fixup 0xffffffff",
+          "param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            100,
+            8
+          ],
+          "host_param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            36,
+            8
+          ]
+        },
+        "diodes": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@6c",
+          "compatible": "diodes,eusb2-repeater",
+          "reg": [
+            108
+          ],
+          "status": "disabled"
+        },
+        "ps5169": {
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "compatible": "parade,ps5169-redriver",
+          "reg": [
+            48
+          ],
+          "status": "ok",
+          "enable_gpio_cells": [
+            4294967295,
+            19,
+            0
+          ],
+          "orientation_gpio_cells": [
+            4294967295,
+            91,
+            0
+          ],
+          "vcc_supply": "external phandle fixup",
+          "vio_supply": "external phandle fixup",
+          "configuration": "29 triplets; exact raw array in full artifact"
+        }
+      },
+      "dp": {
+        "aux_control_fragment": "/fragment@77/__overlay__",
+        "enable_gpio_cells": [
+          4294967295,
+          2,
+          0
+        ],
+        "flip_gpio_cells": [
+          4294967295,
+          71,
+          0
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "offset": 455615,
+      "size": 230522,
+      "sha256": "bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28",
+      "board_id": [
+        69,
+        41216
+      ],
+      "nodes": 1683,
+      "fsa_fragments": [
+        79,
+        97
+      ],
+      "aux_fragment": 80,
+      "extra_pmic": "only overlay containing qcom,pmic-id [47,0,0,0,0,0,0,0,65,65] and PM8010 i/j rails",
+      "root_compatible": [
+        "qcom,cape-mtp",
+        "qcom,cape",
+        "qcom,mtp",
+        "moto,oneli"
+      ],
+      "root_msm_id": [
+        531,
+        65536,
+        540,
+        65536,
+        530,
+        65536
+      ],
+      "fsa4480_fixup_overlays": [
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@79/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        },
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@97/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        }
+      ],
+      "usb": {
+        "nxp": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "compatible": "nxp,eusb2-repeater",
+          "reg": [
+            79
+          ],
+          "status": "absent",
+          "ancestor_overlay_status": "ok",
+          "reset_gpio_cells": [
+            7,
+            7,
+            0
+          ],
+          "vdd18_supply": "unresolved fixup 0xffffffff",
+          "vdd3_supply": "unresolved fixup 0xffffffff",
+          "param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            100,
+            8
+          ],
+          "host_param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            36,
+            8
+          ]
+        },
+        "diodes": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@6c",
+          "compatible": "diodes,eusb2-repeater",
+          "reg": [
+            108
+          ],
+          "status": "disabled"
+        },
+        "ps5169": {
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "compatible": "parade,ps5169-redriver",
+          "reg": [
+            48
+          ],
+          "status": "ok",
+          "enable_gpio_cells": [
+            4294967295,
+            19,
+            0
+          ],
+          "orientation_gpio_cells": [
+            4294967295,
+            91,
+            0
+          ],
+          "vcc_supply": "external phandle fixup",
+          "vio_supply": "external phandle fixup",
+          "configuration": "29 triplets; exact raw array in full artifact"
+        }
+      },
+      "dp": {
+        "aux_control_fragment": "/fragment@80/__overlay__",
+        "enable_gpio_cells": [
+          4294967295,
+          2,
+          0
+        ],
+        "flip_gpio_cells": [
+          4294967295,
+          71,
+          0
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "offset": 686137,
+      "size": 227761,
+      "sha256": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad",
+      "board_id": [
+        69,
+        49152
+      ],
+      "nodes": 1664,
+      "fsa_fragments": [
+        76,
+        89
+      ],
+      "aux_fragment": 77,
+      "observed_hwrev_candidate": "oneli stock ADB hwrev 0xc000; no confirmed bootloader selection",
+      "root_compatible": [
+        "qcom,cape-mtp",
+        "qcom,cape",
+        "qcom,mtp",
+        "moto,oneli"
+      ],
+      "root_msm_id": [
+        531,
+        65536,
+        540,
+        65536,
+        530,
+        65536
+      ],
+      "fsa4480_fixup_overlays": [
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@76/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        },
+        {
+          "symbol": "fsa4480",
+          "fragment_path": "/fragment@89/__overlay__",
+          "status": "disabled",
+          "raw_status_hex": "64697361626c656400"
+        }
+      ],
+      "usb": {
+        "nxp": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "compatible": "nxp,eusb2-repeater",
+          "reg": [
+            79
+          ],
+          "status": "absent",
+          "ancestor_overlay_status": "ok",
+          "reset_gpio_cells": [
+            7,
+            7,
+            0
+          ],
+          "vdd18_supply": "unresolved fixup 0xffffffff",
+          "vdd3_supply": "unresolved fixup 0xffffffff",
+          "param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            100,
+            8
+          ],
+          "host_param_override_seq": [
+            64,
+            6,
+            34,
+            7,
+            36,
+            8
+          ]
+        },
+        "diodes": {
+          "path": "/fragment@21/__overlay__/eusb2_repeater@6c",
+          "compatible": "diodes,eusb2-repeater",
+          "reg": [
+            108
+          ],
+          "status": "disabled"
+        },
+        "ps5169": {
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "compatible": "parade,ps5169-redriver",
+          "reg": [
+            48
+          ],
+          "status": "ok",
+          "enable_gpio_cells": [
+            4294967295,
+            19,
+            0
+          ],
+          "orientation_gpio_cells": [
+            4294967295,
+            91,
+            0
+          ],
+          "vcc_supply": "external phandle fixup",
+          "vio_supply": "external phandle fixup",
+          "configuration": "29 triplets; exact raw array in full artifact"
+        }
+      },
+      "dp": {
+        "aux_control_fragment": "/fragment@77/__overlay__",
+        "enable_gpio_cells": [
+          4294967295,
+          2,
+          0
+        ],
+        "flip_gpio_cells": [
+          4294967295,
+          71,
+          0
+        ]
+      }
+    }
+  ],
+  "base_vpu": {
+    "source_path": "/soc/qcom,vidc@aa00000",
+    "status": "okay",
+    "compatible": [
+      "qcom,msm-vidc",
+      "qcom,msm-vidc-waipio",
+      "qcom,msm-vidc-iris2"
+    ],
+    "reg_cells": [
+      178257920,
+      983040
+    ],
+    "interrupts_cells": [
+      0,
+      174,
+      4
+    ],
+    "pas_id": 9,
+    "firmware_property": "vidc,firmware-name",
+    "firmware_name": "vpu20_4v",
+    "memory_region_phandle": 611,
+    "memory_region": {
+      "path": "/reserved-memory/video_region@9fd00000",
+      "base": 2681208832,
+      "bytes": 7340032
+    },
+    "clocks_cells": [
+      36,
+      182,
+      37,
+      5,
+      37,
+      2,
+      37,
+      3
+    ],
+    "clock_names": [
+      "video_ctl_axi0_clk",
+      "core_clk",
+      "vcodec_clk",
+      "video_cc_mvs0_clk_src"
+    ],
+    "allowed_clock_rates_hz": [
+      239999999,
+      338000000,
+      366000000,
+      444000000
+    ],
+    "resets_cells": [
+      36,
+      34,
+      37,
+      2
+    ],
+    "reset_names": [
+      "video_axi_reset",
+      "video_core_reset"
+    ],
+    "icc_cells": [
+      75,
+      2,
+      164,
+      555,
+      72,
+      3,
+      72,
+      512,
+      828,
+      36,
+      75,
+      565
+    ],
+    "icc_names": [
+      "venus-cnoc",
+      "venus-ddr",
+      "venus-llcc"
+    ],
+    "icc_bus_min_max_kbps_pairs": [
+      [
+        1000,
+        1000
+      ],
+      [
+        1000,
+        15000000
+      ],
+      [
+        1000,
+        15000000
+      ]
+    ],
+    "icc_provider_paths": {
+      "72": "/soc/interconnect@1",
+      "75": "/soc/interconnect@19100000",
+      "164": "/soc/interconnect@1500000",
+      "828": "/soc/interconnect@1740000"
+    },
+    "supplies": {
+      "iris_ctl": {
+        "raw_phandle": 54,
+        "provider": "/soc/qcom,gdsc@aaf804c"
+      },
+      "vcodec": {
+        "raw_phandle": 628,
+        "provider": "/soc/qcom,gdsc@aaf809c"
+      }
+    },
+    "smmu": {
+      "provider": "/soc/apps-smmu@15000000",
+      "provider_phandle": 93,
+      "iommu_cells": 2,
+      "contexts": [
+        {
+          "name": "non_secure_cb",
+          "sid": 8576,
+          "flags": 1024,
+          "iova_base": 629145600,
+          "iova_bytes": 3128950784
+        },
+        {
+          "name": "non_secure_pixel_cb",
+          "sid": 8583,
+          "flags": 1024,
+          "iova_base": 1048576,
+          "iova_bytes": 3757047808
+        },
+        {
+          "name": "secure_non_pixel_cb",
+          "sid": 8580,
+          "flags": 1024,
+          "iova_base": 16777216,
+          "iova_bytes": 612368384
+        },
+        {
+          "name": "secure_bitstream_cb",
+          "sid": 8577,
+          "flags": 1028,
+          "iova_base": 5242880,
+          "iova_bytes": 3752853504
+        },
+        {
+          "name": "secure_pixel_cb",
+          "sid": 8579,
+          "flags": 1024,
+          "iova_base": 5242880,
+          "iova_bytes": 3752853504
+        }
+      ]
+    },
+    "dma_upper_exclusive": 3758096384
+  },
+  "base_dp": {
+    "node": "/soc/qcom,dp_display@ae90000",
+    "aux_switch_property": "qcom,dp-aux-switch",
+    "phandle": 855,
+    "target": "/soc/i2c@994000/fsa4480@42",
+    "target_compatible": "qcom,fsa4480-i2c",
+    "target_status": "absent",
+    "overlay_target_status": "disabled in BOTH fixup-target fragments for ALL four variants"
+  },
+  "scope_limits": [
+    "raw property values and nodes available in full CI artifact",
+    "uncomposed FDT references; no oneli live DT property capture",
+    "unresolved overlay 0xffffffff fixups intentionally not replaced with made-up provider labels",
+    "root variant 0xc000 a candidate only",
+    "more complex power regulator and PS5169 config-seq data in full artifact",
+    "no hardware validation"
+  ]
+}
