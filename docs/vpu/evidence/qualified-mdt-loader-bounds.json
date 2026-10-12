@@ -7,8 +7,16 @@
       "filename": "vpu20_4v.mbn",
       "firmware_loader_relocatable": true,
       "firmware_loader_split_detection": false,
-      "hash_segment_indices": [],
-      "pas_metadata_hash_segment_placement": [],
+      "hash_segment_indices": [
+        19
+      ],
+      "pas_metadata_hash_segment_placement": [
+        {
+          "phdr_index": 19,
+          "placement": "in_ELF_at_phdr_offset",
+          "size": 4712
+        }
+      ],
       "program_header_count": 20,
       "program_headers": [
         {
@@ -278,7 +286,7 @@
           "p_vaddr": 7335936
         },
         {
-          "hash_segment": false,
+          "hash_segment": true,
           "in_source_image": true,
           "index": 19,
           "loadable_under_qcom_mdt": false,
@@ -377,8 +385,16 @@
       "filename": "vpu20_4v.mdt",
       "firmware_loader_relocatable": true,
       "firmware_loader_split_detection": true,
-      "hash_segment_indices": [],
-      "pas_metadata_hash_segment_placement": [],
+      "hash_segment_indices": [
+        19
+      ],
+      "pas_metadata_hash_segment_placement": [
+        {
+          "phdr_index": 19,
+          "placement": "packed_directly_after_ELF_header",
+          "size": 4712
+        }
+      ],
       "program_header_count": 20,
       "program_headers": [
         {
@@ -648,7 +664,7 @@
           "p_vaddr": 7335936
         },
         {
-          "hash_segment": false,
+          "hash_segment": true,
           "in_source_image": false,
           "index": 19,
           "loadable_under_qcom_mdt": false,
@@ -767,8 +783,16 @@
       "filename": "a730_zap.mdt",
       "firmware_loader_relocatable": true,
       "firmware_loader_split_detection": true,
-      "hash_segment_indices": [],
-      "pas_metadata_hash_segment_placement": [],
+      "hash_segment_indices": [
+        2
+      ],
+      "pas_metadata_hash_segment_placement": [
+        {
+          "phdr_index": 2,
+          "placement": "packed_directly_after_ELF_header",
+          "size": 3896
+        }
+      ],
       "program_header_count": 3,
       "program_headers": [
         {
@@ -800,7 +824,7 @@
           "p_vaddr": 4096
         },
         {
-          "hash_segment": false,
+          "hash_segment": true,
           "in_source_image": false,
           "index": 2,
           "loadable_under_qcom_mdt": false,
