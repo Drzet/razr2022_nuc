@@ -91,6 +91,29 @@ need(isinstance(name, str) and re.fullmatch("[A-Za-z0-9_-]+", name), "invalid mo
 need(isinstance(rel, str) and rel in expected, "runtime module absent from hashed module inventory")
 need(re.search(r"(^|/)oneli([./_-]|$)", d.get("image_path", ""), re.I) is None,
      "oneli image cannot be QEMU kernel")
+# No Qualcomm firmware is implicitly present in the selected virtual test profile.
+fw_name = d.get("firmware_manifest_path")
+need(isinstance(fw_name, str) and not fw_name.startswith("/"), "selected QEMU firmware manifest missing")
+fw_path = (root / fw_name).resolve(strict=True)
+need(fw_path.is_relative_to(root) and fw_path.is_file() and
+     hashlib.sha256(fw_path.read_bytes()).hexdigest() == sha.get("firmware_manifest_path"),
+     "firmware manifest hash disagreement")
+fw = json.loads(fw_path.read_text())
+need(fw.get("schema_version") == 2 and fw.get("target_environment") == "qemu_virt" and
+     fw.get("assessment") == "complete" and fw.get("unknown_requirements") == [],
+     "unknown QEMU firmware requirements are not allowed")
+need(fw.get("required_files") == [] and
+     isinstance(fw.get("zero_requirements_reason"), str) and
+     len(fw["zero_requirements_reason"].strip()) >= 20,
+     "QEMU preparation currently supports only a proven zero-required-firmware virt profile")
+early_modules = d.get("initramfs_modules")
+need(isinstance(early_modules, list) and len(early_modules) == len(set(early_modules)),
+     "invalid early module requirement list")
+need(set(early_modules).issubset(expected), "required early modules missing from same-build tree")
+need(early_modules or
+     (isinstance(d.get("zero_initramfs_modules_reason"), str) and
+      len(d["zero_initramfs_modules_reason"].strip()) >= 20),
+     "empty early module list needs an explicit, scoped builtin-driver justification")
 values = {"RELEASE": release, "MODULE": name,
           "IMAGE": str((root / d["image_path"]).resolve()),
           "CONFIG": str((root / d["config_path"]).resolve()),
@@ -137,6 +160,20 @@ trap - EXIT
 rm -f "$root/usr/bin/qemu-aarch64-static"
 test -s "$root/boot/initrd.img-$RELEASE"
 cp "$root/boot/initrd.img-$RELEASE" "$work/initrd.img"
+# Assert configured early module requirements are in the newly generated initramfs.
+python3 - "$manifest" "$work/initrd.img" <<'PY'
+import json
+import subprocess
+import sys
+from pathlib import Path
+d = json.loads(Path(sys.argv[1]).read_text())
+names = set(x.removeprefix("./") for x in subprocess.run(
+    ["lsinitramfs", sys.argv[2]], check=True, capture_output=True, text=True).stdout.splitlines())
+for rel in d["initramfs_modules"]:
+    suffix = "lib/modules/" + d["kernel_release"] + "/" + rel
+    if not any(x == suffix or x.endswith("/" + suffix) for x in names):
+        raise SystemExit("PROJECT_QEMU_INITRAMFS_FAILED: missing native early module " + rel)
+PY
 truncate -s 3072M "$work/rootfs.ext4"
 mkfs.ext4 -q -F -L RAZRROOT -d "$root" "$work/rootfs.ext4"
 echo 0 > "$work/evidence/build-exit-code.txt"
