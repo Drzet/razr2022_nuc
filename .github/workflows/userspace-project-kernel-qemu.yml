@@ -1,0 +1,99 @@
+name: QEMU virt smoke with combined Drzet/linux kernel
+on:
+  workflow_dispatch:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-project-kernel-qemu.yml'
+      - 'scripts/prepare-project-qemu.sh'
+      - 'scripts/preflight-project-qemu.py'
+      - 'scripts/normalize-boot-combined-bundle.py'
+      - 'scripts/finalize-project-qemu-manifest.py'
+      - 'scripts/validate-native-kernel-inputs.py'
+      - 'scripts/smoke-qemu.sh'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  project-qemu:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      BOOT_RUN: '38292394177'
+      BOOT_SHA: '2b5acf108ae37040ac1e652e029bb37f5609e886'
+      BOOT_ARCHIVE_SHA256: '5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896'
+      ROOTFS_RUN: '38177877133'
+      ROOTFS_SHA256: '2bdec49277b2ab79ccde1d84d7447c8342bd2e27a5c207468fc381d339825028'
+    steps:
+      - name: Checkout Userspace exact preparation scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install cross-execution and disk preparation tools
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qemu-system-arm qemu-user-static binfmt-support ipxe-qemu openssh-client e2fsprogs zstd unzip kmod initramfs-tools-core cpio xz-utils
+          command -v qemu-system-aarch64
+          command -v qemu-aarch64-static
+          command -v depmod
+          mkdir -p project-evidence
+          printf 'boot_run=%s\nboot_commit=%s\nrootfs_run=%s\nuserspace_commit=%s\n' "$BOOT_RUN" "$BOOT_SHA" "$ROOTFS_RUN" "$GITHUB_SHA" > project-evidence/sources.txt
+      - name: Retrieve immutable Boot producer and pinned Debian rootfs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          mkdir -p boot-download rootfs-download boot-producer
+          gh run download "$BOOT_RUN" --repo Drzet/linux --name oneli-combined-bundle-38292394177-1 --dir boot-download
+          printf '%s  %s\n' "$BOOT_ARCHIVE_SHA256" boot-download/combined-bundle.tar.zst | sha256sum -c -
+          tar --zstd -xf boot-download/combined-bundle.tar.zst -C boot-producer
+          (cd boot-producer && sha256sum -c SHA256SUMS) > project-evidence/boot-sha256-verification.txt
+          test "$(python3 -c 'import json;print(json.load(open("boot-producer/build-manifest.json"))["kernel_commit"])')" = "$BOOT_SHA"
+          cp boot-producer/build-manifest.json project-evidence/boot-build-manifest.json
+          cp boot-producer/qemu-native-inputs.v3.preflight.json project-evidence/boot-producer-v3.json
+          gh run download "$ROOTFS_RUN" --repo Drzet/razr2022_nuc --name userspace-qemu-38177877133-1 --dir rootfs-download
+          (cd rootfs-download && sha256sum -c SHA256SUMS) > project-evidence/rootfs-sha256-verification.txt
+          printf '%s  %s\n' "$ROOTFS_SHA256" rootfs-download/rootfs.tar.zst | sha256sum -c -
+      - name: Normalize agreed Boot v1 layout and execute real archive preflight
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/normalize-boot-combined-bundle.py --boot-root boot-producer --output-root boot-normalized | tee project-evidence/adapter.log
+          python3 scripts/preflight-project-qemu.py --bundle-root boot-normalized | tee project-evidence/preflight.log
+      - name: Stage fresh matching initramfs and disposable Debian ARM64 disk
+        run: |
+          set -Eeuo pipefail
+          work="$RUNNER_TEMP/oneli-combined-project-qemu"
+          echo "PROJECT_WORK=$work" >> "$GITHUB_ENV"
+          sudo bash scripts/prepare-project-qemu.sh "$GITHUB_WORKSPACE/boot-normalized" "$GITHUB_WORKSPACE/rootfs-download/rootfs.tar.zst" "$ROOTFS_SHA256" "$work" | tee project-evidence/staging.log
+          sudo cp -a "$work/evidence/." project-evidence/
+          test -s "$work/initrd.img"
+          test -s "$work/rootfs.ext4"
+          test -s "$work/validation/native-v3-validation.json"
+      - name: Boot actual combined kernel and verify guest systemd SSH modprobe poweroff
+        env:
+          RAZR_PROJECT_KERNEL_RELEASE: '7.3.0-rc6-g2b5acf108ae3'
+          RAZR_PROJECT_QEMU_MODULE: dummy
+        run: |
+          set -Eeuo pipefail
+          sudo bash scripts/smoke-qemu.sh "$PROJECT_WORK" "$GITHUB_WORKSPACE/project-evidence" | tee project-evidence/project-smoke.log
+          test "$(cat project-evidence/qemu-exit-code.txt)" = 0
+          grep -Fq RAZR_PROJECT_MODULE_LOAD_PASS project-evidence/project-module-command.log
+          grep -Fq RAZR_NETWORK_SSH_PASS project-evidence/ssh-command.log
+          grep -Fq RAZR_USERSPACE_SMOKE_PASS project-evidence/qemu-serial.log
+      - name: Preserve provenance and failure logs
+        if: always()
+        run: |
+          if [[ -n "${PROJECT_WORK:-}" && -d "$PROJECT_WORK/evidence" ]]; then
+            sudo cp -a "$PROJECT_WORK/evidence/." project-evidence/ || true
+          fi
+          sudo chown -R "$(id -u):$(id -g)" project-evidence || true
+          (cd project-evidence && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) > project-evidence/SHA256SUMS || true
+      - name: Upload project-kernel guest evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-project-qemu-${{ github.run_id }}-${{ github.run_attempt }}
+          path: project-evidence/
+          if-no-files-found: warn
+          retention-days: 30
