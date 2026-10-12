@@ -1,0 +1,52 @@
+name: Oneli focused omitted stock property extraction
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/export-oneli-focused-stock-gaps.py'
+      - '.github/workflows/vpu-focused-gaps.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oneli-vpu-focused-gaps-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  focused-stock-properties:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Inspect only SHA-pinned boot, vendor_boot and DTBO members
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          git rev-parse HEAD | tee evidence/source-tested-sha.txt
+          python3 --version | tee evidence/python-version.txt
+          git hash-object scripts/export-oneli-focused-stock-gaps.py scripts/export-oneli-stock-fdts.py scripts/inspect-oneli-stock-ranges.py | tee evidence/parser-source-git-blobs.txt
+          python3 -m py_compile scripts/export-oneli-focused-stock-gaps.py
+          python3 -u scripts/export-oneli-focused-stock-gaps.py \
+            --out evidence/focused-stock-properties.json 2>&1 | tee evidence/export.log
+          python3 - <<'PY'
+          import json
+          obj=json.load(open("evidence/focused-stock-properties.json"))
+          assert len(obj["per_fdt_focus"]) == 6
+          assert len([f for f in obj["per_fdt_focus"] if f["source"]["member"] == "dtbo.img"]) == 4
+          assert obj["boot_v4_header"]["header_version"] == 4
+          assert all(x["source"]["member"] != "vendor_boot.img" or x["focal_node_count"] > 13 for x in obj["per_fdt_focus"])
+          print("Focused omission export structurally checked")
+          PY
+          sha256sum evidence/focused-stock-properties.json | tee evidence/focused-sha256.txt
+      - name: Save only derived nonprivate JSON and validation logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-focused-fdt-gaps-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
