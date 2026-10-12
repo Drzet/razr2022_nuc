@@ -1,0 +1,73 @@
+name: Preserve VPU six-FDT full derived JSON in version control
+
+on:
+  push:
+    branches: [razr/vpu]
+    paths:
+      - '.github/workflows/vpu-preserve-fdt-evidence.yml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: vpu-retain-full-derived-fdt
+  cancel-in-progress: false
+
+jobs:
+  preserve-reviewed-json:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: razr/vpu
+          persist-credentials: true
+      - name: Download independently verified existing 15.86-MB evidence; no ROM access
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/fdt-export" docs/vpu/evidence
+          curl --fail --silent --show-error --location --retry 2 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/Drzet/razr2022_nuc/actions/artifacts/11734430639/zip" \
+            -o "$RUNNER_TEMP/fdt-export/source.zip"
+          printf '%s  %s\n' \
+            '485ff37b87cff2e6432928cfd4c0d4168bb3c10af163f6e68b6adfba35a528ae' \
+            "$RUNNER_TEMP/fdt-export/source.zip" | sha256sum -c -
+          python3 - <<'PY'
+          import gzip, hashlib, json, pathlib, zipfile
+          source=pathlib.Path(__import__("os").environ["RUNNER_TEMP"])/"fdt-export/source.zip"
+          target=pathlib.Path("docs/vpu/evidence/stock-six-fdt-full-properties.json.gz")
+          expected="1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465"
+          with zipfile.ZipFile(source) as f:
+              raw=f.read("stock-per-fdt-property-export.json")
+          assert len(raw)==15862099, len(raw)
+          assert hashlib.sha256(raw).hexdigest()==expected
+          obj=json.loads(raw)
+          assert len(obj["per_fdt"])==6
+          with target.open("wb") as out:
+              with gzip.GzipFile(filename="", mode="wb", fileobj=out, mtime=0, compresslevel=9) as z:
+                  z.write(raw)
+          with gzip.open(target,"rb") as z:
+              assert hashlib.sha256(z.read()).hexdigest()==expected
+          print("Full JSON SHA256:",expected)
+          print("Gzip bytes:",target.stat().st_size)
+          PY
+      - name: Commit immutable source-derived evidence without stock binaries
+        run: |
+          set -euo pipefail
+          git add docs/vpu/evidence/stock-six-fdt-full-properties.json.gz
+          if git diff --cached --quiet; then
+            echo 'Already preserved; no new commit'
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit -m 'evidence(vpu): retain SHA-verified complete 6-FDT derived JSON (gzip)'
+          git push origin HEAD:razr/vpu
+          git rev-parse HEAD
