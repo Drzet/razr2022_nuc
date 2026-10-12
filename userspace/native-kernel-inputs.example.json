@@ -37,5 +37,6 @@
     "modules_dep": null
   },
   "evidence_stage": "awaiting-coordinator-selected-combined-kernel-and-modules",
-  "qemu_dtb": "generated-by-qemu-virt; never oneli"
+  "qemu_dtb": "generated-by-qemu-virt; never oneli",
+  "native_header_inputs_path": null
 }
