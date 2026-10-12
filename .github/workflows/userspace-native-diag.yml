@@ -71,7 +71,7 @@ jobs:
           r=Path('native-diag-v1')
           expected=[x['path'] for x in json.loads((r/'newc-listing.json').read_text())]
           assert (r/'external-cpio-list.txt').read_text().splitlines() == expected
-                    PY
+          PY
           mkdir -p extracted-cpio
           (cd extracted-cpio && sudo cpio --quiet --no-absolute-filenames -idum < ../native-diag-v1/oneli-diag-initramfs.cpio)
           test "$(sudo stat -c %u:%g extracted-cpio/init)" = '0:0'
