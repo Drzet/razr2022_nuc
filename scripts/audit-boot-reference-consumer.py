@@ -15,8 +15,8 @@ def blob_sha(path):
 
 def inspect(boot_path, stock_path, consumer_path):
     b, v, c = [json.loads(p.read_text()) for p in (boot_path, stock_path, consumer_path)]
-    require(c.get("schema") == "oneli-userspace-reference-metadata-v1", "wrong consumer schema")
-    require(b.get("schema") == "oneli-native-boot-packaging-contract-v1", "not Boot v1")
+    require(c.get("schema") == "oneli-userspace-reference-metadata-v2", "wrong consumer schema")
+    require(b.get("schema") == "oneli-native-boot-packaging-contract-v2", "not Boot v2")
     require(v.get("schema") == "oneli-stock-fdt-reference-properties-v1", "not pinned FDT export")
     src = c["source"]
     require(blob_sha(boot_path) == src["boot_contract"]["git_blob_sha1"],
@@ -44,7 +44,7 @@ def inspect(boot_path, stock_path, consumer_path):
                           ("tags", "tags_addr"), ("dtb", "dtb_addr")):
         require(cv["reference_addresses"][field] == vb[source],
                 "missing or mismatched reference address " + field)
-        require(bv[source] is None, "Boot v1 unexpectedly superseded its original unknown field")
+        require(bv[source] == vb[source], "Boot v2 published reference address differs from stock")
     for field, source in (("offset", "offset"), ("bytes", "bytes"),
                           ("compression", "compression"), ("sha256", "sha256")):
         require(cv["vendor_ramdisk"][field] == vb["vendor_ramdisk"][source],
@@ -68,6 +68,12 @@ def inspect(boot_path, stock_path, consumer_path):
             "unpadded dual-FDT offset lost")
     frag = cv["fragment"]
     vt = vb["fragment_table"]
+    require(frag["fragment_offset"] == bv["fragment_offset"] == 0 and
+            frag["fragment_bytes"] == bv["fragment_bytes"] == cv["vendor_ramdisk"]["bytes"],
+            "Boot v2 native fragment offset/length drifted")
+    require(bv["embedded_dtb_count"] == 2 and
+            [x["relative_offset"] for x in bv["embedded_dtb_roots"]] == [0, 479481],
+            "Boot v2 unpadded base DTB inventory drifted")
     require(frag["count"] == vt["count"] == bv["ramdisk_table_entries"] == 1 and
             frag["entry_bytes"] == vt["entry_size"] == bv["ramdisk_table_entry_bytes"] == 108 and
             frag["type"] == vt["type"] == bv["ramdisk_fragment_type"] == 1 and
@@ -82,6 +88,26 @@ def inspect(boot_path, stock_path, consumer_path):
     require(c["reference_overlay"]["board_id"] == pvt["board_id"] == [69, 49152] and
             c["reference_overlay"]["sha256"] == pvt["sha256"] and
             c["reference_overlay"]["applied"] is False, "PVT source candidate confused with active DT")
+    proto = b.get("prototype", {})
+    nc = c.get("native_composition", {})
+    required = ["os_version_raw", "kernel_addr", "ramdisk_addr", "tags_addr",
+                "dtb_addr", "purpose", "phone_boot_validated"]
+    require(proto.get("header_inputs_require_explicit_os_version") is True and
+            proto.get("implicit_reference_placement_inheritance") is False and
+            proto.get("native_ready") is False and proto.get("hardware_accepted") is False and
+            proto.get("candidate_signed") is False and proto.get("boot_tested") is False,
+            "Boot v2 must explicitly reject inherited placement and physical acceptance")
+    require(proto.get("header_inputs_fields") == required and
+            proto.get("header_inputs_file") == "--header-inputs explicit-header-fields.json" and
+            "header-inputs" in proto.get("requires_explicit_payload_paths", []),
+            "Boot v2 explicit header fields not recognized")
+    require(nc.get("required_header_fields") == required and
+            nc.get("boot_contract_schema") == b["schema"] and
+            nc.get("header_inputs") is None and
+            nc.get("boot_requires_explicit_header_inputs") is True and
+            nc.get("source_reference_addresses_are_not_approved_native_placement") is True and
+            nc.get("native_ready") is False and nc.get("hardware_accepted") is False,
+            "reference bridge mistakenly accepts missing native header inputs")
     fw = c["vpu_firmware_install"]
     require(fw["status"] == "proposed-disabled-profile" and
             fw["sha256"] == "9582ea4c5565408bd3e5ba6f8fffc7881f226cae001b6fcd7a0c868de9add9af" and
@@ -99,13 +125,13 @@ def inspect(boot_path, stock_path, consumer_path):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--boot-v1", required=True, type=Path)
+    parser.add_argument("--boot-v2", required=True, type=Path)
     parser.add_argument("--vpu-fdt", required=True, type=Path)
     parser.add_argument("--userspace", required=True, type=Path)
     parser.add_argument("--output", type=Path)
     a = parser.parse_args()
     try:
-        result = inspect(a.boot_v1, a.vpu_fdt, a.userspace)
+        result = inspect(a.boot_v2, a.vpu_fdt, a.userspace)
     except (ValueError, OSError, KeyError, IndexError, StopIteration) as e:
         parser.exit(1, f"BOOT_REFERENCE_AUDIT_FAILED: {e}\n")
     if a.output:
