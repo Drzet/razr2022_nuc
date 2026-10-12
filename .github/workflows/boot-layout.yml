@@ -7,6 +7,9 @@ on:
       - 'scripts/oneli_boot_v4_layout.py'
       - 'tests/test_oneli_boot_v4_layout.py'
       - 'tests/test_oneli_boot_aosp_independent.py'
+      - 'tests/test_oneli_boot_contract.py'
+      - 'configs/oneli-boot-packaging-v2.json'
+      - 'configs/oneli-pvt-symbolic-composition-v1.json'
       - '.github/workflows/boot-layout.yml'
   workflow_dispatch:
 
@@ -28,9 +31,17 @@ jobs:
           ref: 7209a7164f1772db43f92928012c86a00f6202ff
           path: external-aosp-mkbootimg
           persist-credentials: false
+      - name: Checkout exact VPU six-FDT compact reference metadata
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/razr2022_nuc
+          ref: 1a59d79fda42a977956de8e06c3a60d44b2971f4
+          path: external-stock-metadata
+          persist-credentials: false
       - name: Run synthetic boot/vb v4 roundtrip and independent AOSP tests
         env:
           ONELI_AOSP_MKBOOTIMG: external-aosp-mkbootimg
+          ONELI_STOCK_FDT_SOURCE: external-stock-metadata/docs/vpu/2026-10-12-oneli-stock-fdt-properties.json
         shell: bash
         run: |
           set -euo pipefail
@@ -38,7 +49,7 @@ jobs:
           {
             echo "project=$GITHUB_SHA"
             python3 --version
-            sha256sum scripts/oneli_boot_v4_layout.py tests/test_oneli_boot_v4_layout.py tests/test_oneli_boot_aosp_independent.py external-aosp-mkbootimg/mkbootimg.py external-aosp-mkbootimg/unpack_bootimg.py
+            sha256sum scripts/oneli_boot_v4_layout.py tests/test_oneli_boot_v4_layout.py tests/test_oneli_boot_aosp_independent.py tests/test_oneli_boot_contract.py configs/oneli-boot-packaging-v2.json configs/oneli-pvt-symbolic-composition-v1.json external-stock-metadata/docs/vpu/2026-10-12-oneli-stock-fdt-properties.json external-aosp-mkbootimg/mkbootimg.py external-aosp-mkbootimg/unpack_bootimg.py
           } > evidence/identity.txt
           python3 -m unittest discover -s tests -p 'test_oneli_boot*.py' -v 2>&1 | tee evidence/test.log
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
