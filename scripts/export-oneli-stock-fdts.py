@@ -184,6 +184,21 @@ def inspect_fdt(blob, at, provenance):
         if n["path"].startswith(("/__fixups__", "/__local_fixups__", "/__symbols__")) or RELEVANT.search(n["path"]) or RELEVANT.search(compatible) or any(
                 RELEVANT.search(key) and PROPERTY_HINT.search(key) for key in props):
             selected.add(n["path"])
+    # Keep fragment targets of external fixups; their overlay status matters.
+    fixup = by_path.get("/__fixups__")
+    if fixup:
+        for symbol, raw in fixup["properties"].items():
+            if SENSITIVE.search(symbol):
+                continue
+            for encoded in raw.rstrip(b"\0").split(b"\0"):
+                try:
+                    location = encoded.decode("ascii").split(":", 1)[0]
+                except UnicodeDecodeError:
+                    continue
+                if location in by_path:
+                    selected.add(location)
+                    if location + "/__overlay__" in by_path:
+                        selected.add(location + "/__overlay__")
     # Include all parents, then candidate referenced-provider nodes. No cell
     # decoding is pretended: phandle matches may be accidental raw integers.
     for path in tuple(selected):
