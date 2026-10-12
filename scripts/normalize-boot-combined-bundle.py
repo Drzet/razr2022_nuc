@@ -63,9 +63,10 @@ def inspect(root):
     for name in ("kernel.release","sm8475-motorola-oneli.dtb"):
         need(sha(secure(root,name))==b.get("files_sha256",{}).get(name),
              "producer release/DTB SHA mismatch")
-    need(secure(root,"kernel.release").read_text().strip()==release and
-         sha(secure(root,".config"))==sha(secure(root,"kernel.config")),
-         "generated config or kernel.release disagreement")
+    need(secure(root,"kernel.release").read_text().strip()==release,
+         "kernel.release payload differs from producer")
+    need(sha(secure(root,".config"))==sha(secure(root,"kernel.config")),
+         "hidden .config differs from generated kernel.config")
     modpath="modules/"+release
     moddir=root/modpath
     need(b.get("module_tree")==v.get("modules_directory")==modpath and moddir.is_dir(),
