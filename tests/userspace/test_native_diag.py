@@ -95,5 +95,44 @@ class NativeDiagFixtureTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             diag.unpack(b[:120])
 
+
+    def test_nonempty_probe_fixture_is_inside_console_markers(self):
+        serial = ("[    0.1] Kernel command line: razr.diag_probe_error_fixture=" +
+                  diag.PROBE_FIXTURE + "\n" +
+                  "RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN\n" +
+                  "[    0.1] Kernel command line: razr.diag_probe_error_fixture=" +
+                  diag.PROBE_FIXTURE + "\n" +
+                  "RAZR_NATIVE_DIAG_PROBE_ERRORS_END\n" +
+                  "RAZR_NATIVE_DIAG_READY_V1\n")
+        self.assertEqual(len(diag.require_probe_fixture(serial)), 1)
+
+    def test_probe_fixture_only_outside_markers_is_rejected(self):
+        serial = (diag.PROBE_FIXTURE + "\n" +
+                  "RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN\n" +
+                  "RAZR_NATIVE_DIAG_PROBE_ERRORS_END\n")
+        with self.assertRaisesRegex(ValueError, "absent from console"):
+            diag.require_probe_fixture(serial)
+
+    def test_probe_summary_missing_or_reordered_markers_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "missing or unordered"):
+            diag.require_probe_fixture("RAZR_NATIVE_DIAG_PROBE_ERRORS_END\n" +
+                                       diag.PROBE_FIXTURE + "\n" +
+                                       "RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN\n")
+
+    def test_probe_summary_enforces_bounded_output(self):
+        serial = ("RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN\n" +
+                  diag.PROBE_FIXTURE + "\n" +
+                  ("probe: synthetic failure\n" * 81) +
+                  "RAZR_NATIVE_DIAG_PROBE_ERRORS_END\n")
+        with self.assertRaisesRegex(ValueError, "line bound"):
+            diag.require_probe_fixture(serial)
+
+    def test_probe_summary_enforces_byte_cap(self):
+        serial = ("RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN\n" +
+                  diag.PROBE_FIXTURE + ("x" * 17000) + "\n" +
+                  "RAZR_NATIVE_DIAG_PROBE_ERRORS_END\n")
+        with self.assertRaisesRegex(ValueError, "byte bound"):
+            diag.require_probe_fixture(serial)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
