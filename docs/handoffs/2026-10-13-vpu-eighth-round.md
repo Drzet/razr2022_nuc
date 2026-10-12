@@ -1,0 +1,26 @@
+# Subsystem handoff: VPU eighth round, nonsecure DMA ownership
+
+- **Date/chat:** 2026-10-13, selected eighth-review VPU-only task. [Coordinator review](https://github.com/Drzet/razr2022_nuc/blob/main/docs/EIGHTH_REVIEW.md) SHA/blob `900d9be2788fb402a1564a03dd5fd31a36917bf3`; [assignment](https://github.com/Drzet/razr2022_nuc/blob/main/docs/NEXT_TASKS.md) SHA/blob `03f1e2c0e72f76fb7fb62d1a18e6ab7f63705339`.
+- **Project:** `Drzet/razr2022_nuc:razr/vpu`; decision committed as `8da6ed7c390f8eb0ddc216b4a98b4a491cea8f1c`, this handoff advances the branch. Draft [PR #1](https://github.com/Drzet/razr2022_nuc/pull/1).
+- **Kernel:** `Drzet/linux:razr/vpu` untouched, head `869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf`. Original upstream baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`; accepted isolated `razr/integration` `2b5acf108ae37040ac1e652e029bb37f5609e886` untouched and **does not include Iris**.
+- **Evidence stages:** researched/source-traced **yes**; implementation **not in this eighth round**; unchanged previous strict Iris ARM64 full compilation [38170604512 PASS](https://github.com/Drzet/razr2022_nuc/actions/runs/38170604512); new code tests **not run/no code changed**; physical Motorola VPU DMA/PAS/HFI/video **not tested**.
+
+## New deliverable and decision
+
+[**Source-pinned complete eighth-round DMA architecture decision**](../vpu/2026-10-13-nonsecure-dma-ownership-decision.md).
+
+**Recommend two independently DMA-attached nonsecure child consumer devices,** one stream match `0x2180/0x400` (`venus_ns`, bitstream/nonpixel) and one `0x2187/0x400` (`venus_ns_pixel`, raw pixel/DPB). That corresponds to the actual compiled reference DT's separate context-bank descriptors and the pinned Qualcomm Waipio downstream source's per-region child `struct device *` for `dma_buf_attach/map/unmap`. Source comparator `LowTension/android_kernel_xiaomi_sm8475` commit `39382bf760ccf05a8fb4dddee7138ecac02d4a59` and exact individual file/blob hashes are in the decision. It is **not** a claim that Motorola's installed video-driver bytes are identical.
+
+Downstream nonsecure decode V4L2 OUTPUT/compressed input and nonpixel internals map to `venus_ns`; V4L2 CAPTURE/raw output, DPB, VPSS map to `venus_ns_pixel`. Nonsecure encode input/output reverse. HFI core queue/SFR use nonpixel. Imported DMA-bufs use `dma_buf_attach(dmabuf, cb->dev)` and the `cb->dev`'s IOMMU domain. Internal DMA-heap buffers map using that same device. Refcounted DMA-BUF imports, delayed decoder-output unmap, error unwind and reverse cleanup are real ownership requirements; the source report traces each through specific functions and links.
+
+Current Iris instead assigns **both** vb2 queues `dev=core->dev`, allocates all internal buffers and HFI queue/SFR on `core->dev` and has no region-specific DMA ownership. Adding two parent `iommus` only maps both SIDs to **one context bank**; the second cell `0x400` is ARM SMMU **stream-match mask**, not security bit. Shared-parent single-domain could hypothetically work if proven coherent for both IOVA classes, but the compiled reference pools overlap, with different minima. Overlapping ranges neither guarantee equivalence nor establish a real conflict when separate domains exist. No acceptance proof for collapse; reject as **unproven**.
+
+**Proposed future interfaces:** Boot-owned *disabled* and binding-reviewed child nodes; `qcom,sm8475-iris.yaml` topology revision (current `unevaluatedProperties:false`, parent `iommus` count 1–2 not independent DMA domains); `iris_core.h`/probe child-device/domain ownership + unwind; `iris_vidc.c` vb2 queue device by decode/encode direction; `iris_buffer.c` internal buffer per-class DMA owner; `iris_hfi_queue.c` nonpixel core memory; per-class DMABUF map lifecycle, matching device in free paths. Use pinned ordinary child `struct device` + DMA API, no invented auxiliary-domain methods. One `dma_mask` upper limit does **not** enforce the nonpixel minimum `0x25800000`, so actual per-domain lower-bound implementation is an explicit unresolved prerequisite. **Secure sessions excluded** from proposed initial nonsecure prototype.
+
+## Integration, tests and disposition
+
+No DTS/bindings/kernel code, accepted integration or firmware artifacts were changed. Boot/Userspace accepted diagnostic v2 remains unchanged. No repeat ROM/firmware extraction, builds or QEMU runs.
+
+**Acceptance for eventual prototype:** source-backed child binding and correct per-child SIDs; distinct actual DMA domains and constrained IOVA ranges; dual-class same-DMABUF imports do not conflate addresses/refs; correct mmap/DMABUF/direct internal/HFI owners; robust failure injection (deferred and partial probe, attach/map failures, invalid SGL, delayed RBR, streamer shutdown, firmware failure) and zero leaks; schema and normal ARM64 compile; only then native evidence of firmware and SMMU operation.
+
+**Specific holds:** genuine child binding/probe topology and source-supported lower IOVA bound enforcement, plus runtime confirmation of two independent DMA translations and firmware expectations. The separate RPMh MXC/MMCX and DDR/LLCC questions are not part of this eighth-round task. Source design is ready for coordinator review, but **no active native enablement or prototype is approved by this handoff**. No further work queued automatically.
