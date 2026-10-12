@@ -78,3 +78,7 @@ Neither supplies live property values or confirms the active overlay. Directory 
 ## Overall decision
 
 Move from isolated source milestones to a selected combined kernel and matching Userspace artifacts, concurrently with one final shared DT metadata export and targeted driver fixes. Physical boot, authentication, rendering, decoding, USB/DP and electrical/charging tests remain deferred. No percentage-complete estimate is defensible; no native hardware gate has passed.
+
+## Follow-up correction: GCC warning severity
+
+See [GCC_PHY_CLOCK_RECLASSIFICATION.md](GCC_PHY_CLOCK_RECLASSIFICATION.md). Independent source inspection supports downgrading these seven inputs to deferred feature dependencies. UART clock ancestry does not use them; CCF supports unresolved selected parents. The prior “boot-critical” classification was too broad. Actual hardware-selected mux states are unknown; seven references do not imply seven orphan clocks. This does not block the initramfs/serial milestone.
