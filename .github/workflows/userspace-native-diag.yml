@@ -1,0 +1,111 @@
+name: Native early initramfs diagnostic test
+on:
+  workflow_dispatch:
+  push:
+    branches: ['razr/userspace']
+    paths: ['.github/workflows/userspace-native-diag.yml', 'scripts/build-native-diag.py', 'tests/userspace/test_native_diag.py']
+permissions:
+  contents: read
+  actions: read
+jobs:
+  native-diagnostic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      INTERFACE_BLOB: '710c2681734f699e456d3a673a27f851f202a7e3'
+      BOOT_ARCHIVE_SHA: '5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896'
+      BUSYBOX_SHA: 'c833be48abfa16bc19c4966ec93e289ff1ce5d2f1476cad3a57bd105378cd15c'
+      KERNEL_RELEASE: '7.3.0-rc6-g2b5acf108ae3'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install host QEMU and inspection tools
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qemu-system-arm zstd binutils cpio
+          python3 -m py_compile scripts/build-native-diag.py
+          mkdir -p boot-download boot-root tool-root
+      - name: Fetch contract and accepted combined Image
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          curl -fLsS --retry 3 https://raw.githubusercontent.com/Drzet/razr2022_nuc/a7119d5f6b1c1f8be8fbbc018dbefcfccf796c7e/configs/oneli-native-early-initramfs-interface-v1.json -o contract.json
+          python3 - <<'PY'
+          import hashlib
+          b=open('contract.json','rb').read()
+          assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest() == '710c2681734f699e456d3a673a27f851f202a7e3'
+          PY
+          gh run download 38292394177 --repo Drzet/linux --name oneli-combined-bundle-38292394177-1 --dir boot-download
+          printf '%s  %s\n' "$BOOT_ARCHIVE_SHA" boot-download/combined-bundle.tar.zst | sha256sum -c -
+          tar --zstd -xf boot-download/combined-bundle.tar.zst -C boot-root
+          (cd boot-root && sha256sum -c SHA256SUMS) > boot-hashes.log
+          test "$(python3 -c 'import json;print(json.load(open("boot-root/build-manifest.json"))["kernel_commit"])')" = 2b5acf108ae37040ac1e652e029bb37f5609e886
+      - name: Fetch SHA-pinned Debian ARM64 BusyBox-static package
+        run: |
+          set -Eeuo pipefail
+          curl -fLsS --retry 3 'https://deb.debian.org/debian/pool/main/b/busybox/busybox-static_1%3a1.37.0-6%2bb9_arm64.deb' -o busybox.deb
+          printf '%s  %s\n' "$BUSYBOX_SHA" busybox.deb | sha256sum -c -
+          test "$(dpkg-deb -f busybox.deb Architecture)" = arm64
+          test "$(dpkg-deb -f busybox.deb Version)" = '1:1.37.0-6+b9'
+          dpkg-deb -x busybox.deb tool-root
+          test "$(find tool-root -type f -name busybox | wc -l)" -eq 1
+          file="$(find tool-root -type f -name busybox)"
+          readelf -h "$file" | grep -F AArch64
+          if readelf -l "$file" | grep -F INTERP; then exit 1; fi
+          echo "ARM64_BUSYBOX=$file" >> "$GITHUB_ENV"
+      - name: Build and inspect newc with independent GNU cpio
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/build-native-diag.py build --contract contract.json \
+            --image boot-root/Image --config boot-root/kernel.config \
+            --dtb boot-root/sm8475-motorola-oneli.dtb --busybox "$ARM64_BUSYBOX" \
+            --interface-blob "$INTERFACE_BLOB" --output native-diag-v1
+          (cd native-diag-v1 && gzip -t oneli-diag-initramfs.cpio.gz && cpio --quiet -t < oneli-diag-initramfs.cpio > external-cpio-list.txt)
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          r=Path('native-diag-v1')
+          expected=[x['path'] for x in json.loads((r/'newc-listing.json').read_text())]
+          assert (r/'external-cpio-list.txt').read_text().splitlines() == expected
+          PY
+          cp contract.json native-diag-v1/boot-native-interface-v1.json
+          cp boot-hashes.log native-diag-v1/boot-hashes.log
+      - name: QEMU virt actual PID1 without disk or Debian
+        run: |
+          set -Eeuo pipefail
+          cmdline='console=ttyAMA0,115200 rdinit=/init razr.diag_test_shutdown=1'
+          printf 'qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 -nographic -serial stdio -monitor none -no-reboot -kernel accepted-Image -initrd oneli-diag-initramfs.cpio.gz -append "%s"\n' "$cmdline" > native-diag-v1/qemu-command.txt
+          set +e
+          timeout --kill-after=10s 160s qemu-system-aarch64 -machine virt -cpu cortex-a57 -m 1024 -smp 2 \
+            -nographic -serial stdio -monitor none -no-reboot -kernel boot-root/Image \
+            -initrd native-diag-v1/oneli-diag-initramfs.cpio.gz \
+            -append "$cmdline" > native-diag-v1/qemu-serial.log 2>&1
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > native-diag-v1/qemu-exit-code.txt
+          test "$rc" -eq 0
+          for marker in RAZR_NATIVE_DIAG_PID1=1 "RAZR_NATIVE_DIAG_RELEASE=$KERNEL_RELEASE" \
+            RAZR_NATIVE_DIAG_MOUNT_FAILURES=0 RAZR_NATIVE_DIAG_READY_V1 \
+            RAZR_NATIVE_DIAG_QEMU_SHUTDOWN 'reboot: Power down'; do
+            grep -aFq "$marker" native-diag-v1/qemu-serial.log
+          done
+      - name: Publish exact manifest and verify all hashes
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/build-native-diag.py finalize --contract contract.json \
+            --directory native-diag-v1 --interface-blob "$INTERFACE_BLOB"
+          python3 scripts/build-native-diag.py verify --contract contract.json \
+            --manifest native-diag-v1/oneli-diag-payload-v1.json
+          (cd native-diag-v1 && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+          (cd native-diag-v1 && sha256sum -c SHA256SUMS)
+          echo RAZR_NATIVE_DIAG_ARTIFACT_PASS
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-diag-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: native-diag-v1/
+          retention-days: 30
+          if-no-files-found: warn
