@@ -70,6 +70,12 @@ class TestV4(unittest.TestCase):
                 path = root / name
                 path.write_bytes(content)
                 files[name] = path
+            header = root / "header.json"
+            header.write_text(json.dumps({
+                "purpose": "structural-only", "phone_boot_validated": False,
+                "os_version_raw": 0, "kernel_addr": 0x8000,
+                "ramdisk_addr": 0x1000000, "tags_addr": 0x100,
+                "dtb_addr": 0x1f00000}))
             descriptor = root / "table.json"
             descriptor.write_text(json.dumps(
                 {"name": "new-platform", "type": 1, "board_id": [0]*16}))
@@ -80,11 +86,19 @@ class TestV4(unittest.TestCase):
                         "--vendor-ramdisk", files["vendor_ramdisk"],
                         "--bootconfig", files["bootconfig"],
                         "--ramdisk-descriptor", descriptor,
+                        "--header-inputs", header,
                         "--cmdline", "console=ttyMSM0",
                         "--vendor-cmdline", "custom=1",
                         "--vendor-name", "testoneli")
             candidate = json.loads((root/"out/candidate-layout.json").read_text())
             self.assertFalse(candidate["avb_signed"])
+            self.assertEqual(candidate["boot"]["os_version_raw"], 0)
+            self.assertEqual(candidate["vendor_boot"]["kernel_addr_raw"], 0x8000)
+            self.assertEqual(candidate["vendor_boot"]["ramdisk_addr_raw"], 0x1000000)
+            self.assertEqual(candidate["vendor_boot"]["tags_addr_raw"], 0x100)
+            self.assertEqual(candidate["vendor_boot"]["dtb_addr_raw"], 0x1f00000)
+            self.assertEqual(candidate["validation_stages"]["independent_aosp_parser"],
+                             "not-tested")
             self.assertFalse(candidate["flash_tested"])
             self.assertEqual(candidate["boot"]["sections"][1]["bytes"], 15)
             self.assertEqual(candidate["vendor_boot"]["ramdisk_table"][0]["name"],
@@ -106,6 +120,66 @@ class TestV4(unittest.TestCase):
                                capture_output=True, text=True)
             self.assertNotEqual(p.returncode, 0)
             self.assertIn("invalid vendor ramdisk table", p.stderr)
+
+    def test_two_unpadded_oneli_base_fdts_and_exact_boundaries(self):
+        """Regression: actual reference second FDT begins at byte 479481."""
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            bp, vp, _, vendor = sample_pair(root)
+            one_size = 479481
+            magic = b"\\xd0\\x0d\\xfe\\xed"
+            one = magic + one_size.to_bytes(4, "big") + b"A" * (one_size - 8)
+            two = magic + one_size.to_bytes(4, "big") + b"B" * (one_size - 8)
+            unpadded = one + two
+            self.assertEqual(len(unpadded), 958962)
+            old_ram_bytes = vendor[PAGE:2 * PAGE]
+            table = vendor[3 * PAGE:4 * PAGE]
+            cfg = vendor[4 * PAGE:5 * PAGE]
+            vh = bytearray(vendor[:PAGE])
+            struct.pack_into("<I", vh, 2100, len(unpadded))
+            fixed_vendor = (bytes(vh) + old_ram_bytes + padded(unpadded) +
+                            table + cfg)
+            vp.write_bytes(fixed_vendor)
+            parsed = json.loads(self.invoke("roundtrip", bp, vp).stdout)
+            chunks = parsed["vendor_boot"]["dtb_fdt_chunks"]
+            self.assertEqual(len(chunks), 2)
+            self.assertEqual([x["relative_offset"] for x in chunks], [0, 479481])
+            self.assertEqual([x["bytes"] for x in chunks], [479481, 479481])
+            self.assertEqual(chunks[1]["sha256"], hashlib.sha256(two).hexdigest())
+            self.assertEqual(parsed["vendor_boot"]["dtb_unparsed_bytes"], 0)
+
+            # A missing byte in the second image must fail rather than
+            # silently suppress the second candidate.
+            corrupt = bytearray(fixed_vendor)
+            corrupt[2 * PAGE + 479481] = 0x41
+            vp.write_bytes(corrupt)
+            err = subprocess.run([sys.executable, str(PROG), "inspect", str(bp),
+                                  str(vp)], capture_output=True, text=True)
+            self.assertNotEqual(err.returncode, 0)
+            self.assertIn("unparsed nonzero bytes", err.stderr)
+
+    def test_header_input_validation(self):
+        from importlib.util import module_from_spec, spec_from_file_location
+        spec = spec_from_file_location("oneli_boot_v4_layout", PROG)
+        module = module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as name:
+            path = Path(name) / "header.json"
+            path.write_text(json.dumps({
+                "purpose": "structural-only", "phone_boot_validated": False,
+                "os_version_raw": 0, "kernel_addr": 0x8000,
+                "ramdisk_addr": 0x1000000, "tags_addr": 0x100,
+                "dtb_addr": 0x1f00000}))
+            self.assertEqual(module.native_header_inputs(path)["dtb_addr"], 0x1f00000)
+            bad = json.loads(path.read_text())
+            del bad["os_version_raw"]
+            path.write_text(json.dumps(bad))
+            with self.assertRaisesRegex(ValueError, "missing required"):
+                module.native_header_inputs(path)
+            bad["os_version_raw"] = None
+            path.write_text(json.dumps(bad))
+            with self.assertRaisesRegex(ValueError, "explicit unsigned"):
+                module.native_header_inputs(path)
 
     def test_stock_reference_offset_equations(self):
         # Validates the verified VPU *metadata* without needing binary.
