@@ -1,0 +1,77 @@
+name: GPU OPP compiled-DT fixture
+
+on:
+  push:
+    branches: ['razr/gpu']
+    paths:
+      - '.github/workflows/gpu-opp-fixture.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  opp-dtb:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Check out GPU documentation and test
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Check out reviewed Boot commit (not moving branch)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: cbde49d927478decd6d608a309a7d7482992f776
+          path: kernel
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install DT compiler and ARM64 prerequisites
+        run: |
+          mkdir -p evidence
+          set -o pipefail
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make bc bison flex libssl-dev libelf-dev python3 device-tree-compiler 2>&1 | tee evidence/apt-install.log
+
+      - name: Apply TEMPORARY proposed DT snippet and verify compiled DTB
+        run: |
+          set -Eeuo pipefail
+          trap 'printf "%s\n" "$?" > evidence/opp-exit-code.txt' EXIT
+          test "$(git -C kernel rev-parse HEAD)" = cbde49d927478decd6d608a309a7d7482992f776
+          {
+            printf 'project_sha=%s\n' "$GITHUB_SHA"
+            printf 'boot_sha=%s\n' "$(git -C kernel rev-parse HEAD)"
+            printf 'gpu_driver_commit=%s\n' 4955f07a94ea3c51e423e34d819ac3f76f1c9d37
+            aarch64-linux-gnu-gcc --version
+            dtc --version
+            fdtget --version
+            python3 --version
+          } > evidence/environment.txt 2>&1
+          python3 -m py_compile tests/scripts/gpu-opp-fixture.py
+          cp tests/scripts/gpu-opp-fixture.py evidence/
+          cp docs/handoffs/gpu-2026-10-11.md evidence/
+          python3 tests/scripts/gpu-opp-fixture.py --apply kernel docs/handoffs/gpu-2026-10-11.md 2>&1 | tee evidence/apply.log
+          export ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu-
+          out="$PWD/kernel/.gpu-opp-build"
+          make -C kernel O="$out" defconfig 2>&1 | tee evidence/configure.log
+          cp "$out/.config" evidence/kernel.config
+          set -o pipefail
+          make -C kernel O="$out" -j"$(nproc)" dtbs 2>&1 | tee evidence/dtbs-build.log
+          dtb="$out/arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dtb"
+          test -s "$dtb"
+          python3 tests/scripts/gpu-opp-fixture.py --check "$dtb" 2>&1 | tee evidence/opp-check.log
+          cp "$dtb" evidence/oneli-opp-fixture.dtb
+          sha256sum evidence/oneli-opp-fixture.dtb evidence/kernel.config > evidence/SHA256SUMS
+          echo "This is an ephemeral OPP fixture against the pinned Boot commit, not a committed shared-DT patch." > evidence/TEST-NOT-BOARD-ENABLEMENT.txt
+
+      - name: Archive results including failures
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gpu-opp-fixture-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30

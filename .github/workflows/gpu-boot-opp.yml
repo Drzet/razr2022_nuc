@@ -1,0 +1,79 @@
+name: GPU committed Boot OPP DT validation
+
+on:
+  push:
+    branches: ['razr/gpu']
+    paths:
+      - '.github/workflows/gpu-boot-opp.yml'
+      - 'tests/scripts/gpu-opp-fixture.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  oneli-opp:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Checkout GPU check
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout exact Boot OPP integration
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: 9b37ea4953eada0837b18421ce6b74beebfe0a2b
+          path: kernel
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Install ARM64 cross tools and DT utilities
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          sudo apt-get update 2>&1 | tee evidence/apt-update.log
+          sudo apt-get install -y --no-install-recommends gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make bc bison flex libssl-dev libelf-dev python3 device-tree-compiler 2>&1 | tee evidence/apt-install.log
+
+      - name: Validate committed oneli DTB (no fixture source changes)
+        run: |
+          set -Eeuo pipefail
+          trap 'printf "%s\n" "$?" > evidence/build-exit-code.txt' EXIT
+          test "$(git -C kernel rev-parse HEAD)" = 9b37ea4953eada0837b18421ce6b74beebfe0a2b
+          test -z "$(git -C kernel status --porcelain)"
+          export ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- LC_ALL=C TZ=UTC
+          out="$PWD/kernel/.gpu-boot-opp-build"
+          {
+            printf 'project_sha=%s\n' "$GITHUB_SHA"
+            printf 'boot_kernel_sha=%s\n' "$(git -C kernel rev-parse HEAD)"
+            printf 'gpu_kernel_patch_sha=%s\n' 4955f07a94ea3c51e423e34d819ac3f76f1c9d37
+            printf 'base_kernel_sha=%s\n' a5ebb76233b79db01e82e061173cb73c6d2b5c6b
+            printf 'runner_image=%s\n' "${ImageOS:-unknown}"
+            printf 'runner_image_version=%s\n' "${ImageVersion:-unknown}"
+            aarch64-linux-gnu-gcc --version
+            dtc --version
+            fdtget --version
+          } > evidence/environment.txt 2>&1
+          printf '%s\n' 'make -C kernel O=<out> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- defconfig' 'make -C kernel O=<out> ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j$(nproc) dtbs' 'python3 tests/scripts/gpu-opp-fixture.py --check <compiled oneli.dtb>' > evidence/commands.txt
+          python3 -m py_compile tests/scripts/gpu-opp-fixture.py
+          make -C kernel O="$out" defconfig 2>&1 | tee evidence/configure.log
+          cp "$out/.config" evidence/kernel.config
+          make -C kernel O="$out" -j"$(nproc)" dtbs 2>&1 | tee evidence/dtbs-build.log
+          dtb="$out/arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dtb"
+          test -s "$dtb"
+          python3 tests/scripts/gpu-opp-fixture.py --check "$dtb" 2>&1 | tee evidence/opp-check.log
+          test "$(fdtget -t s "$dtb" /soc@0/gpu@3d00000 status)" = disabled
+          printf 'PASS: GPU remains disabled in the committed oneli board DTB\n' | tee evidence/gpu-status.log
+          cp "$dtb" evidence/sm8475-motorola-oneli.dtb
+          sha256sum evidence/sm8475-motorola-oneli.dtb evidence/kernel.config > evidence/SHA256SUMS
+
+      - name: Archive exact target DTB and checks
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gpu-boot-opp-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30
