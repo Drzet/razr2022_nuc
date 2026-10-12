@@ -83,3 +83,38 @@ All four overlays also select the source NXP eUSB repeater @0x4f as an *enabled-
 **Gate / handoff:** DisplayPort's **variant-property audit is complete**. Boot consumes PVT variant-3 reference and both base variants to inspect type-correct applied overlay composition; USB continues PS5169 error handling and power/reset proof. Boot alone owns shared DTS. **Hold DP board enablement** until a justified AUX binding/device identity and USB/Type-C driver/graph integration exist. Actual DP/HPD/AUX/DPCD/EDID/monitor operation and FSA physical presence remain **hardware-untested**. No phone access or binary firmware authorization is implied.
 
 **No DisplayPort kernel patch**: `Drzet/linux:razr/displayport` remains at baseline. No integration, compiled oneli DP DTB, schema-validation candidate, DRM probe or device test was performed in this round.
+
+
+## 6. Fourth-review correction: ACTUAL six-FDT export consumed (2026-10-12)
+
+**This section supersedes the earlier “not extracted into manifest” entries in section 2 and the property-export wait in sections 4–5.** VPU's subsequently accepted [six-FDT compact export](https://github.com/Drzet/razr2022_nuc/blob/1a59d79fda42a977956de8e06c3a60d44b2971f4/docs/vpu/2026-10-12-oneli-stock-fdt-properties.json) and [consumer report](https://github.com/Drzet/razr2022_nuc/blob/1a59d79fda42a977956de8e06c3a60d44b2971f4/docs/vpu/2026-10-12-stock-fdt-consumer-report.md) now contain actual standalone overlay values, not source-only assumptions. Coordinator [fourth-review VPU amendment](https://github.com/Drzet/razr2022_nuc/blob/main/docs/FOURTH_REVIEW_VPU_UPDATE.md) independently checked [successful run 38220276125](https://github.com/Drzet/razr2022_nuc/actions/runs/38220276125), full JSON SHA-256 `1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465` and artifact ZIP SHA-256 `485ff37b87cff2e6432928cfd4c0d4168bb3c10af163f6e68b6adfba35a528ae`. This report consumes those *published metadata*; it does not reparse original FDT bytes or rerun the existing source CI.
+
+### Corrected, complete four-overlay DP/AUX matrix
+
+All GPIO triples below are **raw big-endian 32-bit FDT cells**, shown as `<external-fixup-placeholder GPIO flags>`. `0xffffffff` is not an actual provider phandle; `__fixups__` references the base symbol `tlmm`.
+
+| DTBO | Board ID | Two fragments targeting base `fsa4480` and writing `status="disabled"` | Independent AUX GPIO fragment | `mmi,aux-switch-enable-gpio` | `mmi,aux-switch-flip-gpio` |
+| --- | --- | --- | --- | --- | --- |
+| 0 | `<0x45 0xb1b0>` | `/fragment@75/__overlay__`, `/fragment@88/__overlay__` | `/fragment@76/__overlay__` | `<0xffffffff 2 0>` | `<0xffffffff 71 0>` |
+| 1 | `<0x45 0xb2a0>` | `/fragment@76/__overlay__`, `/fragment@89/__overlay__` | `/fragment@77/__overlay__` | `<0xffffffff 2 0>` | `<0xffffffff 71 0>` |
+| 2 | `<0x45 0xa100>` | `/fragment@79/__overlay__`, `/fragment@97/__overlay__` | `/fragment@80/__overlay__` | `<0xffffffff 2 0>` | `<0xffffffff 71 0>` |
+| 3 | `<0x45 0xc000>` **PVT reference candidate** | `/fragment@76/__overlay__`, `/fragment@89/__overlay__` | `/fragment@77/__overlay__` | `<0xffffffff 2 0>` | `<0xffffffff 71 0>` |
+
+**Source-derived common conclusion:** Every reference variant independently provides the GPIO2 enable and GPIO71 orientation controls and explicitly disables the base FSA4480 via *two* fragment overrides. The FSA override's raw `status` bytes are `64697361626c656400` (ASCII `disabled\0`). This is a positive finding about the actual **standalone reference overlays**, not merely Motorola source. The PVT/hwrev `0xc000` observed via stock ADB makes index 3 the closest **reference** candidate, but neither active bootloader selection nor fully composed runtime tree is proven.
+
+### Base target and symbol resolution
+
+The extracted `vendor_boot.img` v4 region contains **two unpadded base FDTs**, both 479,481 bytes:
+- Base 0 at region offset 0, MSM ID `<530 0x10000>`, SHA-256 `8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652`.
+- Base 1 at region offset 479481, MSM ID `<540 0x10000>`, SHA-256 `b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843`.
+
+Both have base `/soc/qcom,dp_display@ae90000` with `qcom,dp-aux-switch=<855>` referencing **`/soc/i2c@994000/fsa4480@42`** (`compatible="qcom,fsa4480-i2c"`, `reg=<0x42>`, base node `status` absent and I²C parent `status="ok"`). **This base phandle does not override the board overlay's two explicit `disabled` writes**. PVT overlay index 3 `__fixups__` symbol `fsa4480` targets this base node for fragments 76 and 89; symbol `tlmm` targets `/soc/pinctrl@f000000` for AUX GPIO2 and GPIO71. This is **symbolically resolved** against exported base `__symbols__`, not a claimed libfdt-applied final tree. The same external GPIO placeholders occur in all four standalone overlays. Boot owns actual base/overlay composition and selection.
+
+### Final binding/ownership disposition
+
+1. **Confirmed stock software topology:** independent GPIO2/GPIO71 AUX controls exist in all four overlays; FSA4480 is **explicitly disabled** in all four, despite the inherited base DP phandle; PS5169 is a distinct high-speed redriver, **not** an integrated AUX/SBU switch. Do not enable FSA4480 or assign PS5169 a fabricated AUX port.
+2. **Unresolved physical IC identity:** neither exported overlay contains a defensible discrete AUX-switch part-compatible. Existing upstream `gpio-sbu-mux.yaml` requires a listed part-specific compatible. The candidate `GPIO_ACTIVE_LOW` enable and `GPIO_ACTIVE_HIGH` select are **[INFERRED]** mainline descriptors matching vendor software writes, not proof of the actual IC. **Binding choice: unresolved identity; HOLD board enablement.** No new driver/binding or DTS patch justified.
+3. **Boot contract:** preserve `connector@0/port@2` for a future independent AUX switch, with DP0, PS5169, QMP, GLINK and GPIO91 ownership per [USB graph v1](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/typec_graph_contract_v1_2026-10-11.md). Boot alone may compose/apply and integrate shared board DTS; avoid importing the disabled FSA4480 vendor phandle as an active Linux route.
+4. **Stop criterion met:** final actual variant matrix and symbol targets are documented. No more generic AUX source audit, re-download or unchanged CI is needed. Resume binding work only upon attributable AUX IC identification (BOM, schematic, readable chip marking or other authoritative evidence); physical DP tests remain deferred.
+
+**Evidence classification:** source reference FDT values **verified in VPU's accepted extraction**, cross-source software GPIO truth table **verified previously**, base-to-overlay target resolution **symbolic**, physical switch identity **unknown**, on-device active overlay/DP operation **not tested**.
