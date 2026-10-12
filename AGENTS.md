@@ -23,3 +23,5 @@
 - Sixth review is current: `docs/SIXTH_REVIEW.md` and `docs/NEXT_TASKS.md`. Integration `2b5acf108ae37040ac1e652e029bb37f5609e886` is accepted for source/build/QEMU only and preserved on `razr/integration`. Boot first defines the native initramfs interface, Userspace acknowledges before dependent packaging. GPU/Power/USB/DP are paused or queued; VPU has only an optional bounded DMA-design task. No blanket concurrent round or repeat completed extraction.
 
 - Seventh review is current: `docs/SEVENTH_REVIEW.md` and NEXT_TASKS. Native diagnostic payload and unsigned host packaging passed; device handoff/observable output remain unresolved. Boot owns a bounded loader/output decision; Userspace has one console-summary fix. Preserve accepted kernel and v1 artifacts; no unchanged builds or blanket agent round.
+
+- Eighth review is current: `docs/EIGHTH_REVIEW.md` and NEXT_TASKS. Diagnostic v2 accepted; Boot corrects a truncated documentation digest then pauses, Userspace pauses. VPU alone has the next selected bounded DMA-design task. No unchanged builds, repeat extractions or blanket concurrent round. Native loader/device evidence remains unresolved.

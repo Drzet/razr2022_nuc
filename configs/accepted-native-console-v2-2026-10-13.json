@@ -1,0 +1,89 @@
+{
+  "schema": "oneli-native-host-console-v2-accepted-source-evidence-v1",
+  "date": "2026-10-12",
+  "owner": "Boot",
+  "branch": "razr/boot",
+  "tested_boot_source_commit": "0b2ee0709987831ede07a1494117c7abd3485075",
+  "assessment": "host-only-AOSP-verified-v2-generic-ramdisk;device-handoff-blocked",
+  "changed_input": {
+    "scope": "diagnostic-probe-errors-summary-to-console",
+    "original_userspace_v1_artifact": 11772559465,
+    "new_userspace_commit": "64b7a3358d3250dbe92518e548517ddfd038b149",
+    "new_userspace_workflow_run": 38317559417,
+    "new_userspace_artifact": 11777077254,
+    "new_userspace_artifact_zip_sha256": "3625ebfdaf83edd4628791f8a818ecaea357aeabcb354b062e00911124f4ed76",
+    "new_userspace_cpio_sha256": "cf00eb88014e177a48164f5d70ee8ee277ebe5936a8808bf80885ae8818a408e",
+    "new_userspace_gzip_sha256": "ccd4c96b2cb05ff695175af8625dbbf8fe2f822d32fafaa5ae930e7796b7a93b",
+    "new_init_sha256": "d23e8bd9662a91d9cd1b6edaa1db49ed5ec8ea6aec70f9763cddab4a6e8989e9",
+    "qemu_console_positive_fixture_lines": 1,
+    "qemu_console_hold_fixture_lines": 1,
+    "fixture_not_physical_probe_error": true,
+    "userspace_internal_sha256sums_verified": 15
+  },
+  "unchanged": {
+    "kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "kernel_image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "kernel_release": "7.3.0-rc6-g2b5acf108ae3",
+    "mainline_dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+    "boot_v1_unsigned_sha256": "f47686e4cff28d9491ece814dd6c91c6f22eab32b3061a46f9bb935ae1fcda74",
+    "original_vendor_boot_v1_sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572",
+    "vendor_boot_not_regenerated": true,
+    "accepted_image_v1_artifact_id": 11774750168,
+    "accepted_userspace_v1_artifact_id": 11772559465
+  },
+  "new_boot_console_v2": {
+    "run": 38318260840,
+    "job": 115039980166,
+    "conclusion": "success",
+    "source_commit": "0b2ee0709987831ede07a1494117c7abd3485075",
+    "artifact_id": 11777433748,
+    "artifact_name": "oneli-native-boot-console-v2",
+    "artifact_zip_sha256": "c2f7353a652d60c4d3e0282dfa101ab421d1dfd605c571c509194f25b26cb00b",
+    "internal_sha256sums_verified": 5,
+    "boot_image_name": "boot-console-v2.UNSIGNED.img",
+    "boot_image_bytes": 53395456,
+    "boot_image_sha256": "1e00e4f998f5001bc08d9e0d4e4465664100194ce211cd9eb8b329612b5563bb",
+    "ramdisk_sha256": "ccd4c96b2cb05ff695175af8625dbbf8fe2f822d32fafaa5ae930e7796b7a93b",
+    "kernel_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "boot_header_version": 4,
+    "boot_header_os_version_raw": 0,
+    "boot_header_signature_bytes": 0,
+    "boot_header_cmdline": "",
+    "bootloader_acceptance_tested": false,
+    "independent_aosp_unpacked": true,
+    "independent_aosp_repacked_section_crosscheck": true,
+    "retained_vendor_boot_sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572"
+  },
+  "failure_history": {
+    "first_run_id": 38318193635,
+    "conclusion": "failure",
+    "cause": "TypeError hashing pathlib.Path rather than bytes; fixed in source commit 0b2ee0709987831ede07a1494117c7abd3485075",
+    "superseded_successful_run_id": 38318260840,
+    "does_not_invalidate_accepted_v1": true
+  },
+  "native_gates": {
+    "selected_kernel_ram_base": null,
+    "device_dtbo_selection": null,
+    "usable_physical_console_route": null,
+    "verified_restore_route": null,
+    "bootloader_acceptance": null,
+    "AVB_disposition": null
+  },
+  "scope": {
+    "host_structure_validated": true,
+    "phone_flash_approved": false,
+    "hardware_tested": false,
+    "no_kernel_rebuild": true,
+    "no_debian_rootfs_test_repeated": true,
+    "no_stock_zip_rescan": true
+  },
+  "prerequisite_report": "docs/oneli_native_loader_output_decision_2026-10-12.md",
+  "preparation": "configs/oneli-native-host-console-v2-input-lock.json",
+  "coordinator_review": {
+    "date_local": "2026-10-13",
+    "source_record_original_digest": "1e00e4f998f5001bc08d9d4e4465664100194ce211cd9eb8b329612b5563bb",
+    "corrected_from_downloaded_bytes": true,
+    "artifact_internal_checksums_match": true,
+    "review": "docs/EIGHTH_REVIEW.md"
+  }
+}
