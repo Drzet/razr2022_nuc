@@ -72,7 +72,9 @@ def inspect_elf(data, filename):
             "<8I",data,phoff+i*entsize)
         if filesz and (off>len(data) or filesz>len(data)-off):
             split=True
-        if typ==PT_LOAD and (flags & TYPE_MASK)==TYPE_HASH:
+        # Pinned qcom_mdt_read_metadata checks flags on every phdr from index 1,
+        # including PT_NULL hash descriptors (stock Motorola images use them).
+        if i >= 1 and (flags & TYPE_MASK)==TYPE_HASH:
             has_hash.append(i)
         loadable=(typ==PT_LOAD and (flags & TYPE_MASK)!=TYPE_HASH and memsz!=0)
         if loadable:
@@ -127,6 +129,8 @@ def segment_requirements(record, image, directory):
     hashes=[]
     if record["program_header_count"]<2 or record["program_headers"][0]["p_type"]==PT_LOAD:
         raise ValueError(source+": qcom_mdt_read_metadata requires leading non PT_LOAD header")
+    if not record["hash_segment_indices"]:
+        raise ValueError(source+": no Qualcomm TYPE_HASH program header")
     for i in record["hash_segment_indices"]:
         ph=record["program_headers"][i]
         hdr_bytes=record["program_headers"][0]["p_filesz"]
