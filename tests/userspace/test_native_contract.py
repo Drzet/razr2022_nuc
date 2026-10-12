@@ -41,12 +41,13 @@ class NativeContract(unittest.TestCase):
         self.paths = {
             "image_path": "boot/Image",
             "config_path": "boot/kernel.config",
+            "module_symvers_path": "boot/Module.symvers",
             "dtb_path": "boot/oneli.dtb",
             "initramfs_path": "boot/initrd.img",
             "firmware_manifest_path": "manifests/firmware.json",
             "boot_packaging_manifest_path": "manifests/boot.json"
         }
-        for k in ("image_path", "config_path", "dtb_path"):
+        for k in ("image_path", "config_path", "module_symvers_path", "dtb_path"):
             p = self.root / self.paths[k]
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes((k + " synthetic fixture").encode())
@@ -54,12 +55,25 @@ class NativeContract(unittest.TestCase):
         firmware.parent.mkdir()
         firmware.write_bytes(b"nonproprietary synthetic fixture")
         fw_manifest = {
-            "schema_version": 1, "status": "complete", "unknown_requirements": [],
+            "schema_version": 2, "target_environment": "oneli_native",
+            "assessment": "complete", "unknown_requirements": [],
             "required_files": [{"path": "fixture.bin", "sha256": hash_file(firmware),
                                 "consumer": "synthetic-fixture", "in_initramfs": True}]
         }
         for k, val in (("firmware_manifest_path", fw_manifest),
-                       ("boot_packaging_manifest_path", {"status": "verified", "fixture": True})):
+                       ("boot_packaging_manifest_path", {
+                           "schema": "oneli-native-boot-packaging-contract-v1",
+                           "reference_images": {
+                               "boot": {"header_version": 4, "header_bytes": 1584,
+                                        "os_version_raw": None},
+                               "vendor_boot": {"header_version": 4, "header_bytes": 2128,
+                                               "page_bytes": 4096, "ramdisk_table_entries": 1,
+                                               "ramdisk_table_entry_bytes": 108,
+                                               "ramdisk_fragment_type": 1,
+                                               "ramdisk_fragment_board_id_words": [0] * 16}},
+                           "prototype": {"flash_recipe": False, "candidate_signed": False,
+                                         "boot_tested": False},
+                           "fixture": True})):
             p = self.root / self.paths[k]
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(json.dumps(val))
@@ -72,14 +86,24 @@ class NativeContract(unittest.TestCase):
         embedded_fw.write_bytes(firmware.read_bytes())
         self.make_initramfs()
         self.manifest = {
-            "schema_version": 2, "repository": "https://github.com/Drzet/linux",
+            "schema_version": 3, "repository": "https://github.com/Drzet/linux",
+            "target_environment": "oneli_native",
             "kernel_commit": "a" * 40, "kernel_release": RELEASE,
             **self.paths,
             "modules_directory": "lib/modules/" + RELEASE,
             "firmware_directory": "firmware",
             "sha256": {k: hash_file(self.root / v) for k, v in self.paths.items()},
             "modules_sha256": {self.mod_relative: hash_file(mod)},
-            "initramfs_modules": [self.mod_relative]
+            "initramfs_modules": [self.mod_relative],
+            "zero_initramfs_modules_reason": None,
+            "same_build": {
+                "build_id": "synthetic-module-fixture",
+                "kernel_commit": "a" * 40,
+                "kernel_release": RELEASE,
+                "config_sha256": hash_file(self.root / self.paths["config_path"]),
+                "module_symvers_sha256": hash_file(self.root / self.paths["module_symvers_path"]),
+                "image_sha256": hash_file(self.root / self.paths["image_path"])}
+            
         }
         self.manifest["sha256"]["modules_dep"] = hash_file(mod.parents[1] / "modules.dep")
         self.manifest_path = self.base / "native.json"
@@ -130,6 +154,50 @@ class NativeContract(unittest.TestCase):
         p.write_text("{}")
         self.manifest["sha256"]["firmware_manifest_path"] = hash_file(p)
         self.assertIn("firmware requirements unresolved", self.check(False).stderr)
+
+    def test_qemu_virt_empty_scoped_requirements(self):
+        self.manifest["target_environment"] = "qemu_virt"
+        for name in ("dtb_path", "boot_packaging_manifest_path"):
+            del self.manifest[name]
+            del self.manifest["sha256"][name]
+        self.manifest["firmware_directory"] = None
+        self.manifest["initramfs_modules"] = []
+        self.manifest["zero_initramfs_modules_reason"] = (
+            "virtio and root drivers are assumed builtin in this synthetic target fixture")
+        fw = self.root / self.paths["firmware_manifest_path"]
+        fw.write_text(json.dumps({"schema_version": 2, "target_environment": "qemu_virt",
+                                  "assessment": "complete", "unknown_requirements": [],
+                                  "required_files": [], "zero_requirements_reason":
+                                  "no proprietary or board-specific firmware required in synthetic virt profile"}))
+        self.manifest["sha256"]["firmware_manifest_path"] = hash_file(fw)
+        self.check(True)
+
+    def test_qemu_forbids_oneli_dtb(self):
+        self.manifest["target_environment"] = "qemu_virt"
+        self.assertIn("oneli packaging forbidden", self.check(False).stderr)
+
+    def test_empty_firmware_without_reason_rejected(self):
+        fw = self.root / self.paths["firmware_manifest_path"]
+        fw.write_text(json.dumps({"schema_version": 2, "target_environment": "oneli_native",
+                                  "assessment": "complete", "unknown_requirements": [],
+                                  "required_files": []}))
+        self.manifest["sha256"]["firmware_manifest_path"] = hash_file(fw)
+        self.assertIn("scope justification", self.check(False).stderr)
+
+    def test_missing_same_build_rejected(self):
+        self.manifest["same_build"]["module_symvers_sha256"] = "0" * 64
+        self.assertIn("build provenance", self.check(False).stderr)
+
+    def test_boot_reference_never_promoted_to_native_ready(self):
+        self.manifest_path.write_text(json.dumps(self.manifest))
+        r = subprocess.run([sys.executable, str(CHECKER), str(self.manifest_path),
+                            "--artifact-root", str(self.root), "--output",
+                            str(self.base / "result.json")], text=True, capture_output=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        p = json.loads((self.base / "result.json").read_text())["packaging"]
+        self.assertTrue(p["structural_reference_audited"])
+        self.assertFalse(p["native_composition_ready"])
+        self.assertFalse(p["hardware_accepted"])
 
     def test_missing_firmware_in_initramfs_rejected(self):
         (self.initroot / "usr/lib/firmware/fixture.bin").unlink()
