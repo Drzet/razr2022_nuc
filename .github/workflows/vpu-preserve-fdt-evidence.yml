@@ -58,10 +58,39 @@ jobs:
           print("Full JSON SHA256:",expected)
           print("Gzip bytes:",target.stat().st_size)
           PY
+      - name: Retain exact focused GPU/PVT/boot derived JSON from approved bounded run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/focused"
+          curl --fail --silent --show-error --location --retry 2 \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/Drzet/razr2022_nuc/actions/artifacts/11766556493/zip" \
+            -o "$RUNNER_TEMP/focused/artifact.zip"
+          printf '%s  %s\n' \
+            '189b13e4ed75d2e1d148017993b48b7334865571f51bd43786b6099a0d3b0e60' \
+            "$RUNNER_TEMP/focused/artifact.zip" | sha256sum -c -
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, zipfile
+          source=pathlib.Path(os.environ["RUNNER_TEMP"])/"focused/artifact.zip"
+          target=pathlib.Path("docs/vpu/evidence/focused-stock-properties.json")
+          expected="f1bb6f41036aeb2e04ac289cfa803aab686cf92097a77444c9ed50c96397fe48"
+          with zipfile.ZipFile(source) as f:
+              raw=f.read("focused-stock-properties.json")
+          assert len(raw)==803197, len(raw)
+          assert hashlib.sha256(raw).hexdigest()==expected
+          obj=json.loads(raw)
+          assert len(obj["per_fdt_focus"])==6
+          target.write_bytes(raw)
+          print("Focused JSON source SHA256",expected)
+          PY
       - name: Commit immutable source-derived evidence without stock binaries
         run: |
           set -euo pipefail
-          git add docs/vpu/evidence/stock-six-fdt-full-properties.json.gz
+          git add docs/vpu/evidence/stock-six-fdt-full-properties.json.gz docs/vpu/evidence/focused-stock-properties.json
           if git diff --cached --quiet; then
             echo 'Already preserved; no new commit'
             exit 0
