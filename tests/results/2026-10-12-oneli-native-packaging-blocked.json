@@ -1,0 +1,67 @@
+{
+  "schema": "oneli-native-early-boot-gate-result-v1",
+  "created": "2026-10-12",
+  "owner": "Boot",
+  "phase": "after-Boot-contract-before-Userspace-ack",
+  "contract": "configs/oneli-native-early-initramfs-interface-v1.json",
+  "result": "blocked",
+  "host_structural_candidate_generated": false,
+  "native_flash_approved": false,
+  "hardware_tested": false,
+  "inputs_proven": {
+    "accepted_kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "accepted_kernel_release": "7.3.0-rc6-g2b5acf108ae3",
+    "accepted_image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "accepted_oneli_dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+    "accepted_combined_kernel_build_run": 38292394177,
+    "accepted_combined_debian_qemu_run": 38297826535,
+    "stock_header_os_version_reference": 402653593,
+    "stock_v4_signature_reference_size": 4096,
+    "stock_v4_signature_reference_sha256": "030600e25f969311812014a82fcb3edf10871be255cb59b74452d1e8926cf869"
+  },
+  "blocked_for_host_structural_candidate": [
+    {
+      "key": "userspace_native_interface_ack",
+      "value": null,
+      "null_meaning": "unresolved: Userspace must acknowledge exact Boot native v1 commit",
+      "owner": "Userspace"
+    },
+    {
+      "key": "diagnostic_payload_manifest",
+      "value": null,
+      "null_meaning": "unresolved: new native /init cpio, gzip, hashes and exact manifest not yet supplied",
+      "owner": "Userspace"
+    },
+    {
+      "key": "diagnostic_qemu_evidence",
+      "value": null,
+      "null_meaning": "unresolved: distinct no-Debian-rootfs PID1 QEMU test not run",
+      "owner": "Userspace"
+    },
+    {
+      "key": "vendor_fragment_selection",
+      "value": null,
+      "null_meaning": "unresolved: purpose-built native vendor ramdisk and descriptor not yet reviewed",
+      "owner": "Boot"
+    }
+  ],
+  "native_execution_only_gates": [
+    "bootloader-accepted kernel/v4-header and memory placement",
+    "actual bootloader-supplied DTB and PVT overlay selection",
+    "physical UART or independently demonstrated alternative diagnostic output path",
+    "actual kernel command-line merge/override behavior",
+    "reviewed AVB/vbmeta/boot/vendor_boot/dtbo disposition and reversible test",
+    "hardware observation of bootloader handoff and kernel early console"
+  ],
+  "source_solvable_optional_reference": {
+    "task": "Apply stock PVT DTBO index 3 to each of both original reference base FDT bytes using libfdt, compare effective hashes/properties",
+    "status": "not-run-in-this-round",
+    "reason": "mainline oneli DTB is the host-only native candidate input; reference-overlay composition does not gate contract or claim active bootloader selection",
+    "source_bytes_available_in_committed_metadata": false,
+    "no_filtered_json_reconstruction": true,
+    "no_full_ROM_rescan": true
+  },
+  "next_allowed_action": "Userspace confirms exact v1 contract and supplies deterministic diagnostic payload; Boot verifies actual hashes and packages separately for host structural validation.",
+  "repeated_full_kernel_build_required": false,
+  "debian_qemu_retest_required": false
+}
