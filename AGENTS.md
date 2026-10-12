@@ -25,3 +25,5 @@
 - Seventh review is current: `docs/SEVENTH_REVIEW.md` and NEXT_TASKS. Native diagnostic payload and unsigned host packaging passed; device handoff/observable output remain unresolved. Boot owns a bounded loader/output decision; Userspace has one console-summary fix. Preserve accepted kernel and v1 artifacts; no unchanged builds or blanket agent round.
 
 - Eighth review is current: `docs/EIGHTH_REVIEW.md` and NEXT_TASKS. Diagnostic v2 accepted; Boot corrects a truncated documentation digest then pauses, Userspace pauses. VPU alone has the next selected bounded DMA-design task. No unchanged builds, repeat extractions or blanket concurrent round. Native loader/device evidence remains unresolved.
+
+- Ninth review supersedes the eighth queue: read `docs/NINTH_REVIEW.md` and current NEXT_TASKS. Boot correction is verified; Boot/Userspace pause. VPU has one selected allocator-enforcement and child-topology task. Firmware acceptance is a later device test, not a prerequisite for a disabled prototype. Shared DTS remains Boot-owned; no blanket concurrent round.

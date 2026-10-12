@@ -1,38 +1,27 @@
-# Next assignments — eighth coordinator review, 2026-10-13
+# Next assignments — ninth coordinator review, 2026-10-13
 
-Read [EIGHTH_REVIEW.md](EIGHTH_REVIEW.md). Seventh-round diagnostic v2 and its single boot-image refresh are accepted for host/QEMU scope. [Accepted v2 record](../configs/accepted-native-console-v2-2026-10-13.json) contains the corrected image digest. Preserve integration `2b5acf108ae37040ac1e652e029bb37f5609e886`, original vendor_boot and historical v1 artifacts.
+Read [NINTH_REVIEW.md](NINTH_REVIEW.md). Boot's correction and VPU's bounded ownership decision are accepted within their documented scopes. Previous instructions are archived in [EIGHTH_ASSIGNMENTS.md](EIGHTH_ASSIGNMENTS.md). Preserve accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886` and diagnostic v2 artifacts.
 
-## Run next: VPU only — one DMA ownership decision
+## VPU — selected next: make the DMA proposal implementable
 
-Promote the previously optional bounded DMA design to the next selected offline task. Read the current VPU handoff and `docs/vpu/2026-10-12-bounded-resource-translation-decisions.md` at project `dadd330c3f09f715372da94091f04166f9f0c141`; do not repeat extraction or loader-size work.
+Start from project `5f6738589f4a339ed9fafd382715bc0f20c06777` and experimental kernel `869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf`. The two-consumer direction is conditionally accepted. Resolve these specific offline questions in order:
 
-1. Trace actual downstream nonsecure bitstream and pixel allocation/map/unmap paths through HFI buffer ownership, including address constraints, shared buffers, cleanup and failure cases. Separate security requirements from allocator convenience. Pin exact source revisions/functions.
-2. Compare those paths with current Iris DMA/IOMMU ownership. The upstream second cell is an SMR match mask; two stream identifiers on one Linux device still share its attached domain. Do not present a two-entry iommus property as two independent DMA domains.
-3. Evaluate source-supported alternatives: a single-domain model preserving necessary constraints, or separate supported consumer devices/domains with explicit allocation and lifecycle ownership. Verify relevant APIs in the pinned kernel; do not invent auxiliary-domain support. Overlapping vendor IOVA ranges alone do not prove equivalence.
-4. Deliver one recommendation with evidence, rejected alternatives, exact affected driver/binding interfaces and testable acceptance conditions. An isolated disabled prototype is permitted only if the model is justified; otherwise name the specific missing evidence and stop. Keep experimental Iris out of accepted integration. No active hardware enablement, broad refactor or generic audit.
+1. Trace **enforcement**, not just parsing, of the downstream nonpixel `[0x25800000, 0xe0000000)` and pixel `[0x00100000, 0xe0000000)` IOVA windows. Follow the pinned vendor DMA/IOMMU path consuming the pool; distinguish a hardware/firmware constraint from allocator policy and from an unused property. If necessity cannot be established, label it unresolved rather than silently assuming either unrestricted addressing or a mandatory hardware limit.
+2. Establish a supported mechanism in our pinned mainline kernel for any constraints retained by the prototype. Inspect domain geometry/reserved-region hooks and their setup timing, including coherent allocations and imported DMA-bufs. A DMA mask supplies no lower bound. Do not use private DMA-cookie manipulation, raw mapping alongside vb2, arbitrary runtime geometry writes, or `dma-ranges` merely as an unexplained alias for vendor pools. Name any required core change explicitly; no broad IOMMU rewrite is authorized.
+3. Supply a concrete proposed child-binding/topology and lifecycle patch sketch: creation, OF DMA configuration, driver binding/default-domain attachment, supplier dependencies, probe deferral, teardown and retained DMA-owner references. Check for parent/child probe dependency cycles. Show which device owns HFI queues, external queues and internal classes. This is a proposal for review, not an already upstream-approved ABI.
 
-MXC/MMCX required-opps and DDR/LLCC dynamic policy remain separate queued blockers. Do not expand this round into all three architecture questions. Phone PAS/HFI/DMA/decode tests remain deferred.
+**Deliverable:** one focused handoff with exact source revisions/functions, the enforcement finding, proposed interfaces and a patch sketch (or the exact missing API/evidence and smallest next change). Update the existing decision if needed; do not produce another general architecture survey. If steps 1–3 establish a valid mechanism, an isolated disabled experimental patch is permitted, with compilation/schema checks appropriate to changed code. Keep binding and any DT proposal separate; Boot owns applying shared board/SoC DTS changes. Otherwise stop at the concrete limitation. Do not silently rebase, replace accepted artifacts or enable the phone VPU.
 
-## Boot — metadata correction, then pause
+No native firmware ACK is needed to prepare a disabled prototype. Actual domain separation, IOVA behavior on the handset, HFI response, SMMU faults and decode are deferred hardware acceptance tests. Host models can check proposed arithmetic/ownership but cannot prove those device outcomes. Secure sessions, MXC/MMCX OPP, ICC policy and broad Iris refactoring remain outside this task. No repeated firmware extraction or unchanged kernel build.
 
-Correct the malformed 62-character `boot_image_sha256` in `tests/results/2026-10-12-oneli-native-console-v2-repackage.json` and the corresponding handoff. Independently re-read the existing artifact/checksum record; correct full SHA256 is:
+## Boot / Userspace — complete; pause
 
-`1e00e4f998f5001bc08d9e0d4e4465664100194ce211cd9eb8b329612b5563bb`
+Boot's digest correction matches the actual artifact bytes in both records. No further correction, repackaging or CI replay is assigned. Userspace's diagnostic v2 remains accepted. Resume Boot for a concrete reviewed shared-DTS request or new attributable loader/device evidence; resume Userspace for an actual interface/transport requirement. Do not require native boot success before a future controlled boot experiment can be planned.
 
-No rebuild or artifact replacement is needed. Preserve existing v1/v2 evidence and commit provenance.
+## GPU / Power / USB / DisplayPort — unchanged
 
-After this correction, stop. The current loader/output decision report is accepted as a bounded account of unresolved inputs. Resume only with attributable new MBM source/binary evidence or device observations addressing a named gap. Do not regenerate the same image, reconstruct stock FDTs from JSON, guess RAM size/load addresses, or demand another generic investigation.
+GPU and Power pause; USB's unfinished profile/lifecycle work remains queued in [FIFTH_ASSIGNMENTS.md](FIFTH_ASSIGNMENTS.md); DP retains the AUX-identity evidence hold. These are not all blocked by VPU. USB source work could run independently, but is not selected in this assignment. Do not restart completed audits or launch a blanket concurrent round.
 
-Future physical-test planning must separate prerequisites from outcomes: restoration and observation arrangements precede a trial; actual kernel entry and native output are results to test, not pre-existing proofs required before any experiment. Owner-managed unlock is not an offline blocker. No device action is assigned now.
+## Coordinator — review before integration
 
-## Userspace — complete; pause
-
-The console body fix is verified in both real positive and HOLD logs. Keep v2 payload and interface frozen. No new feature, QEMU replay, Debian build or diagnostic daemon is requested. Resume for a concrete Boot interface change or selected transport requirement.
-
-## GPU / Power / USB / DisplayPort
-
-Remain paused or queued as previously documented. No new work depends on them for this round. USB's unfinished profile/lifecycle tasks are retained in [fifth assignments](FIFTH_ASSIGNMENTS.md), not cancelled. DP's AUX identity hold and GPU/Power runtime/electrical questions remain unchanged. Do not launch all agents concurrently.
-
-## Coordinator
-
-Retain exact artifact references and the verified digest correction. Review VPU's one design decision before authorizing further experimental implementation or selecting the next queued workstream. Native status remains **host-validated; loader/device handoff unresolved**. Preserve artifacts before expiration using verified copies, not rebuilds. Any useful future Boot investigation must identify the specific new evidence it will inspect.
+Review VPU's concrete allocator/topology result before authorizing a wider routing/lifetime implementation. If no supported mechanism is found, choose explicitly between a narrowly scoped core proposal and another queued workstream; do not commission the same audit again. Boot joins only if an actual shared-DTS change is ready. No hardware access is assumed and no device action is assigned.
