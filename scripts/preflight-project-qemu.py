@@ -30,7 +30,7 @@ def sha(path):
 def file_under(root, name):
     need(isinstance(name, str) and name and not name.startswith("/"),
          "relative artifact path required")
-    p = (root / name).resolve(strict=True)
+    p = (root / name).resolve(strict=False)
     need(p.is_relative_to(root) and p.is_file(), "artifact path escapes/absent: " + name)
     return p
 
