@@ -1,0 +1,539 @@
+{
+  "schema": "oneli-pvt-symbolic-composition-v1",
+  "date": "2026-10-12",
+  "source": {
+    "compact_json_repo": "Drzet/razr2022_nuc",
+    "compact_json_commit": "1a59d79fda42a977956de8e06c3a60d44b2971f4",
+    "compact_json_blob_sha": "51a3ea64119a4f39de7be2197f1d706a97f5f939",
+    "full_export_sha256": "1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+    "full_export_bytes": 15862099,
+    "full_export_run": 38220276125,
+    "coordinator_review": "docs/FOURTH_REVIEW_VPU_UPDATE.md"
+  },
+  "reference_not_installed": true,
+  "observed_stock": {
+    "model": "XT2251-1 PVT",
+    "hardware_rev": "0xC000",
+    "active_overlay_unknown": true
+  },
+  "overlay": {
+    "index": 3,
+    "board_id": [
+      69,
+      49152
+    ],
+    "sha256": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad",
+    "root_msm_id": [
+      531,
+      65536,
+      540,
+      65536,
+      530,
+      65536
+    ],
+    "root_compatible": [
+      "qcom,cape-mtp",
+      "qcom,cape",
+      "qcom,mtp",
+      "moto,oneli"
+    ],
+    "applied_with_libfdt": false,
+    "source_bytes_available_in_current_manifest": false
+  },
+  "bases": [
+    {
+      "source": "vendor_boot.img",
+      "msm_id": [
+        530,
+        65536
+      ],
+      "relative_offset": 0,
+      "bytes": 479481,
+      "sha256": "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+      "node_count": 3027,
+      "pvt_overlay_symbolic_compatibility": true,
+      "symbol_paths_confirmed_by_coordinator": true,
+      "libfdt_apply_tested": false,
+      "typed_fixup_paths": [
+        {
+          "component": "NXP eUSB2 repeater",
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "property": "vdd18-supply",
+          "fixup": "S10B",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-smpb10/regulator-pm8350-s10",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "NXP eUSB2 repeater",
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "property": "vdd3-supply",
+          "fixup": "L2B",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-ldob2/regulator-pm8350-l2",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "vcc-supply",
+          "fixup": "S10B",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-smpb10/regulator-pm8350-s10",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "vio-supply",
+          "fixup": "L8C",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-ldoc8/regulator-pm8350c-l8",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "redriver,enable-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            19,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "redriver,orientation-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            91,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "AUX switch control",
+          "path": "/fragment@77/__overlay__",
+          "property": "mmi,aux-switch-enable-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            2,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "AUX switch control",
+          "path": "/fragment@77/__overlay__",
+          "property": "mmi,aux-switch-flip-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            71,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "NXP overlay target",
+          "path": "/fragment@21",
+          "property": "target",
+          "fixup": "qupv3_se5_i2c",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@994000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169 overlay target",
+          "path": "/fragment@49",
+          "property": "target",
+          "fixup": "qupv3_se18_i2c",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@88c000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "FSA disable overlay target A",
+          "path": "/fragment@76",
+          "property": "target",
+          "fixup": "fsa4480",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@994000/fsa4480@42",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "FSA disable overlay target B",
+          "path": "/fragment@89",
+          "property": "target",
+          "fixup": "fsa4480",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@994000/fsa4480@42",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        }
+      ],
+      "post_apply_statuses_not_tested": true
+    },
+    {
+      "source": "vendor_boot.img",
+      "msm_id": [
+        540,
+        65536
+      ],
+      "relative_offset": 479481,
+      "bytes": 479481,
+      "sha256": "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843",
+      "node_count": 3027,
+      "pvt_overlay_symbolic_compatibility": true,
+      "symbol_paths_confirmed_by_coordinator": true,
+      "libfdt_apply_tested": false,
+      "typed_fixup_paths": [
+        {
+          "component": "NXP eUSB2 repeater",
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "property": "vdd18-supply",
+          "fixup": "S10B",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-smpb10/regulator-pm8350-s10",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "NXP eUSB2 repeater",
+          "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+          "property": "vdd3-supply",
+          "fixup": "L2B",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-ldob2/regulator-pm8350-l2",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "vcc-supply",
+          "fixup": "S10B",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-smpb10/regulator-pm8350-s10",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "vio-supply",
+          "fixup": "L8C",
+          "kind": "phandle",
+          "source_raw": "0xffffffff",
+          "base_target": "/soc/rsc@17a00000/rpmh-regulator-ldoc8/regulator-pm8350c-l8",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "redriver,enable-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            19,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169",
+          "path": "/fragment@49/__overlay__/redriver@30",
+          "property": "redriver,orientation-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            91,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "AUX switch control",
+          "path": "/fragment@77/__overlay__",
+          "property": "mmi,aux-switch-enable-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            2,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "AUX switch control",
+          "path": "/fragment@77/__overlay__",
+          "property": "mmi,aux-switch-flip-gpio",
+          "fixup": "tlmm",
+          "kind": "gpio-specifier",
+          "source_cells": [
+            4294967295,
+            71,
+            0
+          ],
+          "base_target": "/soc/pinctrl@f000000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "NXP overlay target",
+          "path": "/fragment@21",
+          "property": "target",
+          "fixup": "qupv3_se5_i2c",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@994000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "PS5169 overlay target",
+          "path": "/fragment@49",
+          "property": "target",
+          "fixup": "qupv3_se18_i2c",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@88c000",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "FSA disable overlay target A",
+          "path": "/fragment@76",
+          "property": "target",
+          "fixup": "fsa4480",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@994000/fsa4480@42",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        },
+        {
+          "component": "FSA disable overlay target B",
+          "path": "/fragment@89",
+          "property": "target",
+          "fixup": "fsa4480",
+          "kind": "overlay-target",
+          "base_target": "/soc/i2c@994000/fsa4480@42",
+          "resolution": "symbolic-path-only; no libfdt relocation"
+        }
+      ],
+      "post_apply_statuses_not_tested": true
+    }
+  ],
+  "resolved_component_truth": {
+    "nxp": {
+      "path": "/fragment@21/__overlay__/eusb2_repeater@4f",
+      "bus": "/soc/i2c@994000",
+      "reg": [
+        79
+      ],
+      "status": "absent",
+      "ancestor_status": "ok",
+      "compatible": "nxp,eusb2-repeater",
+      "reset_cells": [
+        7,
+        7,
+        0
+      ],
+      "reset_provider": "not derived from raw first cell without typed local fixup",
+      "vdd18": "/soc/rsc@17a00000/rpmh-regulator-smpb10/regulator-pm8350-s10",
+      "vdd3": "/soc/rsc@17a00000/rpmh-regulator-ldob2/regulator-pm8350-l2",
+      "param_override_seq": [
+        64,
+        6,
+        34,
+        7,
+        100,
+        8
+      ],
+      "host_param_override_seq": [
+        64,
+        6,
+        34,
+        7,
+        36,
+        8
+      ]
+    },
+    "diodes": {
+      "path": "/fragment@21/__overlay__/eusb2_repeater@6c",
+      "reg": [
+        108
+      ],
+      "source_status": "disabled"
+    },
+    "ps5169": {
+      "path": "/fragment@49/__overlay__/redriver@30",
+      "bus": "/soc/i2c@88c000",
+      "reg": [
+        48
+      ],
+      "status": "ok",
+      "compatible": "parade,ps5169-redriver",
+      "enable_gpio": {
+        "provider": "/soc/pinctrl@f000000",
+        "cells": [
+          4294967295,
+          19,
+          0
+        ]
+      },
+      "orientation_gpio": {
+        "provider": "/soc/pinctrl@f000000",
+        "cells": [
+          4294967295,
+          91,
+          0
+        ]
+      },
+      "vcc": "/soc/rsc@17a00000/rpmh-regulator-smpb10/regulator-pm8350-s10",
+      "vio": "/soc/rsc@17a00000/rpmh-regulator-ldoc8/regulator-pm8350c-l8",
+      "configuration": "29 triplets; raw values only in pinned full export"
+    },
+    "aux": {
+      "source_fragment": "/fragment@77/__overlay__",
+      "independent": true,
+      "enable": {
+        "provider": "/soc/pinctrl@f000000",
+        "cells": [
+          4294967295,
+          2,
+          0
+        ]
+      },
+      "flip": {
+        "provider": "/soc/pinctrl@f000000",
+        "cells": [
+          4294967295,
+          71,
+          0
+        ]
+      },
+      "part_identity": "unresolved"
+    },
+    "fsa4480": {
+      "base_target": "/soc/i2c@994000/fsa4480@42",
+      "source_base_status": "absent",
+      "pvt_overlay_status": "disabled",
+      "fragment_paths": [
+        "/fragment@76/__overlay__",
+        "/fragment@89/__overlay__"
+      ]
+    },
+    "vpu": {
+      "source_status": "okay",
+      "path": "/soc/qcom,vidc@aa00000",
+      "mmio": [
+        178257920,
+        983040
+      ],
+      "irq": [
+        0,
+        174,
+        4
+      ],
+      "dma_iommu_status": "untranslated; no enabled mainline node"
+    }
+  },
+  "variants": [
+    {
+      "index": 0,
+      "board_id": [
+        69,
+        45488
+      ],
+      "hash": "10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19",
+      "nodes": 1661,
+      "fsa_fragments": [
+        75,
+        88
+      ],
+      "aux_fragment": 76,
+      "nxp_status": "absent",
+      "diodes_status": "disabled",
+      "ps5169_status": "ok",
+      "extra_pm8010_source": false
+    },
+    {
+      "index": 1,
+      "board_id": [
+        69,
+        45728
+      ],
+      "hash": "1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b",
+      "nodes": 1664,
+      "fsa_fragments": [
+        76,
+        89
+      ],
+      "aux_fragment": 77,
+      "nxp_status": "absent",
+      "diodes_status": "disabled",
+      "ps5169_status": "ok",
+      "extra_pm8010_source": false
+    },
+    {
+      "index": 2,
+      "board_id": [
+        69,
+        41216
+      ],
+      "hash": "bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28",
+      "nodes": 1683,
+      "fsa_fragments": [
+        79,
+        97
+      ],
+      "aux_fragment": 80,
+      "nxp_status": "absent",
+      "diodes_status": "disabled",
+      "ps5169_status": "ok",
+      "extra_pm8010_source": true
+    },
+    {
+      "index": 3,
+      "board_id": [
+        69,
+        49152
+      ],
+      "hash": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad",
+      "nodes": 1664,
+      "fsa_fragments": [
+        76,
+        89
+      ],
+      "aux_fragment": 77,
+      "nxp_status": "absent",
+      "diodes_status": "disabled",
+      "ps5169_status": "ok",
+      "extra_pm8010_source": false
+    }
+  ],
+  "negative_pvt_delta": "A100-only PM8010 i/j and gpio-regulator fragments in overlay 2 are not evidence for PVT index 3",
+  "limits": [
+    "Typed source fixup identities and base symbol paths are symbolically resolvable for both base FDTs.",
+    "Absolute numeric phandles and post-apply property/status results require actual original FDT/DTBO blobs and a libfdt application.",
+    "The full exported JSON is a filtered projection, not lossless DTB bytes. Never assert byte-identical reconstructed FDT.",
+    "Physical bootloader selection, electrical supply parents and actual AUX chip identity remain unverified."
+  ]
+}
