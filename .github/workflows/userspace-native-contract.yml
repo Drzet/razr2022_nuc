@@ -12,6 +12,7 @@ on:
       - 'scripts/audit-boot-reference-consumer.py'
       - 'scripts/prepare-project-qemu.sh'
       - 'scripts/preflight-project-qemu.py'
+      - 'scripts/normalize-boot-combined-bundle.py'
       - 'scripts/finalize-project-qemu-manifest.py'
       - 'tests/userspace/test_project_qemu_preflight.py'
       - 'userspace/boot-reference-metadata-v2.json'
@@ -34,7 +35,7 @@ jobs:
       - name: Validate parser and run positive/negative fixtures
         run: |
           set -Eeuo pipefail
-          python3 -m py_compile scripts/validate-native-kernel-inputs.py tests/userspace/test_native_contract.py scripts/preflight-project-qemu.py scripts/finalize-project-qemu-manifest.py tests/userspace/test_project_qemu_preflight.py
+          python3 -m py_compile scripts/validate-native-kernel-inputs.py tests/userspace/test_native_contract.py scripts/preflight-project-qemu.py scripts/normalize-boot-combined-bundle.py scripts/finalize-project-qemu-manifest.py tests/userspace/test_project_qemu_preflight.py
           python3 tests/userspace/test_native_contract.py 2>&1 | tee native-contract-fixtures.log
           python3 tests/userspace/test_project_qemu_preflight.py 2>&1 | tee native-preflight-fixtures.log
       - name: Verify pinned Boot and VPU reference metadata without firmware payloads
