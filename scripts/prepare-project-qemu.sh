@@ -59,8 +59,7 @@ mount -t proc proc "$root/proc"
 mount -t sysfs sysfs "$root/sys"
 mount --bind /dev "$root/dev"
 chroot "$root" update-initramfs -c -k "$RELEASE"
-cleanup
-trap - EXIT
+for target in "$root/dev" "$root/sys" "$root/proc"; do umount "$target"; done
 rm -f "$root/usr/bin/qemu-aarch64-static"
 test -s "$root/boot/initrd.img-$RELEASE"
 cp "$root/boot/initrd.img-$RELEASE" "$work/initrd.img"
