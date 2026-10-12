@@ -40,7 +40,19 @@ for ((i=0;i<36;i++)); do
   sleep 2
 done
 [[ "$(cat "$evidence/qemu-ssh-status.txt")" == passed ]] || fail 'SSH_FAILED: no authenticated guest command after successful boot'
-# Optional but MANDATORY for a project-kernel test: real loadable project module.
+# Project staging creates an immutable tested kernel identity. Never allow this
+# mode to silently fall back to the older generic Debian-kernel smoke path.
+if [[ -f "$work/project-context.env" ]]; then
+  source "$work/project-context.env"
+  [[ -n "$RELEASE" && -n "$MODULE" ]] || fail 'PROJECT_MODULE_FAILED: incomplete bundle identity'
+  [[ -z "${RAZR_PROJECT_KERNEL_RELEASE:-}" || "$RAZR_PROJECT_KERNEL_RELEASE" == "$RELEASE" ]] ||
+    fail 'PROJECT_MODULE_FAILED: requested release mismatches selected Image'
+  [[ -z "${RAZR_PROJECT_QEMU_MODULE:-}" || "$RAZR_PROJECT_QEMU_MODULE" == "$MODULE" ]] ||
+    fail 'PROJECT_MODULE_FAILED: requested module mismatches selected build'
+  RAZR_PROJECT_KERNEL_RELEASE="$RELEASE"
+  RAZR_PROJECT_QEMU_MODULE="$MODULE"
+fi
+# Mandatory for a project-kernel test: real loadable project module.
 if [[ -n "${RAZR_PROJECT_KERNEL_RELEASE:-}" || -n "${RAZR_PROJECT_QEMU_MODULE:-}" ]]; then
   release=${RAZR_PROJECT_KERNEL_RELEASE:-}
   module=${RAZR_PROJECT_QEMU_MODULE:-}
