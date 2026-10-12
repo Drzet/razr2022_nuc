@@ -75,3 +75,27 @@ Boot v2 explicitly requires \`--header-inputs\` for prospective native prototype
 
 Executable [preflight](../scripts/preflight-project-qemu.py) consumes the Boot *producer* \`manifests/combined-kernel-build-v1.json\`, validates SHA256 and \`Module.symvers\`, release file, every actual AArch64 module ELF/vermagic and **generated** virt-supporting kernel configuration. [Staging](../scripts/prepare-project-qemu.sh) then uses only the accepted bundle, with mount cleanup armed before the first mount. [Finalizer](../scripts/finalize-project-qemu-manifest.py) generates a userspace \`qemu_virt\` v3 manifest from the completed initramfs. Direct negative fixture tests are separate from validator fixtures; neither is hardware execution.
 
+### Final cross-subsystem artifact agreement, recorded in issue #13
+
+Boot published [authoritative machine-readable producer interface v1](https://github.com/Drzet/razr2022_nuc/blob/razr/boot/configs/oneli-combined-artifact-interface-v1.json) at Boot project commit \`18b68b8babf48a67b518ab410f08390d401de9b4\`; Userspace **explicitly ACKed it on [coordination issue #13](https://github.com/Drzet/razr2022_nuc/issues/13#issuecomment-6130512724)**. This supersedes Userspace's earlier suggested ZIP layout; no Boot rebuild to match that superseded layout is requested.
+
+Boot delivers \`combined-bundle.tar.zst\` containing, at its root, \`Image\`, \`kernel.config\` (plus byte-identical \`.config\`), \`Module.symvers\`, \`kernel.release\`, \`sm8475-motorola-oneli.dtb\` for separate FDT checking, \`modules/<release>/\` including \`modules.dep\` and all actual .ko, \`build-manifest.json\`, \`module-sha256.json\`, \`firmware-qemu-virt.json\`, \`qemu-native-inputs.v3.preflight.json\`, \`SHA256SUMS\` and logs. Boot intentionally leaves initramfs path/hash \`null\`; Userspace generates them only after verifying the bundle.
+
+[Verified producer adapter](../scripts/normalize-boot-combined-bundle.py) checks Boot's original bytes, module inventory, source and config provenance, compiled DTB hash, \`SHA256SUMS\`, explicit QEMU-only firmware scope, and immutable no-initramfs boundary. It converts to the internal \`boot/\` / \`lib/modules/\` format consumed by [real module/Kconfig preflight](../scripts/preflight-project-qemu.py). Use:
+
+\`\`\`sh
+# First, verify the received tar.zst and extract it safely with its exact Boot-provided SHA256.
+python3 scripts/normalize-boot-combined-bundle.py \
+  --boot-root boot-extracted-bundle --output-root normalized-combined-bundle
+python3 scripts/preflight-project-qemu.py --bundle-root normalized-combined-bundle
+sudo bash scripts/prepare-project-qemu.sh normalized-combined-bundle \
+  verified-debian-arm64-rootfs.tar.zst <verified-rootfs-sha256> fresh-workdir
+# The staging script generates initrd, final schema v3, disposable QEMU disk,
+# then verifies the real module bytes and QEMU target profile before boot.
+bash scripts/smoke-qemu.sh fresh-workdir fresh-workdir/evidence
+\`\`\`
+
+For a project-staged workdir, \`smoke-qemu.sh\` derives release/module from its matching context and **cannot silently fall back** to distro-kernel mode. Actual combined project Image/QEMU execution is still pending; source-stage adapter fixtures are not guest runtime validation. The first full candidate Boot workflow is [38292394177](https://github.com/Drzet/linux/actions/runs/38292394177), kernel \`2b5acf108ae37040ac1e652e029bb37f5609e886\`; do not claim its artifact available until full run and immutable digest are verified.
+
+Adapter acceptance evidence: [Userspace 38293908746](https://github.com/Drzet/razr2022_nuc/actions/runs/38293908746), **14 native fixtures + 17 producer-layout/preflight fixtures + Boot-v2 reference audit passed**. The bundle tests use synthetic module/binary fixtures shaped like Boot's real published format. They do not attest to a real combined bundle, initramfs generation or QEMU load yet.
+
