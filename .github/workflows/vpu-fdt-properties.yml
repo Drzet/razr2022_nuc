@@ -1,0 +1,70 @@
+name: Oneli bounded public stock FDT property export
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/export-oneli-stock-fdts.py'
+      - '.github/workflows/vpu-fdt-properties.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oneli-fdt-props-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stock-fdt-properties:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Capture exact parser source SHA and Python
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          python3 --version | tee evidence/python-version.txt
+          git rev-parse HEAD | tee evidence/project-tested-sha.txt
+          git hash-object scripts/export-oneli-stock-fdts.py \
+            scripts/inspect-oneli-stock-ranges.py | tee evidence/source-blob-sha1.txt
+          python3 -m py_compile scripts/export-oneli-stock-fdts.py \
+            scripts/inspect-oneli-stock-ranges.py
+      - name: Fetch only previously SHA-verified DTBO and vendor_boot ZIP members
+        run: |
+          set -euo pipefail
+          python3 -u scripts/export-oneli-stock-fdts.py \
+            --json-out evidence/stock-per-fdt-property-export.json \
+            2>&1 | tee evidence/export.log
+          python3 - <<'PY'
+          import json
+          j=json.load(open("evidence/stock-per-fdt-property-export.json"))
+          dtbo=[x for x in j["per_fdt"] if x["provenance"]["member"]=="dtbo.img"]
+          base=[x for x in j["per_fdt"] if x["provenance"]["member"]=="vendor_boot.img"]
+          assert len(dtbo)==4, f"expected four DTBO entries, got {len(dtbo)}"
+          assert base, "vendor_boot DTB region has no parseable FDT"
+          assert all(x["node_count"]>0 for x in j["per_fdt"])
+          print("PASS",len(dtbo),"overlays;",len(base),"vendor_boot base FDTs")
+          PY
+          sha256sum evidence/stock-per-fdt-property-export.json \
+            | tee evidence/export-sha256.txt
+      - name: Upload derived JSON only, NO stock binary artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-per-fdt-properties-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Explicit result boundaries
+        if: always()
+        run: |
+          {
+            echo "## Bounded oneli reference FDT export"
+            echo "Only dtbo.img and vendor_boot.img were fetched using checked ZIP64 HTTP byte ranges."
+            echo "Member SHA256 must match the previously verified reference; FDT parser checks ranges and tokens."
+            echo "All properties are uncomposed reference variants; not live FDT or active bootloader choice."
+            echo "Sensitive identifiers are redacted; no binary DTBs, boot images or firmware uploaded."
+          } >> "$GITHUB_STEP_SUMMARY"
