@@ -1,65 +1,85 @@
-# Oneli DisplayPort: four stock DTBO AUX variants, evidence matrix and hold
+# Motorola oneli DisplayPort: actual stock DTBO AUX variant matrix and binding decision
 
-**Review date:** 2026-10-11, third coordinator assignment. **Owner:** DisplayPort, project `razr/displayport`; kernel `Drzet/linux:razr/displayport` remains **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`** (no DP source patch).
+**Updated:** 2026-10-12; DisplayPort fourth coordinator assignment. **Status:** the four reference DTBO AUX property rows are now **inspected and resolved at the symbolic-fixup level**. **No live effective DT, actual AUX IC identification, schema-valid new AUX node, or native output test.**
 
-## 1. Scope and immutable provenance
+Kernel DisplayPort branch `Drzet/linux:razr/displayport` is unchanged at **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`**. Boot alone owns changes to the shared `sm8475.dtsi` and `sm8475-motorola-oneli.dts`.
 
-This is the bounded offline report requested by [coordinator NEXT_TASKS](https://github.com/Drzet/razr2022_nuc/blob/main/docs/NEXT_TASKS.md). It **consumes existing metadata**, not proprietary blobs and not a second large archive download.
+## Evidence: verified six-FDT export, not the failed phone DT capture
 
-- Public RE*TEU* Android 14 reference package: `XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip`, **4,353,164,507 bytes**, SHA-256 **`620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c`**. [Actual acquisition run 38169190369](https://github.com/Drzet/razr2022_nuc/actions/runs/38169190369); [VPU verified manifest](https://github.com/Drzet/razr2022_nuc/blob/razr/vpu/docs/vpu/2026-10-11-public-stock-reference-manifest.md). Matching *build label* does not establish byte-identical firmware installed on the phone.
-- Reference `dtbo.img`: **24,117,248 bytes**, SHA-256 **`daf02eb24af55cf4c20569db51b5bca70f0550d035846672ef3054f0c0484bd0`**, Android DT table v0, four entries with **zero** table IDs, revisions and custom fields. [VPU compiled-candidate report](https://github.com/Drzet/razr2022_nuc/blob/razr/vpu/docs/vpu/2026-10-11-public-stock-boot-dtbo.md), backed by [range verification run 38170215643](https://github.com/Drzet/razr2022_nuc/actions/runs/38170215643). Individual candidate `dtc -I dtb -O dts` returned success in that report. The actual decompiled node/property lists **were not published** in these manifests.
-- The later [VPU filesystem manifest](https://github.com/Drzet/razr2022_nuc/blob/razr/vpu/docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json) confirms a reference `vendor_boot.img` v4 **embedded DTB region 958,962 bytes**, offset **13,340,672**, region SHA-256 **`88b605e746f829545f3a5ceabc8ac669eee803db1397d32cc7f49ec91fbba71e`**. Its **actual FDT count, subblob boundaries, compatible list and AUX/DP properties are not in the shared manifest**. A region hash is not a decoded reference base FDT.
-- Physical stock ADB [capture](https://github.com/Drzet/razr2022_nuc/blob/main/docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md) observed `XT2251-1`, **PVT**, `0xC000`, SKU `dn`, Android 14 `U2SLS34.1-42-14-11`. `card0-DP-1` existed but was **disabled**; permissions denied reading connector status/modes. The captured live DT archives have **zero property files**, so they cannot establish active overlay index or AUX wiring.
-- Source comparator: Motorola `kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359` `qcom/cape-oneli-pvt-overlay.dts` gives **`qcom,board-id = <0x45 0xC000>`**, `qcom,msm-id = <530 0x10000>, <531 0x10000>, <540 0x10000>`, and includes `cape-oneli-common-overlay.dtsi`. These are **Android-12 reference *source* properties**, not inspected values of the four Android-14 DTBO FDTs and not the actual bootloader selection.
+- **New direct reference evidence:** [VPU compact extracted property JSON](https://github.com/Drzet/razr2022_nuc/blob/1a59d79fda42a977956de8e06c3a60d44b2971f4/docs/vpu/2026-10-12-oneli-stock-fdt-properties.json), blob **`51a3ea64119a4f39de7be2197f1d706a97f5f939`**, and [VPU consumer analysis](https://github.com/Drzet/razr2022_nuc/blob/1a59d79fda42a977956de8e06c3a60d44b2971f4/docs/vpu/2026-10-12-stock-fdt-consumer-report.md). The [full six-FDT raw-property export artifact](https://github.com/Drzet/razr2022_nuc/actions/runs/38220276125/artifacts/11734430639) is metadata-only: internal `stock-per-fdt-property-export.json` **15,862,099 bytes**, SHA-256 **`1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465`**; artifact ZIP SHA-256 **`485ff37b87cff2e6432928cfd4c0d4168bb3c10af163f6e68b6adfba35a528ae`**. [Run 38220276125](https://github.com/Drzet/razr2022_nuc/actions/runs/38220276125) passed with checkout **`3dfc56966217dbcadb7107d4df5c913a043b996a`**, Python 3.12.3, parser Git blob `273517eeb62f7333f678b2722d4389743757982e`. [Coordinator verification](https://github.com/Drzet/razr2022_nuc/blob/main/docs/FOURTH_REVIEW_VPU_UPDATE.md) separately checked artifact/file digests and sampled the actual raw properties and fixups.
+- **Source container:** public Motorola `XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11...` reference ZIP, **4,353,164,507 bytes**, SHA-256 **`620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c`**. Typed, bounded retrieval of `dtbo.img` SHA-256 **`daf02eb24af55cf4c20569db51b5bca70f0550d035846672ef3054f0c0484bd0`** and `vendor_boot.img` SHA-256 **`1c27e22565f6f50919812bfcb5254cea2f3b629d98f5c26a7b54f5ece452036e`**. No DP-owned ROM re-download.
+- **Physical ADB distinction:** stock [read-only capture](https://github.com/Drzet/razr2022_nuc/blob/main/docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md) showed XT2251-1 **PVT**, hwrev **`0xc000`**, SKU `dn`, and `card0-DP-1` **registered but disabled**; neither uploaded “live DT” archive contains property files. The reference ZIP's matching build label does not prove identical installed bytes, bootloader overlay selection or external display operation.
 
-## 2. Four per-entry reference DTBO matrix
+## 1. Four *actual extracted* overlay AUX rows
 
-The table contains **all** independently verified per-index values available from the shared manifests. “Not extracted into manifest” is **not a negative property search**.
+These are the standalone FDTs decoded from reference `dtbo.img`, **not** the bootloader-composed live tree. All use root compatibles `qcom,cape-mtp`, `qcom,cape`, `qcom,mtp`, `moto,oneli` and root `qcom,msm-id` triplet `<531 65536>, <540 65536>, <530 65536>`. DTBO *table-level* ID/revision values are zero, while the **embedded root** `qcom,board-id` differs by variant.
 
-| Index | DT offset (bytes) | DT size (bytes) | DTB SHA-256 | Model/root compatibles (reported) | AUX switch SKU / GPIO2,71 properties / enabled DP route |
-| --- | ---: | ---: | --- | --- | --- |
-| 0 | 160 | 227,694 | `10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19` | `oneli`; `qcom,cape-mtp`, `qcom,cape`, `qcom,mtp`, `moto,oneli` | **Not extracted into manifest** |
-| 1 | 227,854 | 227,761 | `1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b` | same | **Not extracted into manifest** |
-| 2 | 455,615 | 230,522 | `bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28` | same | **Not extracted into manifest** |
-| 3 | 686,137 | 227,761 | `4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad` | same | **Not extracted into manifest** |
+| DTBO | Embedded root `qcom,board-id` | FSA4480 **target fragments**: each `status="disabled"` | Independent AUX control fragment | Exact property cells within AUX fragment |
+| --- | --- | --- | --- | --- |
+| **0** | `<0x45 0xb1b0>` | `/fragment@75/__overlay__`, `/fragment@88/__overlay__` | `/fragment@76/__overlay__` | enable `<0xffffffff 2 0>`, flip `<0xffffffff 71 0>` |
+| **1** | `<0x45 0xb2a0>` | `/fragment@76/__overlay__`, `/fragment@89/__overlay__` | `/fragment@77/__overlay__` | enable `<0xffffffff 2 0>`, flip `<0xffffffff 71 0>` |
+| **2** | `<0x45 0xa100>` | `/fragment@79/__overlay__`, `/fragment@97/__overlay__` | `/fragment@80/__overlay__` | enable `<0xffffffff 2 0>`, flip `<0xffffffff 71 0>` |
+| **3, PVT reference candidate** | `<0x45 0xc000>` | `/fragment@76/__overlay__`, `/fragment@89/__overlay__` | `/fragment@77/__overlay__` | enable `<0xffffffff 2 0>`, flip `<0xffffffff 71 0>` |
 
-**Common evidence across indices 0–3:** VPU's decompile summary observed both string compatibles `diodes,eusb2-repeater` and `nxp,eusb2-repeater`. Their presence does **not** establish which repeater node is enabled, the physical chip, or an AUX/SBU switch. Zero DTBO table IDs/revisions do **not** select the live PVT variant. No published variant-specific `qcom,board-id`, `qcom,msm-id`, `mmi,aux-switch-*` GPIO property values, IC compatible, DP status or endpoint graph were found in the *metadata*, not proven absent from the actual DTBs.
+Each of the **eight** FSA status records is `status = "disabled"` with `raw_status_hex = 64697361626c656400`, and its `__fixups__` target symbol is **`fsa4480`**. Across all four, the separate AUX fragment contains precisely `mmi,aux-switch-enable-gpio` with cells `[0xffffffff, 2, 0]` and `mmi,aux-switch-flip-gpio` with cells `[0xffffffff, 71, 0]`. The `0xffffffff` first cell is an **unapplied external phandle fixup placeholder**, not GPIO controller ID `0xffffffff`; the final `0` is the vendor GPIO flags cell, **not** proof of the upstream active polarity.
 
-**Base-DT evidence matrix:** `vendor_boot` contains an embedded DTB **region** of known hash, but its individual base FDT(s) and their relevant properties have **not yet been surfaced**. The Qualcomm oneli overlay composition and bootloader choice are also unknown. Consequently no base+DTBO resolved property comparison can be made, and no claim that one of the four DTBOs is the handset's applied overlay is supportable.
+For full per-entry provenance, table offset/length/hash from the accepted source:
 
-## 3. Proven source-level oneli AUX software path (all variants as comparator only)
+| DTBO | Byte offset | FDT bytes | SHA-256 |
+| --- | ---: | ---: | --- |
+| 0 | 160 | 227,694 | `10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19` |
+| 1 | 227,854 | 227,761 | `1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b` |
+| 2 | 455,615 | 230,522 | `bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28` |
+| 3 | 686,137 | 227,761 | `4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad` |
 
-The [prior DisplayPort pinned audit](displayport_oneli_aux_routing_2026-10-11.md) uses Motorola display-driver `kernel-msm-5.4-techpack-display@701a48c1db80eda2ff17154a9017783230cc22aa` and display DT `kernel-display-devicetree@80b207bf35be5da38375e755506f136558ad24b5`:
+Variant 2 additionally carries PM8010 i/j regulator fragments and a `qcom,pmic-id` tuple not present in the other variants; it **must not** be treated as PVT. PVT hwrev `0xc000` points to variant 3 as the **best reference candidate**, not proof of the bootloader's actual chosen FDT.
 
-| DP state | TLMM GPIO2 vendor software output | TLMM GPIO71 vendor software output | Evidence |
+## 2. Base FDTs, symbols and *what is resolved*
+
+Reference `vendor_boot` v4 embeds **two** Cape base FDTs, each **479,481 bytes**, concatenated **without padding**, at DTB-region offsets **0** and **479481**. Region begins at vendor_boot offset **13,340,672**, total **958,962** bytes, SHA-256 **`88b605e746f829545f3a5ceabc8ac669eee803db1397d32cc7f49ec91fbba71e`**.
+
+| Base FDT | MSM ID | SHA-256 | Stock DP/FSA facts |
 | --- | --- | --- | --- |
-| Initial/disconnected | 1 (disabled) | 0 (normal) | `msm/dp/dp_display.c` initial values; `msm/dp/dp_aux.c` disconnect |
-| DP active, CC1 | 0 (enabled) | 0 (normal) | `msm/dp/dp_aux.c` CC1 branch |
-| DP active, CC2 | 0 (enabled) | 1 (flipped) | `msm/dp/dp_aux.c` CC2 branch |
+| 0 | `<530 65536>` | `8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652` | `/soc/qcom,dp_display@ae90000` `qcom,dp-aux-switch=<855>` → `/soc/i2c@994000/fsa4480@42` |
+| 1 | `<540 65536>` | `b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843` | Same source-path/DP/FSA reference; distinct base MSM ID |
 
-- Motorola oneli display DT explicitly places these as `mmi,aux-switch-enable-gpio = <&tlmm 2 0x00>` and `mmi,aux-switch-flip-gpio = <&tlmm 71 0x00>`, and disables `&fsa4480`. The parent Cape `qcom,dp-aux-switch = <&fsa4480>` acts as an old driver-code guard; the inspected FSA event/notifier calls are commented out. **It does not identify the physical AUX IC.**
-- `cape-oneli-common-overlay.dtsi` separately enables the Parade PS5169 **redriver** on I²C 0x30, with GPIO19 enable/disable pinctrl and GPIO91 orientation input. **PS5169 does not contain the SBU/AUX switch**. Motorola board-source properties cannot be silently assumed to appear unchanged in the four extracted Android-14 reference DTBOs.
-- The public ARM64 baseline's `gpio-sbu-mux.c` implements Type-C mode/orientation switching. **[INFERRED]** `enable-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>` and `select-gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>` would reproduce the **connected vendor software writes**, *if* the actual part qualifies. However the binding `gpio-sbu-mux.yaml` requires a listed specific IC compatible followed by `gpio-sbu-mux`; no oneli switch SKU is established. A generic-only compatible would be schema-invalid.
-- **NONE-state distinction:** Motorola disconnect writes GPIO71=0; generic `gpio_sbu_switch_set(TYPEC_ORIENTATION_NONE)` disables the mux but does **not forcibly reset** the stored orientation-select bit after CC2. With the switch disabled, this difference alone does not demonstrate a functional problem or justify a new generic driver quirk. Once hardware exists, explicitly observe CC2→disconnect→CC1 and CC2→disconnect→CC2 sequences.
+The **base** FSA node has `compatible = "qcom,fsa4480-i2c"`, `reg = <0x42>`, local `status` **absent** and an `ok` I²C parent. Base phandle 855 and a legacy `qcom,dp-aux-switch` property are **not evidence that FSA4480 is enabled after applying the oneli overlays**. Each oneli overlay directs **two explicit disabling assignments** to that same FSA target.
 
-Existing 23/23 source assertions remain validated by [CI run 38174309894](https://github.com/Drzet/razr2022_nuc/actions/runs/38174309894). **They have not been rerun**, per coordinator instruction; they do not validate any of the *unpublished* reference DTBO GPIO/graph properties.
+**Symbolic reference resolution verified against the exported PVT index-3 `__fixups__` and base `__symbols__` by the coordinator:**
 
-## 4. Exact remaining derived fields, sent to shared owner
+| Overlay property/target | Overlay symbol | Exact reference base target |
+| --- | --- | --- |
+| `mmi,aux-switch-enable-gpio = <0xffffffff 2 0>` | `tlmm` | `/soc/pinctrl@f000000`, GPIO **2** |
+| `mmi,aux-switch-flip-gpio = <0xffffffff 71 0>` | `tlmm` | `/soc/pinctrl@f000000`, GPIO **71** |
+| Both FSA `status="disabled"` fragments | `fsa4480` | `/soc/i2c@994000/fsa4480@42` |
+| PS5169 control and orientation GPIO19/91 | `tlmm` | `/soc/pinctrl@f000000` (USB-owned) |
 
-DisplayPort requested [shared issue #10, comment 6114740867](https://github.com/Drzet/razr2022_nuc/issues/10#issuecomment-6114740867) from **VPU/Boot**, using the existing centrally controlled extraction, a machine-readable per-entry FDT/property inventory (and individually parsed `vendor_boot` base DTB(s)) with:
+This resolves the intended external symbol providers/paths. It **does not claim libfdt applied the overlay**, resolve all phandles into a byte-identical final FDT, or identify which base and variant bootloader actually uses. Boot owns that future composition audit. It is correct to interpret the AUX path as separate GPIO-controlled logic and **incorrect to re-enable FSA4480 based on its base-node presence**.
 
-- Node path, compatible, `status` and ancestor status, phandle/fixup semantics for `mmi,aux-switch-{enable,flip}-gpio`, `qcom,dp-aux-switch`, FSA4480, GPIO2/GPIO71 references, any independent AUX switch node, `mode-switch`/`orientation-switch`/`enable-gpios`/`select-gpios`, connector `port@2` and its endpoints.
-- Related PS5169, QMP, UCSI/PMIC GLINK and DP endpoints, GPIO19/91, numeric `qcom,board-id` and `qcom,msm-id` by FDT. Only compare **enabled routes** after the actual composed tree and selection are justified.
-- Source member + byte offset + FDT SHA256, extraction/parser/tool versions and clear `not present` **versus** `not yet inspected` per candidate; no radio/VPU/GPU firmware binary publications.
+## 3. Interaction with PS5169, USB and Motorola AUX driver
 
-VPU's 4.35-GB acquisition was already centrally completed, with [radio NON-HLOS firmware now found and hashed](https://github.com/Drzet/razr2022_nuc/issues/10#issuecomment-6114680664). **DisplayPort will not make a duplicate uncontrolled download.**
+The recovered independent stock Motorola AUX path is consistent across all four board variants. Pinned Motorola [display software source](https://github.com/MotorolaMobilityLLC/kernel-msm-5.4-techpack-display/blob/701a48c1db80eda2ff17154a9017783230cc22aa/msm/dp/dp_aux.c#L714-L778) proves its **software** GPIO truth table:
 
-## 5. Binding disposition, acceptance and hold
+| State | GPIO2 output | GPIO71 output |
+| --- | --- | --- |
+| Disconnected / initialization | **1** (disable) | **0** (normal) |
+| DP Alt Mode CC1 | **0** (enable) | **0** (normal) |
+| DP Alt Mode CC2 | **0** (enable) | **1** (flip) |
 
-1. **Available evidence does not identify the actual oneli AUX/SBU switch IC or establish a conforming kernel compatible.** The missing per-DTBO and base values are a real, precisely scoped *metadata gap*, not evidence that no switch exists.
-2. Until new FDT/BOM/schematic evidence arrives, no valid oneli AUX board node can be landed; do not invent a compatible, assume FSA4480, attach AUX to PS5169 or patch MSM DRM to hide an incomplete Type-C graph.
-3. USB [versioned Type-C graph v1](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/typec_graph_contract_v1_2026-10-11.md) and [GitHub issue #3](https://github.com/Drzet/razr2022_nuc/issues/3) remain the accepted ownership contract: `connector@0/port@0` USB2/DWC3, `port@1` PS5169/QMP, `port@2` independent AUX only; GPIO91 single PMIC-GLINK input owner, GPIO2/GPIO71 DisplayPort source model, Boot owns board DT.
-4. If VPU/Boot can supply the requested candidate properties, update this matrix once with *per-FDT inspected* identity and optional composed-tree resolution. If they do not identify a legally bindable switch, **hold AUX/DP board enablement pending real hardware identification**. This is the coordinator's bounded stop criterion, not an invitation to repeated generic audits.
-5. **No kernel patch, DTB, schema, DP link, HPD, AUX, EDID, KMS, USB dock or physical test** is claimed by this report. Stock Android DP connector was registered but disabled; the phone is again inaccessible. DP kernel branch unchanged, no shared DTS touched.
+All four DTBOs separately define **PS5169** `/fragment@49/__overlay__/redriver@30`: compatible `parade,ps5169-redriver`, `reg=<0x30>`, local `status="ok"`, `redriver,enable-gpio=<0xffffffff 19 0>`, `redriver,orientation-gpio=<0xffffffff 91 0>`. The PS5169 is a USB3/DP high-speed redriver; it **does not contain the DP SBU/AUX switch** (contrast PS5170). Never use PS5169's ports as the connector SBU `port@2`. The exact USB/Type-C graph and sole GPIO91 input owner are retained in [USB graph contract v1](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/typec_graph_contract_v1_2026-10-11.md) and [issue #3](https://github.com/Drzet/razr2022_nuc/issues/3).
 
-**Consumers:** VPU/Boot to export *existing controlled-job metadata only*, USB to continue PS5169 driver candidate independently, Boot alone to integrate eventual shared DT only when USB/power/AUX prerequisites are justified, Coordinator to review this bounded hold alongside PR #11.
+The pinned upstream `gpio-sbu-mux.c` implements Type-C orientation and DP mode C/D/E enable logic. **[INFERRED]** If and only if oneli's actual AUX device is an evidenced supported GPIO-SBU design, `enable-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>` and `select-gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>` model the active vendor software writes. Vendor `<... 0>` flags and software writes are distinct representations. Upstream `gpio-sbu-mux.yaml` requires a real part-specific first compatible from its enumerated devices, followed by `"gpio-sbu-mux"`; **no verified part number** is present in this four-variant export. Do not write a generic-only or fabricated compatible.
+
+**NONE-state behavioural difference:** vendor disconnect explicitly sets GPIO71 to 0; generic `gpio_sbu_switch_set(TYPEC_ORIENTATION_NONE)` deasserts enable but can retain the previous select state after CC2. Because mux output is disabled in this state, the difference is **not proven harmful**, and no generic driver change is justified from source alone. Retest CC2-detach-reconnect when hardware is accessible.
+
+All four overlays also select the source NXP eUSB repeater @0x4f as an *enabled-by-default overlay child* (missing local `status`, parent `ok`) while the Diodes @0x6c child is explicitly disabled. This is **USB evidence**, not AUX identity. It does not turn either repeater or the FSA4480 into a stand-alone AUX switch.
+
+## 4. Fourth-round verification, disposition and consumer handoff
+
+**New input audit in this DisplayPort round:** directly read the immutable VPU compact JSON and checked **40/40 indexed structural invariants** across the four variants: root variant IDs, FSA fragment indices, both explicit disabled statuses and raw bytes, AUX fragment indices, GPIO2 and GPIO71 raw cell arrays, PS5169 status/GPIO19/91 and NXP-vs-Diodes statuses. These are programmatic **JSON consistency assertions**, not a new CI job, independent full-artifact reparse, compiled DT/schema or hardware validation. Source full-artifact hash/contents were independently checked by the coordinator (see linked amendment). The existing [23/23 pinned-source CI run 38174309894](https://github.com/Drzet/razr2022_nuc/actions/runs/38174309894) was **not rerun** because the sources did not change.
+
+**Final AUX binding decision:** among (a) existing supported part, (b) justified new part-specific binding, (c) unknown IC, evidence supports **(c), identity unresolved**. The stock reference strongly rules out **FSA4480 enablement** in every oneli overlay and establishes the **GPIO2/71 control path**, but **never identifies the discrete switch device or compatible**. Existing mainline GPIO-SBU mode/orientation logic is a behavioural *candidate*, not an attributable hardware compatible. No new kernel driver, binding, or shared board node should be committed on this evidence alone.
+
+**Gate / handoff:** DisplayPort's **variant-property audit is complete**. Boot consumes PVT variant-3 reference and both base variants to inspect type-correct applied overlay composition; USB continues PS5169 error handling and power/reset proof. Boot alone owns shared DTS. **Hold DP board enablement** until a justified AUX binding/device identity and USB/Type-C driver/graph integration exist. Actual DP/HPD/AUX/DPCD/EDID/monitor operation and FSA physical presence remain **hardware-untested**. No phone access or binary firmware authorization is implied.
+
+**No DisplayPort kernel patch**: `Drzet/linux:razr/displayport` remains at baseline. No integration, compiled oneli DP DTB, schema-validation candidate, DRM probe or device test was performed in this round.
