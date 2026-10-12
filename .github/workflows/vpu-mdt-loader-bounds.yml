@@ -5,6 +5,7 @@ on:
     branches: [razr/vpu]
     paths:
       - '.github/workflows/vpu-mdt-loader-bounds.yml'
+      - 'scripts/check-oneli-mdt-loader-bounds.py'
   workflow_dispatch:
 
 permissions:
@@ -42,6 +43,8 @@ jobs:
           assert len(m["files"])==3
           assert all(x["would_fit_reserved_region_by_size"] for x in m["files"])
           assert all(x["program_header_count"]>1 for x in m["files"])
+          assert all(x["hash_segment_indices"] for x in m["files"])
+          assert all(x["pas_metadata_hash_segment_placement"] for x in m["files"])
           print("Validated three firmware ELF header structures; no SCM acceptance implied")
           PY
           sha256sum docs/vpu/evidence/qualified-mdt-loader-bounds.json \
