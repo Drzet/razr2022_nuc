@@ -181,7 +181,7 @@ def inspect_fdt(blob, at, provenance):
     for n in nodes:
         props = n["properties"]
         compatible = props.get("compatible", b"").decode("ascii", "replace")
-        if RELEVANT.search(n["path"]) or RELEVANT.search(compatible) or any(
+        if n["path"].startswith(("/__fixups__", "/__local_fixups__", "/__symbols__")) or RELEVANT.search(n["path"]) or RELEVANT.search(compatible) or any(
                 RELEVANT.search(key) and PROPERTY_HINT.search(key) for key in props):
             selected.add(n["path"])
     # Include all parents, then candidate referenced-provider nodes. No cell
