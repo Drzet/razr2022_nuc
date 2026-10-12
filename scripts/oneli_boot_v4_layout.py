@@ -118,18 +118,34 @@ def inspect_vendor(data):
     for line in cfgdata.decode("utf-8", "replace").splitlines():
         if "=" in line:
             keys.append(line.split("=", 1)[0].strip())
-    # One vendor_boot DTB region can contain multiple FDTs. We only
-    # identify aligned contiguous FDT boundaries; overlays are not applied.
+    # vendor_boot v4 embeds FDTs as raw totalsize concatenation, NOT
+    # guaranteed four-byte alignment: oneli second FDT begins at 479481.
+    # Zero pad of up to 3 bytes is supported only when a valid FDT follows.
     dreg = next(x for x in sections if x["name"] == "dtb_region")
     fdtdata = safe_slice(data, dreg["offset"], dtb, "dtb region")
     fdts, pos = [], 0
-    while pos + 8 <= len(fdtdata) and fdtdata[pos:pos+4] == b"\xd0\x0d\xfe\xed":
+    fdt_magic = b"\xd0\x0d\xfe\xed"
+    while pos < len(fdtdata):
+        if fdtdata[pos:pos+4] != fdt_magic:
+            padded_pos = align(pos, 4)
+            if (padded_pos > pos and padded_pos <= len(fdtdata)
+                    and not any(fdtdata[pos:padded_pos])
+                    and fdtdata[padded_pos:padded_pos+4] == fdt_magic):
+                pos = padded_pos
+            else:
+                break
+        if pos + 8 > len(fdtdata):
+            raise ValueError("truncated FDT header in vendor_boot region")
         size = int.from_bytes(fdtdata[pos+4:pos+8], "big")
         if size < 40 or pos + size > len(fdtdata):
-            raise ValueError("FDT header size beyond vendor_boot DTB region")
+            raise ValueError("FDT totalsize beyond vendor_boot DTB region")
         fdts.append({"relative_offset": pos, "bytes": size,
                      "sha256": sha(fdtdata[pos:pos+size])})
-        pos = align(pos + size, 4)
+        pos += size
+    if any(fdtdata[pos:]):
+        raise ValueError("unparsed nonzero bytes in vendor_boot DTB region")
+    if dtb and not fdts:
+        raise ValueError("vendor_boot DTB region does not contain an FDT")
     return {"kind": "vendor_boot", "version": 4, "bytes": len(data),
             "sha256": sha(data), "page_size": page, "header_size": VENDOR_HDR,
             "kernel_addr_raw": u32(data, 16), "ramdisk_addr_raw": u32(data, 20),
@@ -178,6 +194,25 @@ def sized_text(s, size):
     return raw + bytes(size - len(raw))
 
 
+def native_header_inputs(path):
+    """Require explicit raw fields; reference addresses are not native approval."""
+    data = json.loads(Path(path).read_text())
+    required = ("os_version_raw", "kernel_addr", "ramdisk_addr",
+                "tags_addr", "dtb_addr")
+    if not isinstance(data, dict) or any(key not in data for key in required):
+        raise ValueError("header inputs JSON missing required raw fields")
+    if data.get("purpose") not in ("structural-only", "reviewed-native"):
+        raise ValueError("header purpose must be structural-only/reviewed-native")
+    for key in required:
+        value = data[key]
+        bits = 64 if key == "dtb_addr" else 32
+        if type(value) is not int or value < 0 or value >= 1 << bits:
+            raise ValueError("%s must be explicit unsigned %d-bit integer" % (key, bits))
+    if data.get("phone_boot_validated") is not False:
+        raise ValueError("header inputs must say phone_boot_validated=false")
+    return data
+
+
 def prototype(args, boot, vendor):
     # Explicit new payloads only. Absolutely no copies of stock Android
     # vendor ramdisk or bootconfig. No bootloader signing/AVB is performed.
@@ -186,6 +221,7 @@ def prototype(args, boot, vendor):
     dtb = Path(args.dtb).read_bytes()
     vr = Path(args.vendor_ramdisk).read_bytes()
     cfg = Path(args.bootconfig).read_bytes()
+    header = native_header_inputs(args.header_inputs)
     if not k or not initrd or not dtb or not vr:
         raise ValueError("all kernel/ramdisk/DTB/vendor-ramdisk inputs required")
     config = json.loads(Path(args.ramdisk_descriptor).read_text())
@@ -201,12 +237,16 @@ def prototype(args, boot, vendor):
     bh = bytearray(PAGE)
     bh[:BOOT_HDR] = boot[:BOOT_HDR]
     struct.pack_into("<II", bh, 8, len(k), len(initrd))
+    struct.pack_into("<I", bh, 16, header["os_version_raw"])
     bh[44:1580] = sized_text(args.cmdline, 1536)
     struct.pack_into("<I", bh, 1580, 0)  # unsigned, no boot signature
     boot_candidate = bytes(bh) + padded(k, PAGE) + padded(initrd, PAGE)
     page = u32(vendor, 12)
     vh = bytearray(page)
     vh[:VENDOR_HDR] = vendor[:VENDOR_HDR]
+    struct.pack_into("<II", vh, 16, header["kernel_addr"], header["ramdisk_addr"])
+    struct.pack_into("<I", vh, 2076, header["tags_addr"])
+    struct.pack_into("<Q", vh, 2104, header["dtb_addr"])
     vh[28:2076] = sized_text(args.vendor_cmdline, 2048)
     vh[2080:2096] = sized_text(args.vendor_name, 16)
     struct.pack_into("<I", vh, 24, len(vr))
@@ -227,6 +267,15 @@ def prototype(args, boot, vendor):
     (output / "candidate-layout.json").write_text(json.dumps(
         {"boot": x, "vendor_boot": y, "runtime_validated": False,
          "avb_signed": False, "flash_tested": False,
+         "header_input_purpose": header["purpose"],
+         "header_inputs": {key: header[key] for key in
+                           ("os_version_raw", "kernel_addr", "ramdisk_addr",
+                            "tags_addr", "dtb_addr")},
+         "validation_stages": {
+             "structural_parser": "passed-self-parser",
+             "independent_aosp_parser": "not-tested",
+             "native_image_composition": "not-validated",
+             "phone_bootloader_acceptance": "not-tested"},
          "note": "structural demonstration only; not a phone flashing recipe"},
         indent=2) + "\n")
     print("UNSIGNED candidate layout produced; NO flash/boot success claimed")
@@ -244,6 +293,7 @@ def main():
     ap.add_argument("--vendor-ramdisk")
     ap.add_argument("--bootconfig")
     ap.add_argument("--ramdisk-descriptor")
+    ap.add_argument("--header-inputs", help="JSON: OS-version and four vendor load addresses")
     ap.add_argument("--cmdline")
     ap.add_argument("--vendor-cmdline")
     ap.add_argument("--vendor-name")
@@ -258,7 +308,7 @@ def main():
                           "identity_roundtrip": args.action == "roundtrip"}, indent=2))
     else:
         for opt in ("kernel", "initramfs", "dtb", "vendor_ramdisk",
-                    "bootconfig", "ramdisk_descriptor", "cmdline",
+                    "bootconfig", "ramdisk_descriptor", "header_inputs", "cmdline",
                     "vendor_cmdline", "vendor_name"):
             if getattr(args, opt) is None:
                 ap.error("--%s required for candidate" % opt.replace("_", "-"))
