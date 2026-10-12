@@ -28,10 +28,25 @@ for spec in 'proc /proc proc' 'sysfs /sys sysfs' 'devtmpfs /dev devtmpfs' 'tmpfs
 done
 "$BB" mkdir -p /run/oneli-diag
 log=/run/oneli-diag/000001.log
-: > "$log"
+log_write_failed=0
+console_write_failed=0
+if ! : 2>/dev/null > "$log"; then
+    printf '%s\n' 'WRITE_FAILURE volatile_log_init' 2>/dev/null >/dev/console || :
+fi
 record() {
-    printf '%s\n' "$*" >> "$log"
-    printf '%s\n' "$*" >/dev/console 2>/dev/null || :
+    if ! printf '%s\n' "$*" 2>/dev/null >> "$log"; then
+        if [ "$log_write_failed" -eq 0 ]; then
+            log_write_failed=1
+            printf '%s\n' 'WRITE_FAILURE volatile_log' 2>/dev/null >/dev/console || :
+        fi
+    fi
+    if ! printf '%s\n' "$*" 2>/dev/null >/dev/console; then
+        if [ "$console_write_failed" -eq 0 ]; then
+            console_write_failed=1
+            printf '%s\n' 'WRITE_FAILURE console' 2>/dev/null >> "$log" || :
+            printf '%s\n' 'oneli-diag: WRITE_FAILURE console' 2>/dev/null >/dev/kmsg || :
+        fi
+    fi
 }
 record "RAZR_NATIVE_DIAG_SEQUENCE=000001"
 record "RAZR_NATIVE_DIAG_PID1=$$"
@@ -55,11 +70,39 @@ else
     record "READ_FAILURE /proc/device-tree/compatible"
 fi
 record "RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN"
+# All raw, filtered and temporary logs remain on /run tmpfs. Console excerpt:
+# most recent 80 matching lines, capped again at 16384 bytes total.
 if "$BB" dmesg > /run/oneli-diag/dmesg.raw 2>/run/oneli-diag/dmesg.error; then
-    "$BB" grep -iE 'fail|error|probe|timeout|defer' /run/oneli-diag/dmesg.raw | "$BB" tail -n 80 >> "$log" || :
+    grep_status=0
+    "$BB" grep -iE 'fail|error|probe|timeout|defer' \
+        /run/oneli-diag/dmesg.raw > /run/oneli-diag/probe-matches.raw \
+        2>/run/oneli-diag/probe-grep.error || grep_status=$?
+    if [ "$grep_status" -gt 1 ]; then
+        record "READ_FAILURE probe_error_filter"
+    else
+        if "$BB" tail -n 80 /run/oneli-diag/probe-matches.raw | \
+            "$BB" tail -c 16384 > /run/oneli-diag/probe-errors.summary; then
+            if [ -r /run/oneli-diag/probe-errors.summary ]; then
+                while IFS= read -r line || [ -n "$line" ]; do
+                    record "$line"
+                done < /run/oneli-diag/probe-errors.summary
+            else
+                record "READ_FAILURE probe_error_summary"
+            fi
+        else
+            record "READ_FAILURE probe_error_summary"
+        fi
+    fi
 else
     record "READ_FAILURE kernel_dmesg"
-    "$BB" cat /run/oneli-diag/dmesg.error >> "$log" 2>/dev/null || :
+    if [ -r /run/oneli-diag/dmesg.error ]; then
+        "$BB" head -c 512 /run/oneli-diag/dmesg.error > /run/oneli-diag/dmesg-error-summary 2>/dev/null || :
+        if [ -r /run/oneli-diag/dmesg-error-summary ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+                record "READ_FAILURE_DETAIL $line"
+            done < /run/oneli-diag/dmesg-error-summary
+        fi
+    fi
 fi
 record "RAZR_NATIVE_DIAG_PROBE_ERRORS_END"
 record "RAZR_NATIVE_DIAG_READY_V1"
@@ -257,6 +300,28 @@ def verify_payload(cpio, compressed):
         raise ValueError("gzip payload differs from raw cpio")
     return data, entries
 
+PROBE_FIXTURE = "RAZR_NATIVE_PROBE_ERROR_FIXTURE_CI_ONLY"
+
+def console_probe_lines(serial):
+    """Extract only text actually between the console's probe-summary markers."""
+    lines = serial.splitlines()
+    begin, end = "RAZR_NATIVE_DIAG_PROBE_ERRORS_BEGIN", "RAZR_NATIVE_DIAG_PROBE_ERRORS_END"
+    start_indexes = [i for i, line in enumerate(lines) if line.strip() == begin]
+    end_indexes = [i for i, line in enumerate(lines) if line.strip() == end]
+    if len(start_indexes) != 1 or len(end_indexes) != 1 or end_indexes[0] <= start_indexes[0]:
+        raise ValueError("console probe summary markers missing or unordered")
+    return lines[start_indexes[0]+1:end_indexes[0]]
+
+def require_probe_fixture(serial):
+    lines = console_probe_lines(serial)
+    if not any(PROBE_FIXTURE in line for line in lines):
+        raise ValueError("deterministic nonempty probe fixture absent from console summary")
+    if sum(len(line.encode("utf-8")) + 1 for line in lines) > 16384 + 80:
+        raise ValueError("console probe summary exceeds byte bound")
+    if len(lines) > 80:
+        raise ValueError("console probe summary exceeds line bound")
+    return lines
+
 def finalize(a):
     c = contract_file(a.contract)
     root = Path(a.directory)
@@ -275,11 +340,15 @@ def finalize(a):
     for s in expected:
         if s.encode() not in serial:
             raise ValueError("actual QEMU serial missing " + s)
+    for filename in ("qemu-serial.log", "qemu-hold-serial.log"):
+        text = (root / filename).read_text(errors="replace")
+        require_probe_fixture(text)
     if (root / "qemu-exit-code.txt").read_text().strip() != "0":
         raise ValueError("QEMU did not exit zero")
     p = c["userspace_payload"]
     manifest = {
         "schema": "oneli-native-diag-payload-v1", "interface": c["schema"],
+        "payload_revision": "console-summary-v2",
         "kernel_commit": c["kernel"]["commit"], "kernel_release": c["kernel"]["release"],
         "kernel_image_sha256": c["kernel"]["image_sha256"],
         "board_dtb_sha256": c["kernel"]["board_dtb_sha256"],
@@ -310,6 +379,10 @@ def finalize(a):
             "result": "pass", "qemu_generated_dtb": True, "debian_rootfs_used": False,
             "pid1_verified": True, "kernel_release_verified": True, "ready_marker": MARKER,
             "exit_code": 0, "serial_log_relative_path": "qemu-serial.log",
+            "console_probe_fixture": PROBE_FIXTURE,
+            "console_probe_fixture_verified": True,
+            "hold_serial_log_relative_path": "qemu-hold-serial.log",
+            "hold_serial_log_sha256": digest(root/"qemu-hold-serial.log"),
             "serial_log_sha256": sha(serial), "test_command_relative_path": "qemu-command.txt"
         }
     }
@@ -352,6 +425,17 @@ def verify_manifest(path, contract):
     for key, path in (("cpio_sha256", cpio), ("compressed_sha256", compressed)):
         if m[key] != digest(path):
             raise ValueError("payload hash mismatch " + key)
+    if m.get("payload_revision") == "console-summary-v2":
+        q = m["qemu_validation"]
+        if q.get("console_probe_fixture") != PROBE_FIXTURE or q.get("console_probe_fixture_verified") is not True:
+            raise ValueError("console fixture metadata missing")
+        for key in ("serial_log_relative_path", "hold_serial_log_relative_path"):
+            relative = Path(q[key])
+            if relative.is_absolute() or ".." in relative.parts or len(relative.parts) != 1:
+                raise ValueError("unsafe probe evidence log path")
+            require_probe_fixture((root/relative).read_text(errors="replace"))
+        if digest(root / q["hold_serial_log_relative_path"]) != q["hold_serial_log_sha256"]:
+            raise ValueError("hold serial evidence digest mismatch")
     if m["init_sha256"] != sha(files["init"][1]):
         raise ValueError("init hash mismatch")
     q = m["qemu_validation"]
