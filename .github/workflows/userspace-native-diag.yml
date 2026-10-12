@@ -110,6 +110,27 @@ jobs:
               exit 1
             fi
           done
+      - name: Negative QEMU test holds diagnostics without explicit exit trigger
+        run: |
+          set -Eeuo pipefail
+          printf '%s\n' 'QEMU virt, no razr.diag_test_shutdown=1; must remain alive until host timeout' > native-diag-v1/qemu-hold-command.txt
+          set +e
+          timeout --signal=TERM --kill-after=5s 12s qemu-system-aarch64             -L /usr/lib/ipxe/qemu -machine virt -cpu cortex-a57 -m 1024 -smp 2             -accel tcg -nodefaults -nographic -serial stdio -monitor none -no-reboot             -kernel boot-root/Image -initrd native-diag-v1/oneli-diag-initramfs.cpio.gz             -append 'console=ttyAMA0,115200 rdinit=/init'             > native-diag-v1/qemu-hold-serial.log 2>&1
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > native-diag-v1/qemu-hold-exit-code.txt
+          if [ "$rc" -ne 124 ]; then
+            tail -n 80 native-diag-v1/qemu-hold-serial.log >&2
+            echo "unexpected QEMU hold exit=$rc" >&2
+            exit 1
+          fi
+          grep -aFq RAZR_NATIVE_DIAG_READY_V1 native-diag-v1/qemu-hold-serial.log
+          grep -aFq RAZR_NATIVE_DIAG_HOLD native-diag-v1/qemu-hold-serial.log
+          if grep -aEq 'RAZR_NATIVE_DIAG_QEMU_SHUTDOWN|reboot: Power down' native-diag-v1/qemu-hold-serial.log; then
+            echo 'diagnostic service unexpectedly initiated shutdown' >&2
+            exit 1
+          fi
+          echo RAZR_NATIVE_DIAG_HOLD_TEST_PASS
       - name: Publish exact manifest and verify all hashes
         run: |
           set -Eeuo pipefail
