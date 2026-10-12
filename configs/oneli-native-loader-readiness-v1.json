@@ -1,0 +1,292 @@
+{
+  "schema": "oneli-native-loader-readiness-v1",
+  "date": "2026-10-12",
+  "owner": "Boot",
+  "repository": "Drzet/razr2022_nuc",
+  "branch": "razr/boot",
+  "assessment": "source-and-host-inspection-complete; native-device-handoff-blocked",
+  "kernel": {
+    "repository": "Drzet/linux",
+    "commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "release": "7.3.0-rc6-g2b5acf108ae3",
+    "image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "image_file_bytes": 52369920,
+    "image_header": {
+      "header_bytes": 64,
+      "magic_hex": "0x644d5241",
+      "text_offset_bytes": 0,
+      "effective_image_bytes": 53215232,
+      "effective_image_hex": "0x32c0000",
+      "extra_required_allocation_bytes": 845312,
+      "flags_hex": "0xa",
+      "little_endian": true,
+      "kernel_page_size_bytes": 4096,
+      "physical_placement_bit_set": true,
+      "pe_coff_offset_bytes": 64,
+      "boot_via_efi_proven": false
+    },
+    "arm64_boot_protocol": {
+      "image_start_from_2mib_aligned_base_bytes": 0,
+      "base_alignment_bytes": 2097152,
+      "min_free_bytes_from_image_start": 53215232,
+      "dtb_alignment_bytes": 8,
+      "dtb_max_bytes": 2097152,
+      "initrd_window_alignment_bytes": 1073741824,
+      "initrd_max_window_bytes": 34359738368,
+      "physical_memory_map_verified": false
+    },
+    "artifact_source": {
+      "github_artifact_id": 11768562884,
+      "combined_bundle_sha256": "5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896"
+    }
+  },
+  "mainline_dtb": {
+    "sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+    "bytes": 104726,
+    "fdt_nodes": 898,
+    "fdt_properties": 3418,
+    "memory_node": "/memory@a0000000",
+    "memory_reg_cells_u32": [
+      0,
+      2684354560,
+      0,
+      0
+    ],
+    "memory_size_bytes": 0,
+    "bootloader_must_supply_valid_memory": true,
+    "has_chosen_bootargs": false,
+    "has_symbols_node": false,
+    "has_fixups_node": false,
+    "chosen_stdout_path": "serial0:115200n8",
+    "serial0_path": "/soc@0/geniqup@9c0000/serial@99c000",
+    "geni_compatible": "qcom,geni-debug-uart",
+    "uart_enabled": true,
+    "physical_serial_access_proven": false
+  },
+  "stock_reference": {
+    "public_reference_not_installed_partition": true,
+    "vendor_boot_version": 4,
+    "boot_version": 4,
+    "stock_kernel_bytes": 46854172,
+    "stock_boot_signature_bytes": 4096,
+    "stock_header_os_version_raw": 402653593,
+    "reference_fields": {
+      "kernel_addr_raw": 32768,
+      "ramdisk_addr_raw": 16777216,
+      "dtb_addr_raw": 32505856,
+      "tags_addr_raw": 256
+    },
+    "pvt_reference_overlay_index": 3,
+    "pvt_reference_board_id_u32": [
+      69,
+      49152
+    ],
+    "source_base_fdt_candidates": [
+      "MSM530",
+      "MSM540"
+    ],
+    "selected_overlay_on_device": null,
+    "stock_vendor_ramdisk_compression": "lz4-legacy",
+    "stock_bootconfig_bytes": 85,
+    "stock_v4_signature_is_not_avb": true
+  },
+  "hypothetical_literal_address_test": {
+    "interpretation": "raw address fields treated *hypothetically* as absolute physical destinations; not accepted as Motorola loader behavior",
+    "kernel_start": 32768,
+    "kernel_effective_end_exclusive": 53248000,
+    "kernel_base_2mib_aligned": false,
+    "ramdisk_start": 16777216,
+    "ramdisk_start_inside_kernel": true,
+    "dtb_start": 32505856,
+    "dtb_start_inside_kernel": true,
+    "conclusion": "invalid-assumed-native-placement",
+    "selected_native_kernel_addr": null,
+    "selected_native_ramdisk_addr": null,
+    "selected_native_dtb_addr": null
+  },
+  "observed_phone": {
+    "source": "docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md",
+    "hardware_observed_at": "2026-10-11",
+    "stock_bootloader": "MBM-3.0-oneli-c66ed235df0-250923-U2SLS34.1-42-14-11-e37c37",
+    "model": "XT2251-1",
+    "hardware_revision": "pvt",
+    "hwrev_hex": "0xc000",
+    "stock_android": "14",
+    "stock_active_slot_at_capture": "_a",
+    "verified_boot_state_at_capture": "green",
+    "bootloader_locked_at_capture": true,
+    "slot_mapped_partitions": [
+      "boot",
+      "vendor_boot",
+      "dtbo",
+      "recovery",
+      "vbmeta",
+      "vbmeta_system"
+    ],
+    "installed_partition_bytes_captured": false,
+    "actual_loader_source_verified": false,
+    "physical_uart_connection_evidenced": false
+  },
+  "host_artifact_preserved": {
+    "kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "userspace_artifact_id": 11772559465,
+    "boot_candidate_artifact_id": 11774750168,
+    "boot_candidate_sha256": "f47686e4cff28d9491ece814dd6c91c6f22eab32b3061a46f9bb935ae1fcda74",
+    "vendor_boot_candidate_sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572",
+    "accepted_host_only": true,
+    "native_flash_approved": false,
+    "hardware_tested": false
+  },
+  "physical_output": {
+    "source_uart": "qcom-geni-uart7",
+    "linux_console": "ttyMSM",
+    "source_tlmm_gpio_numbers": [
+      26,
+      27
+    ],
+    "gpio_as_physical_board_test_points_proven": false,
+    "pinout_ground_voltage_tx_observed": false,
+    "pstore_reserved_and_readout_approved": false,
+    "usb_gadget_preboot_route_proven": false,
+    "next_required_observation": "Safe physical receiver+ground+voltage and actual UART bytes during boot handoff, or independently verified alternative."
+  },
+  "recovery_prerequisites": {
+    "required_before_any_mutating_experiment": [
+      "read-only bootloader operation/capability including complete temporary multi-image boot policy",
+      "recheck active slot and both-slot successful/bootable flags",
+      "verify exact installed per-slot boot/vendor_boot/dtbo/recovery/vbmeta contents and sizes",
+      "preserve source-verified compatible stock originals and their SHA256",
+      "prove recovery entry and restoration path independent of selected test slot",
+      "prove early diagnostic output path",
+      "prove RAM placement and boot DT/DTBO/cmdline policy"
+    ],
+    "fastboot_transient_vendor_boot_replacement_proven": false,
+    "unused_slot_is_complete_backup": false,
+    "restoration_route_tested": false,
+    "no_executable_flash_commands": true
+  },
+  "decisions": [
+    {
+      "id": "kernel_loader_format_placement",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "uncompressed-arm64-Image; text_offset=0; 2MiB-aligned base; reserve full image_size=53215232",
+      "provenance": [
+        "accepted Image SHA256 and raw 64-byte header",
+        "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:Documentation/arch/arm64/booting.rst"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "OEM acceptance of Image/EFI entry",
+        "physical load base and DRAM map",
+        "loader relocation and overlap"
+      ],
+      "next_observable_check": "Attribute MBM actual Image loading from source/trace and show valid physical ranges."
+    },
+    {
+      "id": "reference_addresses",
+      "status": "rejected-as-literal-native-placement",
+      "selected_source_behavior": "public v4 reference fields intentionally retained as structural metadata only",
+      "provenance": [
+        "configs/oneli-boot-packaging-v2.json",
+        "AOSP system/tools/mkbootimg/include/bootimg/bootimg.h"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "actual Motorola base adjustment if any",
+        "selected corrected kernel/ramdisk/DTB destination addresses"
+      ],
+      "next_observable_check": "Establish actual MBM address interpretation; prove 2MiB kernel base and nonoverlapping Image, DTB and initrd."
+    },
+    {
+      "id": "fdt_memory_and_overlay",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "mainline oneli DTB (not stock reference); no direct application of stock PVT overlay",
+      "provenance": [
+        "compiled mainline FDT structural inspection",
+        "configs/oneli-pvt-symbolic-composition-v1.json"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "real memory reg injection",
+        "bootloader base FDT and PVT overlay selector",
+        "vendor stock overlay compatibility with substituted FDT"
+      ],
+      "next_observable_check": "Read actual selected/mutated loader FDT; establish whether dtbo partition is applied to replacement DTB."
+    },
+    {
+      "id": "initramfs_and_bootconfig",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "AOSP generic after selected vendor fragment; host gzip empty vendor + gzip diagnostic generic, zero bootconfig",
+      "provenance": [
+        "AOSP vendor-boot partitions spec",
+        "accepted artifact 11774750168"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "OEM vendor-fragment choice and type acceptance",
+        "native concatenation and physical allocation",
+        "bootconfig trailer generation"
+      ],
+      "next_observable_check": "Inspect actual bootloader-assembled initrd and initial kernel extraction."
+    },
+    {
+      "id": "cmdline_console",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "mainline stdout-path serial0:115200n8; command-line/bootconfig host values deliberately empty",
+      "provenance": [
+        "compiled accepted mainline DTB",
+        "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:drivers/tty/serial/qcom_geni_serial.c",
+        "AOSP bootloader overview"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "Motorola command line precedence and earlycon activation",
+        "physical early UART observation"
+      ],
+      "next_observable_check": "Observe /chosen/bootargs and physical UART traffic or another independently established early log."
+    },
+    {
+      "id": "secure_boot_avb",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "boot-v4 signature zero in structural candidate; separately identify AVB partition chain",
+      "provenance": [
+        "AOSP boot-image-header v4",
+        "stock Android 14 ADB verifiedbootstate=green on locked handset"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "real unlocked-state AVB policy",
+        "consistent per-slot verified partition set",
+        "rollback/recovery tested"
+      ],
+      "next_observable_check": "Read actual bootloader AVB/slot state and preserve separately verified OEM original images."
+    },
+    {
+      "id": "reversible_first_experiment",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "read-only capability, slot, recovery and image inventory before any experiment",
+      "provenance": [
+        "stock Android 14 ADB by-name A/B partitions",
+        "AOSP A/B seamless updates overview"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "temporary complete boot/vendor_boot support",
+        "both-slot original bytes and boot-control flags",
+        "proven restore path and observed early output"
+      ],
+      "next_observable_check": "Verify bootloader operations without mutation, matched installed images and physically usable restore path."
+    }
+  ],
+  "acceptance": {
+    "current": "blocked-on-device-observable-loader-and-console",
+    "additional_identical_kernel_build_required": false,
+    "additional_identical_host_packaging_required": false,
+    "userspace_v1_immutable": true,
+    "userspace_revised_console_summary_dependency": "wait for exact new payload manifest, SHA and diskless QEMU test before any repackage",
+    "stock_overlay_binary_apply": "optional-only-if-answering-selected-loader-DT-question",
+    "no_device_mutation": true,
+    "coordinator_aggregate_docs_untouched": true
+  },
+  "document": "docs/oneli_native_loader_output_decision_2026-10-12.md"
+}
