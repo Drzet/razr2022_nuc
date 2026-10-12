@@ -42,7 +42,7 @@
     "internal_sha256sums_verified": 5,
     "boot_image_name": "boot-console-v2.UNSIGNED.img",
     "boot_image_bytes": 53395456,
-    "boot_image_sha256": "1e00e4f998f5001bc08d9d4e4465664100194ce211cd9eb8b329612b5563bb",
+    "boot_image_sha256": "1e00e4f998f5001bc08d9e0d4e4465664100194ce211cd9eb8b329612b5563bb",
     "ramdisk_sha256": "ccd4c96b2cb05ff695175af8625dbbf8fe2f822d32fafaa5ae930e7796b7a93b",
     "kernel_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
     "boot_header_version": 4,
