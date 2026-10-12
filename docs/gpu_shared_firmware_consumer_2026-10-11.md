@@ -1,3 +1,5 @@
+> **Superseded firmware-location status (2026-10-12):** SQE, GMU and oneli split ZAP are now **located and SHA256-inventoried**. This 2026-10-11 record is historical. See the [current GPU six-FDT + firmware audit](gpu_stock_fdt_firmware_vote_review_2026-10-12.md) and VPU's radio/vendor source manifests. Do **not** use its 'ZAP unknown' statement as a current blocker.
+
 # GPU consumption of the shared oneli Android 14 firmware manifest
 
 Recorded 2026-10-11; input from the **VPU-owned** stock extraction workflow, not a second GPU-side download. Target physical stock observation: XT2251-1 PVT, SKU dn, hwrev 0xC000, `motorola/oneli_ge/oneli:14/U2SLS34.1-42-14-11/e37c37-31202:user/release-keys`. No new physical test and no verified installed partition contents.
