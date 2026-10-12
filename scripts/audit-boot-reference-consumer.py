@@ -45,10 +45,13 @@ def inspect(boot_path, stock_path, consumer_path):
         require(cv["reference_addresses"][field] == vb[source],
                 "missing or mismatched reference address " + field)
         require(bv[source] == vb[source], "Boot v2 published reference address differs from stock")
-    for field, source in (("offset", "offset"), ("bytes", "bytes"),
-                          ("compression", "compression"), ("sha256", "sha256")):
-        require(cv["vendor_ramdisk"][field] == vb["vendor_ramdisk"][source],
-                "ramdisk compression/offset/hash disagreement " + field)
+    for field in ("offset", "bytes", "sha256"):
+        require(cv["vendor_ramdisk"][field] == vb["vendor_ramdisk"][field],
+                "ramdisk offset/size/hash disagreement " + field)
+    require(cv["vendor_ramdisk"]["compression"] == bv["ramdisk_compression"] and
+            vb["vendor_ramdisk"]["compression"].startswith("legacy-LZ4") and
+            cv["vendor_ramdisk"]["compression"].startswith("legacy-LZ4"),
+            "Boot v2 explicit legacy LZ4 detection status differs")
     region = cv["base_dtb_region"]
     f = vb["embedded_dtb"]
     require(region["offset"] == f["offset"] == bv["dtb_region_offset"] and
