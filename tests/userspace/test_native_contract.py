@@ -153,7 +153,7 @@ class NativeContract(unittest.TestCase):
         p = self.root / self.paths["firmware_manifest_path"]
         p.write_text("{}")
         self.manifest["sha256"]["firmware_manifest_path"] = hash_file(p)
-        self.assertIn("firmware requirements unresolved", self.check(False).stderr)
+        self.assertIn("firmware manifest scope or version unresolved", self.check(False).stderr)
 
     def test_qemu_virt_empty_scoped_requirements(self):
         self.manifest["target_environment"] = "qemu_virt"
