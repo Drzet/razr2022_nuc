@@ -51,3 +51,7 @@ The initial structure deliberately contains no guessed kernel config or boot-ima
 5. Integrate subsystem work incrementally; test standalone decode before browser acceleration.
 
 Research for GPU, VPU, USB and power can proceed while boot support is developed. The VPU driver approach remains unresolved: an Iris platform extension is a hypothesis to validate, not an accepted implementation result.
+
+## Fifth-review execution delegation (2026-10-12)
+
+Boot may prepare and build the isolated `razr/integration-candidate` specified in NEXT_TASKS. Coordinator retains commit selection, review and promotion of accepted `razr/integration`; this is a candidate, not an accepted integration branch. Userspace consumes the exact published artifacts for a separate QEMU virt run. Keep default upstream and subsystem branches intact.

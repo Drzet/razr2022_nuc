@@ -17,3 +17,5 @@
 - Latest user update: follow-up ADB was unsuccessful; plan without hardware access. Preserve earlier stock observations. The owner intends to unlock when the device is fully in their possession; do not treat unlock as an offline coding blocker. Follow scoped holds in NEXT_TASKS rather than repeating completed audits.
 
 - Fourth review (2026-10-12): read `docs/FOURTH_REVIEW.md` and current `docs/NEXT_TASKS.md`. Firmware location is resolved; per-FDT stock properties remain a separate shared export. Both uploaded live-DT archives contain zero property files. Centralize bounded member retrieval; do not repeat full ROM scans or unchanged CI on documentation-only updates.
+
+- Fifth review supersedes the fourth task queue: read `docs/FIFTH_REVIEW.md` and current `docs/NEXT_TASKS.md`. Boot is explicitly delegated execution of an isolated combined integration candidate and its full artifacts; coordinator retains acceptance/promotion and aggregate docs. This narrow delegation overrides earlier coordinator-only execution wording. DisplayPort is on an evidence hold; do not repeat completed audits.

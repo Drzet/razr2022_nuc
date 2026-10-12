@@ -56,3 +56,7 @@ Boot should first fix unpadded FDT iteration, then compare the PVT candidate wit
 VPU may proceed to focused DMA/OPP/ICC/loader work; its extraction milestone is accepted. For ICC, establish whether upstream path aggregation covers the vendor LLCC vote before deciding a third handle is required. Downstream SMMU second-cell semantics must be translated, not copied as presumed upstream flags. Neither discovery alone approves active VPU support.
 
 DP's wait for properties is removed. Its later hold for unresolved part/binding identity remains valid after one updated disposition. The GCC PHY reclassification remains unchanged: it does not block serial/initramfs integration.
+
+## Fifth-review correction
+
+The raw PS5169 config-seq contains **27 triplets (81 u32 cells / 324 bytes)**, not 29. The full export is filtered: GPU power-level fields and PVT fragment48 properties are not completely represented. See [FIFTH_REVIEW.md](FIFTH_REVIEW.md); do not interpret omitted fields as absent from stock source.
