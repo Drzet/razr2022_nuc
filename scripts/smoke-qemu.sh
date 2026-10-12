@@ -40,6 +40,21 @@ for ((i=0;i<36;i++)); do
   sleep 2
 done
 [[ "$(cat "$evidence/qemu-ssh-status.txt")" == passed ]] || fail 'SSH_FAILED: no authenticated guest command after successful boot'
+# Optional but MANDATORY for a project-kernel test: real loadable project module.
+if [[ -n "${RAZR_PROJECT_KERNEL_RELEASE:-}" || -n "${RAZR_PROJECT_QEMU_MODULE:-}" ]]; then
+  release=${RAZR_PROJECT_KERNEL_RELEASE:-}
+  module=${RAZR_PROJECT_QEMU_MODULE:-}
+  [[ "$release" =~ ^[A-Za-z0-9._+~-]+$ && "$module" =~ ^[A-Za-z0-9_-]+$ ]] ||
+    fail 'PROJECT_MODULE_FAILED: exact release and module are both required'
+  normalized=${module//-/_}
+  if ! ssh "${opts[@]}" razr@127.0.0.1 \
+    "test \"\$(uname -r)\" = '$release' && sudo -n /usr/sbin/modprobe '$module' && grep -Eq '^$normalized[[:space:]]' /proc/modules && echo RAZR_PROJECT_MODULE_LOAD_PASS" \
+    > "$evidence/project-module-command.log" 2>&1; then
+    fail 'PROJECT_MODULE_FAILED: kernel release, real load or module listing did not pass'
+  fi
+  grep -Fq RAZR_PROJECT_MODULE_LOAD_PASS "$evidence/project-module-command.log" ||
+    fail 'PROJECT_MODULE_FAILED: missing authenticated load marker'
+fi
 if ! ssh "${opts[@]}" razr@127.0.0.1 'sudo -n /usr/bin/systemctl poweroff' >> "$evidence/ssh-command.log" 2>&1; then
   echo "Shutdown command was not accepted" >&2
   exit 1
