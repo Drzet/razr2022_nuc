@@ -1,16 +1,18 @@
 {
   "schema_version": 1,
-  "status": "baseline-image-dtbs-build-tested",
+  "status": "integration-build-and-qemu-virt-tested",
   "kernel_repository": "https://github.com/Drzet/linux",
   "upstream_repository": "https://github.com/torvalds/linux",
   "upstream_commit": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
-  "board_support_commit": null,
-  "integration_commit": null,
+  "board_support_commit": "525b504b82dbca593a9a697af9be63f53915e0a3",
+  "integration_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
   "toolchain": null,
   "configuration_base": "arch/arm64/configs/defconfig",
   "configuration_fragments": [],
   "external_patchsets": [],
   "image_preparation": null,
   "board_support_branch": "razr/boot",
-  "selected_date": "2026-10-11"
+  "selected_date": "2026-10-11",
+  "integration_branch": "razr/integration",
+  "integration_acceptance_manifest": "configs/accepted-integration-2026-10-12.json"
 }

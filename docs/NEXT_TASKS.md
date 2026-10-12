@@ -1,78 +1,59 @@
-# Next assignments — fifth coordinator review, 2026-10-12
+# Next assignments — sixth coordinator review, 2026-10-12
 
-Read [FIFTH_REVIEW.md](FIFTH_REVIEW.md). This queue supersedes [the fourth assignments](FOURTH_ASSIGNMENTS.md). Work without phone access. Keep speculative hardware claims labelled `[INFERRED]`, shared DT with Boot, and aggregate status/promotion with coordinator. No unchanged builds, full ROM rescans or repeat generic audits.
+Read [SIXTH_REVIEW.md](SIXTH_REVIEW.md). The combined build and matching-kernel Debian QEMU milestone is accepted at **Drzet/linux `2b5acf108ae37040ac1e652e029bb37f5609e886`**, now `razr/integration`. Preserve this tested commit. [Accepted manifest](../configs/accepted-integration-2026-10-12.json) pins artifacts and scope; upstream baseline remains unchanged.
 
-## Boot — priority 1: produce the combined build candidate
+## Execution order
 
-**New explicit delegation:** Boot may create and build `Drzet/linux:razr/integration-candidate` from the exact reviewed inputs below. This supersedes the earlier coordinator-only execution restriction for this candidate. Do not overwrite an existing branch; append to an attributable candidate or use a uniquely named candidate if it exists. Coordinator alone accepts/promotes `razr/integration` and edits aggregate status. Keep `master`, other agents' branches and their work intact.
+1. **Boot starts:** publish a short, versioned native early-initramfs payload interface for Userspace, using the newly completed VPU evidence. Correct the stale pending-build handoff. This is an interface deliverable, not another full build.
+2. **Userspace acknowledges that exact interface.** Boot's packaging work and Userspace's payload construction can then overlap on their own branches. Do not independently invent two incompatible native contracts.
+3. **Boot consumes the produced diagnostic payload** and validates native image structure. Coordinator reviews the complete result and remaining phone-only tests.
+4. **Optional separate VPU task:** one DMA ownership design decision, described below. It has no dependency edge into steps 1–3.
 
-1. Start from Boot `525b504b82dbca593a9a697af9be63f53915e0a3`. Review/replay GPU `4955f07a94ea3c51e423e34d819ac3f76f1c9d37` and `3baaec593ae7c701e95e0c3df2d56c33d3aed4f3`, plus only the isolated Power source series ending `564f2c7df60316db86e36d7267ddadf07bc32b7e`. Enumerate exact Power commits before replay. Record ordered original/resulting SHAs and conflict resolutions. Do not import branch-mutating workflows or unrelated inherited history. USB PHY binding is already in Boot.
-2. Optional separately identified UBWC source commit `7f1d729b6f458f1e76efe2894eb3c544bc9db856` may be replayed after checking the reviewed delta; do not import its Iris ancestors. Exclude experimental Iris/PS5169 from this first candidate. Keep GPU/VPU/USB/DP/charging consumers disabled. Do not change baseline.
-3. Build full ARM64 Image/modules with ordinary modpost, oneli DTB and applicable DT/schema/FDT checks. Agree a virt-capable config with Userspace before building: built-in serial, interrupt, storage, network/rootfs/initramfs facilities required by its exact QEMU command, plus one harmless loadable module for an actual guest modprobe check. A single appropriately configured Image may be used on QEMU virt with its generated DT. Do not substitute oneli DT there.
-4. Publish **actual binaries**, not only build logs/hashes: Image, DTB, generated config (explicitly included even if hidden), kernel.release, Module.symvers, fully installed matching module tree with modules.dep and per-file hashes, source/ordered-commit/toolchain manifest, selected test-module identity, artifact IDs and ZIP/file SHA256. Exclude dangling build/source symlinks from portable modules archive. Keep proprietary firmware out. Match Userspace schema v3 or provide a deterministic adapter agreed with its owner.
-5. Send immutable artifact references directly into the handoff/coordination issue. Success means the complete artifact set exists and can be consumed, not merely that a workflow was added. If build fails, fix concrete integration errors or publish the precise blocker; do not resume another broad stock audit instead.
+GPU, Power, USB and DisplayPort are paused for this milestone. No all-agent concurrent round, unchanged full builds, full ROM rescans or repeat generic audits. Record specific blocked inputs instead of generating more audit documents.
 
-Secondary: give Userspace the pinned Boot-v2 contract and confirm its semantics. Keep symbolic PVT resolution separate from actual apply. Any actual libfdt application needs original base/PVT bytes; a filtered projection is insufficient. The remaining bounded GCC device-link review and stock member work must not delay this build.
+## Boot — native early-boot packaging and observable diagnostics
 
-## Userspace — align v2 now, execute combined kernel when available
+Work from accepted integration; keep new work on the owned Boot/candidate branch and preserve integration until reviewed.
 
-1. Consume Boot project `cfdecbf41a329bcc0fa3074f8de708e95ef698b1`, `configs/oneli-boot-packaging-v2.json` and its explicit-input interface. Update the pinned bridge/fixtures to v2; retain structural-only, native-not-ready and hardware-unvalidated semantics. Reject missing/null required header inputs. Do not require phone packaging or Qualcomm firmware for QEMU.
-2. Coordinate the exact build/artifact contract and virt config with Boot immediately. Remove pathname-based rejection of an Image containing `oneli`; validate configuration/provenance and prohibit the oneli DT/phone packaging in the QEMU profile. Install mount cleanup before the first mount in prepare-project-qemu.sh. Exercise its actual preflight with wrong-release modules and incomplete inputs; validator-only tests and bash -n do not cover the staging code.
-3. Once Boot publishes the candidate artifacts, prepare a matching initramfs and disposable disk using the already verified Debian rootfs. Execute project-kernel smoke with release and test-module settings **required**, checking uname -r, actual modprobe plus /proc/modules, systemd, configured IPv4, authenticated SSH and clean shutdown. Archive full provenance/logs and distinguish this result from the older Debian-kernel pass. No external-network claim without a corresponding test.
-4. Record latest fixture success 38245293728 at `9b168c89f5d0328fd0c9a690ffd6808ffb73333d`; preserve the documented false-green correction. Native diagnostic packaging remains separate and cannot invent a console/root device/accepted placement.
+- Consume VPU evidence at project `dadd330c3f09f715372da94091f04166f9f0c141`, especially `docs/vpu/evidence/focused-stock-properties.json`. Update the native packaging contract's stale unknown OS-version/signature fields with verified **reference** values and hashes. Packed OS version 402653593 is not itself a required native policy; explain selected values. Distinguish the boot-v4 signature section from partition AVB metadata; never carry an unchanged stock signature as authentication of modified payloads.
+- Define the exact accepted Image/DTB inputs, diagnostic cpio compression/alignment/ownership, `/init` behavior, kernel command-line ownership, generic versus vendor ramdisk roles, bootconfig/table handling and remaining native-placement inputs. Derive syntax from pinned kernel/AOSP tools and source evidence. Explicitly distinguish unresolved values from intentional empty/zero fields. Keep unresolved native inputs fail-closed.
+- Define how first-boot evidence could be collected: source-backed UART/console configuration and what physical connection is actually known. If a persistent-log fallback is proposed, establish its reserved-memory/readout prerequisites; do not invent a carveout or claim a usable console from a DTS label alone. No USB/gadget/DP dependence for the initial payload unless separately implemented and reviewed. State the exact physical observation needed if output routing cannot be established offline.
+- Complete actual **PVT-index3 overlay application to both original base FDTs** if needed for the native-reference contract. Reuse the existing bounded member reader and exact hashes in one controlled job; keep original bytes ephemeral and publish derived effective properties/hashes. Do not reconstruct FDTs from filtered JSON. This narrow Boot-owned application is authorized; do not launch duplicate VPU/Boot downloads. Reference composition does not prove the phone's active selection, and vendor DT must not replace the mainline board DT.
+- After Userspace supplies the payload, generate a **host-validation-only** native candidate using explicit inputs, or a precise machine-readable blocked result if a required input remains unresolved. Independently unpack with pinned tools and verify all payload hashes, section bounds, DT selection, compression and bootconfig/ramdisk composition. Preserve a separate reference signature/AVB disposition. Do not present a structurally valid candidate as approved for phone use.
 
-Wait only for combined artifacts to run the real project-kernel guest test; interface fixes proceed now.
+Acceptance: one agreed interface, actual diagnostic-payload packaging/independent inspection where inputs permit, and a short list separating source-solvable gaps from phone-only tests. No flashing, UFS-rootfs enablement, broad peripheral activation or fresh kernel build unless a concrete necessary code/config change is selected.
 
-## VPU — bounded shared evidence plus resource translation
+## Userspace — minimal diagnostic initramfs, then hand to Boot
 
-The accepted six-FDT extraction is unchanged at `1a59d79fda42a977956de8e06c3a60d44b2971f4`. Do not repeat it wholesale.
+The combined Debian QEMU task is complete. Preserve run 38297826535 and the existing tested scripts; do not rebuild Debian or repeat its unchanged smoke test.
 
-1. Preserve the complete derived JSON durably with SHA256 `1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465` before artifact expiry. Its filtered nature must remain explicit. Centralize only genuinely missing raw-member access here; other agents send exact requests rather than downloading the ROM independently.
-2. One bounded follow-up export, if original members can be obtained: all properties under both bases' GPU/GMU/power-level and bus-vote nodes, PVT fragment48 and relevant regulator provider properties; Boot's requested missing header fields; loadable/hash segment metadata for recovered VPU and ZAP firmware. Preserve source hashes, exact paths, raw bytes and units. A missing export field is not a missing source property. No payload binaries in git. If access requires another full ROM scan, stop and report the limitation instead of repeating the scan automatically.
-3. Complete the previously assigned SID `0x2180`/`0x2187` and second-cell `0x400` semantics review; downstream flags are not automatically upstream masks or separate DMA domains. Map VIDEOCC/RPMh corners to required-opps and four required domains; resolve whether vendor clock 4 is an implicit parent. Map CNOC/DDR/LLCC aggregation through upstream topology; don't invent a third ICC handle from name counts alone.
-4. Finish MBN/MDT segment bounds, relocation and split-index packaging checks. Coordinate source-request/install names with GPU/Userspace; proposed `qcom/vpu/vpu20_4v.mbn` is not hardware-loader acceptance. Retain Gen2 selection as source-based and Iris disabled/experimental.
+- Agree Boot's native payload interface before native packaging assumptions. Use the accepted kernel/release/config and a pinned ARM64 userspace tool source/package. Produce a small deterministic cpio with numeric ownership, required device/filesystem setup and a controlled `/init` that records kernel/cmdline/DT identity and probe failures, then remains available for diagnostics. Keep actions read-only with respect to persistent phone storage and charging controls. No guessed root partition or phone console.
+- Derive any module requirements from this minimal profile, not all 1,702 modules and not a blanket Qualcomm firmware list. An intentionally empty module/firmware requirement set needs a config/scope justification. Keep phone-specific values out of the generic runtime harness.
+- Test the actual new initramfs under the accepted kernel with **QEMU virt's DT and a separate QEMU command-line profile**, without mounting the Debian disk. Verify PID1 execution, diagnostic output and controlled termination. This is a new payload test; it does not validate native UART, oneli DT or Motorola bootloader acceptance.
+- Publish cpio/compressed payload hashes, manifest, tool versions, test evidence and immutable artifact references for Boot. Hand off the exact payload, not only a design document. Preserve unknown phone settings explicitly for Boot's final input gate.
 
-Accept specific translation decisions or precise unresolved dependencies, not another general overview. Integration and USB work do not wait for this.
+A small housekeeping fix when touching evidence collection: exclude SHA256SUMS itself from its own file enumeration and verify the resulting list after writing. This does not invalidate the independently ZIP-verified prior guest evidence.
 
-## USB — turn stock sequence evidence into a reviewable candidate
+## VPU — optional isolated DMA design, no further extraction
 
-1. Full build, binding and host fault tests are now accepted at kernel `2875777fef3496f33ad6862678251d1de00ee7f6`, run 38243032057. Update stale pending-build text; no unchanged rebuild.
-2. Compare all **27** stock PS5169 triplets (81 cells, 324 bytes) against candidate register programming. Propose a typed, attributable board-specific initialization/profile design preserving order/delays. Explain each supported register field and unsupported residue; do not add an opaque generic config-seq binding or silently claim EQ properties reproduce the baseline. Keep driver changes isolated and board disabled.
-3. Close the real probe/unwind coverage gap with meaningful tests of production lifecycle behavior, or explicitly document what host extraction cannot cover. Inject failures after partial power-up/registration and show error return, cleanup and retry semantics. Do not count textual checks as executing probe.
-4. Keep GPIO19 enable distinct from reset; no arbitrary pulse. Document suspend/resume/DP-only power retention and register replay contract from pinned vendor source. Implement active PM only if ownership and failure handling are justified; otherwise retain a concrete hold. NXP @0x4f is the reference-selected repeater, but exact compatible/silicon remains unresolved. No active repeater/Type-C graph until binding and Power/Boot dependencies are ready.
+The focused fields, durable export and loader bounds are accepted. Do not repeat those jobs or re-audit firmware location.
 
-Can run concurrently with Boot, VPU and Power. Future board enablement waits for actual dependencies, not the initial combined compile.
+Resolve **one question**: can upstream Iris preserve required bitstream/pixel address semantics with a single DMA domain, or is a distinct-device/domain design required? Trace actual allocation/map/unmap and HFI buffer ownership for each class through pinned downstream and current Iris paths. Compare IOVA constraints and security/stream routing; do not assume overlapping vendor ranges prove equivalence. Identify supported IOMMU APIs and lifetime/error cleanup from the pinned kernel before proposing code. Two iommus entries alone is not a two-domain solution.
 
-## Power — finish read-only contract; review combined power result
+Deliver a concise design with source references and falsifiable acceptance conditions. Implement an isolated disabled experimental patch only if the ownership model is justified; otherwise give the exact missing evidence and stop. No broad refactor, active board node or combined-kernel import. MXC/MMCX required-opps and LLCC policy remain distinct queued blockers, not permission to guess values. Hardware PAS/HFI/DMA tests remain deferred.
 
-1. Review the isolated signed-temperature series in Boot's combined build when available; preserve existing UML arithmetic evidence. Do not repeat unchanged builds for docs.
-2. Treat known S10B/L2B/L8C mappings as consumer-provider identities. Base voltage ranges are not fully composed PVT constraints; fragment48 properties were filtered. Consume VPU's bounded export if available and have Boot confirm typed composition before promoting effective values. Electrical input-parent values remain unknown: supported binding key names do not prove oneli wiring. Keep donor VPH/BOB and A100-only PM8010 guesses out.
-3. Deliver the remaining read-only GLINK/BQ27426 plan: enumerate probe, initialization, periodic and error-path writes, exact supported protocols/variants, and what must be disabled. A read-only userspace interface does not imply a driver performs no writes. Implement only justified reporting changes, independently of active SGM41516D or dual-battery charging policy.
-4. Select one canonical current supply report and link it from the handoff; mark overlapping older reports superseded without erasing provenance.
+## GPU — pause
 
-Read-only audit proceeds now. Effective PVT delta waits only for missing fields; combined-link acceptance waits for Boot artifact. Active charging remains held.
+13×7 stock fields, the 12×3 HFI correspondence, loader bounds and combined replay are accepted. Do not re-extract, rebuild unchanged source or implement speculative CX/bandwidth changes. Resume on a separately selected A730-specific vote/transition design or hardware test request. The remaining six CX-floor ownership questions and dynamic bandwidth-index selection are not missing-export tasks.
 
-## GPU — bounded follow-up; no repeated source audit
+## Power — pause
 
-Firmware location, generic/stock differences and symbolic GX/CX/ICC mapping are accepted. Kernel `3baaec593ae7c701e95e0c3df2d56c33d3aed4f3` has no new delta; no isolated rebuild needed.
+The PVT voltage/boot-on delta, write-path audit and combined signed-temperature build are accepted. No new BQ27426 read-only driver is selected for first boot. Keep BQ/charger/thermal/dual-pack controls disabled; retain known source ranges without donor-board electrical-parent guesses. Resume for a specific reporting profile or a concrete Boot dependency. Correct stale combined-build status when next editing the handoff; no new audit/CI required now.
 
-Send VPU one exact missing-property list and ZAP loadable-segment bounds request. In parallel, finish an exact source-request/install-name/hash/format matrix, distinguishing proposed renames from loader compatibility and equal byte sizes from equal hashes. Once bounded fields arrive, decide CX-floor/bus-index translation from their units/driver semantics; hold unsupported changes. Do not require this for the disabled-GPU combined build. Keep one canonical current report and link older overlapping reports as superseded. After these bounded items, wait for new evidence/hardware; no busywork.
+## USB and DisplayPort — queued / held
 
-## DisplayPort — wait
+USB's typed 27-triplet PS5169 profile and lifecycle-failure work from [the fifth assignments](FIFTH_ASSIGNMENTS.md) remains queued after native packaging; no new USB round is required now. DP stays held for attributable AUX-switch identity. Do not enable FSA4480, invent a compatible or use PS5169 as an AUX switch. These holds do not block an initramfs-only milestone.
 
-The four-overlay matrix and binding disposition are complete. No new DP assignment or unchanged CI run is needed. Resume only with attributable AUX IC evidence (BOM/schematic/part marking/authoritative source) or a justified binding proposal. Do not invent a compatible, re-enable FSA4480 or use PS5169 as the AUX switch. USB graph review is optional only if its graph changes. Physical HPD/AUX/EDID/modeset tests await hardware and integrated USB/Power.
+## Coordinator
 
-## Dependencies and acceptance
-
-| Owner | Start now | Specific wait |
-| --- | --- | --- |
-| Boot | Combined candidate/config/build/artifact publication; v2 handoff | No phone/VPU dependency for minimal build |
-| Userspace | v2 alignment, direct staging checks, config agreement | Boot artifacts for project-kernel QEMU |
-| VPU | Bounded missing-field request/export and DMA/OPP/ICC/loader work | Original member access for omitted data; hardware for execution |
-| USB | 27-triplet profile, lifecycle failure coverage, PM contract | Power/Boot/identity for enabled board graph |
-| Power | Read-only write audit | Export for effective rail deltas; Boot for combined link |
-| GPU | Exact firmware matrix/request list | Missing fields for vote decision, then hardware |
-| DisplayPort | No compulsory new work | AUX part evidence and later integrated hardware |
-| Coordinator | Review candidate, collect immutable evidence, promote accepted integration and selected project tooling | Boot build and Userspace guest result for those acceptance claims |
-
-No new phone boot, secure-loader, DMA/HFI, rendering/decode, USB/DP or electrical/charging validation is claimed. A combined compile and QEMU test establish only their stated software scope.
+Integration promotion is complete at the exact tested commit. Maintain the immutable manifest and selected branch/tooling provenance. Review the Boot/Userspace native interface and produced artifacts before any subsequent integration move. Preserve successful current artifacts before their 30-day Actions retention expires; a release/archive workflow may copy existing verified artifacts without rebuilding them. Do not treat build/QEMU acceptance as native acceptance or start all paused agents merely to keep them occupied.

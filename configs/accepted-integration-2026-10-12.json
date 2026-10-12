@@ -1,0 +1,84 @@
+{
+  "schema": "oneli-combined-build-manifest-v1",
+  "kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+  "kernel_release": "7.3.0-rc6-g2b5acf108ae3",
+  "build_id": "509272edbb90625627a434ef0febc1410b0a896cc2500ffcef82436db32cfe15",
+  "branch": "razr/integration-candidate",
+  "base_boot_sha": "525b504b82dbca593a9a697af9be63f53915e0a3",
+  "upstream_baseline": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
+  "replayed_commits": [
+    {
+      "original": "4955f07a94ea3c51e423e34d819ac3f76f1c9d37",
+      "result": "eaf8c3dd0d3395bd8915e16c6bd352a4c46f9e2c"
+    },
+    {
+      "original": "3baaec593ae7c701e95e0c3df2d56c33d3aed4f3",
+      "result": "f00db9a6d593c03ecf469bcb1d1394d67e604924"
+    },
+    {
+      "original": "add9522b3a7ba4ae9d34ee670577c1a0f742585e",
+      "result": "77969dce2ee39fe362cfeafbc62a8a200f903cf0"
+    },
+    {
+      "original": "a645ca00d80c8def170878e2283975ccacc209a8",
+      "result": "d371fed6414882b5aedc6e17e16c8d73241c30fd"
+    },
+    {
+      "original": "b08688eb8f8905da4a37a7644c381f0d579b7ff8",
+      "result": "75a6e39788ad6884314fdac5f8232b199a6cd545"
+    },
+    {
+      "original": "0a7af7aeb9aa843547aa3bddc6b326fb04c49808",
+      "result": "b274ea4f23b5bc3c813546a48595a75f2fe3050a"
+    },
+    {
+      "original": "564f2c7df60316db86e36d7267ddadf07bc32b7e",
+      "result": "5e647126da5cd0379b061789b1148107bbc7fda3"
+    }
+  ],
+  "source_config_project_commit": "6a80ab302e9e2cf5aaf3ca0187baec106e985ade",
+  "artifact_contract": "Drzet/razr2022_nuc#13",
+  "qemu_runtime_module": "dummy",
+  "module_count": 1702,
+  "files_sha256": {
+    "Image": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "kernel.config": "c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e",
+    "Module.symvers": "5802d8bb9cb077c61dcf0d7b2bdc8d32793329389156b3b312e7339f9a3d3151",
+    "sm8475-motorola-oneli.dtb": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+    "kernel.release": "4c4a792f214f9b1c37e864b86a5e65accdc5c4252a9f0c78110bf12655053b5a"
+  },
+  "module_tree": "modules/7.3.0-rc6-g2b5acf108ae3",
+  "modules_dep_sha256": "25ee8aaecb87ca3a9ae233127b666078a676edf8cb84c035a466793de08b84bc",
+  "module_sha256_manifest": "module-sha256.json",
+  "scope": "Coordinator accepted source/build/oneli static DT and actual QEMU virt Debian boot, matching dummy module load, configured IPv4/SSH and poweroff. Native phone untested.",
+  "acceptance": {
+    "date": "2026-10-12",
+    "kernel_branch": "razr/integration",
+    "source_review": true,
+    "arm64_image_modules": true,
+    "oneli_dtb_schema": true,
+    "qemu_virt_project_kernel": true,
+    "physical_phone": false,
+    "coordinator_bundle_files_hash_verified": 1735,
+    "module_count": 1702,
+    "coordinator_archive_symlinks": 0,
+    "tested_userspace_commit": "afe416c477069659c7943f7de4b4f2fe9af39fa3",
+    "userspace_handoff_commit": "cdd1659ce1d2704fe04d8fb26474fbb463bd4c90"
+  },
+  "artifacts": {
+    "kernel": {
+      "run": 38292394177,
+      "job": 114955339003,
+      "artifact": 11768562884,
+      "zip_sha256": "bc9ae13983e7aa3161df1cade037929ebd71144e27f4d19204dd0bf50c88f06e",
+      "inner_archive": "combined-bundle.tar.zst",
+      "inner_sha256": "5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896"
+    },
+    "guest_evidence": {
+      "run": 38297826535,
+      "job": 114973102362,
+      "artifact": 11768979982,
+      "zip_sha256": "6a30943b97da12f3d8a0b6aeb42ff36fa68f2f731ea0a72531d3d2b3b8148b04"
+    }
+  }
+}

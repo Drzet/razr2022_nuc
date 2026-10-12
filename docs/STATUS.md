@@ -1,21 +1,23 @@
 # Project status
 
-Updated 2026-10-12, fifth coordinator review. Work continues without hardware access. Earlier stock ADB observations remain valid; no native Linux phone test has passed. See [FIFTH_REVIEW.md](FIFTH_REVIEW.md) for exact reviewed heads and evidence, and [NEXT_TASKS.md](NEXT_TASKS.md) for assignments.
+Updated 2026-10-12, sixth coordinator review. **The first combined kernel and matching-kernel Debian QEMU milestone has passed.** Coordinator promoted the exact tested commit `2b5acf108ae37040ac1e652e029bb37f5609e886` to `Drzet/linux:razr/integration`. No native phone execution has been tested.
 
-| Workstream | Accepted result | Next gate |
+Read [SIXTH_REVIEW.md](SIXTH_REVIEW.md) for independently verified evidence and reviewed heads, [accepted build manifest](../configs/accepted-integration-2026-10-12.json) for hashes, and [NEXT_TASKS.md](NEXT_TASKS.md) for staged assignments.
+
+| Workstream | Current accepted result | Next action |
 | --- | --- | --- |
-| Boot | Unpadded FDT parser, typed symbolic PVT matrix, explicit packaging v2; independent synthetic pack/unpack, 9/9 tests | Priority: prepare combined candidate and complete downloadable build artifacts; v2 consumer alignment |
-| USB | PS5169 error/retry/endian/enable distinction; host tests, binding and full ARM64 Image/modules pass at 2875777 | Typed 27-triplet board profile and production probe/unwind coverage; board remains disabled |
-| GPU | Stock/generic firmware differences and GX/CX/ICC source mapping | Missing filtered GPU properties and loader bounds; no new kernel patch |
-| VPU | Prior firmware location and six-FDT extraction accepted; no new head this round | Bounded omitted-field export, durable metadata, DMA/OPP/ICC and loader translation |
-| Power | USB consumer supply identities and base voltage ranges resolved symbolically | Read-only driver write audit; effective PVT rail constraints/electrical parents; combined link |
-| DisplayPort | Four-overlay AUX/FSA matrix and binding disposition complete | Wait for attributable AUX IC evidence; no useful repeat audit |
-| Userspace | Latest 11/11 v3 fixtures pass; Debian-kernel QEMU previously passed; project-kernel preparation implemented | Boot-v2 alignment, direct staging fixes/tests; then combined-kernel QEMU |
+| Boot/integration | Image, 1,702 modules, oneli DT/schema and complete artifact bundle passed; coordinator checked all 1,735 bundle checksums | Native early-initramfs interface, diagnostic-output prerequisites and host-validated packaging |
+| Userspace | Exact combined Image booted Debian/systemd in QEMU; real dummy module load, IPv4/SSH and exit-0 poweroff passed | After Boot interface agreement, build/test minimal diagnostic initramfs and hand exact artifact to Boot |
+| VPU | Missing properties closed; durable metadata and host loader bounds accepted; SMMU mask semantics resolved | Optional independent bounded DMA ownership design; Iris remains excluded |
+| GPU | 13×7 stock properties and exact 12×3 HFI numerical crosswalk passed; prior patches build in integration | Pause; CX-floor ownership/dynamic bandwidth policy unresolved |
+| Power | PVT L8C fragment only boot-on; read-only driver write risks documented; signed-temperature patch builds in integration | Pause; no new gauge/charge-control driver selected |
+| USB | Prior PS5169 full build/binding/fault tests accepted | Board profile/lifecycle work queued after native packaging |
+| DisplayPort | Reference AUX matrix complete | Hold pending actual AUX part evidence |
 
-**No accepted combined kernel artifact set exists yet.** Boot now has explicit delegated execution of an isolated integration candidate; coordinator retains acceptance/promotion. Userspace can prepare concurrently but needs those artifacts for a real project-kernel guest test. VPU extraction is not a blanket prerequisite for other agents.
+Verified runs: [combined build 38292394177](https://github.com/Drzet/linux/actions/runs/38292394177), [project-kernel guest 38297826535](https://github.com/Drzet/razr2022_nuc/actions/runs/38297826535), [focused stock fields 38291543595](https://github.com/Drzet/razr2022_nuc/actions/runs/38291543595), [loader audit 38292192600](https://github.com/Drzet/razr2022_nuc/actions/runs/38292192600), [GPU crosswalk 38297688741](https://github.com/Drzet/razr2022_nuc/actions/runs/38297688741).
 
-Hardware-only gates remain native boot/console, actual bootloader selection, secure firmware loading, GPU/VPU execution, USB/DP links and electrical/thermal/charging behavior. Public reference firmware does not establish installed byte identity or the running overlay. Symbolic fixups are not libfdt application. QEMU does not emulate this phone's peripherals.
+**Next milestone:** offline construction/validation of an initramfs-only native early-boot image path. Boot defines the interface first; Userspace acknowledges, then their implementation work can overlap. No all-agent concurrent round. Completed VPU extraction no longer blocks consumers.
 
-The [GCC clock reclassification](GCC_PHY_CLOCK_RECLASSIFICATION.md) stands: seven PHY references are not demonstrated early UART/initramfs blockers. UFS matters for internal-storage boot; USB3 and PCIe for later features.
+Physical gates remain actual Motorola bootloader/DT selection, accessible diagnostic output, secure firmware loading, GPU/VPU execution, USB/DP and electrical/thermal/charging behavior. Unlock is not an offline coding blocker. UFS rootfs and high-speed peripherals are not prerequisites for the early initramfs milestone. The seven [PHY clock warnings](GCC_PHY_CLOCK_RECLASSIFICATION.md) retain their source-based downgraded severity.
 
-Historical evidence: [fourth review](FOURTH_REVIEW.md), [VPU amendment](FOURTH_REVIEW_VPU_UPDATE.md), [archived fourth assignments](FOURTH_ASSIGNMENTS.md). The fifth review corrects the earlier PS5169 count to **27** triplets and distinguishes omitted GPU/PVT properties from properties absent in source.
+Previous queues and findings remain historical: [fifth review](FIFTH_REVIEW.md), [fifth assignments](FIFTH_ASSIGNMENTS.md). Their missing-artifact, missing-property and pending-build statements are superseded by this review.

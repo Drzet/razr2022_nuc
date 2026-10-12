@@ -12,7 +12,7 @@ The kernel fork `Drzet/linux` and read/write access were verified on 2026-10-11.
 
 ## Planned kernel branches
 
-All six subsystem branches exist; see `STATUS.md` for their reviewed commits. `razr/integration` remains planned. GPU and USB currently contain standalone baseline-based patches; board-dependent additions must name their Boot dependency.
+All six subsystem branches exist; see `STATUS.md` for their reviewed commits. `razr/integration` now records the sixth-review accepted source/build/QEMU commit (see the dated acceptance below). GPU and USB currently contain standalone baseline-based patches; board-dependent additions must name their Boot dependency.
 
 | Branch | Responsibility | Dependency |
 | --- | --- | --- |
@@ -55,3 +55,7 @@ Research for GPU, VPU, USB and power can proceed while boot support is developed
 ## Fifth-review execution delegation (2026-10-12)
 
 Boot may prepare and build the isolated `razr/integration-candidate` specified in NEXT_TASKS. Coordinator retains commit selection, review and promotion of accepted `razr/integration`; this is a candidate, not an accepted integration branch. Userspace consumes the exact published artifacts for a separate QEMU virt run. Keep default upstream and subsystem branches intact.
+
+## Sixth-review acceptance (2026-10-12)
+
+Coordinator accepted and promoted `2b5acf108ae37040ac1e652e029bb37f5609e886` unchanged to `razr/integration` after reviewing the exact combined diff, complete artifacts and project-kernel guest evidence. See `configs/accepted-integration-2026-10-12.json`. This supersedes earlier candidate-only/planned language; the upstream baseline remains unchanged. No hardware-tested tag or phone acceptance is implied. Future candidate changes remain separate until reviewed. The next milestone and staged owner dependencies are in NEXT_TASKS.
