@@ -67,6 +67,7 @@ jobs:
           echo "PROJECT_WORK=$work" >> "$GITHUB_ENV"
           sudo bash scripts/prepare-project-qemu.sh "$GITHUB_WORKSPACE/boot-normalized" "$GITHUB_WORKSPACE/rootfs-download/rootfs.tar.zst" "$ROOTFS_SHA256" "$work" | tee project-evidence/staging.log
           sudo cp -a "$work/evidence/." project-evidence/
+          sudo chown -R "$(id -u):$(id -g)" project-evidence
           test -s "$work/initrd.img"
           test -s "$work/rootfs.ext4"
           test -s "$work/evidence/native-v3-validation.json"
