@@ -96,7 +96,7 @@ def parse_fdt(blob, position):
             version < 16 or struct_at + struct_sz > total or
             strings_at + strings_sz > total or reserve_at + 16 > total):
         raise ValueError("invalid FDT range/version")
-    image = memoryview(blob)[position:position+total]
+    image = bytes(memoryview(blob)[position:position+total])
     strings = bytes(image[strings_at:strings_at+strings_sz])
     offset = struct_at
     end = struct_at + struct_sz
@@ -106,7 +106,7 @@ def parse_fdt(blob, position):
         tag = u32(image, offset)
         offset += 4
         if tag == TOKEN_BEGIN:
-            name, offset = nul_string(bytes(image), offset, end)
+            name, offset = nul_string(image, offset, end)
             offset = align(offset, 4)
             path = "/" + "/".join(n["name"] for n in stack if n["name"])
             path = path.rstrip("/") + ("/" + name if name else "") or "/"
