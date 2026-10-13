@@ -1,27 +1,32 @@
-# Next assignments — ninth coordinator review, 2026-10-13
+# Next assignments — tenth coordinator review, 2026-10-13
 
-Read [NINTH_REVIEW.md](NINTH_REVIEW.md). Boot's correction and VPU's bounded ownership decision are accepted within their documented scopes. Previous instructions are archived in [EIGHTH_ASSIGNMENTS.md](EIGHTH_ASSIGNMENTS.md). Preserve accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886` and diagnostic v2 artifacts.
+Read [TENTH_REVIEW.md](TENTH_REVIEW.md). Prior queue: [NINTH_ASSIGNMENTS.md](NINTH_ASSIGNMENTS.md). Preserve accepted integration and diagnostic v2. Work without hardware access.
 
-## VPU — selected next: make the DMA proposal implementable
+## VPU — implement the bounded disabled prototype
 
-Start from project `5f6738589f4a339ed9fafd382715bc0f20c06777` and experimental kernel `869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf`. The two-consumer direction is conditionally accepted. Resolve these specific offline questions in order:
+Start from project `2a1e3a23253f45ff0eaaf44f531bcc248379c954` and kernel `869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf`. Coordinator approves the proposed independently enumerated two-consumer topology for an experimental RFC. This is sufficient authorization to produce reviewable code; do not return another report asking for the same approval. New compatible/phandle names remain proposed ABI, not upstream acceptance or observed physical topology.
 
-1. Trace **enforcement**, not just parsing, of the downstream nonpixel `[0x25800000, 0xe0000000)` and pixel `[0x00100000, 0xe0000000)` IOVA windows. Follow the pinned vendor DMA/IOMMU path consuming the pool; distinguish a hardware/firmware constraint from allocator policy and from an unused property. If necessity cannot be established, label it unresolved rather than silently assuming either unrestricted addressing or a mandatory hardware limit.
-2. Establish a supported mechanism in our pinned mainline kernel for any constraints retained by the prototype. Inspect domain geometry/reserved-region hooks and their setup timing, including coherent allocations and imported DMA-bufs. A DMA mask supplies no lower bound. Do not use private DMA-cookie manipulation, raw mapping alongside vb2, arbitrary runtime geometry writes, or `dma-ranges` merely as an unexplained alias for vendor pools. Name any required core change explicitly; no broad IOMMU rewrite is authorized.
-3. Supply a concrete proposed child-binding/topology and lifecycle patch sketch: creation, OF DMA configuration, driver binding/default-domain attachment, supplier dependencies, probe deferral, teardown and retained DMA-owner references. Check for parent/child probe dependency cycles. Show which device owns HFI queues, external queues and internal classes. This is a proposal for review, not an already upstream-approved ABI.
+1. Commit separate binding and disabled fixture patches in Drzet/linux. Describe both role-specific consumer nodes, one SID/mask each, and the controller relationship. Keep secure contexts out. Use IOVA-only reservation nodes; keep PAS physical carveout distinct. Do not edit Boot's shared DTS; create a fixture using the actual pinned bus hierarchy/cell conventions and record the exact integration-source dependency.
+2. Verify OF address translation and both address-window boundaries with the pinned implementation. Include reservation target matching, zero-size/invalid translation rejection and buffer-end bounds. Resolve the unusual provisional upper mask explicitly; consider a supported contiguous mask plus upper IOVA exclusion if justified by source. Do not claim an ordinary unit model proves runtime SMMU allocation. No custom IOMMU core or private DMA-cookie manipulation.
+3. Implement the small consumer driver and controller supplier acquisition/lifetime checks: normal DMA configuration, bound suppliers, distinct domains/groups, role/duplicate validation, deferral, checked device links, balanced refs and failure/unbind ordering. Preserve existing supported-platform behavior. The partial SM8475 path must not expose a usable V4L2 decoder while allocations still use the old parent; gate it explicitly until the later routing patch.
+4. Validate compilation and affected schemas, positive/negative DT fixtures, and meaningful lifecycle failures against production code where feasible. Record what host tests cannot exercise. Deliver exact commits, logs and the remaining allocation-routing interface; no phone execution claim.
 
-**Deliverable:** one focused handoff with exact source revisions/functions, the enforcement finding, proposed interfaces and a patch sketch (or the exact missing API/evidence and smallest next change). Update the existing decision if needed; do not produce another general architecture survey. If steps 1–3 establish a valid mechanism, an isolated disabled experimental patch is permitted, with compilation/schema checks appropriate to changed code. Keep binding and any DT proposal separate; Boot owns applying shared board/SoC DTS changes. Otherwise stop at the concrete limitation. Do not silently rebase, replace accepted artifacts or enable the phone VPU.
+Stop at this foundation. Full VB2/internal/HFI ownership routing, OPP/ICC changes and active board enablement require the next review. Actual firmware ACK is not a prerequisite for this disabled prototype. Do not repeat extraction or the completed allocator survey.
 
-No native firmware ACK is needed to prepare a disabled prototype. Actual domain separation, IOVA behavior on the handset, HFI response, SMMU faults and decode are deferred hardware acceptance tests. Host models can check proposed arithmetic/ownership but cannot prove those device outcomes. Secure sessions, MXC/MMCX OPP, ICC policy and broad Iris refactoring remain outside this task. No repeated firmware extraction or unchanged kernel build.
+## USB — close conditional-schema coverage and update the completed build record
 
-## Boot / Userspace — complete; pause
+Use project `bb0087babcf29553eb00e0b8414da512264f5380` and kernel `8356706a0e58916bd6149da085db6072b8feeee8`.
 
-Boot's digest correction matches the actual artifact bytes in both records. No further correction, repackaging or CI replay is assigned. Userspace's diagnostic v2 remains accepted. Resume Boot for a concrete reviewed shared-DTS request or new attributable loader/device evidence; resume Userspace for an actual interface/transport requirement. Do not require native boot success before a future controlled boot experiment can be planned.
+1. Replace stale in-progress text with actual successful run 38323664587, job 115057293411 and artifact 11781795488. Preserve the exact tested source and distinguish CI-reported hashes from independently downloaded bytes. The existing artifact contains build records, not deployable binaries. No rebuild to update documentation.
+2. Add a valid oneli-compatible schema fixture with active-high enable semantics and no generic tuning overrides. Add invalid fixtures proving rejection of the prohibited EQ/gain/LFPS overrides. Execute actual schema validation, assert expected diagnostics, and avoid false-green expected-failure handling. Exercise the production runtime override rejection if the current host harness does not cover it. Do not rerun unchanged full ARM64 compilation merely for fixtures.
+3. Record results, then pause. Do not enable board nodes, invent register meanings or implement speculative PM cycling. No broad new profile audit. Reopen only for a concrete defect, attributable new register/identity/wiring evidence, or selected hardware work.
 
-## GPU / Power / USB / DisplayPort — unchanged
+## Concurrency and other agents
 
-GPU and Power pause; USB's unfinished profile/lifecycle work remains queued in [FIFTH_ASSIGNMENTS.md](FIFTH_ASSIGNMENTS.md); DP retains the AUX-identity evidence hold. These are not all blocked by VPU. USB source work could run independently, but is not selected in this assignment. Do not restart completed audits or launch a blanket concurrent round.
+VPU and USB can run concurrently now; neither waits for the other. USB should finish its small closure task and pause while VPU continues implementation.
 
-## Coordinator — review before integration
+Boot remains paused until VPU supplies a reviewed binding/fixture and requests shared-DTS integration, or new loader/device evidence becomes available. Userspace, GPU and Power remain paused. DisplayPort retains its AUX-identity hold. No all-agent round, repeated minimal build or new image packaging.
 
-Review VPU's concrete allocator/topology result before authorizing a wider routing/lifetime implementation. If no supported mechanism is found, choose explicitly between a narrowly scoped core proposal and another queued workstream; do not commission the same audit again. Boot joins only if an actual shared-DTS change is ready. No hardware access is assumed and no device action is assigned.
+## Coordinator
+
+Review the actual VPU patch and USB fixture results. Keep experimental candidates outside accepted integration. Separate source/build evidence from handset behavior. Do not treat missing hardware as a reason to block the authorized offline implementation.
