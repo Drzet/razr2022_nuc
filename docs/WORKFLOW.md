@@ -63,3 +63,11 @@ Coordinator accepted and promoted `2b5acf108ae37040ac1e652e029bb37f5609e886` unc
 ## Seventh-review host packaging acceptance (2026-10-12)
 
 Diskless diagnostic payload run 38307910388 and unsigned host packaging run 38310449244 are accepted for their limited scopes, with coordinator-verified downloaded artifacts. See `configs/accepted-native-host-2026-10-12.json`. Kernel integration is unchanged. Native loader/DT/ramdisk/command-line behavior and physical diagnostic access remain unresolved; use current NEXT_TASKS rather than repeating the completed construction work.
+
+## Existing implementation search before new code
+
+Before developing a new driver, subsystem module, binding or substantial replacement, search mainline, pending upstream patch series, maintained out-of-tree Linux projects and vendor implementations. Document the closest existing solution and justify the smallest necessary new implementation. Avoid duplicating ongoing community work.
+
+Record search date/scope, source links, exact revisions or patch-series versions, supported hardware/API differences and disposition: reuse, adapt, backport, or new code with a concrete gap. Include relevant Linux mobile projects such as postmarketOS and related device-port trees where applicable. Check current development work, not just the pinned baseline. A search with no result is not proof that no implementation exists; disclose coverage limits.
+
+Prefer extending an existing driver or adopting a suitable unmerged series over a parallel implementation. Preserve licensing, authorship and patch provenance. Reuse valid previous investigations and update only missing or stale coverage; do not repeat extraction, builds or generic audits. Coordinator verifies this evidence before accepting new implementation. This is a technical prerequisite, not a recurring user-permission requirement.

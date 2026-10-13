@@ -46,3 +46,7 @@ VPU prototype work and USB's small validation/record update can run concurrently
 Device-only results still outstanding: native loader handoff/output, VPU domain behavior/PAS/HFI/decode, and USB chip communication/orientation/link/wake behavior. USB NXP repeater identity, AUX identity and electrical parents remain evidence gaps; attributable documentation could resolve identities/wiring without hardware, otherwise physical inspection is needed. They do not block VPU's offline prototype or USB schema fixtures.
 
 Accepted integration remains `2b5acf108ae37040ac1e652e029bb37f5609e886`; diagnostic v2 is unchanged. No experimental USB/VPU merge or native acceptance is made. See [NEXT_TASKS.md](NEXT_TASKS.md).
+
+## Reuse-policy addendum — 2026-10-13
+
+The owner requested an explicit mainline/pending-patch/out-of-tree/vendor search before new driver development. Earlier review verified reuse of upstream Iris/DMA APIs and pinned vendor comparators, but did not establish complete current-community coverage for the proposed VPU consumer driver and binding. Prototype authorization is therefore subject to the reuse prerequisite in NEXT_TASKS. Existing PS5169 work preserves the external driver series; its current fixture task does not introduce a new driver. The rule applies project-wide to future new implementation, without restarting completed unrelated work.

@@ -29,3 +29,11 @@
 - Ninth review supersedes the eighth queue: read `docs/NINTH_REVIEW.md` and current NEXT_TASKS. Boot correction is verified; Boot/Userspace pause. VPU has one selected allocator-enforcement and child-topology task. Firmware acceptance is a later device test, not a prerequisite for a disabled prototype. Shared DTS remains Boot-owned; no blanket concurrent round.
 
 - Tenth review supersedes prior queues: read `docs/TENTH_REVIEW.md` and NEXT_TASKS. VPU is authorized for a disabled binding/consumer-lifecycle prototype; USB closes conditional-schema coverage and records its completed ARM64 build. These two tasks can run concurrently. Boot joins only for a concrete shared-DTS request; other holds remain.
+
+## Existing implementation search before new code
+
+Before developing a new driver, subsystem module, binding or substantial replacement, search mainline, pending upstream patch series, maintained out-of-tree Linux projects and vendor implementations. Document the closest existing solution and justify the smallest necessary new implementation. Avoid duplicating ongoing community work.
+
+Record search date/scope, source links, exact revisions or patch-series versions, supported hardware/API differences and disposition: reuse, adapt, backport, or new code with a concrete gap. Include relevant Linux mobile projects such as postmarketOS and related device-port trees where applicable. Check current development work, not just the pinned baseline. A search with no result is not proof that no implementation exists; disclose coverage limits.
+
+Prefer extending an existing driver or adopting a suitable unmerged series over a parallel implementation. Preserve licensing, authorship and patch provenance. Reuse valid previous investigations and update only missing or stale coverage; do not repeat extraction, builds or generic audits. Coordinator verifies this evidence before accepting new implementation. This is a technical prerequisite, not a recurring user-permission requirement.
