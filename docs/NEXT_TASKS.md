@@ -2,18 +2,15 @@
 
 This queue supersedes all earlier rounds, including tenth prototype instructions. [Policy](WORKFLOW.md) · [Status](STATUS.md) · [Disposition](CLEANUP_2026-10-13.md).
 
-## Active: VPU — adapt Qualcomm's existing implementation
+## Active: VPU — close the reviewed candidate, no new feature work
 
-**Kernel branch:** `razr/vpu-upstream`, created at `869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf`, before the bespoke peer-device prototype. Project reports remain on `razr/vpu`; canonical handoff is `docs/handoffs/2026-10-13-vpu-tenth-recovery.md`, updated in place. Old kernel `razr/vpu` is frozen; do not refine or merge it.
+Read [VPU review](VPU_REVIEW_2026-10-13.md). Candidate ec9a8949cfbd1b05cf01553bffc39719ee1a16a7 correctly reuses Qualcomm's v5 architecture and has verified build/schema/routing results. Preserve this tested history. Complete only:
 
-**Deliverable:** one attributable, disabled SM8475/VPU2 adaptation candidate plus a concise patch/dependency record. Use Qualcomm's 13-patch v5 series `20260926-vpu_iommu_iova_handling-v5-0-0322ca5dc10c@oss.qualcomm.com`, base `f5f84daefcd92d7a630066635ecea1433ed5eac7`, and dt-schema #207 as the known starting evidence. Check only for a superseding series/status; no repeat general reuse audit.
+1. Recover and pin exact source mbox/hash and selected patch identities. Reconstruct upstream author/message/trailers on a new provenance-corrected branch starting from 869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf; record old/new SHA mapping and backport deltas. Do not force-push razr/vpu-upstream or manufacture sign-offs. Keep local adaptations separate. Compare resulting tree to ec9a8949; reuse prior compile evidence for identical code.
+2. Execute actual production IOMMU range-reservation logic for the intended windows and malformed/zero/overflow/translation/allocation failures. Current fixture equality assertions are not parser tests. Report inherited limitations honestly; no broad IOMMU rewrite. Reuse upstream fixes if a defect is found before creating local code.
+3. Execute actual child create/init/deinit and failure unwind paths with explicitly scoped mocks or kernel tests: legacy absent children, first/second registration failure, partial cleanup, later V4L2 registration failure. Validate returned errors and balanced references/registration; do not count source-string assertions as execution.
 
-1. Pin source mbox/hash, selected patches, dependencies and schema revision. Backport the coherent common binding/IOMMU/context-device/**existing buffer-routing** changes. Keep upstream attribution and adaptation commits separate. Exclude unrelated SoC DTS conversions unless required; document dependencies/conflicts. Do not reproduce upstream routing in new local code or omit required routing merely to split the round.
-2. Add only justified VPU2/SM8475 deltas. Resolve generation-specific creation hooks, HFI/internal buffer ownership and Motorola pixel-floor difference explicitly. Keep PAS carveout separate, secure sessions out and board disabled. Do not introduce custom peer compatibles/phandles or IOVA-only reserved-memory ABI. No OPP/ICC expansion.
-3. Reuse relevant assertions from old tests, rewritten around upstream interfaces; discard tests that merely preserve the abandoned topology. Validate actual positive/negative subnode schemas and relevant ownership/failure behavior. Compile affected code; run dependency-complete link validation when warranted by the new IOMMU/media dependencies. No repeat full image build for unchanged fixtures.
-4. Record exact upstream/project deltas, results and unresolved evidence. Preserve other supported platforms. If the VPU2 adaptation cannot be justified, stop with the exact missing interface/evidence; do not substitute another bespoke architecture. Keep SM8475 gated until the implemented path is coherent; never present a disabled fixture as a decoder test.
-
-**Stop:** after delivering this candidate for coordinator review. Do not edit Boot's shared DTS, accepted integration or diagnostic images. Native firmware ACK is a later hardware outcome, not a prerequisite for this work.
+**Deliverable/stop:** one canonical handoff update with source provenance, corrected branch/commit mapping, focused test results and remaining limitations. No fresh architecture survey, extraction, OPP/ICC, firmware-policy expansion or Boot DTS changes. Do not add a separate child driver: the pinned IOMMU notifier can configure unbound children, correcting an earlier coordinator overstatement. Keep SM8475 gated and accepted integration unchanged.
 
 ## Queued next: USB — NXP adaptation selection, not implementation
 
