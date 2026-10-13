@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Fifth coordinator review — 2026-10-12
 
 The largest implementation progress this round is USB's PS5169 failure handling and Boot's packaging tools. GPU, Power and DisplayPort improved the evidence and correctly retained unsupported hardware holds. Userspace has a prepared project-kernel consumer, but it has not executed that path. **There is still no accepted combined kernel build.** That is an integration deliverable, not a dependency on phone access or further VPU extraction.

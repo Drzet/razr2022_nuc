@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Eighth coordinator review — 2026-10-13 (Europe/Lisbon)
 
 **Seventh-round work accepted: the console-summary defect is fixed and the exact v2 payload has been repackaged once. Native device handoff remains unresolved.** Kernel, DTB and vendor_boot are unchanged. Stop repeated Boot/Userspace build rounds; resume only work that resolves a specific remaining input.

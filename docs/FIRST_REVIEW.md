@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # First subsystem review and next assignments
 
 Reviewed 2026-10-11. Working constraint: the owner has no access to the phone. All assignments below have deliverables achievable in GitHub; physical tests are deferred explicitly. Inferred hardware claims must retain `[INFERRED]` labels.

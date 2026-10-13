@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Ninth coordinator review — 2026-10-13 (Europe/Lisbon)
 
 **Boot's metadata correction is accepted. VPU's DMA ownership decision is accepted as a conditional prototype direction, not an implemented or hardware-validated port.** No kernel, image, firmware or integration change is accepted in this review.

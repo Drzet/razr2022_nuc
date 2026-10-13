@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Sixth coordinator review — 2026-10-12
 
 **Accepted milestone: the combined project kernel builds, and that exact Image boots Debian ARM64 under QEMU virt with a real matching module load.** Coordinator promoted the unchanged tested commit `2b5acf108ae37040ac1e652e029bb37f5609e886` to `Drzet/linux:razr/integration`. This is build/QEMU acceptance, not native phone acceptance. Upstream baseline and subsystem branches remain unchanged.

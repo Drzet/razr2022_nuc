@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Second review: next assignments and concurrency
 
 Reviewed 2026-10-11 after the second subsystem round. This supersedes the task queue in [the first review](FIRST_REVIEW.md). At that review the phone was unavailable; the later stock ADB evidence update below supersedes that access/identity statement. No native Linux hardware success is claimed. Read this file from coordinator **main**, even when working on an older subsystem branch.

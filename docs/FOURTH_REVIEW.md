@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Fourth coordinator review — 2026-10-12
 
 Review scope: current subsystem commits, handoffs, selected source changes, GitHub Actions conclusions and selected job logs. The coordinator did not execute a native phone test, repeat firmware downloads, or merge kernel branches. Baseline remains `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. The previous assignments are preserved in [THIRD_REVIEW.md](THIRD_REVIEW.md); new assignments are in [NEXT_TASKS.md](NEXT_TASKS.md).

@@ -4,7 +4,8 @@ Native mainline Linux port for the Motorola Razr 2022 (`oneli`, Snapdragon 8+ Ge
 
 ## Start here
 
-- [Project status and next milestones](docs/STATUS.md)
+- [Project status](docs/STATUS.md) and [current assignments](docs/NEXT_TASKS.md)
+- [Cleanup and retained/retired work](docs/CLEANUP_2026-10-13.md)
 - [Repository architecture and integration workflow](docs/WORKFLOW.md)
 - [Hardware evidence and subsystem investigations](docs/README.md)
 - [Subsystem handoff template](docs/templates/subsystem-handoff.md)
@@ -25,4 +26,4 @@ Kernel source, drivers, bindings and device trees belong in the [Drzet/linux](ht
 
 The [hardware audit overview](docs/razr2022_linux_audit_readme_2026-10-11.md) summarises the findings. The [machine-readable hardware database](docs/razr2022_native_linux_hardware_database_2026-10-11.json) contains components, upstream driver mappings, device-tree records, board revisions and source links. [Focused investigations](docs/README.md#focused-investigations) may contain newer findings awaiting reconciliation into that database.
 
-Research snapshot: **11 October 2026**. Native Linux boot, a working board device tree and a project kernel build have not yet been demonstrated in the committed evidence. The initial kernel baseline is now pinned in `configs/baseline.json`; its clean build is blocked on environment dependencies.
+Research snapshot: **11 October 2026**, supplemented by dated investigations. Combined ARM64 kernel/modules, device-tree validation, project-kernel QEMU and diagnostic-v2 host packaging have passed within their recorded scopes. Native handset boot remains untested. Current status and assignments above supersede historical plans.

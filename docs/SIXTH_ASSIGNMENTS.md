@@ -1,3 +1,5 @@
+> Historical assignment; not an active queue. Follow current NEXT_TASKS.md.
+
 # Next assignments — sixth coordinator review, 2026-10-12
 
 Read [SIXTH_REVIEW.md](SIXTH_REVIEW.md). The combined build and matching-kernel Debian QEMU milestone is accepted at **Drzet/linux `2b5acf108ae37040ac1e652e029bb37f5609e886`**, now `razr/integration`. Preserve this tested commit. [Accepted manifest](../configs/accepted-integration-2026-10-12.json) pins artifacts and scope; upstream baseline remains unchanged.

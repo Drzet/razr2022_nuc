@@ -1,3 +1,5 @@
+> Historical assignment; not an active queue. Follow current NEXT_TASKS.md.
+
 # Next assignments — seventh coordinator review, 2026-10-12
 
 Read [SEVENTH_REVIEW.md](SEVENTH_REVIEW.md). The diskless diagnostic payload and unsigned host packaging are accepted. Kernel integration stays `2b5acf108ae37040ac1e652e029bb37f5609e886`; do not rebuild it unchanged. [Accepted artifact record](../configs/accepted-native-host-2026-10-12.json) pins the current result. These assignments supersede [the sixth queue](SIXTH_ASSIGNMENTS.md).

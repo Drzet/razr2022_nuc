@@ -27,6 +27,9 @@ All source links use pinned Motorola or upstream Linux commit IDs where availabl
 
 ## Project coordination
 
+- [Current assignments](NEXT_TASKS.md) — sole active queue
+- [Cleanup disposition](CLEANUP_2026-10-13.md) — retained work and superseded VPU prototype
+
 - [Status and milestones](STATUS.md)
 - [Architecture and integration workflow](WORKFLOW.md)
 - [Subsystem handoff template](templates/subsystem-handoff.md)

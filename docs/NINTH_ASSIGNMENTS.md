@@ -1,3 +1,5 @@
+> Historical assignment; not an active queue. Follow current NEXT_TASKS.md.
+
 # Next assignments — ninth coordinator review, 2026-10-13
 
 Read [NINTH_REVIEW.md](NINTH_REVIEW.md). Boot's correction and VPU's bounded ownership decision are accepted within their documented scopes. Previous instructions are archived in [EIGHTH_ASSIGNMENTS.md](EIGHTH_ASSIGNMENTS.md). Preserve accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886` and diagnostic v2 artifacts.

@@ -1,3 +1,5 @@
+> Historical assignment; not an active queue. Follow current NEXT_TASKS.md.
+
 # Next assignments — fourth coordinator review, 2026-10-12
 
 Read [FOURTH_REVIEW.md](FOURTH_REVIEW.md) for reviewed SHAs, independently checked CI and source findings. These assignments replace [THIRD_REVIEW.md](THIRD_REVIEW.md). Work without phone access. Baseline unchanged; Boot owns shared DT, coordinator owns integration and aggregate status. Do not repeat successful builds or generic audits without a changed input or concrete remaining question.

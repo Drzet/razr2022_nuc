@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Third coordinator review and next assignments
 
 2026-10-11, after the third subsystem round. Supersedes the queue in [SECOND_REVIEW.md](SECOND_REVIEW.md). The latest ADB attempt was unsuccessful; plan without hardware access. Earlier [stock Android observations](oneli_stock_android14_adb_hardware_capture_2026-10-11.md) remain valid within their scope. Target: XT2251-1 PVT, hwrev 0xC000, SKU dn, observed Android 14 U2SLS34.1-42-14-11. User plans to unlock when the phone is fully in their possession; this is a future device-test prerequisite, not an offline development blocker.

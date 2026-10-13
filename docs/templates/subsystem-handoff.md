@@ -6,6 +6,14 @@
 - Required board-support and other subsystem SHAs:
 - Evidence stage: researched / implemented / build-tested / hardware-tested (specify separately)
 
+## Scope and reuse
+
+- Assigned deliverable and stop condition:
+- Exact producer inputs and file owner; dependencies ready or blocked:
+- Closest existing implementation, revision/series, search date and coverage limits:
+- Reuse/adaptation decision and smallest justified new delta:
+- Canonical prior handoff/results reused (do not duplicate):
+
 ## Changes and provenance
 
 Describe the problem, resulting behavior, source/patchset revisions and commits supplied. Mark inferred findings `[INFERRED]`.

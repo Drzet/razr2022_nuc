@@ -1,3 +1,5 @@
+> Historical assignment; not an active queue. Follow current NEXT_TASKS.md.
+
 # Next assignments — fifth coordinator review, 2026-10-12
 
 Read [FIFTH_REVIEW.md](FIFTH_REVIEW.md). This queue supersedes [the fourth assignments](FOURTH_ASSIGNMENTS.md). Work without phone access. Keep speculative hardware claims labelled `[INFERRED]`, shared DT with Boot, and aggregate status/promotion with coordinator. No unchanged builds, full ROM rescans or repeat generic audits.

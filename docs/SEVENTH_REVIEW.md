@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Seventh coordinator review — 2026-10-12
 
 **Accepted: the minimal diagnostic initramfs executes under the accepted kernel without a disk, and its exact bytes are packaged into independently inspected unsigned boot-v4/vendor_boot-v4 images.** This closes the sixth-round offline payload/structure milestone. It does not establish a runnable Motorola experiment. Kernel integration remains unchanged at `2b5acf108ae37040ac1e652e029bb37f5609e886`.

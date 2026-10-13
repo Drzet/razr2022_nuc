@@ -1,3 +1,5 @@
+> Historical assignment; not an active queue. Follow current NEXT_TASKS.md.
+
 # Next assignments — eighth coordinator review, 2026-10-13
 
 Read [EIGHTH_REVIEW.md](EIGHTH_REVIEW.md). Seventh-round diagnostic v2 and its single boot-image refresh are accepted for host/QEMU scope. [Accepted v2 record](../configs/accepted-native-console-v2-2026-10-13.json) contains the corrected image digest. Preserve integration `2b5acf108ae37040ac1e652e029bb37f5609e886`, original vendor_boot and historical v1 artifacts.

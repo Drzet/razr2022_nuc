@@ -1,0 +1,41 @@
+> Historical record. Superseded by current AGENTS.md, WORKFLOW.md and NEXT_TASKS.md; not an active assignment.
+
+# Project coordination rules
+
+- Read `docs/STATUS.md`, `docs/NEXT_TASKS.md`, `docs/WORKFLOW.md` and the relevant investigation before changing project decisions or subsystem status.
+- Use the hardware database in `docs/` as the primary structured evidence source; consult newer focused investigations for unresolved additions. Preserve evidence provenance and qualify inferred hardware claims with `[INFERRED]`.
+- Keep kernel source, device trees, bindings and driver changes in `Drzet/linux`. Do not duplicate them here or import whole Android source trees.
+- Do not invent GPIOs, firmware names, configuration symbols, build parameters or successful test results. Record missing inputs explicitly.
+- Keep researched, implemented, build-tested and hardware-tested evidence separate. A merge or upstream driver match does not prove operation on this phone.
+- Use `docs/templates/subsystem-handoff.md` for subsystem handoffs. Record exact commits, dependencies, shared files and results.
+- Coordinate changes to shared board/SoC device trees and configuration before integration. Preserve concurrent work; do not overwrite another subsystem's updates.
+- Record baseline selections and changes in `configs/baseline.json` and `docs/WORKFLOW.md`. The initial null fields mean no baseline has been selected.
+- Keep proprietary firmware binaries and generated images out of this repository. Track provenance, filenames and hashes instead.
+
+- A brief stock Android ADB session was captured on 2026-10-11; read `docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md` for observed board/build identity and its limits. The phone was then disconnected; do not assume ongoing access or native validation. Continue source audits, public stock-firmware inspection, compilation, schema checks and suitable generic emulation. Label physical runtime tests deferred; do not call a public reference image the installed firmware.
+
+- Coordinator owns aggregate `docs/STATUS.md` and `docs/NEXT_TASKS.md`. Subsystem agents update their own handoffs/results on assigned branches and propose coordination changes; do not overwrite aggregate status from stale branches. Read coordinator main for the latest assignments and dependency gates.
+
+- Latest user update: follow-up ADB was unsuccessful; plan without hardware access. Preserve earlier stock observations. The owner intends to unlock when the device is fully in their possession; do not treat unlock as an offline coding blocker. Follow scoped holds in NEXT_TASKS rather than repeating completed audits.
+
+- Fourth review (2026-10-12): read `docs/FOURTH_REVIEW.md` and current `docs/NEXT_TASKS.md`. Firmware location is resolved; per-FDT stock properties remain a separate shared export. Both uploaded live-DT archives contain zero property files. Centralize bounded member retrieval; do not repeat full ROM scans or unchanged CI on documentation-only updates.
+
+- Fifth review supersedes the fourth task queue: read `docs/FIFTH_REVIEW.md` and current `docs/NEXT_TASKS.md`. Boot is explicitly delegated execution of an isolated combined integration candidate and its full artifacts; coordinator retains acceptance/promotion and aggregate docs. This narrow delegation overrides earlier coordinator-only execution wording. DisplayPort is on an evidence hold; do not repeat completed audits.
+
+- Sixth review is current: `docs/SIXTH_REVIEW.md` and `docs/NEXT_TASKS.md`. Integration `2b5acf108ae37040ac1e652e029bb37f5609e886` is accepted for source/build/QEMU only and preserved on `razr/integration`. Boot first defines the native initramfs interface, Userspace acknowledges before dependent packaging. GPU/Power/USB/DP are paused or queued; VPU has only an optional bounded DMA-design task. No blanket concurrent round or repeat completed extraction.
+
+- Seventh review is current: `docs/SEVENTH_REVIEW.md` and NEXT_TASKS. Native diagnostic payload and unsigned host packaging passed; device handoff/observable output remain unresolved. Boot owns a bounded loader/output decision; Userspace has one console-summary fix. Preserve accepted kernel and v1 artifacts; no unchanged builds or blanket agent round.
+
+- Eighth review is current: `docs/EIGHTH_REVIEW.md` and NEXT_TASKS. Diagnostic v2 accepted; Boot corrects a truncated documentation digest then pauses, Userspace pauses. VPU alone has the next selected bounded DMA-design task. No unchanged builds, repeat extractions or blanket concurrent round. Native loader/device evidence remains unresolved.
+
+- Ninth review supersedes the eighth queue: read `docs/NINTH_REVIEW.md` and current NEXT_TASKS. Boot correction is verified; Boot/Userspace pause. VPU has one selected allocator-enforcement and child-topology task. Firmware acceptance is a later device test, not a prerequisite for a disabled prototype. Shared DTS remains Boot-owned; no blanket concurrent round.
+
+- Tenth review supersedes prior queues: read `docs/TENTH_REVIEW.md` and NEXT_TASKS. VPU is authorized for a disabled binding/consumer-lifecycle prototype; USB closes conditional-schema coverage and records its completed ARM64 build. These two tasks can run concurrently. Boot joins only for a concrete shared-DTS request; other holds remain.
+
+## Existing implementation search before new code
+
+Before developing a new driver, subsystem module, binding or substantial replacement, search mainline, pending upstream patch series, maintained out-of-tree Linux projects and vendor implementations. Document the closest existing solution and justify the smallest necessary new implementation. Avoid duplicating ongoing community work.
+
+Record search date/scope, source links, exact revisions or patch-series versions, supported hardware/API differences and disposition: reuse, adapt, backport, or new code with a concrete gap. Include relevant Linux mobile projects such as postmarketOS and related device-port trees where applicable. Check current development work, not just the pinned baseline. A search with no result is not proof that no implementation exists; disclose coverage limits.
+
+Prefer extending an existing driver or adopting a suitable unmerged series over a parallel implementation. Preserve licensing, authorship and patch provenance. Reuse valid previous investigations and update only missing or stale coverage; do not repeat extraction, builds or generic audits. Coordinator verifies this evidence before accepting new implementation. This is a technical prerequisite, not a recurring user-permission requirement.

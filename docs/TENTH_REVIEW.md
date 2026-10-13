@@ -1,3 +1,5 @@
+> Historical review. Current STATUS.md and NEXT_TASKS.md supersede all work instructions below.
+
 # Tenth coordinator review — 2026-10-13
 
 **VPU's allocator feasibility finding is accepted; proceed to a disabled experimental binding/consumer prototype. USB's new profile and lifecycle candidate passed host tests and full ARM64 build; it remains outside accepted integration.**

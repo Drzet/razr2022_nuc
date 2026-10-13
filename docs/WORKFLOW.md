@@ -1,73 +1,34 @@
-# Architecture and coordination
+# Development and integration policy
 
-Decision recorded: 2026-10-11. Scope: native mainline Linux, with separate subsystem chats and this project repository as the durable coordination record.
+Current policy, 2026-10-13. Replaces accumulated round-specific instructions. Only [NEXT_TASKS](NEXT_TASKS.md) selects work; [STATUS](STATUS.md) records acceptance. Historical reports remain evidence.
 
-## Repository responsibilities
+## Stable project boundaries
 
-- `Drzet/linux`: one kernel source of truth, containing board/SoC device trees, bindings, drivers and a traceable patch history. Leave its default upstream branch unchanged by project development.
-- `Drzet/razr2022_nuc`: evidence, configuration fragments, baseline metadata, build/image tooling, firmware inventory, validation procedures and results.
-- Motorola and other external trees: references pinned to exact revisions. Port justified changes as individual commits, preserving authorship, source links and applicable licensing. Record unmerged patchset versions and dependencies.
+`Drzet/linux` is the kernel source of truth. This repository contains evidence, build/configuration tooling, firmware inventories and results. Debian remains the userspace target; reuse AOSP image tools and existing Linux/mobile tooling rather than creating parallel frameworks.
 
-The kernel fork `Drzet/linux` and read/write access were verified on 2026-10-11. Its default branch is `master`. On 2026-10-11, upstream commit `a5ebb76233b79db01e82e061173cb73c6d2b5c6b` was selected as the initial baseline and `razr/boot` was created at that SHA. This now deliberately matches the research snapshot; its clean ARM64 Image/dtbs build has passed (see `tests/results/2026-10-11-baseline-ci.md`); subsystem patches are not covered. See [the comparison](sm8475_baseline_comparison_2026-10-11.md).
+Upstream baseline: `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. Accepted integration: `2b5acf108ae37040ac1e652e029bb37f5609e886` for source/build/QEMU scope only. Preserve [integration record](../configs/accepted-integration-2026-10-12.json) and [diagnostic v2 record](../configs/accepted-native-console-v2-2026-10-13.json). Do not change baseline or replace tested commits silently.
 
-## Planned kernel branches
+## Task lifecycle
 
-All six subsystem branches exist; see `STATUS.md` for their reviewed commits. `razr/integration` now records the sixth-review accepted source/build/QEMU commit (see the dated acceptance below). GPU and USB currently contain standalone baseline-based patches; board-dependent additions must name their Boot dependency.
+1. **Select/reuse:** define the actual missing function; inspect current mainline, maintainer/pending series, relevant community/mobile projects and vendor code. Record revision/series, closest implementation, licensing, differences and coverage limitations. Reuse, adapt or backport first. New code needs a concrete remaining gap reviewed by coordinator.
+2. **Agree inputs:** name immutable producer commits/artifacts, interface and file owner. Do not commission dependent implementation before these exist.
+3. **Implement:** one bounded deliverable, one owner, one assigned branch. Preserve upstream patches and project adaptations separately. Stop if a missing dependency changes the design; report it instead of filling gaps with guesses.
+4. **Validate:** tests must detect plausible defects in the changed behavior. Schema compilation alone is not instance validation; expected-invalid cases must assert diagnostics. Host shims are not kernel/hardware execution. Compilation without modpost is not a complete module build.
+5. **Integrate:** coordinator chooses exact commits; Boot applies shared DTS and assembles a specifically assigned candidate. Run applicable combined build/schema tests once, preserve required artifacts, then perform dependent Userspace tests if their inputs changed. Coordinator promotes only reviewed results.
+6. **Stop:** deliver one concise canonical handoff with evidence and unresolved issues. Completion does not authorize another round. Hardware-only outcomes wait for hardware; source-resolvable gaps need a named source or concrete task.
 
-| Branch | Responsibility | Dependency |
-| --- | --- | --- |
-| `razr/boot` | Shared board support, minimal boot and diagnostic output | Selected upstream commit |
-| `razr/gpu` | GPU enablement and rendering | Explicit `razr/boot` commit |
-| `razr/usb` | USB host/device, Type-C role and orientation work | Explicit `razr/boot` commit |
-| `razr/displayport` | External display routing and output | Board support plus required USB/Type-C commits |
-| `razr/vpu` | Decoder platform support and firmware interface | Explicit `razr/boot` commit |
-| `razr/power` | Power, charging and thermal integration | Explicit `razr/boot` commit |
-| `razr/integration` | Combined candidates for validation | Recorded subsystem commits |
+## Concurrency and resources
 
-Use one selected upstream baseline across active work. Each handoff names exact dependency commits; branch names alone are insufficient. Coordinate shared device-tree changes through board support, keeping bindings and device-tree changes in separate commits. Introduce additional subsystem branches when there is concrete work to own.
+Default is one implementation stream. An exception in NEXT_TASKS must identify independent inputs/interfaces/files and why parallel work is useful. A second agent may perform a bounded independent review; it must not duplicate implementation. No generic round for every subsystem.
 
-## Integration procedure
+Coordinator alone owns shared policy/status/queue and acceptance. Boot alone owns shared board/SoC DTS. Interface producer completes a reviewable contract before its consumer proceeds. Parallelism is not a substitute for sequencing.
 
-1. Record a subsystem handoff using the template. Identify shared files and unresolved assumptions.
-2. Resolve dependencies and shared-file conflicts; integrate only the reviewed commit set. Record whether it was merged or cherry-picked, including resulting SHAs where changed.
-3. Build the combined kernel and affected device trees; validate bindings when changed. Preserve commands, tool versions, resulting configuration and logs.
-4. Record device tests independently of compilation. Keep failures and regressions visible.
-5. Update `STATUS.md` with evidence links. Tag hardware-tested integration commits with the scope of tests in the tag/release record. An integration branch may contain candidates that are not yet hardware-tested.
+Search existing reports/manifests before retrieval. Centralize stock extraction; never redownload/re-extract unchanged firmware for another subsystem. Do not repeat completed broad searches; check only missing scope or changed upstream versions. Reuse exact-input artifacts and logs. Pin external tools/schema versions used in acceptance.
 
-Do not rewrite a published integration commit used by a recorded test. Baseline changes require a recorded reason, new exact upstream SHA and a re-evaluation of dependent branches.
+Use focused schema/object/host tests during development. Full Image/modules/modpost is required when dependency or link changes need it and for a new combined kernel candidate; do not run it for docs or fixture-only edits. Avoid duplicate CI for the same purpose and head; fix cheap local/host failures before expensive builds. Download only artifacts needed for the decision. Record CI-produced versus independently verified hashes accurately.
 
-## Reproducible build record
+## Durable records
 
-`configs/baseline.json` records the selected project inputs once known. Each actual build also needs a completed `tests/templates/build-record.md` containing the exact kernel and project revisions, ordered fragments, toolchain, external patches, firmware manifest, commands, image preparation inputs and artifact hashes. Preserve the generated kernel configuration with the build evidence.
+One STATUS, one NEXT_TASKS, one canonical handoff per subsystem. Link exact revision evidence rather than creating overlapping reports. Historical decisions live in dated reviews or archive and do not grant work. [Cleanup disposition](CLEANUP_2026-10-13.md) records active/frozen branches and retained work.
 
-The initial structure deliberately contains no guessed kernel config or boot-image commands. Populate those after checking the selected kernel and the phone's boot requirements.
-
-## First milestones
-
-1. Completed: pin the initial upstream commit and create `razr/boot`.
-2. Completed: clean baseline ARM64 Image and device-tree build. Next: compile subsystem candidates, including modules, and validate changed schemas.
-3. Implement minimal board support using the hardware evidence and actual boot artifacts.
-4. Demonstrate native boot with usable diagnostic output and record the exact image/commit.
-5. Integrate subsystem work incrementally; test standalone decode before browser acceleration.
-
-Research for GPU, VPU, USB and power can proceed while boot support is developed. The VPU driver approach remains unresolved: an Iris platform extension is a hypothesis to validate, not an accepted implementation result.
-
-## Fifth-review execution delegation (2026-10-12)
-
-Boot may prepare and build the isolated `razr/integration-candidate` specified in NEXT_TASKS. Coordinator retains commit selection, review and promotion of accepted `razr/integration`; this is a candidate, not an accepted integration branch. Userspace consumes the exact published artifacts for a separate QEMU virt run. Keep default upstream and subsystem branches intact.
-
-## Sixth-review acceptance (2026-10-12)
-
-Coordinator accepted and promoted `2b5acf108ae37040ac1e652e029bb37f5609e886` unchanged to `razr/integration` after reviewing the exact combined diff, complete artifacts and project-kernel guest evidence. See `configs/accepted-integration-2026-10-12.json`. This supersedes earlier candidate-only/planned language; the upstream baseline remains unchanged. No hardware-tested tag or phone acceptance is implied. Future candidate changes remain separate until reviewed. The next milestone and staged owner dependencies are in NEXT_TASKS.
-
-## Seventh-review host packaging acceptance (2026-10-12)
-
-Diskless diagnostic payload run 38307910388 and unsigned host packaging run 38310449244 are accepted for their limited scopes, with coordinator-verified downloaded artifacts. See `configs/accepted-native-host-2026-10-12.json`. Kernel integration is unchanged. Native loader/DT/ramdisk/command-line behavior and physical diagnostic access remain unresolved; use current NEXT_TASKS rather than repeating the completed construction work.
-
-## Existing implementation search before new code
-
-Before developing a new driver, subsystem module, binding or substantial replacement, search mainline, pending upstream patch series, maintained out-of-tree Linux projects and vendor implementations. Document the closest existing solution and justify the smallest necessary new implementation. Avoid duplicating ongoing community work.
-
-Record search date/scope, source links, exact revisions or patch-series versions, supported hardware/API differences and disposition: reuse, adapt, backport, or new code with a concrete gap. Include relevant Linux mobile projects such as postmarketOS and related device-port trees where applicable. Check current development work, not just the pinned baseline. A search with no result is not proof that no implementation exists; disclose coverage limits.
-
-Prefer extending an existing driver or adopting a suitable unmerged series over a parallel implementation. Preserve licensing, authorship and patch provenance. Reuse valid previous investigations and update only missing or stale coverage; do not repeat extraction, builds or generic audits. Coordinator verifies this evidence before accepting new implementation. This is a technical prerequisite, not a recurring user-permission requirement.
+Keep authored patch provenance, source and integration SHAs, configurations, relevant tool versions, logs and required binary artifacts. No proprietary firmware or generated image payloads in git. Use firmware manifests. Preserve the existing build-record schema; do not create another parallel schema without a demonstrated consumer need.
