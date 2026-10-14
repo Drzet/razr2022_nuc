@@ -2,15 +2,11 @@
 
 This queue supersedes all earlier rounds, including tenth prototype instructions. [Policy](WORKFLOW.md) · [Status](STATUS.md) · [Disposition](CLEANUP_2026-10-13.md).
 
-## Active: VPU — close the reviewed candidate, no new feature work
+## VPU — closure accepted, paused
 
-Read [VPU review](VPU_REVIEW_2026-10-13.md). Candidate ec9a8949cfbd1b05cf01553bffc39719ee1a16a7 correctly reuses Qualcomm's v5 architecture and has verified build/schema/routing results. Preserve this tested history. Complete only:
+Coordinator reviewed the provenance reconstruction and executed the host failure-path checks. Sole canonical kernel candidate: `razr/vpu-provenance-v5@a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac`. Original tested upstream branch and temporary closure branches are historical; do not reset, merge wholesale, or rerun provenance reconstruction. The canonical [VPU handoff](https://github.com/Drzet/razr2022_nuc/blob/razr/vpu/docs/handoffs/2026-10-13-vpu-tenth-recovery.md) records exact old/new mappings and evidence.
 
-1. Recover and pin exact source mbox/hash and selected patch identities. Reconstruct upstream author/message/trailers on a new provenance-corrected branch starting from 869cf4a6ad21afcc2435c4e2d1d4fa9ab33fb4bf; record old/new SHA mapping and backport deltas. Do not force-push razr/vpu-upstream or manufacture sign-offs. Keep local adaptations separate. Compare resulting tree to ec9a8949; reuse prior compile evidence for identical code.
-2. Execute actual production IOMMU range-reservation logic for the intended windows and malformed/zero/overflow/translation/allocation failures. Current fixture equality assertions are not parser tests. Report inherited limitations honestly; no broad IOMMU rewrite. Reuse upstream fixes if a defect is found before creating local code.
-3. Execute actual child create/init/deinit and failure unwind paths with explicitly scoped mocks or kernel tests: legacy absent children, first/second registration failure, partial cleanup, later V4L2 registration failure. Validate returned errors and balanced references/registration; do not count source-string assertions as execution.
-
-**Deliverable/stop:** one canonical handoff update with source provenance, corrected branch/commit mapping, focused test results and remaining limitations. No fresh architecture survey, extraction, OPP/ICC, firmware-policy expansion or Boot DTS changes. Do not add a separate child driver: the pinned IOMMU notifier can configure unbound children, correcting an earlier coordinator overstatement. Keep SM8475 gated and accepted integration unchanged.
+No VPU implementation is currently assigned. Keep SM8475 gated and accepted integration unchanged. Inherited IOMMU reservation failure behavior and unresolved VPU2 resource/firmware policy remain enablement gates; host mocks do not clear them. No fresh audit, extraction, rebuild, shared-DTS edit or additional documentation-only round.
 
 ## Queued next: USB — NXP adaptation selection, not implementation
 
@@ -26,4 +22,4 @@ PS5169 tenth closure is complete; no additional PS5169 work or build. After coor
 
 ## Coordinator
 
-Review VPU's reuse/backport deltas before assigning Boot integration. Maintain frozen accepted artifacts and one canonical queue. No second implementation stream is selected. USB does not technically depend on VPU; its queue position is an explicit work-in-progress limit. No all-agent restart.
+VPU bounded closure is accepted; no implementation stream is active after branch repair. Select the already-scoped USB NXP decision explicitly when resuming project development. USB does not depend on VPU completion. No Boot integration or all-agent restart is authorized by this cleanup.
