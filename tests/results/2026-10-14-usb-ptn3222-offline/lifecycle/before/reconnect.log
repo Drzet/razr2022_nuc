@@ -1,0 +1,6 @@
+consumer exit with pending repeater cleanup: 0
+STATE: outer=0 inner=1 reset=1 votes=1/1 own=0/0 faulted=1 initialized=0
+consumer reconnect: 0
+STATE: outer=1 inner=2 reset=1 votes=1/1 own=1/1 faulted=1 initialized=0
+FAIL: PHY counts / repeater votes / reset
+FAIL: reconnect

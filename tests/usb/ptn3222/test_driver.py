@@ -257,8 +257,9 @@ static void init_faults(void) {
     fresh(true); struct ptn3222 *p = probe(); fail_at = 9; disable_fail = 1;
     assert(ptn3222_init(&test_phy) == -EIO && p->faulted && gpio.value == 1);
     assert(rails[0].votes == 1 && rails[1].votes == 1);
-    assert(ptn3222_init(&test_phy) == -EBUSY);
-    assert(ptn3222_exit(&test_phy) == 0); off();
+    disable_fail = 1;
+    assert(ptn3222_init(&test_phy) == -EAGAIN && p->faulted);
+    assert(rails[0].votes == 1 && rails[1].votes == 1 && gpio.value == 1);
     assert(ptn3222_init(&test_phy) == 0 && ptn3222_exit(&test_phy) == 0); off();
     fresh(true); p = probe(); fail_at = 4; clear_fail = 1;
     assert(ptn3222_init(&test_phy) == -EIO && p->faulted);
