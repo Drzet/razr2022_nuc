@@ -2,7 +2,7 @@
 
 - Date: 2026-10-14.
 - Project repository commit at execution: `fe6a73f769bb193988ce256066a2168b6940a85d`, with the two new test scripts in the working tree. Their source hashes are preserved in the result records; the canonical handoff identifies the delivery commit.
-- Kernel repository / branch / exact commit: `Drzet/linux:razr/usb-ptn3222@f499a099f3d53fae2b1ece4701e4c27f5c71429b`.
+- Kernel repository / branch / exact commit: local tested `razr/usb-ptn3222@f499a099f3d53fae2b1ece4701e4c27f5c71429b`; published `Drzet/linux:razr/usb-ptn3222@d513929e8c1ef2ea7f5158ebfb57fda99ff531e9`. Both have identical full Git tree `4de63d667e9fac5b00b5022741bed81e25fbbc11`. SSH publication timed out; the GitHub connector created the delivery commit with its publishing-account metadata and explicit local-author/commit attribution. Local tested history is retained, with no source change or rebuild.
 - Upstream baseline commit: `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`.
 - Board-support and subsystem commits: baseline only plus the isolated PTN3222 adaptation. No board node, shared DTS, PS5169, accepted integration or other subsystem changes.
 - External patches: no patch applied wholesale. Existing upstream PTN3222 reused; exact Motorola/NXP/community sources and coverage are in the canonical USB handoff. Adaptation is a new local commit, preserving existing authorship/license.
