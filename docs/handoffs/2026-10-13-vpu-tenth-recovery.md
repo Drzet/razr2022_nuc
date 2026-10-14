@@ -1,6 +1,6 @@
 # VPU canonical handoff — Qualcomm upstream v5 adaptation candidate
 
-**Updated:** 2026-10-14, decoder bandwidth producer mapping delivered below against coordinator `7b80bca`. **Status:** source analysis complete; cache-use policy is the specific remaining producer input hold. Compression/complexity have source-defined fallbacks; compressed-output DPB semantics require an explicit adapter. No calculator execution result is claimed. Final consumer OPPs remain held separately. SM8475 remains disabled and excluded from integration. **Stop:** publish this handoff and its commit to issue #10; only coordinator main NEXT_TASKS can assign implementation.
+**Updated:** 2026-10-14, coordinator `fcc6f13` selected the no-cache-discount host reference after accepting mapping `3b085bb`. **Status:** extracted reference executed successfully within its checked domain; production cache/LLCC policy, final consumer OPPs and runtime gates remain held. SM8475 remains disabled and excluded from integration. **Stop:** publish this handoff and its commit to issue #10; only coordinator main NEXT_TASKS can assign implementation.
 
 ## Exact branches and inputs
 
@@ -9,6 +9,38 @@
 - **Upstream source:** Vikash Garodia et al., Qualcomm [`[PATCH v5 00/13] media: iris: Migrate iommus to iris sub nodes`](https://lists.openwall.net/linux-kernel/2026/09/26/358), 2026-09-26, Message-ID `20260926-vpu_iommu_iova_handling-v5-0-0322ca5dc10c@oss.qualcomm.com`, series base `f5f84daefcd92d7a630066635ecea1433ed5eac7`. Pinned [dt-schema PR #207](https://github.com/devicetree-org/dt-schema/pull/207) merged dependency revision `840a01d414daf3e8ac0b8a386c36edb68f397189`.
 - **Accepted kernel/Boot source dependency:** `Drzet/linux:razr/integration@2b5acf108ae37040ac1e652e029bb37f5609e886` for exact oneli->sm8475->sm8450 bus hierarchy/cell checks, **unchanged**. No shared DTS, accepted diagnostic-v2 manifest, image or userspace input changed.
 - **Frozen archive:** `Drzet/linux:razr/vpu@a6327db1c2dbeab9d18ba913c20cb126a3a5a1a1`, preserved at `archive/vpu-peer-prototype-2026-10-13`; old peer DMA-consumer compatible/phandle/IOVA-only reserved-memory ABI is superseded and must not be merged.
+
+## No-cache-discount extracted decoder reference — 2026-10-14
+
+**Assignment:** coordinator main `fcc6f13b8fbece67eba1c9c333621f97879b394f`, read with current policy/status/queue and instructions in issues #10/#13. Project parent `3b085bb0ae3493d4ff630027b035ccbadd0fc43e`; local `vpu-local`, publication `razr/vpu`. Executor is the local Codex bot, using configured Git attribution. Kernel source `Drzet/linux@a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac`, baseline and accepted integration named above remain unchanged/read-only. Earlier mapping's no-execution statement records that earlier task, not this new result.
+
+**Deliverable:** [runner](../../tests/vpu/decoder-bandwidth-reference.py), [host fixtures/preconditions](../../tests/vpu/decoder-bandwidth-reference.c), [reproduction instructions and arithmetic certificate](../../tests/vpu/decoder-bandwidth-reference.md), [actual source/extraction/compiler/results JSON](../../tests/results/2026-10-14-vpu-decoder-reference.json). These four files plus this canonical handoff are the only changes. No vendor source, generated binary, kernel code or shared DTS is committed. The closest reusable calculation remains the pinned Qualcomm GPL-2.0-only decoder identified below; no repeat community/firmware/route survey was needed.
+
+The runner fetches and SHA256-verifies seven pinned public files, extracts unchanged contiguous decoder/helper slices with line ranges/hashes and notices, includes `fixedpoint.h` whole, and parses candidate platform limits. Enums, struct, macro definitions and defaults come from the pinned sources. Generated sources/binary are temporary. Kernel-type/math shims and a debug-array observer are documented; **the calculation body, including its debug block, is unchanged**. The observer checks the original floor, bitrate rounding and split OPB contribution. No independently reimplemented bandwidth formula is used.
+
+**Selected model:** cache discount false, CR=`1<<16`, CF=`4<<16`; H264/NV12 and HEVC/VP9 with NV12/P010 split output. Adapter rate is `max(frame_rate,operating_rate)`, preserving 480 startup, also used for queued-byte bitrate estimation. Candidate one-session admission is checked first; a separate arithmetic gate checks original signed products/rounding additions, positive ratios/divisors and a documented unsigned fixed-point interval certificate before invocation. Source-aligned output dimensions, 30..480 frame rate and positive source dimensions are explicit reference restrictions; unsupported combinations reject. This does not promise support for every admitted candidate workload.
+
+**Actual execution:** Python 3.14.4; `gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0`, `-std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=undefined -fno-sanitize-recover=all -fno-omit-frame-pointer`. Static assertions enforce 64-bit size_t/unsigned long, 32-bit int and 16 fractional bits. Command from project root:
+
+```sh
+python3 tests/vpu/decoder-bandwidth-reference.py --cc gcc --json-out tests/results/2026-10-14-vpu-decoder-reference.json
+```
+
+**PASS:** 271 assertions; 21 unchanged decoder invocations (18 selected-model, 3 synthetic cache-on); 17 invalid/out-of-envelope inputs rejected before calculation; source-helper rounding/Q16/decimal-unit assertions; independent host sum/clamp/turbo/peak-zero/minimum/unvote and both u64 sum-overflow fixtures. HTTPS retrieval and local compile/run exited successfully with no compiler/UBSan diagnostics. GCC UBSan does **not** detect unsigned wrap; explicit preconditions plus the bounded interval proof are the unsigned-arithmetic evidence, not sanitizer silence. No safe-domain claim is made outside that proof.
+
+| Representative source fixture (1920×1088, 30 fps, 100000 queued bytes unless stated) | Model D / L, kB/s | Synthetic cache-on D / L, kB/s |
+| --- | ---: | ---: |
+| H264 / NV12 | 689000 / 689000 | 535000 / 685000 |
+| HEVC / P010 | 893000 / 893000 | 829000 / 891000 |
+| VP9 / NV12 | 633000 / 633000 | 585000 / 631000 |
+| VP9 / P010, 3840×2160, 60 fps, 200000 bytes | 6979000 / 6979000 | Not run |
+| H264 / NV12, 480 startup, 65536 bytes | 10859000 / 10859000 | Not run |
+
+**Domain boundaries actually exercised:** 96×8192 H264 at 204 fps executes; 205 fps still passes candidate admission but rejects because the effective 1280×8192 floor overflows the original signed pixel product. For 3840×2160 VP9, 241 fps executes; 242 rejects candidate macroblocks/s admission. At 30 fps, 8943681 queued bytes executes and the next byte rejects bitrate rounding arithmetic; UINT64_MAX queued bytes rejects without overflowing the host adapter. 4166→4167 bytes exercises the 1→2 Mbit/s ceiling. Source `fp_round`'s 32766/32767/32768 fractional edges and Q16 hundredths truncation were executed. Two different dimensions with equal effective floor and area ratio produce the same reference result; split OPB writes are nonzero in all executed cases.
+
+**Limits and next patch:** some raw results exceed the 15000000 kB/s route cap (e.g. 96×8192/204 gives D=L=23577000); passing the calculator cannot establish adequacy of a clamped production vote. D=L is a selected model, not physical-cache disablement or a proven upper bound for every real LLCC workload. Cache-on pairs characterize source code only. Sum/clamp/unvote fixtures do not execute ICC or its error/lifecycle paths. There is no kernel/schema/ARM64 build, firmware/HFI/PAS/SMMU test or hardware result in this task. A later explicitly checked port is necessary to cover admitted workloads outside this arithmetic domain and must separately fix/validate production rate/cache policy; no such port is implemented here. Compressed capture remains outside this reference; its K split-mode adapter is still required before expansion. Boot has no new producer/consumer interface commit to integrate.
+
+**Evidence stages:** research and bounded host compilation/execution **YES**; kernel implementation **NO**; kernel build **NOT RUN**; hardware **NOT TESTED**. Stop after publishing this project commit/results to issue #10 for coordinator review. No consumer implementation, OPP rows, cache lifecycle, firmware extraction, full build or shared-DTS work is self-assigned.
 
 ## Decoder bandwidth producer decision — 2026-10-14
 
