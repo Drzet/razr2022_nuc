@@ -1,0 +1,6 @@
+{
+  "source_sha256": "023239da29c269e42bcebd0d97c1a77e7cd934f631ef3fec1429e044a535cf57",
+  "test_sha256": "ae214013843275c1fa022992af83afa924b7f2c1481c77ba873d0369b2f7ef87",
+  "scope": "production C with host mocks; ASan/UBSan; not kernel/hardware",
+  "result": "PASS: 37 production-driver scenarios"
+}

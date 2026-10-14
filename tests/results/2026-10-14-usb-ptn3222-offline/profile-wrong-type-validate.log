@@ -1,0 +1,4 @@
+/tmp/razr-ptn3222-schema/profile-wrong-type.dtb: redriver@4f (nxp,ptn3222): nxp,usb2-tuning-profile: b'\x00\x00\x00\x01' is not of type 'array'
+	from schema $id: http://devicetree.org/schemas/phy/nxp,ptn3222.yaml
+/tmp/razr-ptn3222-schema/profile-wrong-type.dtb: redriver@4f (nxp,ptn3222): nxp,usb2-tuning-profile: b'\x00\x00\x00\x01' is not of type 'array'
+	from schema $id: http://devicetree.org/schemas/phy/nxp,ptn3222.yaml

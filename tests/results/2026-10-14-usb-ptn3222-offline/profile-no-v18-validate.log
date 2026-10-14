@@ -1,0 +1,2 @@
+/tmp/razr-ptn3222-schema/profile-no-v18.dtb: redriver@4f (nxp,ptn3222): 'vdd1v8-supply' is a required property
+	from schema $id: http://devicetree.org/schemas/phy/nxp,ptn3222.yaml
