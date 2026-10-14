@@ -1,6 +1,6 @@
 # Development and integration policy
 
-Current policy, 2026-10-13. Replaces accumulated round-specific instructions. Only [NEXT_TASKS](NEXT_TASKS.md) selects work; [STATUS](STATUS.md) records acceptance. Historical reports remain evidence.
+Current policy, 2026-10-14. Replaces accumulated round-specific instructions. Only [NEXT_TASKS](NEXT_TASKS.md) selects work; [STATUS](STATUS.md) records acceptance. Historical reports remain evidence.
 
 ## Stable project boundaries
 
@@ -32,3 +32,9 @@ Use focused schema/object/host tests during development. Full Image/modules/modp
 One STATUS, one NEXT_TASKS, one canonical handoff per subsystem. Link exact revision evidence rather than creating overlapping reports. Historical decisions live in dated reviews or archive and do not grant work. [Cleanup disposition](CLEANUP_2026-10-13.md) records active/frozen branches and retained work.
 
 Keep authored patch provenance, source and integration SHAs, configurations, relevant tool versions, logs and required binary artifacts. No proprietary firmware or generated image payloads in git. Use firmware manifests. Preserve the existing build-record schema; do not create another parallel schema without a demonstrated consumer need.
+
+## Coordination and execution continuity
+
+Owner authorization covers routine task selection, review, queue/status maintenance and posting project instructions. Coordinator completes these together; a recommendation in chat is not an assignment until recorded in NEXT_TASKS. Subsystem agents still stop at their deliverable and do not activate queued work themselves. GitHub comments publish instructions but do not launch or directly control another chat.
+
+Test local Git access once per session when needed. If unavailable, use available GitHub connector operations and focused CI; do not repeatedly clone or re-check access. Report the exact failed operation and fallback outcome if execution remains blocked. Reuse existing objects/checkouts in an isolated worktree where available. Failed ref leases require inspecting the actual current head; they are not evidence of another writer by themselves. Preserve tested history and use expected-head updates.

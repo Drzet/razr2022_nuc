@@ -1,4 +1,4 @@
-# Current assignments — cleanup reset, 2026-10-13
+# Current assignments — 2026-10-14
 
 This queue supersedes all earlier rounds, including tenth prototype instructions. [Policy](WORKFLOW.md) · [Status](STATUS.md) · [Disposition](CLEANUP_2026-10-13.md).
 
@@ -8,9 +8,23 @@ Coordinator reviewed the provenance reconstruction and executed the host failure
 
 No VPU implementation is currently assigned. Keep SM8475 gated and accepted integration unchanged. Inherited IOMMU reservation failure behavior and unresolved VPU2 resource/firmware policy remain enablement gates; host mocks do not clear them. No fresh audit, extraction, rebuild, shared-DTS edit or additional documentation-only round.
 
-## Queued next: USB — NXP adaptation selection, not implementation
+## Active: USB — NXP reuse/adaptation decision
 
-PS5169 tenth closure is complete; no additional PS5169 work or build. After coordinator selects this queued task, compare exact Motorola `repeater-i2c-eusb2.c@0450c5076a8ec9415a10888c8c183ef6ff5f91b8` and oneli overrides against mainline PHY/PTN3222 interfaces. Deliver one minimal reuse/adaptation decision covering IDs, reset/supplies, error handling and framework differences. Do not infer PTN3222 identity from the generic compatible or write a fresh repeater driver. No ROM extraction or active graph.
+**Sole active subsystem task.** Work on `Drzet/razr2022_nuc:razr/usb`, current reviewed base `f0557d04c1ec93d668998a7d1dc29195fcc320be`. Read rules and this queue from coordinator **main**, not stale copies on the owner branch. Update `docs/handoffs/2026-10-13-usb-tenth-round.md` in place with a clearly dated NXP decision; retain links to completed PS5169 evidence.
+
+**Pinned inputs:** MotorolaMobilityLLC/kernel-msm `0450c5076a8ec9415a10888c8c183ef6ff5f91b8`, `drivers/usb/repeater/repeater-i2c-eusb2.c`; existing oneli NXP-configured/Diodes-disabled stock reference and overrides; project baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. Kernel PS5169 candidate `4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe` and accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886` remain unchanged.
+
+1. Compare that vendor implementation and recorded oneli properties/register overrides with the closest existing mainline PHY/repeater implementation, including PTN3222. Pin the actual compared upstream revision; check relevant pending/community work only for the specific remaining gap. Generic `nxp,eusb2-repeater` compatibility is not proof of PTN3222 silicon identity.
+2. Produce one compact mapping: compatible/identity evidence, register access and override ordering, reset versus enable GPIO semantics, supplies/delays, probe/defer/error handling, PHY/repeater consumer API and suspend/resume ownership. Link exact source locations and already-extracted stock evidence; mark assumptions `[INFERRED]`.
+3. Choose direct reuse, minimal adaptation, or an evidence hold. Name exact missing evidence, smallest prospective code/binding changes, interface owner and focused validation required before implementation. Separate source-resolvable uncertainties from hardware-only checks.
+
+**Deliverable/stop:** one updated canonical handoff with a concrete recommendation and exact references. Commit it, post the commit and decision in issue #2, then stop for coordinator review. No driver implementation, kernel branch creation, active graph/shared DTS changes, ROM extraction, generic audit, PS5169 retesting or full build. USB has no dependency on VPU; this selection reflects sequencing/resource control.
+
+## Queued after USB review — not active
+
+1. **Coordinator: VPU enablement decision.** Review the already demonstrated missing-reservation behavior in the pinned upstream helper. Distinguish disabled-candidate acceptance from permission to enable; check narrowly for an upstream resolution before proposing any change. Record whether a source fix/provider test is needed, who owns it, and what remains hardware-dependent. Do not repeat the completed host tests or start a broad IOMMU rewrite.
+2. **VPU: resource/firmware policy gap closure, subject to coordinator activation.** Use canonical kernel candidate `a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac` and existing extracted firmware/DT evidence. Reconcile only unresolved firmware/PAS, MXC/MMCX power-domain and interconnect requirements with reused Iris/remoteproc infrastructure. Deliver a source-backed resolved/unresolved table and minimal next change, or a precise evidence hold. No new firmware download/extraction, provenance reconstruction, gate removal, shared DTS edit or repeated architecture survey. Refine the exact remaining questions at activation so completed findings are not repeated.
+3. **Boot then Userspace:** only after a concrete candidate/interface change is reviewed. Boot owns shared DTS and combined artifacts; Userspace consumes the resulting pinned artifact. No speculative consumer implementation or packaging replay.
 
 ## Paused
 
@@ -22,4 +36,6 @@ PS5169 tenth closure is complete; no additional PS5169 work or build. After coor
 
 ## Coordinator
 
-VPU bounded closure is accepted; no implementation stream is active after branch repair. Select the already-scoped USB NXP decision explicitly when resuming project development. USB does not depend on VPU completion. No Boot integration or all-agent restart is authorized by this cleanup.
+Maintain one authoritative queue and notify the relevant issue when selecting, completing or blocking a task. Review USB's exact result before selecting implementation or advancing the VPU queue. Do not wait for fresh user permission for routine coordination within the authorized project scope. Do not label work active unless its assignment is published.
+
+When a task arrives, inspect its actual diff and applicable evidence, accept or name the specific gap, update STATUS/NEXT_TASKS and publish the next bounded instruction in the same coordination pass. Hardware-only blockers pause that workstream, not the whole project. Do not invent dependencies between independent subsystems. No blanket round or second active subsystem is selected.
