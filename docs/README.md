@@ -7,6 +7,10 @@ Source-backed research for building a native mainline Linux kernel for Motorola 
 - [Technical summary, device-tree source hierarchy and next checks](razr2022_linux_audit_readme_2026-10-11.md)
 - [Complete JSON evidence database](razr2022_native_linux_hardware_database_2026-10-11.json) (authoritative structured data)
 
+## Newer board evidence
+
+- [Schematic findings and corrected GPIO endpoints (15 October 2026)](oneli_schematic_evidence_2026-10-15.md) — PTN3222BUK, WAS7227Q, PMIC parents, dual-battery switches and debug UART. Supersedes corresponding unknown/inferred entries in the dated database at reference-design evidence level; includes remaining verification limits.
+
 ## Focused investigations
 
 - [VPU / 4K browser video feasibility audit (11 October 2026)](razr2022_vpu_investigation_2026-10-11.md) — Motorola video DT source, Iris driver gap, firmware and VP9 validation plan

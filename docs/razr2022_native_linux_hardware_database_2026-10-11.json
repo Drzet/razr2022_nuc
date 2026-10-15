@@ -21,7 +21,16 @@
     },
     "upstream_linux_sha": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
     "source_scope": "Mot Android 12 and Linus Linux master snapshot",
-    "warning": "Comprehensive index of relevant DTS source files / nodes, not a verified fully-resolved device tree binary."
+    "warning": "Comprehensive index of relevant DTS source files / nodes, not a verified fully-resolved device tree binary.",
+    "supplemental_evidence": [
+      {
+        "date": "2026-10-15",
+        "path": "docs/oneli_schematic_evidence_2026-10-15.md",
+        "scope": "Reference-design IC identities, PMIC parent rails, corrected battery control endpoints, debug UART GPIOs",
+        "provenance": "Auditor derived schematic report plus user endpoint transcription; full schematic not independently inspected by coordinator; installed PVT unverified",
+        "precedence": "Supersedes corresponding unknown or HDK-inferred board wiring entries for this reference design; existing sheets remain the dated source snapshot."
+      }
+    ]
   },
   "sheets": {
     "Hardware": [
@@ -947,7 +956,8 @@
       },
       {
         "Layer": "Charging",
-        "Source file": "cape-oneli-common-overlay.dtsi",        "Node / include": "sgm4154x@6B",
+        "Source file": "cape-oneli-common-overlay.dtsi",
+        "Node / include": "sgm4154x@6B",
         "Relevant property": "sgm,sgm41516D; TLMM51 IRQ; PMIC GPIO2 EN",
         "NUC function": "Secondary flip battery charger",
         "Evidence state": "Direct",
