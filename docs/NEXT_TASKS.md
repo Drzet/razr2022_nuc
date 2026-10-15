@@ -6,11 +6,15 @@ This queue supersedes all earlier rounds, including tenth prototype instructions
 
 Keep kernel `razr/usb-ptn3222@61202a82ad004302fcc04e321075e190f00b29ed` and project `razr/usb@63cf2a5388ad406e58ccf42344936f14c3868a54`. [Review](USB_REVIEW_2026-10-14.md) records independently reproduced before/after failures and passing 12 core/consumer plus 37 provider cases. Existing PS5169 evidence remains accepted. No further USB implementation, repeated tests, ABI redesign, combined build or active DTS is assigned. Hardware/board-contract and experimental-ABI review remain gates before integration/enablement.
 
-## Active: VPU / local Codex — checked decoder calculator, no runtime wiring
+## VPU / local Codex — delivered, pending coordinator review
 
 **Accepted reference:** project `razr/vpu@3a6729caf68aea40cfb80a4f449f067b6208b682`. Coordinator independently reproduced 271 checks, 21 production calls and every published result row; source/extraction/fixture hashes match. See [review](VPU_REVIEW_2026-10-13.md#extracted-reference-review--2026-10-15).
 
-**Sole active implementation task.** Continue project `razr/vpu` from that commit and kernel `razr/vpu-provenance-v5` from `a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac`; inspect actual heads before editing, preserve history. Owner: existing VPU local Codex bot. Shared DTS remains Boot-owned.
+**Delivered; agent paused.** Project `razr/vpu@0c50bf141dbb2a96cd19e79eb35e27bb1e807a63`; kernel `razr/vpu-provenance-v5@7ac8d3afedfde74286b52e11aaa1eca42a1329a5`. Both commits are independently confirmed present. Kernel `a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac` is the prior reviewed base, not the delivered candidate head. Implementation and test evidence are **pending coordinator review**, not newly accepted. No further VPU implementation, rerun or consumer work is assigned.
+
+**Coordinator next:** inspect the delivered source delta and focused evidence against the retained criteria below; verify relevant results, then accept or identify a concrete gap and update the queue. This receipt correction is not that technical review.
+
+### Delivered assignment criteria — for review, not an instruction to repeat
 
 1. Reuse the pinned Qualcomm decoder and accepted mapping/reference. Before new port code, close only the missing reuse-check scope: inspect relevant pending Iris bandwidth patches and existing community checked implementations; record exact revisions and whether they eliminate the required arithmetic adaptation. Do not repeat firmware extraction, provenance reconstruction or the completed broad source analysis. If a suitable implementation changes the plan, report it before proceeding.
 2. Implement a narrowly scoped, attributable **pure checked calculator** in Drzet/linux, with no runtime caller, ICC changes or enablement. Preserve Qualcomm notices and separate upstream-derived logic from local arithmetic adaptation. Explicit u64 Q16 arithmetic must retain operation order, truncation, unusual rounding and decimal units on the accepted reference domain; widen signed products before multiplication and check additions, shifts, products, divisions and output conversion. No silent saturation or 30-fps fallback.
@@ -28,7 +32,7 @@ Keep kernel `razr/usb-ptn3222@61202a82ad004302fcc04e321075e190f00b29ed` and proj
 
 ## Active: Boot — read-only schematic-to-board contract review
 
-**Explicit concurrency exception:** VPU remains the sole implementation stream. Boot may perform this bounded independent document/source review now: inputs are the fixed [schematic evidence](oneli_schematic_evidence_2026-10-15.md), accepted kernel `2b5acf108ae37040ac1e652e029bb37f5609e886`, and existing Boot/Power handoffs. It does not touch VPU files or require VPU output. Its benefit is resolving first-boot board assumptions while the implementation task completes. Inspect current `razr/boot` project head, preserve intervening work, and update only Boot's canonical handoff/contract.
+**Active independent review:** VPU has delivered and is paused pending coordinator review. Boot may perform this bounded independent document/source review now: inputs are the fixed [schematic evidence](oneli_schematic_evidence_2026-10-15.md), accepted kernel `2b5acf108ae37040ac1e652e029bb37f5609e886`, and existing Boot/Power handoffs. It does not touch VPU files or require VPU output. Its benefit is resolving first-boot board assumptions while the VPU submission awaits review. Inspect current `razr/boot` project head, preserve intervening work, and update only Boot's canonical handoff/contract.
 
 1. Reconcile reported GPIO26 TX / GPIO27 RX with the accepted GENI UART7 mux/pinctrl and console configuration. Record an exact match or mismatch and the minimal proposed correction. Physical access pads/voltage are still unknown; do not claim a usable receiver.
 2. Compare the reported PM8350/PM8350C parent matrix with accepted disabled board nodes and RPMh binding groups. Produce a small proposed property/parent table, naming any unresolved provider/rail rather than copying HDK assumptions. Preserve PM8350BH versus B/C distinctions. Do not invent fixed battery voltage or enable supplies.
