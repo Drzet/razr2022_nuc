@@ -1,12 +1,12 @@
 # Project status
 
-Updated 2026-10-14 after VPU branch review and consolidation. **VPU bounded offline closure is accepted: original authorship restored, production-path host tests verified. VPU decoder input mapping at 3b085bb is accepted; a no-cache-discount host reference test is now active. This model neither asserts physical cache disablement nor establishes safe production LLCC voting. VPU remains disabled and unintegrated.** Bespoke VPU peer-driver work is superseded. USB's PS5169 and NXP reuse-decision tasks are complete. PTN3222 lifecycle correction at 61202a82 is accepted for its bounded offline scope; USB is paused and remains unintegrated. Native handset execution remains untested.
+Updated 2026-10-15 after review of VPU reference commit `3a6729c`. **The bounded no-cache-discount reference is accepted: independent execution reproduced 271 checks, 21 decoder calls and all published result rows. VPU's sole next task is an unwired checked calculator with differential tests. Production voting and handset operation remain unapproved.** USB lifecycle closure remains accepted and paused; accepted integration is unchanged.
 
 [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md) · [Cleanup and branch disposition](CLEANUP_2026-10-13.md)
 
 | Owner | Current evidence/state | Next action |
 | --- | --- | --- |
-| VPU | Canonical candidate a1f0288d on razr/vpu-provenance-v5; production tree unchanged, provenance corrected, host error paths pass | Active: no-cache-discount decoder host reference; production cache/LLCC policy and OPP rows remain gated |
+| VPU | Canonical candidate a1f0288d on razr/vpu-provenance-v5; production tree unchanged, provenance corrected, host error paths pass | Active: checked pure calculator and differential tests; reference accepted at 3a6729c; production cache/LLCC policy and OPP rows remain gated |
 | USB | PS5169 ARM64 build passed at 8356706; conditional-schema/probe tests passed at 4dcbc7b, fixing a real YAML bug | PTN3222 correction accepted at 61202a82; pause for board/ABI/hardware gates |
 | Boot | Combined kernel and diagnostic-v2 host packaging accepted; digest corrected | Pause until concrete integration/new loader input |
 | Userspace | Project-kernel Debian/QEMU and diagnostic v2 tests accepted | Pause |
@@ -17,6 +17,6 @@ Accepted kernel `2b5acf108ae37040ac1e652e029bb37f5609e886`, [integration record]
 
 Native loader/memory/DT/ramdisk handoff and accessible output remain unresolved. VPU PAS/HFI/DMA/decode and USB powered link/wake behavior require device validation. NXP/AUX identities and electrical parents remain specific evidence gaps, potentially resolvable from attributable documentation. Do not confuse these with missing generic drivers.
 
-Latest decision: [VPU candidate review](VPU_REVIEW_2026-10-13.md). VPU no-cache-discount decoder reference test is the sole active subsystem task. Provider/order and parent-level votes are resolved; disjoint DDR/LLCC routes avoid double counting. USB and other owners remain paused. Inherited VPU IOVA failure behavior remains an enablement gate; no new IOMMU implementation is assigned. No unchanged full build is requested.
+Latest decision: [VPU candidate review](VPU_REVIEW_2026-10-13.md). VPU checked calculator is the sole active subsystem task. Provider/order and parent-level votes are resolved; disjoint DDR/LLCC routes avoid double counting. USB and other owners remain paused. Inherited VPU IOVA failure behavior remains an enablement gate; no new IOMMU implementation is assigned. No unchanged full build is requested.
 
 Latest USB decision: [PTN3222 review](USB_REVIEW_2026-10-14.md). Keep project evidence at 63cf2a53 and corrected isolated kernel candidate 61202a82; source/host evidence does not establish handset operation. No rollback or merged integration change.
