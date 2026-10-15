@@ -1,0 +1,240 @@
+{
+  "schema": "oneli-schematic-to-rpmh-board-contract-v1",
+  "date": "2026-10-15",
+  "owner": "Boot",
+  "branch": "razr/boot",
+  "classification": "reference-schematic-derived; not verified installed PVT/electrical/rpmh-runtime",
+  "source": {
+    "schematic": "docs/oneli_schematic_evidence_2026-10-15.md",
+    "schematic_main_commit": "d84b05099dd9f01e11b744503a3728ae71e70ee4",
+    "drawing": "DZKJ Schematics Schematics_256_MP_0616.pdf; maven.cpm rev03; derived screenshots/user endpoint transcription; no drawing copied",
+    "device_observed": "docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md",
+    "accepted_kernel_repo": "Drzet/linux",
+    "accepted_kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "reference_binding": "Documentation/devicetree/bindings/regulator/qcom,rpmh-regulator.yaml",
+    "reference_rpmh_driver": "drivers/regulator/qcom-rpmh-regulator.c",
+    "reference_soc_dts": "arch/arm64/boot/dts/qcom/sm8450.dtsi",
+    "reference_hdk": "arch/arm64/boot/dts/qcom/sm8450-hdk.dts",
+    "accepted_board": "arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dts",
+    "motorola_pinctrl_ref": "MotorolaMobilityLLC/kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359:qcom/cape-pinctrl.dtsi"
+  },
+  "uart7": {
+    "schematic": {
+      "tx": {
+        "signal": "SDM_DBG_UART_TX",
+        "soc_gpio": 26,
+        "ball": "D24"
+      },
+      "rx": {
+        "signal": "SDM_DBG_UART_RX",
+        "soc_gpio": 27,
+        "ball": "C24"
+      }
+    },
+    "kernel": {
+      "node": "/soc@0/geniqup@9c0000/serial@99c000",
+      "soc": "SM8475",
+      "compatible": "qcom,geni-debug-uart",
+      "pinctrl_tx_label": {
+        "name": "qup_uart7_tx",
+        "gpio": 27,
+        "mux": "qup7",
+        "drive_strength": 2,
+        "bias": "disable"
+      },
+      "pinctrl_rx_label": {
+        "name": "qup_uart7_rx",
+        "gpio": 26,
+        "mux": "qup7",
+        "drive_strength": 2,
+        "bias": "disable"
+      },
+      "both_pads_qup7_selected": true,
+      "alias": "serial0",
+      "chosen_stdout": "serial0:115200n8",
+      "qup_parent": "qupv3_id_0",
+      "qup_parent_enabled": true,
+      "uart_node_enabled": true,
+      "pinctrl_driver": "drivers/pinctrl/qcom/pinctrl-sm8450.c",
+      "pinctrl_driver_qup7_function_gpio_list": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "vendor_reference": "cape-pinctrl.dtsi qupv3_se7_2uart_active mux gpio26+gpio27 qup7; labels no TX/RX separation"
+    },
+    "decision": "label-to-net-direction-mismatch-but-configured-physical-pads-and-identical-function/drive/bias-match; functional failure not proven; no source change assigned",
+    "proposed_minimal_change": "On a later selected board DTS patch, replace inherited misleading TX/RX labelled references with one oneli-local two-pad qup7 default group (GPIO26/GPIO27) or document/rename them after validating actual pad-function direction; no electrical state change asserted now.",
+    "physical_observation_missing": [
+      "documented safe ground and solder-accessible TX/RX pad or connector",
+      "voltage domain and receiver logic level",
+      "actual bootloader/GENI UART bytes"
+    ],
+    "console_usable": false
+  },
+  "regulators": {
+    "upstream_node_mapping": [
+      {
+        "pmic": "PM8350",
+        "node": "&apps_rsc/regulators-0",
+        "pmic_id": "b",
+        "compatible": "qcom,pm8350-rpmh-regulators",
+        "currently_disabled": true
+      },
+      {
+        "pmic": "PM8350C",
+        "node": "&apps_rsc/regulators-1",
+        "pmic_id": "c",
+        "compatible": "qcom,pm8350c-rpmh-regulators",
+        "currently_disabled": true
+      }
+    ],
+    "proposed_group_parent_properties": [
+      {
+        "pmic": "PM8350",
+        "property": "vdd-l1-l4-supply",
+        "schematic_parent": "S11B",
+        "hdk_parent": "S11B",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350",
+        "property": "vdd-l2-l7-supply",
+        "schematic_parent": "BOB_C",
+        "hdk_parent": "BOB_C",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350",
+        "property": "vdd-l3-l5-supply",
+        "schematic_parent": "S11B",
+        "hdk_parent": "BOB_C",
+        "hdkomparison": "differs-from-HDK",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350",
+        "property": "vdd-l6-l9-l10-supply",
+        "schematic_parent": "S12B",
+        "hdk_parent": "S12B",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350",
+        "property": "vdd-l8-supply",
+        "schematic_parent": "S2H",
+        "hdk_parent": "S2H",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350C",
+        "property": "vdd-l1-l12-supply",
+        "schematic_parent": "S1C",
+        "hdk_parent": "BOB_C",
+        "hdkomparison": "differs-from-HDK",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350C",
+        "property": "vdd-l2-l8-supply",
+        "schematic_parent": "S1C",
+        "hdk_parent": "BOB_C",
+        "hdkomparison": "differs-from-HDK",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350C",
+        "property": "vdd-l3-l4-l5-l7-l13-supply",
+        "schematic_parent": "BOB_C",
+        "hdk_parent": "BOB_C",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350C",
+        "property": "vdd-l6-l9-l11-supply",
+        "schematic_parent": "BOB_C",
+        "hdk_parent": "BOB_C",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350C",
+        "property": "vdd-l10-supply",
+        "schematic_parent": "S12B",
+        "hdk_parent": "S12B",
+        "hdkomparison": "same-supply-label",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      },
+      {
+        "pmic": "PM8350C",
+        "property": "vdd-bob-supply",
+        "schematic_parent": "B_PLUS",
+        "hdk_parent": "B_PLUS_HDK_VPH",
+        "hdkomparison": "differs-from-HDK",
+        "state": "proposed-only-not-in-accepted-oneli-dts"
+      }
+    ],
+    "buck_inputs": {
+      "PM8350": "B_PLUS",
+      "PM8350C": "B_PLUS",
+      "notes": "schematic high-level battery/power-path feed; do not use HDK fixed 3.7V vph_pwr substitute or infer fixed battery voltage"
+    },
+    "BOB_C": {
+      "output": "VREG_BOB",
+      "source": "B_PLUS",
+      "provider": "PM8350C bob within RPMh regulators-1; disabled/unmodelled",
+      "property": "vdd-bob-supply"
+    },
+    "parent_phandle_status": {
+      "S11B": "PM8350 smps11 node not declared on accepted oneli provider",
+      "S12B": "PM8350 smps12 node not declared on accepted oneli provider",
+      "S1C": "PM8350C smps1 node not declared on accepted oneli provider",
+      "S2H": "PM8450 smps2; source identified but accepted oneli DTS has no staged PM8450 regulator provider",
+      "BOB_C": "PM8350C bob node not declared on accepted oneli provider",
+      "B_PLUS": "physical rail; no source-backed Linux regulator supply provider bound"
+    },
+    "staged_consumers": {
+      "PM8350_L5B": "UFS PHY VDDA-PHY; disabled provider; proposed grouped vdd-l3-l5-supply=S11B",
+      "PM8350_L7B": "UFS host VCC; disabled provider; grouped vdd-l2-l7-supply=BOB_C",
+      "PM8350_L9B": "UFS host VCCQ; disabled provider; grouped vdd-l6-l9-l10-supply=S12B",
+      "PM8350C_L10C": "UFS PHY VDDA-PLL; disabled provider; grouped vdd-l10-supply=S12B",
+      "PM8350_S10B": "PTN3222BUK 1.8V and PS5169 VCC; not staged, consumer disabled",
+      "PM8350_L2B": "PTN3222BUK 3.07V nominal and WAS7227Q-10/TR VCC; not staged, consumer disabled",
+      "PM8350C_L8C": "PS5169 VIO; feeds from PM8350C S1C not BOB_C; not staged"
+    },
+    "provider_live_evidence": false,
+    "authorizes_regulator_enable": false
+  },
+  "separate_hardware_ownership": {
+    "main_charge_pmic": "PM8350BH, not interchangeable with PM8350 or PM8350C RPMh provider naming",
+    "CHG_EN": "PM8350C GPIO2 pin134 (user-corrected source)",
+    "FLIP_BALANCE_EN_N": "PM8350BH GPIO1 pin114",
+    "FLIP_BATTPLUS_EN": "PM8350BH GPIO3 pin139",
+    "battery_bridge_switch": "WS4695C-12",
+    "balance_pulldown_ohms": 470000,
+    "charging_power_policy": "Power queued; no writes or provider rebind assigned"
+  },
+  "remaining_boot_gates": [
+    "actual Motorola MBM Image/ramdisk/FDT load/relocation and nonoverlap",
+    "actual on-device populated RAM map and PVT overlay selection",
+    "bootargs and ramdisk composition",
+    "physical UART access/voltage or independently proven early-output path",
+    "verified restoration path and verified boot policy"
+  ],
+  "validation": {
+    "method": "source-and-schematic-read-only",
+    "binding_names_checked": true,
+    "driver_supply_names_checked": true,
+    "hdkgroups_compared": true,
+    "kernel_build_run": false,
+    "dtb_changed": false,
+    "phone_tested": false
+  },
+  "change_authorization": "DOCUMENT_ONLY; no kernel/DTS edits, enabled rails, charger writes, new build or boot image"
+}
