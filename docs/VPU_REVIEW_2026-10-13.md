@@ -86,3 +86,26 @@ Source review confirms unchanged decoder-body extraction and 64-bit fixed-point 
 **Next decision:** authorize only an attributable pure checked calculator, unwired, and differential tests against the accepted reference. This addresses a demonstrated arithmetic defect rather than speculative infrastructure. Preserve exact fixed-point semantics within the old safe domain; independently validate widened cases and explicit failures. Complete the narrowly missing pending/community reuse check before creating port code. No runtime consumer, shared DTS, cache lifecycle, OPP changes or full build is assigned. Production rate/startup policy, admission/cap interaction, LLCC adequacy, inherited IOVA failures and PAS/HFI remain separate gates.
 
 Kernel candidate a1f0288d remains disabled/unintegrated at this review; accepted integration 2b5acf10 and diagnostic artifacts are unchanged. VPU is the only active owner; USB, Boot, Userspace, GPU, Power and DP remain paused. See NEXT_TASKS for exact deliverable and stop condition.
+
+## Checked calculator review — 2026-10-15 evening
+
+**Accepted for the assigned pure-calculator/offline scope:** project [0c50bf141dbb2a96cd19e79eb35e27bb1e807a63](https://github.com/Drzet/razr2022_nuc/commit/0c50bf141dbb2a96cd19e79eb35e27bb1e807a63), kernel [7ac8d3afedfde74286b52e11aaa1eca42a1329a5](https://github.com/Drzet/linux/commit/7ac8d3afedfde74286b52e11aaa1eca42a1329a5), direct child of reviewed a1f0288d. This closes the pending review; it does not authorize production voting or integration.
+
+Coordinator inspected all three new kernel source/header files, the Makefile delta, full test runner/bridge, independent Python expectations, canonical handoff and build record. The patch preserves Qualcomm attribution, separates local checked math, and adds only an unwired calculator object to the Iris object list. It changes no caller, platform data, probe gate, ICC route, DTS or firmware policy. The new object is scheduled for linking by Makefile; it is not a runtime invocation. No blocking defect was found in the bounded model, input/error handling or arithmetic adaptation.
+
+**Independent execution:** fetched the exact three kernel files and test files via pinned GitHub reads; fetched the seven pinned reference inputs; ran the unchanged submitted host runner with GCC 13.3.0 and its warnings/UBSan flags. Because this environment used a minimal temporary source snapshot rather than a complete kernel checkout, its local Git commit is a staging identity, not 7ac8d3af. Every tested kernel/test file hash was separately compared with the published evidence and matches. No kernel checkout or ARM64 build is claimed from this host snapshot.
+
+Results reproduce exactly:
+- 1,362 vectors / 3,157 C assertions, including 20 arithmetic/API checks.
+- 810 exact unchanged-reference comparisons; 398 independent unlimited-integer comparisons beyond the original reference's accepted domain.
+- All 1,344 grid representability classifications; 1,208 successes, 144 range errors, 10 invalid-input errors.
+- Source/test hashes, input/output stream hashes, all named results and counts match the published JSON. No compiler/UBSan diagnostics.
+- Original reference verification is rerun inside the submitted harness and matches its accepted hashes/results.
+
+Source review confirms checked products before use, checked Q16 shifts/additions, nonzero denominators, source truncation/rounding order, and zero public outputs on errors. Model validation bounds the remaining dimension/alignment additions. The independently expressed Python equations preserve integer rounding rather than comparing floating-point approximations. This validates arithmetic within the tested/declared model, not empirical coefficients or hardware bandwidth.
+
+**Build evidence:** inspected the submitted focused ARM64 W=1 object-build record/log and ELF header identifying ELF64 AArch64 relocatable output. The recorded source hashes match the independently tested source. ARM64 compilation remains owner-produced evidence, not a coordinator rerun; binary object/configuration hashes are not newly independently verified. This is not module linkage/modpost or a full Image build. No unchanged full build was requested.
+
+**Limits remain explicit:** 382 successful vectors exceed 15,000,000 kB/s. At 96x8192, 409 fps returns 47,271,000 kB/s; 410 fps returns a checked range error despite candidate admission. A future consumer must handle those errors and cap/admission policy before use; clamp-to-cap is not proof of adequacy. No-cache-discount D=L remains a model choice, not physical-cache disablement or validated LLCC sufficiency. OPP divider/rate, IOVA reservation errors, PAS/HFI and native runtime gates remain.
+
+**Disposition:** retain 7ac8d3af as the reviewed disabled/unintegrated VPU candidate and 0c50bf1 as its pinned evidence. VPU pauses; no consumer or further arithmetic expansion is assigned. Activate the previously queued USB BUK/reset source-contract decision, while Boot completes its independent read-only schematic review. Their fixed inputs/files are independent; neither needs further VPU work. No new implementation stream, blanket round or dependent Userspace build. Accepted integration 2b5acf10 remains unchanged.
