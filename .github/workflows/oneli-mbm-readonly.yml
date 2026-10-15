@@ -7,6 +7,7 @@ on:
       - 'scripts/inspect-oneli-mbm-public-reference.py'
       - 'scripts/analyze-oneli-mbm-loader-structures.py'
       - 'scripts/analyze-oneli-mbm-efi-executables.py'
+      - 'scripts/analyze-oneli-mbm-xrefs.py'
       - '.github/workflows/oneli-mbm-readonly.yml'
   workflow_dispatch:
 
@@ -28,14 +29,14 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends binutils file llvm python3-venv python3-dev gcc
           python3 -m venv "$RUNNER_TEMP/mbm-venv"
-          "$RUNNER_TEMP/mbm-venv/bin/pip" install --disable-pip-version-check uefi_firmware==1.16
+          "$RUNNER_TEMP/mbm-venv/bin/pip" install --disable-pip-version-check uefi_firmware==1.16 pefile==2024.8.26 capstone==5.0.6
           echo "$RUNNER_TEMP/mbm-venv/bin" >> "$GITHUB_PATH"
           readelf --version | head -1
           python3 --version
       - name: Bounded Motorola bootloader member inspection
         run: |
           set -euo pipefail
-          python3 scripts/analyze-oneli-mbm-efi-executables.py
+          python3 scripts/analyze-oneli-mbm-xrefs.py
           git rev-parse HEAD > evidence/research-commit.txt
       - name: Publish text metadata only; no firmware bytes
         if: always()
