@@ -1,66 +1,47 @@
 # Current assignments — 2026-10-15
 
-This queue supersedes all earlier rounds, including tenth prototype instructions. [Policy](WORKFLOW.md) · [Status](STATUS.md) · [Disposition](CLEANUP_2026-10-13.md).
+This queue supersedes earlier rounds and same-day pauses. [Policy](WORKFLOW.md) · [Status](STATUS.md) · [Current review](COORDINATOR_REVIEW_2026-10-15.md).
 
-## Active: USB / local Codex — PTN3222BUK identity and reset contract
+## Active: VPU — consumer-policy contract
 
-**Source decision only.** Retain kernel `razr/usb-ptn3222@61202a82ad004302fcc04e321075e190f00b29ed`, existing PS5169 results and project evidence `razr/usb@63cf2a5388ad406e58ccf42344936f14c3868a54`. Inspect actual branch heads before acting; preserve intervening changes. The previous lifecycle closure remains accepted. New fixed input: [schematic evidence](oneli_schematic_evidence_2026-10-15.md), including user-corrected GPIO endpoints.
+Fixed inputs: project razr/vpu@0c50bf141dbb2a96cd19e79eb35e27bb1e807a63; kernel razr/vpu-provenance-v5@7ac8d3afedfde74286b52e11aaa1eca42a1329a5. Both remain latest and the pure calculator is reviewed/accepted. Inspect heads before editing; preserve later work.
 
-1. Resolve **PTN3222BUK** register-ID compatibility with the candidate's CUK/HUK checks using attributable NXP/other exact-part source evidence and existing Motorola implementation. Do not infer that package suffixes require distinct IDs or that matching register patterns prove a revision. Deliver a supported match decision or the exact read-only identity datum still missing; do not invent an accepted ID.
-2. Reconcile physical **RST_N, PM8350C GPIO7**, active-low at the chip, with vendor DT flag/call semantics and Linux descriptor logical assertion/deassertion. State provider numbering and the required descriptor/call behavior explicitly. Reuse known S10B/L2B supply evidence.
-3. Update USB's canonical handoff with the minimal patch/binding proposal, or precise evidence hold. Post exact project commit in issue #2 and stop for review. No kernel code, shared DTS, new driver, regulator enablement, repeated lifecycle tests or full build in this task.
+**User-accepted hardware assumption:** clock consumer division by three is [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Retain four-pipe/no-cache-discount model. Do not keep development paused awaiting physical divider proof or repeat the broad search. This does not assert measured rates or physical cache disablement.
 
-**Concurrency:** Boot's read-only review below may continue alongside this source decision: fixed schematic input, separate handoffs and no shared-file edits. VPU is paused. This is not a blanket implementation round.
+Update the canonical VPU handoff with one implementable policy:
+1. Map actual decoder controls/queued bytes, frame/operating rates and the retained480 startup rule to calculator inputs. State when votes change and what zero queued bytes means.
+2. Specify admission and errors: unsupported or checked-range failure must propagate; do not continue with zero/stale votes. Raw outputs exceeding a route limit need admission rejection or a separately justified policy, not silent clamp-as-adequacy. Include the known96x8192/409 and410fps boundaries and startup effects.
+3. Specify disjoint VIDEO→LLCC and LLCC→DDR votes, concurrent-session aggregation and update/rollback/unvote ordering. Avoid duplicated L on a long DDR route.
+4. Map source-resolved MXC/MMCX ordering/table using the accepted /3 assumption; distinguish requested, rounded and achieved rates and failure handling. Specify bounded later code/files/tests.
+5. Deliver exact project commit in issue#10 and stop for coordinator review. Reuse unchanged calculator/reference results. This task settles the consumer interface; no runtime caller, shared DTS, cache lifecycle or full build yet.
 
-## VPU — checked calculator accepted; paused
+Native PAS/HFI/DMA outcomes await hardware. The inherited IOVA reservation failure behavior is an independent demonstrated source gate for active DMA; no custom IOMMU rewrite assigned. Check the relevant upstream fix/provider behavior when enablement is actually selected.
 
-**Accepted bounded deliverable:** project `razr/vpu@0c50bf141dbb2a96cd19e79eb35e27bb1e807a63`, kernel `razr/vpu-provenance-v5@7ac8d3afedfde74286b52e11aaa1eca42a1329a5`. Prior base a1f0288d is superseded as candidate head, preserved as history. [Coordinator review](VPU_REVIEW_2026-10-13.md#checked-calculator-review--2026-10-15-evening).
+## Active independent review: Boot — incorporate MBM address contract
 
-Coordinator reproduced 1,362 vectors, 3,157 C assertions, 810 safe-reference comparisons and 398 independent wider-input comparisons; hashes and result streams match. ARM64 object-build record inspected, not independently rebuilt. Acceptance covers the pure checked calculator and offline tests only; no module/full-build or hardware claim.
+Inputs: research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3; Boot handoff812172869a8c9665c6a39004aad9b1c52cf036bf; accepted kernel2b5acf108ae37040ac1e652e029bb37f5609e886 and existing diagnostic-v2 artifacts.
 
-**Stop:** no further VPU implementation, test replay, runtime caller, ICC route/consumer, cache lifecycle, compressed capture, OPP, shared DTS, gate removal or combined build assigned. Retain raw-output and error-domain limits. A later consumer requires an explicit admission/error/rate/cache/cap policy; successful arithmetic alone cannot establish adequate physical bandwidth.
+1. Update existing loader/output decision, readiness record and canonical handoff: static placement formulas are resolved for planning; runtime branch/base/offset, RAM fixup, final FDT/ramdisk composition and physical output remain observations. Preserve fallback alignment hazard and full Image.image_size overlap check. Do not require successful kernel entry before planning its test.
+2. Repair the research constants script's UTF-16 truncation with aligned code-unit termination and synthetic cases. Check literal-section RVA mapping against saved PE metadata. Use the research branch for its tooling; Boot branch for Boot records. Preserve existing artifacts, no firmware download or broad disassembly rerun. If saved metadata is insufficient, state that exact limitation.
+3. Describe the minimal future read-only observations and conditional temporary-load experiment, including alignment/overlap, selected DT/memory, observable output and restoration checks. Do not guess runtime addresses or claim fastboot-boot composition tested.
+4. Post exact commits/evidence in issue#13, then stop for review. No kernel/DTS, charging, boot-image rebuild or device operation.
 
-### Held separately
+Concurrency is explicitly allowed: VPU's source-policy contract and Boot's independent evidence/readiness work have fixed separate inputs/files. Neither waits on the other; this is not a blanket implementation round.
 
-- **OPPs:** MXC/MMCX provider/order and parent-level table are source-resolved. Final consumer rates require attributable divider/rounded-rate evidence and installed-driver qualification. Hardware division by three remains [INFERRED]. No repeated search absent a named new source.
-- **ICC:** use disjoint VIDEO→LLCC and LLCC→DDR routes if retaining independent L/D. A long DDR route plus full L duplicates averages on shared nodes. Do not authorize route code until the checked producer and production policy are reviewed.
-- **Firmware/PAS/HFI and IOVA:** previous structural/host evidence remains accepted; runtime acceptance and the inherited reservation failure gate are unchanged.
+## USB — accepted, paused
 
-## Active: Boot — read-only schematic-to-board contract review
+Project razr/usb@481c399cee777014586b083f0305614e09aa9c68; kernel razr/usb-ptn3222@1e5268277f6d4c25cde2f3e2b3f00439107e087a. Relaxed identity policy accepted after source review and independent44-scenario host pass. Unknown readable IDs are diagnostic; read errors remain fatal. No further BUK-ID allowlist search/capture prerequisite. No new USB implementation or repeated lifecycle tests.
 
-**Active independent review:** VPU closure is accepted and paused; USB performs the independent source decision above. Boot may perform this bounded independent document/source review now: inputs are the fixed [schematic evidence](oneli_schematic_evidence_2026-10-15.md), accepted kernel `2b5acf108ae37040ac1e652e029bb37f5609e886`, and existing Boot/Power handoffs. It does not touch VPU files or require VPU output. Its benefit is resolving first-boot board assumptions while USB resolves its separate variant/reset contract. Inspect current `razr/boot` project head, preserve intervening work, and update only Boot's canonical handoff/contract.
+Future Boot integration must reconcile actual PM8350C GPIO7 active-low provider/pinctrl and L2B voltage constraints/rounding before enabling supplies. Preserve S10B/L2B evidence, existing PS5169 acceptance and distinction between schematic nominal3.07V, vendor3.072V and candidate3.075V minimum. No integration assignment yet.
 
-1. Reconcile reported GPIO26 TX / GPIO27 RX with the accepted GENI UART7 mux/pinctrl and console configuration. Record an exact match or mismatch and the minimal proposed correction. Physical access pads/voltage are still unknown; do not claim a usable receiver.
-2. Compare the reported PM8350/PM8350C parent matrix with accepted disabled board nodes and RPMh binding groups. Produce a small proposed property/parent table, naming any unresolved provider/rail rather than copying HDK assumptions. Preserve PM8350BH versus B/C distinctions. Do not invent fixed battery voltage or enable supplies.
-3. Separate newly resolved schematic facts from remaining loader RAM/placement/DT/ramdisk and physical-output gates. Return the precise next source or handset observation needed; no repeated packaging, firmware extraction or build.
-4. Post the exact document commit to issue #13 (rail findings also #9) and stop for coordinator review. No kernel/DTS edits, native trial or charging changes in this assignment.
+## Queued schematic follow-ups
 
-## Ordered schematic follow-ups — queued, not active
+- DisplayPort: exact WAS7227Q-10/TR reuse/binding/graph decision, TLMM2/71 enable/select. Keep FSA4480 disabled.
+- Power: SGM41516D / PM8350BH / WS4695C-12 paired-pack ownership/polarity, CHG_EN=C GPIO2pin134, balance=BH GPIO1pin114, bridge=BH GPIO3pin139 and R909470kΩ. Also resolve variable B_PLUS representation and required RPMh producer/parent phandles without fixed3.7V fiction.
+- Boot integration: after reviewed contracts, coordinator selects exact changes and one combined artifact. Boot owns shared DTS. Userspace resumes only for changed accepted input.
 
-These are independent of VPU correctness; sequencing limits resource use, not technical permission to investigate them. Coordinator selects one after reviewing the current deliverables.
+## Paused and coordinator responsibilities
 
-1. **DisplayPort:** AUX identity hold is removed at reference-schematic level: **WAS7227Q-10/TR**. Check existing upstream/pending GPIO-SBU support for this exact part; deliver minimal reuse/binding decision and GPIO2/71 enable/select/connector graph contract. Keep FSA4480 disabled. No guessed compatible, new I2C driver or active board integration.
-2. **Power:** reconcile **SGM41516D / PM8350BH / WS4695C-12**, CHG_EN=C GPIO2 pin134, balance=BH GPIO1 pin114, battery bridge=BH GPIO3 pin139 and R909=470kΩ with existing paired-pack ownership/polarity policy. Deliver only remaining source-contract gaps; do not repeat the generic charger audit or enable charging.
-3. **Boot integration:** only after reviewed property/driver contracts, select exact changes and focused validation. Userspace resumes only if its accepted input actually changes.
+GPU, Userspace, Power implementation and DP implementation remain paused. Accepted integration and diagnostic-v2 artifacts are unchanged. No hardware-only uncertainty blocks independent offline work.
 
-## Coordinator decision: inherited VPU IOVA failure behavior
-
-The tested v5 helper can omit reservations on malformed input/allocation failures. Retain the disabled candidate, but do not authorize active DMA on the strength of host tests/schema alone. No local IOMMU rewrite is selected. Coordinator's 2026-10-14 narrow update check found no newer resolution in the inspected results; mainline `4056b3c9d3c92ea45955641dbafeb9b960e146ef` `drivers/iommu/of_iommu.c` still lacks this helper and `iommu-ranges` support. This is a bounded search result, not proof that no unpublished/maintainer fix exists. Recheck the relevant series/provider behavior when an enablement task is selected, then prefer an upstream fix and focused provider validation.
-
-## Deferred VPU consumer-policy decision — not active
-
-The pure producer is reviewed. Before any runtime wiring, coordinator must select a bounded admission/error/rate/cache/route-cap policy task or record the precise evidence hold. No such VPU task is active now. A change requiring shared DTS is handed to Boot only after its interface is fixed. Boot then builds a specifically selected combined artifact; Userspace consumes that pinned artifact. No speculative consumer work or all-agent round.
-
-## Paused
-
-- **Boot implementation:** held; only the read-only review above is active. No packaging replay.
-- **Userspace:** resume only after an actual accepted kernel/artifact/interface change affects its tests.
-- **GPU:** no new work without a named source defect or hardware result.
-- **Power:** retain SGM41516D vendor-source lead for future variant adaptation; no charger implementation or repeat audit now.
-- **DisplayPort:** identity resolved for the reference design; exact-part binding/graph review queued above, runtime still untested.
-
-## Coordinator
-
-Maintain one authoritative queue and notify the relevant issue when selecting, completing or blocking a task. Review VPU's exact decoder-input/result contract before selecting implementation or advancing integration. Do not wait for fresh user permission for routine coordination within the authorized project scope. Do not label work active unless its assignment is published.
-
-When a task arrives, inspect its actual diff and applicable evidence, accept or name the specific gap, update STATUS/NEXT_TASKS and publish the next bounded instruction in the same coordination pass. Hardware-only blockers pause that workstream, not the whole project. Do not invent dependencies between independent subsystems. No blanket round; only USB's source-contract decision and Boot's independent read-only review are active.
+Coordinator reviews each exact delivery, updates STATUS/NEXT_TASKS and posts the bounded next instruction together. Preserve hardware assumptions as [INFERRED] while honoring user-accepted development policy. Historical review pauses do not override this queue. GitHub instructions do not launch another chat.

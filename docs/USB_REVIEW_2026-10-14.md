@@ -50,3 +50,11 @@ The correction changes only PTN3222 pending-cleanup retry and adjacent SNPS repe
 **Decision:** bounded software correction accepted. USB pauses. This is source/host/module-link acceptance, not an upstream-ABI endorsement, combined-kernel acceptance or handset result. The experimental profile remains isolated. Physical identity/effective DT, GPIO7 semantics, rail parents/transitions, enumeration and wake await hardware or attributable board evidence. Own-rail disable failures, independent concurrent repeater consumers and wider role-error propagation were explicitly outside this closure; no additional generic fault campaign is assigned.
 
 **Next selected work:** VPU's narrowly scoped power/ICC resource contract. Boot and Userspace remain paused because accepted integration and artifacts did not change.
+
+## Informational identity policy accepted — 2026-10-15
+
+Accepted project **481c399cee777014586b083f0305614e09aa9c68**, kernel **1e5268277f6d4c25cde2f3e2b3f00439107e087a** (driver d87632e, binding-description correction 1e526827). Unknown readable IDs warn and continue for the existing oneli profile; identity-read failures remain fatal before tuning. No invented BUK constant or generic bypass. The user-authorized relaxed policy supersedes the BUK allowlist prerequisite.
+
+Coordinator inspected both kernel diffs and independently ran the submitted production-provider harness: **44 scenarios PASS**, ASan/UBSan with leak detection disabled; source/test hashes match committed evidence. Inspected owner-produced ARM64 object/MODPOST/module-link log, not a coordinator rebuild or binary verification. Binding constraints unchanged; prior schema evidence reused. Source/host acceptance only, not handset or combined integration acceptance.
+
+GPIO7 active-low descriptor proposal accepted at source-contract level. L2B voltage constraints/provider rounding and actual board providers remain future integration work. USB pauses; no additional ID search or capture is required to progress development. [Current review](COORDINATOR_REVIEW_2026-10-15.md) and [assignments](NEXT_TASKS.md) supersede earlier task-selection statements.
