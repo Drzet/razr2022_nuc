@@ -9,6 +9,7 @@ on:
       - 'scripts/analyze-oneli-mbm-efi-executables.py'
       - 'scripts/analyze-oneli-mbm-xrefs.py'
       - 'scripts/analyze-oneli-mbm-placement.py'
+      - 'scripts/analyze-oneli-mbm-placement-constants.py'
       - '.github/workflows/oneli-mbm-readonly.yml'
   workflow_dispatch:
 
@@ -37,7 +38,7 @@ jobs:
       - name: Bounded Motorola bootloader member inspection
         run: |
           set -euo pipefail
-          python3 scripts/analyze-oneli-mbm-placement.py
+          python3 scripts/analyze-oneli-mbm-placement-constants.py
           git rev-parse HEAD > evidence/research-commit.txt
       - name: Publish text metadata only; no firmware bytes
         if: always()
