@@ -47,7 +47,7 @@ def to_rva(pe,off):
 
 def find_ref(table, target):
     # Match start or interior of literal (many compiler optimizations reference substrings).
-    ix=bisect.bisect_right(table,target)-1
+    ix=bisect.bisect_right(table,(target,'\uffff'))-1
     for j in (ix,ix+1):
         if 0<=j<len(table):
             addr,s,k,off=table[j]
