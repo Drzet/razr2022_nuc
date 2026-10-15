@@ -5,6 +5,7 @@ on:
       - research/oneli-mbm-readonly-20261015
     paths:
       - 'scripts/inspect-oneli-mbm-public-reference.py'
+      - 'scripts/analyze-oneli-mbm-loader-structures.py'
       - '.github/workflows/oneli-mbm-readonly.yml'
   workflow_dispatch:
 
@@ -30,7 +31,7 @@ jobs:
       - name: Bounded Motorola bootloader member inspection
         run: |
           set -euo pipefail
-          python3 scripts/inspect-oneli-mbm-public-reference.py
+          python3 scripts/analyze-oneli-mbm-loader-structures.py
           git rev-parse HEAD > evidence/research-commit.txt
       - name: Publish text metadata only; no firmware bytes
         if: always()
