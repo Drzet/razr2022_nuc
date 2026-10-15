@@ -1,0 +1,551 @@
+{
+  "assignment": "bcb38efbc2ec8799fa25645b95b5f76e752f62de",
+  "kernel_parent": "a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac",
+  "kernel_revision": "7ac8d3afedfde74286b52e11aaa1eca42a1329a5",
+  "kernel_dirty": false,
+  "kernel_files": {
+    "iris_vpu2_bw.c": "0a26f7a66a624c404fe9ba437b39b2000c4ffd94c3c20d9b4144ee599a75fa05",
+    "iris_vpu2_bw.h": "a6b003065035603731773b778b56f2bb6f796e01a53a8bf89944c2c6de387ff9",
+    "iris_vpu2_bw_math.h": "cd23c63fcdf5c6d532f4a1e56280b96cadf88a05c7e9beb6b96dc75c3344ad6a"
+  },
+  "test_files": {
+    "decoder-bandwidth-checked.py": "4dfccdd0a1179636e5684cb12152f885a640f0f8ca9744cf25533b21b6cc5cfd",
+    "decoder-bandwidth-checked.c": "81a36c63e219bfb38361fcff077d753e1703a0bf74834077d2cb8ba88709e2c4"
+  },
+  "baseline_reference_matches_accepted": true,
+  "reference_source_hashes": {
+    "calculator.c": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/variant/iris2/src/msm_vidc_power_iris2.c",
+      "sha256": "a1a76266d723a855ec0f9f404ec4f5d04b88c7f6194a97945fb67782e1e4b0d0",
+      "bytes": 24047
+    },
+    "power.h": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/inc/msm_vidc_power.h",
+      "sha256": "36fa8f6a79a87af5b40f087865bcd986ad79074b52ade298073cf86b8d7f517d",
+      "bytes": 5977
+    },
+    "fixedpoint.h": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/inc/fixedpoint.h",
+      "sha256": "0f3b78b435c3f3a54ff1511bcaacbd5762af85fd24099a9456d3ce13ce39217a",
+      "bytes": 1473
+    },
+    "internal.h": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/inc/msm_vidc_internal.h",
+      "sha256": "93d21670685bb82f405592d83a3aa173a04b53f30d9dbd9da9244585718f7a98",
+      "bytes": 24704
+    },
+    "power.c": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/src/msm_vidc_power.c",
+      "sha256": "be2d9fa49d3058b6ccb1d8a355ee3d3f72b80e705f2ae51e5ee8fb2efb6e7f68",
+      "bytes": 16859
+    },
+    "platform.h": {
+      "url": "https://raw.githubusercontent.com/Drzet/linux/a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac/drivers/media/platform/qcom/iris/iris_platform_common.h",
+      "sha256": "988f60d3a7f7b9d0d1412c6184ff23153f1a5d162d02ab07bc9a6344a08ba757",
+      "bytes": 7953
+    },
+    "platform.c": {
+      "url": "https://raw.githubusercontent.com/Drzet/linux/a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac/drivers/media/platform/qcom/iris/iris_platform_vpu2.c",
+      "sha256": "584f116f71a157ef652a98b884e103de9a9268deca92911a3c5992307f72e408",
+      "bytes": 8474
+    }
+  },
+  "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "compile_command": [
+    "gcc",
+    "-std=c11",
+    "-O1",
+    "-g",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=undefined",
+    "-fno-sanitize-recover=all",
+    "-fno-omit-frame-pointer",
+    "-I",
+    "$BUILD",
+    "-I",
+    "/tmp/razr-vpu-checked/drivers/media/platform/qcom/iris",
+    "/workspace/razr2022_nuc/tests/vpu/decoder-bandwidth-checked.c",
+    "-o",
+    "$BUILD/checked"
+  ],
+  "primitive_checks": {
+    "primitive_checks": 20,
+    "result": "PASS"
+  },
+  "summary": {
+    "summary": "PASS",
+    "c_checks": 3157,
+    "safe_reference_calls": 810
+  },
+  "vectors": 1362,
+  "independent_wide_checks": 398,
+  "grid_representability_checks": 1344,
+  "status_counts": {
+    "0": 1208,
+    "-34": 144,
+    "-22": 10
+  },
+  "reference_status_counts": {
+    "ok": 810,
+    "bitrate-arithmetic": 320,
+    "candidate-mbps": 84,
+    "pixel-arithmetic": 138,
+    "unsupported-format": 3,
+    "dimension-envelope": 4,
+    "rate-envelope": 3
+  },
+  "result_stream_sha256": "3cf503afbdd47350a1ec435aa1404f43a5132db7dfa7ae6022ed62ca6a0ea082",
+  "vector_stream_sha256": "04d017586cb25dabba7fdd812c6cc880a869d4472ac102d32c50baa1c12451be",
+  "named_results": [
+    {
+      "name": "old-pixel-first-overflow",
+      "input": [
+        0,
+        0,
+        96,
+        8192,
+        128,
+        8192,
+        205,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": 0,
+        "ddr_kBps": 23693000,
+        "llcc_kBps": 23693000,
+        "reference_status": "pixel-arithmetic",
+        "differential_equal": false
+      },
+      "independent_wide_expectation": {
+        "sample_product": 2149580800,
+        "bitrate_bps": 1640000,
+        "ratio_q16": 49152,
+        "luma_q16": 140874927,
+        "bitrate_Mbps": 2,
+        "vsp_q16": 163840,
+        "collocated_q16": 8804682,
+        "line_q16": 70437463,
+        "dpb_read_q16": 845249562,
+        "dpb_write_q16": 221875430,
+        "opb_q16": 281749853,
+        "pre_overhead_q16": 1507522975,
+        "post_overhead_q16": 1552746824,
+        "ddr_kBps": 23693000,
+        "llcc_kBps": 23693000
+      }
+    },
+    {
+      "name": "old-pixel-u64-last-fps",
+      "input": [
+        0,
+        0,
+        96,
+        8192,
+        128,
+        8192,
+        409,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": 0,
+        "ddr_kBps": 47271000,
+        "llcc_kBps": 47271000,
+        "reference_status": "pixel-arithmetic",
+        "differential_equal": false
+      },
+      "independent_wide_expectation": {
+        "sample_product": 4288675840,
+        "bitrate_bps": 3272000,
+        "ratio_q16": 49152,
+        "luma_q16": 281062659,
+        "bitrate_Mbps": 4,
+        "vsp_q16": 327680,
+        "collocated_q16": 17566416,
+        "line_q16": 140531329,
+        "dpb_read_q16": 1686375954,
+        "dpb_write_q16": 442668541,
+        "opb_q16": 562125317,
+        "pre_overhead_q16": 3007692982,
+        "post_overhead_q16": 3097920099,
+        "ddr_kBps": 47271000,
+        "llcc_kBps": 47271000
+      }
+    },
+    {
+      "name": "old-bitrate-first-byte",
+      "input": [
+        1,
+        1,
+        1920,
+        1088,
+        1920,
+        1088,
+        30,
+        0,
+        8943682
+      ],
+      "result": {
+        "ret": 0,
+        "ddr_kBps": 3626000,
+        "llcc_kBps": 3626000,
+        "reference_status": "bitrate-arithmetic",
+        "differential_equal": false
+      },
+      "independent_wide_expectation": {
+        "sample_product": 62668800,
+        "bitrate_bps": 2146483680,
+        "ratio_q16": 65536,
+        "luma_q16": 4107062,
+        "bitrate_Mbps": 2147,
+        "vsp_q16": 175882240,
+        "collocated_q16": 256691,
+        "line_q16": 256691,
+        "dpb_read_q16": 32856492,
+        "dpb_write_q16": 8624728,
+        "opb_q16": 12321186,
+        "pre_overhead_q16": 230711410,
+        "post_overhead_q16": 237632470,
+        "ddr_kBps": 3626000,
+        "llcc_kBps": 3626000
+      }
+    },
+    {
+      "name": "old-bitrate-larger",
+      "input": [
+        2,
+        1,
+        3840,
+        2160,
+        3840,
+        2176,
+        60,
+        0,
+        10000000
+      ],
+      "result": {
+        "ret": 0,
+        "ddr_kBps": 13035000,
+        "llcc_kBps": 13035000,
+        "reference_status": "bitrate-arithmetic",
+        "differential_equal": false
+      },
+      "independent_wide_expectation": {
+        "sample_product": 497664000,
+        "bitrate_bps": 4800000000,
+        "ratio_q16": 65054,
+        "luma_q16": 32614907,
+        "bitrate_Mbps": 4800,
+        "vsp_q16": 393216000,
+        "collocated_q16": 2053531,
+        "line_q16": 2053531,
+        "dpb_read_q16": 260919252,
+        "dpb_write_q16": 68490507,
+        "opb_q16": 98569674,
+        "pre_overhead_q16": 829409557,
+        "post_overhead_q16": 854290831,
+        "ddr_kBps": 13035000,
+        "llcc_kBps": 13035000
+      }
+    },
+    {
+      "name": "pixel-u64-next-fps",
+      "input": [
+        0,
+        0,
+        96,
+        8192,
+        128,
+        8192,
+        410,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -34,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "pixel-arithmetic",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "queued-u64-overflow",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        0,
+        18446744073709551615
+      ],
+      "result": {
+        "ret": -34,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "bitrate-arithmetic",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "bitrate-round-add-overflow",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        0,
+        76861433640456465
+      ],
+      "result": {
+        "ret": -34,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "bitrate-arithmetic",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "q16-bitstream-product-overflow",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        0,
+        1125899906842624
+      ],
+      "result": {
+        "ret": -34,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "bitrate-arithmetic",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "unsupported-codec",
+      "input": [
+        3,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "unsupported-format",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "unsupported-format",
+      "input": [
+        0,
+        2,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "unsupported-format",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "h264-p010-out-of-model",
+      "input": [
+        0,
+        1,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "unsupported-format",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "zero-source",
+      "input": [
+        0,
+        0,
+        0,
+        704,
+        0,
+        704,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "dimension-envelope",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "zero-frame-rate",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        0,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "rate-envelope",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "rate-too-high",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        481,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "rate-envelope",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "operating-rate-too-high",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        704,
+        30,
+        481,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "rate-envelope",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "unaligned-source",
+      "input": [
+        0,
+        0,
+        97,
+        704,
+        128,
+        704,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "dimension-envelope",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "outside-dimensions",
+      "input": [
+        0,
+        0,
+        8208,
+        704,
+        8320,
+        704,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "dimension-envelope",
+        "differential_equal": false
+      }
+    },
+    {
+      "name": "zero-output-denominator",
+      "input": [
+        0,
+        0,
+        1280,
+        704,
+        1280,
+        0,
+        30,
+        0,
+        1000
+      ],
+      "result": {
+        "ret": -22,
+        "ddr_kBps": 0,
+        "llcc_kBps": 0,
+        "reference_status": "dimension-envelope",
+        "differential_equal": false
+      }
+    }
+  ],
+  "above_route_cap": 382,
+  "limits": "Host shims + actual pure helper; kernel object build recorded separately. No runtime caller/ICC/hardware calibration."
+}
