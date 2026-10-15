@@ -6,10 +6,10 @@ source=Path(__file__).with_name("inspect-oneli-mbm-public-reference.py")
 spec=importlib.util.spec_from_file_location("oneli_stock",source)
 src=importlib.util.module_from_spec(spec);spec.loader.exec_module(src)
 OFFSETS={
-"64bit_kernel_fallback_load":0xc40920,
-"64bit_reserved_end_fallback":0xc40924,
-"32bit_kernel_fallback_load":0xc40928,
-"32bit_reserved_end_fallback":0xc4092c,
+"64bit_kernel_fallback_load":0xc4920,
+"64bit_reserved_end_fallback":0xc4924,
+"32bit_kernel_fallback_load":0xc492c,
+"32bit_reserved_end_fallback":0xc4928,
 "kernel_var_name":0xdf020,
 "kernel_size_var_name":0xdf00a,
 "FDT_query_name_1":0xde96f,
