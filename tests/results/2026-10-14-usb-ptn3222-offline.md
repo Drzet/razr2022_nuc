@@ -1,71 +1,50 @@
-# Build record: PTN3222 core/SNPS lifecycle correction
+# Build record: PTN3222 informational identity policy (2026-10-15)
 
-- Date: 2026-10-14; assignment/review from coordinator main `9c77e4f928e7332d8ecc1a5b12fa34bcf18ca0c4`, [review](https://github.com/Drzet/razr2022_nuc/blob/9c77e4f928e7332d8ecc1a5b12fa34bcf18ca0c4/docs/USB_REVIEW_2026-10-14.md).
-- Project repository base: `razr/usb@2b64829bd78478a89e18d5bd50952f7a72e3f0c5`; updated production tests and this record are included in the delivery identified by the canonical handoff. Test script/dependency hashes are in the result JSONs.
-- Kernel repository / branch / exact commit: published **`Drzet/linux:razr/usb-ptn3222@61202a82ad004302fcc04e321075e190f00b29ed`**, parent **`d513929e8c1ef2ea7f5158ebfb57fda99ff531e9`**. Tested local commit **`c071561e5fbdf01e757e58935ef43df8d47a480e`** has the exact same full tree **`d8151528d81c04e4fdd0a139d78a62322fcb9852`**. Publication reused the established GitHub connector fallback, with expected-head non-force update; no repeated SSH probes or historical author reconstruction. Native local authorship/history and original source attribution remain preserved.
-- Upstream baseline: `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`.
-- Board-support/subsystem changes: only PTN3222 and the demonstrated adjacent SNPS common lifecycle path. No generic PHY core, DWC3, binding, Kconfig, board/SoC DTS, PS5169 or accepted integration change.
-- External patches/reuse: retain the existing reviewed adaptation. Execute unchanged production generic PHY core dispatch/count bodies from the pinned source; no new identity/datasheet/reuse survey or external patch import. Original driver/source authorship retained.
-- Host/build environment: Ubuntu 26.04.1 amd64; Python 3.14.4; distribution GCC and ARM64 cross GCC 15.2.0 (`Ubuntu 15.2.0-16ubuntu1`). Four compile jobs. Cross compilation and host mock execution, not ARM64/handset execution.
-- Architecture/configuration: **existing reduced ARM64 configuration**, [kernel.config](2026-10-14-usb-ptn3222-offline/kernel.config), SHA256 **`789bbe87f9479e856cd8303545d28126dba0d0c0d77f20658039b05b8de940ef`**; no fragments or configuration change. Original tinyconfig options and initial Image/modules build are retained in the [prior build record](https://github.com/Drzet/razr2022_nuc/blob/2b64829bd78478a89e18d5bd50952f7a72e3f0c5/tests/results/2026-10-14-usb-ptn3222-offline.md).
-- Firmware: none included or executed.
+- **Authorization:** user explicitly authorized keeping undocumented BUK identity informational, validating offline, publishing and updating the handoff. This supersedes the earlier source-only assignment for this bounded change; coordinator acceptance/integration remains separate.
+- **Project branch/base:** `razr/usb@5a9e2c5f4fa743fd79580eac44ccd00379f0ed17`. Updated `tests/usb/ptn3222/test_driver.py`, this existing record, its scoped `identity/` evidence and the canonical USB handoff.
+- **Kernel:** `Drzet/linux:razr/usb-ptn3222@1e5268277f6d4c25cde2f3e2b3f00439107e087a`, tree `a4ea7bfa43182f6fddcae88601ee2be7b32c3923`. Direct history: accepted isolated base `61202a82ad004302fcc04e321075e190f00b29ed` → driver policy `d87632e89fbbfe090afa841796ef67bed5eea449` → separate binding-description correction `1e5268277f6d4c25cde2f3e2b3f00439107e087a`. Native commits pushed over SSH; no publication remapping or force update.
+- **Changed kernel files:** `drivers/phy/phy-nxp-ptn3222.c`; `Documentation/devicetree/bindings/phy/nxp,ptn3222.yaml` (description only). Generic PHY core, SNPS consumer, tuning values, sequencing, cleanup, Kconfig and shared DTS are unchanged.
+- **Fixed dependencies:** baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`; accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886`; PS5169 `4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe`. No integration/image change.
+- **Environment:** Python3.14.4; host GCC and ARM64 cross GCC15.2.0 (`Ubuntu 15.2.0-16ubuntu1`); four build jobs. Same reduced ARM64 [kernel.config](2026-10-14-usb-ptn3222-offline/kernel.config), SHA256 `789bbe87f9479e856cd8303545d28126dba0d0c0d77f20658039b05b8de940ef`. No fragments, dependency changes or tool installation.
+- **Reuse/provenance:** existing upstream-derived PTN3222 adaptation and Motorola source remain attributed in the [canonical handoff](../../docs/handoffs/2026-10-13-usb-tenth-round.md). No new imported driver, proprietary firmware or generated kernel source is committed here.
 
-## Commands and results
+## Policy and focused execution
+
+The schematic names BUK, while the added numerical allowlist was supported only by CUK/GM and HUK documentation. `ptn3222_read_id()` now warns on readable IDs outside those documented values and continues the explicitly selected oneli profile. The diagnostic includes the assembled ID and revision; it does not identify the package or qualify the silicon. Each of the four identity-read errors still propagates and aborts before tuning. Write errors, rollback, cleanup/retry and profile-absent legacy behavior remain unchanged.
+
+Commands (run before committing; hashes below establish identical committed source):
 
 ```sh
-python3 tests/usb/ptn3222/test_lifecycle.py /tmp/razr-usb-ptn3222 \
-  /tmp/razr-ptn3222-lifecycle-before \
-  --revision d513929e8c1ef2ea7f5158ebfb57fda99ff531e9 --expect-failure
-python3 tests/usb/ptn3222/test_lifecycle.py /tmp/razr-usb-ptn3222 \
-  /tmp/razr-ptn3222-lifecycle-after
-python3 tests/usb/ptn3222/test_driver.py /tmp/razr-usb-ptn3222 \
-  /tmp/razr-ptn3222-host-closure
+ASAN_OPTIONS=detect_leaks=0 GIT_NO_LAZY_FETCH=1 \
+  python3 tests/usb/ptn3222/test_driver.py /tmp/razr-usb-ptn3222 \
+  /tmp/razr-ptn3222-identity-before \
+  --revision 61202a82ad004302fcc04e321075e190f00b29ed --identity-only
+ASAN_OPTIONS=detect_leaks=0 \
+  python3 tests/usb/ptn3222/test_driver.py /tmp/razr-usb-ptn3222 \
+  /tmp/razr-ptn3222-identity-after
 make -C /tmp/razr-usb-ptn3222 O=/tmp/razr-ptn3222-build \
   ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 modules
 ```
 
-**Failing-before evidence:** [before results](2026-10-14-usb-ptn3222-offline/lifecycle/before/lifecycle-result.json), [init retry](2026-10-14-usb-ptn3222-offline/lifecycle/before/init-retry.log), [reconnect](2026-10-14-usb-ptn3222-offline/lifecycle/before/reconnect.log). The exact published candidate is read from existing Git objects, without changing checkout/branches. Both executable cases return **1** for a violated recovery assertion; the `--expect-failure` runner returns 0 only after confirming those failures.
+- **Before:** the new unknown-ID continuation assertion fails on exact61202a82. The runner returns250 from the C assertion abort, as expected; this is executed behavior, not a compilation failure. [Log](2026-10-14-usb-ptn3222-offline/identity/before.log), [result](2026-10-14-usb-ptn3222-offline/identity/before-result.json).
+- **After:** **44 production-provider scenarios PASS**, with ASan/UBSan and leak detection explicitly disabled. [Result](2026-10-14-usb-ptn3222-offline/identity/after-result.json). Five synthetic unknown IDs (including a changed byte at each ID position, all-zero and all-one tuples) continue, log raw ID/revision, apply device tuning and balance teardown. No synthetic tuple is claimed to be BUK's ID. A documented ID with another revision continues without an unknown-ID warning. All four injected identity-read errors still abort before writes. The remaining cases cover documented CUK/HUK values, role replay, regulator/write failures, cleanup retries, missing providers and profile-absent legacy operation.
+- **ARM64:** changed PTN3222 object compiled, **MODPOST and `.ko` link PASS**. [Module log](2026-10-14-usb-ptn3222-offline/identity/modules.log). The unchanged SNPS object/module is reused. No Image/full defconfig/combined build.
+- **Patch style:** separate driver and binding patches each pass strict checkpatch with zero errors/warnings/checks: [driver](2026-10-14-usb-ptn3222-offline/identity/driver-checkpatch.log), [binding](2026-10-14-usb-ptn3222-offline/identity/binding-checkpatch.log). An initial combined diff elicited the binding-separate-patch warning; the delivered commits are separate. Whitespace checks clean.
+- **Binding:** [comparison](2026-10-14-usb-ptn3222-offline/identity/binding-constraints.log) confirms every byte outside the profile description remains identical. Reuse existing dtschema2026.6 [2-positive/7-negative evidence](2026-10-14-usb-ptn3222-offline/schema-result.json); no schema/test replay. This comparison is not a fresh schema-validation result.
 
-| Actual production-dispatched case | Before at d513929 | After correction |
-| --- | --- | --- |
-| Init write error plus transient provider cleanup failure; normal repeated core init | First `-EIO`; outer/inner counts 0/0, reset asserted, both repeater votes retained. Retry `-EBUSY`, no recovery. | First error remains `-EIO`. Retry safely finishes cleanup then initializes: counts 1/1, one vote per rail, reset released; final exit balances all counts/votes. |
-| Successful init, repeater cleanup failure on exit, consumer reconnect | Consumer exit 0, outer/inner counts 0/1, reset asserted. Reconnect falsely returns 0 with counts 1/2 and faulted/reset provider. | Consumer's own teardown completes; its repeater reference is retained. Reconnect drains pending exit then genuinely initializes: counts 1/1, reset released; final exit balances all counts/votes. |
+## Artifacts and limits
 
-**Production core/consumer-dispatched execution PASS:** [after results](2026-10-14-usb-ptn3222-offline/lifecycle/after/lifecycle-result.json): **12 cases**. The harness compiles exact production `phy_init`, `phy_exit`, `phy_set_mode_ext`, SNPS common init/exit/set-mode and cleanup helper, plus the production PTN3222 code. It does not hand-copy or simulate dispatch/count arithmetic. PHY/device structs, PM/locking, regulators, clocks, resets, delays, regmap and the SoC-specific PHY init hook are scoped host mocks. The generic core source hash remains **`2535dc20688c48082b30f2498a05931897dc7b5db902bb02c5f5322d31c80117`** before and after.
+[Manifest](2026-10-14-usb-ptn3222-offline/identity/manifest.json) and [SHA256SUMS](2026-10-14-usb-ptn3222-offline/identity/SHA256SUMS) record source, tooling, config and log hashes. Locally computed hashes:
 
-Cases cover both regressions; persistent disable errors returning `-EAGAIN` without successful init or duplicate votes; a voltage-vote cleanup failure; later clock/reset-assert/reset-deassert/SoC-init failure with failed repeater unwind while preserving original `-ETIMEDOUT`; legacy profile-absent behavior; optional absent repeater; two nested outer references with one owned inner reference; and host/device replay through actual core/SNPS mode dispatch. Successful cleanup follows transient failures without unbind, direct provider exit or generic core changes. ASan/UBSan and leak detection passed outside the sandbox with approved process metadata access.
-
-**Direct-provider unit execution PASS:** [direct result](2026-10-14-usb-ptn3222-offline/lifecycle/direct-result.json), **37 scenarios**. The earlier direct callback recovery assertion was corrected for init-driven cleanup retry. These tests remain provider-level tests; they are not evidence of consumer-reachable recovery by themselves.
-
-**Focused ARM64 compilation/linkage PASS:** [modules.log](2026-10-14-usb-ptn3222-offline/lifecycle/modules.log) contains both changed module compiles, **MODPOST**, and both `.ko` links. No configuration/dependency change required a new Image, full defconfig/combined build, or PS5169 build. Compilation ran before creating local c071561e; committed file bytes match executed/compiled inputs, so no unchanged rebuild followed commit/publication.
-
-**Schema reused:** binding byte-for-byte unchanged from d513929, SHA256 **`a663388f2104a9da9cf02038255f8cb7c4b2043ea3d244ea04df6d51037666db`**. Reuse the existing dtschema 2026.6 [2-valid / 7-invalid result](2026-10-14-usb-ptn3222-offline/schema-result.json); no schema rerun/tool installation. `git diff --check` and strict checkpatch on the kernel patch passed with 0 errors/warnings/checks.
-
-## Recovery contract and returned errors
-
-PTN3222 retries recorded cleanup at init when faulted, before any new voltage/enable vote. A persistent cleanup failure preserves the fault and returns that actual provider error; the first initiating init/tuning error remains intact. Its exit still returns cleanup errors and PHY core retains the inner count accordingly.
-
-SNPS explicitly records its outstanding repeater init reference, retains it after failed exit/unwind and retries that exit **before** acquiring its own resources or calling repeater init. Its completed own-resource teardown continues to return 0 while logging deferred repeater cleanup. Returning a negative outer exit error would pin outer `init_count` at 1 and cause the next core init to bypass SNPS too. Pending cleanup errors propagate on the next initialization, with outer count remaining 0. This is intentional deferred cleanup, not a claim that every electrical resource switched off successfully.
-
-## Image preparation
-
-Not applicable. No new Image, ramdisk, DTB selection, boot package or handset parameters. The prior Image remains an initial compile artifact, not an image of this correction.
-
-## Artifacts
-
-[Manifest](2026-10-14-usb-ptn3222-offline/lifecycle/manifest.json) and [SHA256SUMS](2026-10-14-usb-ptn3222-offline/lifecycle/SHA256SUMS) record locally computed metadata/log hashes. Changed outputs:
-
-| Artifact | Locally computed SHA256 |
+| Artifact | SHA256 |
 | --- | --- |
-| phy-nxp-ptn3222.ko | `6f50cbfb8d65c8c6aef2ed880991f29f14784b28a7a1ddc8f00e25e0bbdaaaa7` |
-| phy-snps-eusb2.ko | `213f78c708673c2186315c0fa756af43705d9f22436fc1cde54c4417d6af02c0` |
-| Module.symvers | `23e17467b4dc6e379c2b4bf698d912a6d947f65d7b830f07482d53755eb0a605` (unchanged exports) |
-| Local closure archive | `da77931115fe15998aff1ca83538b14c3d451303ac169deb1de3bda201b94b2b` |
+| PTN3222 source | `2130a965f1f31d340e8279d64515979c8813664e906f77a92730487b4cb5827f` |
+| Binding with updated prose | `f1c7bd0f17ea10b33de3ce6b217afb504e8160c0c88e9e5370de1adf96ebd611` |
+| Changed PTN3222 module | `b490b1c51511a9bd0796f9c8b33f7319dc957aaf821e7bd3cd32cd11b58e9160` |
+| Module.symvers (unchanged exports) | `23e17467b4dc6e379c2b4bf698d912a6d947f65d7b830f07482d53755eb0a605` |
 
-Local archive `/tmp/razr-ptn3222-lifecycle-2026-10-14.tar.xz` is 85,072 bytes and includes generated before/after harnesses, logs, changed modules and a native local-commit Git bundle requiring d513929 as prerequisite. Native commit metadata is also recorded in [local-commit.txt](2026-10-14-usb-ptn3222-offline/lifecycle/local-commit.txt). No binary payload or generated kernel source/harness is committed to this evidence repository; no hosted CI/binary-store claim is made. Initial compile/schema evidence remains linked above rather than duplicated.
+Generated host harnesses/binaries remain in `/tmp/razr-ptn3222-identity-before` and `/tmp/razr-ptn3222-identity-after`; changed module remains under `/tmp/razr-ptn3222-build`. No hosted binary-store or artifact-download verification is claimed. No source changed after successful tests/build; commit messages and description-only binding update do not require an unchanged rebuild.
 
-## Device validation and exact limits
+This executes actual production provider C with explicit host mocks for providers, GPIOs, regulators, regmap and delays. It is **host source execution and ARM64 cross compilation**, not kernel runtime, chip emulation or hardware. The full real regulator/GPIO internals, timing, electrical identity, enumeration and wake remain untested. No new BUK ID/compatible is invented. Read-only identity capture remains useful future evidence, not a numeric allowlist prerequisite under the authorized policy.
 
-**Not tested on hardware.** This executes the specified source control flow under host mocks; it does not execute kernel PM/mutex/regulator internals, SoC MMIO, clock/reset electrical behavior, or concurrent independent consumers of a repeater. Nested references of one SNPS consumer are tested. Unchanged SNPS own-rail disable-error handling and SNPS/DWC3 role-error/caching behavior beyond this cleanup boundary are not repaired or claimed verified. Persistent physical cleanup failure remains a logged, retained fault with failed reconnect until cleanup can succeed.
-
-Experimental profile ABI and board graph remain unselected; populated part remains [INFERRED]. Hardware identity, GPIO7 polarity/function, rail parents/physical transitions, enumeration and wake await the phone. Accepted integration is unchanged. This is the bounded lifecycle correction deliverable for coordinator review, with no further task activated.
+The accepted lifecycle dispatch tests, exact historical module results and local/published mappings remain in the [previous build record at5a9e2c5](https://github.com/Drzet/razr2022_nuc/blob/5a9e2c5f4fa743fd79580eac44ccd00379f0ed17/tests/results/2026-10-14-usb-ptn3222-offline.md). Those unchanged core/SNPS lifecycle tests and PS5169 tests were not rerun. No firmware execution, ramdisk/DTB/boot packaging, shared board changes or handset parameters are involved. Stop after publishing the bounded change and handoff for coordinator review.

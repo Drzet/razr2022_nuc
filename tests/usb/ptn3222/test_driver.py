@@ -16,6 +16,7 @@ SHIM = r'''
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,7 +66,15 @@ static void *allocated;
 static void (*cleanup_action)(void *);
 static void *cleanup_data;
 static int events[128], nevents;
-static int scenarios;
+static int scenarios, identity_warnings;
+static char identity_message[128];
+static inline void dev_warn(struct device *d, const char *fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(identity_message, sizeof(identity_message), fmt, args);
+    va_end(args);
+    identity_warnings++;
+}
 static void event(int code) { assert(nevents < 128); events[nevents++] = code; }
 static int fault(void) {
     operation++;
@@ -190,7 +199,8 @@ static void fresh(bool profile) {
     gpio.value = 1; startup_wait = false;
     provider_fault = F_NONE; provider_errno = -EPROBE_DEFER;
     fail_at = fail_also = operation = writes = reads = nevents = bulk_calls = 0;
-    disable_fail = clear_fail = 0; no_gpio = false;
+    disable_fail = clear_fail = identity_warnings = 0; no_gpio = false;
+    identity_message[0] = 0;
     map.values[0x13] = 0xa2; map.values[0x14] = 0x22;
     map.values[0x15] = 0x32; map.values[0x16] = 0x02;
     scenarios++;
@@ -211,7 +221,7 @@ static void successful_paths(void) {
     struct ptn3222 *p;
     fresh(true); p = probe();
     assert(supply_data[0].init_load_uA == 3500 && supply_data[1].init_load_uA == 32000);
-    assert(ptn3222_init(&test_phy) == 0); profile(0x64);
+    assert(ptn3222_init(&test_phy) == 0 && !identity_warnings); profile(0x64);
     const int begin[] = {11, 21, 10, 20, 90, 80, 119, 120, 121, 122, 206, 207, 208, 81};
     assert(nevents == 14 && !memcmp(events, begin, sizeof(begin)));
     assert(rails[1].min_uv == 1800000 && rails[0].min_uv == 3075000);
@@ -230,7 +240,7 @@ static void successful_paths(void) {
 
     fresh(true); probe(); map.values[0x16] = 1; map.values[0x13] = 0xa4;
     assert(ptn3222_set_mode(&test_phy, PHY_MODE_USB_HOST, 0) == 0);
-    assert(ptn3222_init(&test_phy) == 0); profile(0x24);
+    assert(ptn3222_init(&test_phy) == 0 && !identity_warnings); profile(0x24);
     assert(ptn3222_set_mode(&test_phy, PHY_MODE_USB_OTG, 0) == 0); profile(0x64);
     cleanup_action(cleanup_data); off();
 
@@ -241,6 +251,36 @@ static void successful_paths(void) {
     fresh(false); no_gpio = true; probe();
     assert(ptn3222_init(&test_phy) == 0 && ptn3222_exit(&test_phy) == 0);
 }
+static void identity_policy(void) {
+    /* Synthetic IDs exercise policy; none is asserted to be BUK's real ID. */
+    const unsigned int unknown[] = {0x0232a2, 0x02b222, 0x823222, 0, 0xffffff};
+    for (unsigned int i = 0; i < sizeof(unknown) / sizeof(unknown[0]); i++) {
+        fresh(true); struct ptn3222 *p = probe();
+        for (int byte = 0; byte < 3; byte++)
+            map.values[0x14 + byte] = (unknown[i] >> (8 * byte)) & 0xff;
+        assert(ptn3222_init(&test_phy) == 0);
+        assert(p->initialized && !p->faulted && !gpio.value);
+        assert(reads == 4 && writes == 3 && identity_warnings == 1);
+        char expected[32];
+        snprintf(expected, sizeof(expected), "%#06x", unknown[i]);
+        assert(strstr(identity_message, expected));
+        assert(strstr(identity_message, "0xa2"));
+        profile(0x64);
+        assert(ptn3222_exit(&test_phy) == 0); off();
+    }
+    /* A different revision does not turn a documented ID into a new model. */
+    fresh(true); probe(); map.values[0x13] = 0x7b;
+    assert(ptn3222_init(&test_phy) == 0 && !identity_warnings);
+    profile(0x64); assert(ptn3222_exit(&test_phy) == 0); off();
+
+    /* Every identity-read error still aborts before any tuning write. */
+    for (int byte = 0; byte < 4; byte++) {
+        fresh(true); struct ptn3222 *p = probe(); fail_at = 5 + byte;
+        assert(ptn3222_init(&test_phy) == -EIO);
+        assert(reads == byte + 1 && !writes && !identity_warnings);
+        assert(!p->initialized && !p->faulted); off();
+    }
+}
 static void init_faults(void) {
     for (int i = 1; i <= 11; i++) {
         fresh(true); struct ptn3222 *p = probe(); fail_at = i;
@@ -249,10 +289,6 @@ static void init_faults(void) {
         if (i <= 8) assert(!writes);
         fail_at = 0; assert(ptn3222_init(&test_phy) == 0); profile(0x64);
         assert(ptn3222_exit(&test_phy) == 0); off();
-    }
-    for (int byte = 0; byte < 3; byte++) {
-        fresh(true); probe(); map.values[0x14 + byte] ^= 0x80;
-        assert(ptn3222_init(&test_phy) == -ENODEV && !writes); off();
     }
     fresh(true); struct ptn3222 *p = probe(); fail_at = 9; disable_fail = 1;
     assert(ptn3222_init(&test_phy) == -EIO && p->faulted && gpio.value == 1);
@@ -307,8 +343,11 @@ static void probe_faults(void) {
     fresh(true); no_gpio = true;
     assert(ptn3222_probe(&client) == -EINVAL); off();
 }
-int main(void) {
-    successful_paths(); init_faults(); mode_faults(); probe_faults();
+int main(int argc, char **argv) {
+    identity_policy();
+    if (argc == 1 || strcmp(argv[1], "identity-only")) {
+        successful_paths(); init_faults(); mode_faults(); probe_faults();
+    }
     free(allocated); printf("PASS: %d production-driver scenarios\n", scenarios);
     return 0;
 }
@@ -319,9 +358,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("kernel", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--revision", help="Read exact production source from existing Git objects")
+    parser.add_argument("--identity-only", action="store_true")
     args = parser.parse_args()
     source = args.kernel / "drivers/phy/phy-nxp-ptn3222.c"
-    original = source.read_text()
+    original = (subprocess.check_output(["git", "-C", str(args.kernel), "show",
+                args.revision + ":drivers/phy/phy-nxp-ptn3222.c"], text=True)
+                if args.revision else source.read_text())
     production = "\n".join(line for line in original.splitlines()
                            if not line.startswith("#include"))
     production = production.split("static const struct i2c_device_id", 1)[0]
@@ -333,13 +376,16 @@ def main():
                     "-Wno-unused-parameter", "-Wno-unused-const-variable",
                     "-fsanitize=address,undefined", "-g", "-o", str(binary),
                     str(harness)], check=True)
-    result = subprocess.run([str(binary)], text=True, capture_output=True)
+    result = subprocess.run([str(binary)] + (["identity-only"] if args.identity_only else []),
+                            text=True, capture_output=True)
     if result.returncode:
         print(result.stdout, end="")
         print(result.stderr, end="", file=sys.stderr)
         raise SystemExit(result.returncode)
     (args.output / "host-result.json").write_text(json.dumps({
-        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        "source_sha256": hashlib.sha256(original.encode()).hexdigest(),
+        "source_revision": args.revision,
+        "identity_only": args.identity_only,
         "test_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "scope": "production C with host mocks; ASan/UBSan; not kernel/hardware",
         "result": result.stdout.strip(),
