@@ -1,5 +1,40 @@
 # Oneli native loader and diagnostic route: seventh-round decision
 
+> **Update (2026-10-16):** The seventh-round text below predates the Motorola ABL reverse-engineering. The **static loading formula is now source-resolved**; selected runtime values, final FDT/ramdisk and physical output remain unknown. This section supersedes earlier assertions that no attributable Motorola loader code was analysed.
+
+## 2026-10-16 MBM update: static placement resolved
+
+**Accepted provenance:** coordinator [review](https://github.com/Drzet/razr2022_nuc/blob/99b37f464fedca0caacc47b59fa3b2fa525ccacf/docs/COORDINATOR_REVIEW_2026-10-15.md) of [Motorola ABL kernel load contract](https://github.com/Drzet/razr2022_nuc/blob/5a8d6ab606c825dbe776db43955c44214f7c64e3/docs/oneli_mbm_kernel_load_address_contract_2026-10-15.md), research commit `5a8d6ab606c825dbe776db43955c44214f7c64e3`. Public RETEU firmware `U2SLS34.1-42-14-11` bootloader.img SHA256 `bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3`; firmware-volume LinuxLoader AArch64 PE SHA256 `5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca`. [Bounded disassembly run 38808611568](https://github.com/Drzet/razr2022_nuc/actions/runs/38808611568), [literal metadata run 38809199858](https://github.com/Drzet/razr2022_nuc/actions/runs/38809199858). Code offsets are PE **RVAs**, not physical addresses; this is an examined public firmware version, not bytes proven installed on the handset.
+
+Define `B` = runtime UEFI `KernelBaseAddr`, `Z` = runtime UEFI `KernelSize`, `M` = ABL `BootParamlist.BaseMemory`, `O` = runtime FDT /kernel base-memory offset, `S` = FDT `devicetree_space_size` (default `0x200000`), `P` = boot image page size, `R` = combined selected ramdisk bytes, `K` = kernel start, `E` = reserved kernel-region end. With our **uncompressed Image** (nonzero `image_size=0x32c0000` and `text_offset=0`):
+
+| ABL selected branch | Source-supported formula |
+| --- | --- |
+| Both UEFI variable reads succeed, `QueryBootParams` RVA `0x6b508` | `K = B + Image.text_offset + O = B + O`; `E = B + Z + O` |
+| Either read fails: **64-bit fallback**, RVA `0x67608..0x676dc` | `K = (M | 0x80000) + O` (**bitwise OR**, not arithmetic add); `E = M + 0x06400000 + O` |
+| ABL places following regions downward, RVA `0x677f4..0x6784c` | `initrd = E - align_up(R,P) - P`; `dtb = initrd - S - P` |
+| Reported ABL rejection check, RVA `0x67850..0x678cc` | `dtb > K`, weaker than Linux Image nonoverlap requirements |
+| Separate native Linux verification | `K` meets the ARM64 **2MiB-aligned base + text_offset** rule, `dtb >= K + Image.image_size`, complete memory/carveout and initrd-window validity |
+
+**Independently recomputed bound:** With `P=4096`, `S=2MiB`, and current Image `image_size=0x32c0000`, `E-K >= 0x34c2000 + align_up(R,4096)` = **55,320,576 bytes plus page-rounded ramdisks**. For hypothetical 2MiB-aligned `M` and `O=0`, the fallback has `E-K=0x6380000` (99.5MiB); `0x2ebe000` (46.7421875MiB) remains for page-rounded ramdisks. **But that fallback K is not 2MiB aligned** when M is 2MiB aligned and O=0. Capacity arithmetic is not alignment/placement approval. Installed UEFI branch, `B/Z/M/O`, physical RAM and carved-out ranges remain unobserved. The stock v4 reference header's nominal addresses are **not** effective ABL load pointers.
+
+**Other source evidence:** ABL implements an unlocked-guarded downloaded `fastboot boot` path and unlocked AVB continuation, but it has **not been tried on the phone**. It is not known which active `vendor_boot`, base DT, DTBO, bootconfig, verification chain or ramdisk components it retains for a downloaded boot image. Final assembled FDT, RAM-size injection and command line are still unknown; the accepted compiled oneli DTB's RAM size is zero. This does **not** invalidate the existing host-verified boot candidate.
+
+**Evidence-tool repair:** The first ABL metadata script incorrectly searched for any two adjacent zero bytes, shortening UTF-16LE strings to `KernelBaseAdd` and `KernelSiz`. The corrected [research decoder](https://github.com/Drzet/razr2022_nuc/blob/research/oneli-mbm-readonly-20261015/scripts/analyze-oneli-mbm-placement-constants.py) scans aligned code units and checks raw-backed PE RVA sections. The saved [instruction metadata artifact](https://github.com/Drzet/razr2022_nuc/actions/runs/38808611568) identifies `.text` RVA=raw file offset=`0x1000`, raw length=`978944` and end `0xf0000`: **all** referenced constants, UEFI string offsets and GUID lie within it. The four original numeric literals and hashes therefore retain their identity; a fresh vendor binary decode was not run. Correct complete UEFI names were verified synthetically, **not re-extracted from firmware**. [Offline synthetic CI](https://github.com/Drzet/razr2022_nuc/actions/runs/38830120757): **12 tests passed**; no stock firmware download or disassembly replay.
+
+### Read-only observations, followed by a conditional test only
+
+1. **Inventory/recovery first:** recheck handset bootloader version, lock state, slot bootable/successful flags and original per-slot boot/vendor_boot/dtbo/vbmeta/recovery image hashes. Identify an independent, credible restore path. The previous ADB capture proves only stock slot state and names at that time.
+2. **Read-only loader inputs if exposed:** capture UEFI-success vs fallback branch, `B`/`Z`/`M`/`O`/`S`/`P` and effective ramdisk length `R`; chosen `K`/`E`/initrd/DTB addresses, valid RAM/carveouts, FDT memory fixup and PVT base/overlay, chosen command line and vendor/generic ramdisk composition. Do not guess inaccessible fields or assert they must all be observable before even planning a trial.
+3. **Output:** identify accessible UART TX on SoC GPIO26 with ground and actual logic voltage, or a separately evidenced early-log alternative. GPIO mux correctness is not a receiver.
+4. **Conditional future RAM-only experiment:** only after coordinator approval of restoration/observation arrangements and actual supported unlocked fastboot capabilities, consider a **non-flashing temporary load**. Verify what it really replaces; do not assume it swaps `vendor_boot`, DTBO or the assembled ramdisk. At any observed address set check `K` alignment, `dtb >= K + 0x32c0000`, region bounds, initrd window, genuine selected DT and recovery policy. No device command or flash instruction is issued here.
+5. **Results rather than prerequisites:** successful kernel entry, logs and resulting selected runtime addresses are test **outcomes**; do not demand successful boot before a controlled experiment is planned. If a required safety/visibility condition is absent, stop rather than invent it.
+
+**Disposition:** static address algorithm **resolved for planning**; runtime boot branch, placement, FDT/ramdisk, output and restoration remain device-evidence questions. No kernel, DTS, image rebuild, charger or handset changes in this update.
+
+---
+
+
 Date: 2026-10-12. Owner: Boot, project branch razr/boot. Status: **source/host analysis complete; device handoff blocked on identified evidence**. Companion machine record: configs/oneli-native-loader-readiness-v1.json. This is not a flashing procedure.
 
 ## Exact evidence and new binary inspection
@@ -34,6 +69,6 @@ Public Motorola Android 14 reference boot and vendor_boot headers are v4. From c
 3. **Output path first:** prove accessible physical UART RX/TX reference and voltage (or a tested equivalent early-log path), then confirm TX at the relevant phase. DTS pinctrl names do not prove accessible board pads.
 4. **Native handoff:** resolve OEM image acceptance, populated memory DTB, overlap-free physical placement, DTBO choice, actual command-line supply, bootconfig, AVB/recovery policy. If any gate remains unresolved, **STOP: device evidence required**. No executable flashing commands, no image mutation, no acceptance for phone use.
 
-AOSP/public documented behavior is separated above from *actual MBM behavior*. No attributable public Motorola MBM loading implementation or disassembly that determines its address and DT handling has been established. A PE header, an AOSP pack/unpack success and a generic fastboot command list do not substitute for the exact OEM loader.
+**Historical seventh-round limitation, superseded above:** format evidence alone did not establish Motorola ABL placement. The subsequent source-backed disassembly now resolves the static formula, but the runtime inputs, selected FDT/ramdisk and native outcomes remain unobserved.
 
 The seventh-round Userspace console error-body fix is independent. Consume a new diagnostic payload only after its changed bytes, new hashes and real diskless test are published. Preserve accepted v1 and run 38310449244 unchanged. Do not initiate a duplicate kernel/QEMU/packaging run or ROM scan.
