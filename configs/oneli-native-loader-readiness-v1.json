@@ -374,8 +374,9 @@
     "fastboot_boot": {
       "unlocked_guard_and_image_path_in_reference_firmware": true,
       "device_path_confirmed": false,
-      "temporary_downloaded_boot_includes_vendor_boot_and_DT": false,
-      "temporary_vendor_and_FDT_scope_unobserved": true
+      "temporary_downloaded_boot_includes_vendor_boot_and_DT": null,
+      "temporary_vendor_and_FDT_scope_unobserved": true,
+      "vendor_boot_and_DT_inclusion_unverified": true
     },
     "distinct_AVB_rule": {
       "unlocked_continue_branch_in_reference_code": true,
