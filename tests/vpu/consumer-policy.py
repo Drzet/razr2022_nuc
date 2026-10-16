@@ -9,6 +9,7 @@ import hashlib
 import json
 import re
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -16,13 +17,16 @@ HERE = Path(__file__).resolve().parent
 
 
 def function(code, name):
-    match = re.search(r'\b' + re.escape(name) + r'\s*\([^;]*?\)\s*\{', code, re.S)
+    masked = re.sub(r'/\*.*?\*/|//[^\n]*', lambda m: ''.join('\n' if c == '\n' else ' ' for c in m.group()), code, flags=re.S)
+    match = re.search(r'\b' + re.escape(name) + r'\s*\([^;]*?\)\s*\{', masked, re.S)
     if not match:
         raise ValueError(name)
     start = code.rfind('\n', 0, match.start()) + 1
+    if not masked[start:match.start()].strip():
+        start = code.rfind('\n', 0, start - 1) + 1
     depth = 0
     for i in range(match.end() - 1, len(code)):
-        depth += (code[i] == '{') - (code[i] == '}')
+        depth += (masked[i] == '{') - (masked[i] == '}')
         if depth == 0:
             return code[start:i + 1]
     raise ValueError('unbalanced function: ' + name)
@@ -32,14 +36,19 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--kernel-dir', type=Path, required=True)
     ap.add_argument('--json-out', type=Path, required=True)
+    ap.add_argument('--framework', action='store_true')
+    ap.add_argument('--kernel-ref', help='Read pinned kernel sources with git show')
+    ap.add_argument('--case', default='all', help='Framework case or all')
+    ap.add_argument('--expect-failure', action='store_true')
     args = ap.parse_args()
+    sys.dont_write_bytecode = True
     root = args.kernel_dir.resolve()
     iris = root / 'drivers/media/platform/qcom/iris'
     sources = {}
     extracted = {}
 
     def read(name):
-        sources[name] = (iris / name).read_bytes()
+        sources[name] = (subprocess.check_output(['git', '-C', str(root), 'show', args.kernel_ref + ':drivers/media/platform/qcom/iris/' + name]) if args.kernel_ref else (iris / name).read_bytes())
         return sources[name].decode()
 
     def take(name, functions):
@@ -90,45 +99,65 @@ def main():
         take('iris_vb2.c', 'iris_vb2_buf_queue'),
         take('iris_vidc.c', 'iris_policy_streamoff iris_policy_reqbufs'),
     ]
+    if args.framework:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location('cleanup_framework', HERE / 'cleanup-framework.py')
+        extension = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(extension)
+        setup, slices = extension.extend(root, args.kernel_ref, setup, slices, sources, extracted, read, take, function)
     with tempfile.TemporaryDirectory(prefix='vpu-consumer-test-') as directory:
         build = Path(directory)
         (build / 'linux').mkdir()
         for name, text in {
             'types.h': '#include <stdint.h>\n#include <stdbool.h>\ntypedef uint64_t u64; typedef uint32_t u32;\n',
-            'errno.h': '#define EINVAL 22\n#define ERANGE 34\n#define ENOMEM 12\n#define ENODEV 19\n#define EIO 5\n#define EBUSY 16\n',
+            'errno.h': '#define EINVAL 22\n#define ERANGE 34\n#define ENOMEM 12\n#define ENODEV 19\n#define EIO 5\n#define EBUSY 16\n#define ETIMEDOUT 110\n',
             'limits.h': '#define U64_MAX UINT64_MAX\n',
             'math64.h': '',
             'overflow.h': '#define check_add_overflow(a,b,p) __builtin_add_overflow(a,b,p)\n#define check_mul_overflow(a,b,p) __builtin_mul_overflow(a,b,p)\n',
         }.items():
             (build / 'linux' / name).write_text(text)
         source = setup + '\n#include "iris_vpu2_bw.c"\n' + '\n'.join(slices)
-        source += '\n' + (HERE / 'consumer-policy-cases.c').read_text()
+        source += '\n' + (HERE / ('cleanup-framework-cases.c' if args.framework else 'consumer-policy-cases.c')).read_text()
         (build / 'consumer.c').write_text(source)
         cmd = ['gcc', '-std=gnu11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                '-Wno-unused-function', '-Wno-unused-but-set-variable', '-Wno-sign-compare', '-fsanitize=undefined',
                '-fno-sanitize-recover=all', '-fno-omit-frame-pointer', '-I', str(build),
                '-I', str(iris), str(build / 'consumer.c'), '-o', str(build / 'consumer')]
+        if args.framework:
+            cmd.insert(8, '-Wno-unused-parameter')
         compile_run = subprocess.run(cmd, capture_output=True, text=True)
         if compile_run.returncode:
             # Keep only external temporary debug artifacts on failure.
             Path('/tmp/vpu-consumer-failed.c').write_text(source)
             raise RuntimeError(compile_run.stdout + compile_run.stderr)
-        run = subprocess.run([str(build / 'consumer')], capture_output=True, text=True)
-        if run.returncode:
+        run = subprocess.run([str(build / 'consumer'), *([args.case] if args.framework else [])], capture_output=True, text=True)
+        if run.returncode and not args.expect_failure:
             raise RuntimeError(run.stdout + run.stderr)
-        output = json.loads(run.stdout)
-        report = dict(assignment='dfbac4c08358d1cc73ff262b39fe05657ecabd49',
-                      kernel_revision=subprocess.check_output(['git', '-C', str(root), 'rev-parse', 'HEAD'], text=True).strip(),
-                      kernel_dirty=bool(subprocess.check_output(['git', '-C', str(root), 'status', '--porcelain'], text=True)),
+        if args.expect_failure:
+            if run.returncode == 0:
+                raise RuntimeError('Regression unexpectedly passed on the rejected candidate')
+            predicates = {
+                'failed-start': 'contexts[0].sq.owned_by_drv_count==2 && contexts[0].sq.streaming',
+                'nonstreaming-cancel': 'iris_policy_streamoff(&files[0],NULL,10)==-EIO',
+                'successful-close': 'q->inst->reservation.closed',
+            }
+            if predicates.get(args.case, '<no expected regression>') not in run.stdout + run.stderr:
+                raise RuntimeError('Failed for a different reason: ' + run.stdout + run.stderr)
+            output = {'expected_failure': True, 'returncode': run.returncode, 'diagnostic': run.stdout + run.stderr}
+        else:
+            output = json.loads(run.stdout)
+        report = dict(assignment='432f2f84f6350f0c1b7670b751bf41fd349048ce',
+                      kernel_revision=subprocess.check_output(['git', '-C', str(root), 'rev-parse', args.kernel_ref or 'HEAD'], text=True).strip(),
+                      kernel_dirty=False if args.kernel_ref else bool(subprocess.check_output(['git', '-C', str(root), 'status', '--porcelain'], text=True)),
                       evidence='Host extraction with mocked providers; not kernel or hardware execution',
                       production_sources={k: hashlib.sha256(v).hexdigest() for k, v in sources.items()},
                       extracted_functions=extracted,
-                      tests={p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__), HERE / 'consumer-policy-mocks.h', HERE / 'consumer-policy-cases.c']},
+                      tests={p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in [Path(__file__), HERE / 'consumer-policy-mocks.h', HERE / 'consumer-policy-cases.c', *([HERE / 'cleanup-framework.py', HERE / 'cleanup-framework-mocks.h', HERE / 'cleanup-framework-cases.c'] if args.framework else [])]},
                       compiler=subprocess.check_output(['gcc', '--version'], text=True).splitlines()[0],
                       compile_command=[arg.replace(directory, '$BUILD') for arg in cmd],
                       result=output)
         args.json_out.write_text(json.dumps(report, indent=2) + '\n')
-        print(run.stdout.strip())
+        print(json.dumps(output))
 
 
 if __name__ == '__main__':
