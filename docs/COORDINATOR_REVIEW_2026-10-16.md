@@ -137,3 +137,34 @@ Pinned source entry points:
 ### Selected sequence
 
 DP is the sole implementation stream: AUX binding/supply ownership plus bounded source comparison, with no DRM/QMP patch authorization. VPU performs the independent source-only Iris comparison on fixed inputs. Power stops after accepted delivery. Boot/USB/GPU/Userspace remain paused. After these deliverables, coordinator selects board staging and any justified generic DP fixes; minimal observable phone boot remains independent of VPU and external display.
+
+## Latest VPU / DP delivery review — 2026-10-16 (current)
+
+This section supersedes earlier queues. Accepted integration remains **2b5acf108ae37040ac1e652e029bb37f5609e886**. No handset boot or new integrated artifact.
+
+### VPU source comparison accepted
+
+Accepted project **adc83dc27be82d940df56317af3c1812e51f22fa**; kernel remains **905d2403c451838a408f6bb44e80a7cf9aa6ed10**. Reviewed the canonical handoff and existing reuse audit. The Xiaomi product pin fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3, ancestor a19585977c11fa662435b607cb9ff4ac7133092e and maintained upstream 70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56 are distinguished.
+
+Payload-free RESUME is a source-supported adaptation candidate: Xiaomi's option and independent Waipio source LowTension/android_kernel_xiaomi_sm8475@39382bf760ccf05a8fb4dddee7138ecac02d4a59 (msm_vdec_session_resume) use HFI_PAYLOAD_NONE / NULL / 0. Current oneli sends a U32 reason; total serialized size is 68 rather than 64 bytes. Both DRC and drain need coverage. Motorola applicability remains **[INFERRED]**: recorded Motorola firmware SHA-256 9582ea4c5565408bd3e5ba6f8fffc7881f226cae001b6fcd7a0c868de9add9af and version video-firmware.2.4-33580ad5a949b4d45b3b008988280e60573cd894 are existing manifest evidence, not a fresh extraction. A shared vpu20_4v.mbn filename does not establish donor firmware equivalence; no present-encoding failure has been observed on oneli.
+
+Queue a narrow firmware/profile-scoped quirk after DP validation; do not enable it in this documentation delivery. Preserve other profiles' encoding, VPU2 operations, upstream-v5 child DMA and current ICC/OPP policy. Four pipes plus private vpu3_ops composition is not proof of VPU3 hardware. Donor 30-fps startup does not justify silently replacing the retained 480-fps restriction. /3 remains [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Future implementation needs both RESUME reasons/ports/states, serialized payload/size and queue-error tests; physical DRC/drain/restart remains later acceptance.
+
+### DP source and focused evidence accepted; ARM64 acceptance pending
+
+Reviewed project **eb01acfb7dd1e177735de7a30151197a0b2647fb** and kernel **5499623959199a0fc5a8c76398e1708107fefc3a** (five commits over accepted integration). Binding requires a real vcc-supply for WAS7227Q; legacy property-absent nodes retain behavior. Driver establishes disconnected GPIOs, enables the supply before registration, serializes removal/callbacks and disconnects/unregisters before devm supply release. No confirmed driver defect found. The willsemi vendor prefix already exists; no addition is necessary. Shared DTS is unchanged.
+
+Independent validation:
+- Exact submitted production-source host runner: **11 cases / 237 assertions PASS**.
+- dtschema **2026.9**, pylibfdt **1.7.2.post2**: binding document validation and schema compilation PASS.
+- Four equivalent DTB instances constructed using libfdt: powered WAS passes; missing WAS supply produces the expected required-property diagnostic; supplyless legacy Pericom passes; invalid WAS identity produces the expected compatible diagnostic.
+- The submitted dtc-based fixture runner and kernel dt_binding_check were **not** independently executed: dtc was unavailable and installation failed. Equivalent instance checks are not reported as that runner.
+- No Actions runs were listed for the delivered branch. No ARM64 object/module/modpost result is accepted yet.
+
+The submitted workflow's fresh defconfig plus make modules does not guarantee built-in provider symbols. At this pinned kernel, modules depends on vmlinux conditionally through CONFIG_DEBUG_INFO_BTF_MODULES; without vmlinux.o, scripts/Makefile.modpost takes the modules-only.symvers path and warns about unresolved symbols, while the workflow expects Module.symvers. This is a **source-traced validation gap, not an observed CI failure**. Explicitly produce matching built-in provider symbols and complete ordinary ARM64 modpost/link with real regulator, GPIO and Type-C dependencies; do not suppress unresolved symbols or fabricate symvers. Pin dtschema and record compiler/config/log/module identities.
+
+DP Xiaomi comparison accepted as source research. Our msm_dp_ctrl_phy_init resets and calls phy_init, without phy_power_on; donor early power, negotiated retuning and unwind remain candidates for a separately selected change. Existing SM8475 QMP tables, orientation decoding and standard SVID must not be blindly replaced. Repeated HPD notification suppression can discard legitimate IRQ service. No DRM/PHY/GLINK expansion is selected now.
+
+### Next selection
+
+DP remains active only for bounded build/workflow validation closure. Activate Boot's independent source-only framebuffer/ramoops/final-FDT observability review using existing oneli exports. VPU comparison is complete and paused; the RESUME adaptation is queued. Power, USB, GPU and Userspace retain their previous accepted scope. No new hardware-proof, chip-ID, /3 or 8mV gate. Detailed assignments are in NEXT_TASKS.

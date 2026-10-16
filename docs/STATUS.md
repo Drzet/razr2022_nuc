@@ -1,18 +1,18 @@
 # Project status
 
-Updated 2026-10-16 evening after [delivery and corrected Xiaomi audit review](COORDINATOR_REVIEW_2026-10-16.md#evening-delivery-review--2026-10-16-current).
+Updated 2026-10-16 after [latest VPU / DP review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current).
 
-**VPU cleanup correction accepted for disabled development. Power's shared USB/DP supply contract accepted. Next implementation: DisplayPort AUX supply management and binding. Linux has not booted on the phone.**
+**VPU source comparison accepted. DP source/host/schema evidence accepted; final ARM64 module validation pending. DP validation and Boot observability review are active. Linux has not booted on the phone.**
 
 [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md) · [Branch disposition](CLEANUP_2026-10-13.md)
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
-| VPU | Kernel 905d2403 / project 53608e5; three old regression failures reproduced; corrected 6 framework cases / 645 assertions and 52 consumer cases / 2325 assertions independently pass | Active source-only Xiaomi Iris compatibility comparison |
-| DisplayPort | Project 186a7f2 unchanged, accepted source/graph contract; no new kernel delivery | Active AUX regulator lifetime/binding implementation and bounded DP source comparison |
+| VPU | Kernel 905d2403 cleanup acceptance retained; project adc83dc comparison accepted | Paused; narrow payload-free RESUME adaptation queued |
+| DisplayPort | Project eb01acf / kernel 5499623 reviewed; independent 11 cases / 237 assertions and binding/equivalent-instance checks pass | Active dependency-complete ARM64 module/modpost validation; final acceptance pending |
 | Power | b7d80a2 accepted source contract; 8mV L2B rounding non-blocking | Paused |
 | USB | Isolated PTN3222/PS5169 acceptance retained | Paused; board integration pending |
-| Boot / research | b2f9aea / 0acccb3 acceptance retained | Paused; observability review queued |
+| Boot / research | b2f9aea / 0acccb3 acceptance retained | Active source-only framebuffer/ramoops/final-FDT observability review |
 | GPU / Userspace | Existing accepted evidence retained | Paused |
 
 Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration record](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 record](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. No new combined image or working handset USB/DP/VPU claim.
@@ -28,6 +28,6 @@ Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration 
 
 ## Native milestone
 
-An observable controlled boot using the accepted image composition and a verified recovery route. UART GPIO26/27 are identified; accessible pads/voltage or another early-output route remain unresolved. Existing Motorola framebuffer/ramoops and final-FDT evidence will inform a bounded later observability review. Do not guess runtime addresses or copy Xiaomi memory layout.
+An observable controlled boot using the accepted image composition and a verified recovery route. UART GPIO26/27 are identified; accessible pads/voltage or another early-output route remain unresolved. Existing Motorola framebuffer/ramoops and final-FDT evidence are the inputs to the active bounded observability review. Do not guess runtime addresses or copy Xiaomi memory layout.
 
 [Canonical schematic evidence](oneli_schematic_evidence_2026-10-15.md) preserves UART, battery GPIO, rails and WAS7227Q findings. Installed-board correspondence remains [INFERRED]. VPU and external display are not prerequisites for minimal native boot.

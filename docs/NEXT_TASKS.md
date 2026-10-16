@@ -1,44 +1,41 @@
-# Current assignments — 2026-10-16 evening
+# Current assignments — 2026-10-16 latest delivery review
 
-Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#evening-delivery-review--2026-10-16-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
+Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
 
-## Active implementation: DisplayPort — AUX supply lifetime and binding
+## Active: DisplayPort — validation closure
 
-Project branch **razr/displayport**, current accepted handoff **186a7f251397c87f8a68a37afa8cf0556e579c01**. Kernel branch **razr/displayport** currently remains baseline **a5ebb76233b79db01e82e061173cb73c6d2b5c6b**. Inspect actual heads; fast-forward that kernel branch to accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** before the isolated change if still at the named ancestor. Preserve any intervening work; no reset or force update. Power contract: project **b7d80a25a19b1a581880062463f468f1ce19f9ab**, canonical supply report and handoff. PTN kernel **1e5268277f6d4c25cde2f3e2b3f00439107e087a**, PS5169 kernel **4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe** are reference interfaces, not permission to merge shared board code.
+Project **razr/displayport@eb01acfb7dd1e177735de7a30151197a0b2647fb**; kernel **razr/displayport@5499623959199a0fc5a8c76398e1708107fefc3a**. Preserve these commits and append any required workflow correction. Source/lifetime direction and Xiaomi comparison accepted; implementation acceptance awaits complete ARM64 build evidence.
 
-1. Check maintained upstream/pending gpio-sbu-mux and closest regulator-owning Type-C mux implementation for an existing equivalent. Pin the reuse source; adapt the smallest missing generic change.
-2. Add WAS7227Q compatible/vendor-prefix binding support with gpio-sbu-mux fallback and required vcc-supply for this part. Preserve existing compatibles and supply-absent users.
-3. If vcc-supply is present, acquire a real regulator using existing consumer APIs; propagate missing/deferred/error results, no dummy fallback. Establish disconnected OE state; enable supply before callbacks can activate OE or the Type-C objects become visible. Retain an independent enable reference throughout the bound lifetime, including PTN power-off and cable detach. No mode-by-mode rail toggling.
-4. Make callback publication/unregistration, disconnected state, regulator disable and devm unwind correctly ordered for every partial probe and removal. Synchronize against callbacks; no double disable or GPIO use after release. Keep old property-absent behavior. Do not invent system-sleep retention, always-on flags or a new switch driver.
-5. Focused validation: schema positive/negative WAS supply cases and existing compatible regression; execute production probe/unwind/remove boundaries with mocked regulator/GPIO/registration failures. Check no callbacks exposed on failure, no active OE before supply, and balanced lifetime including detach/PTN-off independence. Build changed ARM64 object/module and modpost/link with real regulator/Type-C dependencies; no full Image.
-6. In the same canonical handoff, provide a **source-only** Xiaomi DP comparison: product kernel **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, ancestor **a19585977c11fa662435b607cb9ff4ac7133092e**, our accepted integration and a pinned maintained upstream revision. Inspect dp_ctrl.c, dp_display.c, dp_aux.c, phy-qcom-qmp-combo.c and relevant GLINK code. Classify PHY-before-AUX, negotiated-rate reconfiguration/error unwind, initial DPCD retries, HPD state/IRQ semantics and QMP tables as already present, justified missing delta, or board-specific/unproven. No DRM/QMP/GLINK implementation in this assignment. No SVID patch: 0xff01 is already standard. Oneli already has 0/1/other orientation decoding.
-7. Preserve sole GLINK GPIO91 ownership, PS5169 enable GPIO19 and AUX GPIO2/71. Shared DTS remains Boot-owned. Use shared L2B supplier contract; keep PTN 3.075–3.300V request (3.080V selectable, non-blocking 8mV difference). No new BUK ID/voltage-document gate, provider programming, firmware extraction or node enablement.
-8. Deliver exact kernel/project commits, focused evidence and one canonical handoff in issue #11; stop for coordinator review.
+1. Correct .github/workflows/razr-gpio-sbu.yml so the selected ARM64 configuration explicitly produces matching built-in provider symbols before ordinary module modpost/link. Fresh defconfig plus make modules alone does not guarantee vmlinux.o/Module.symvers. Use vmlinux or a demonstrated equivalent matching build dependency; real regulator/Type-C/GPIO providers, no fake symvers or unresolved-symbol suppression.
+2. Pin dtschema (coordinator used 2026.9) and record actual compiler/tool versions, exact kernel SHA and config hash. Execute changed ARM64 object/module/modpost/link and preserve logs, resulting module hash and dependency evidence. No full Image packaging or shared-DTS change.
+3. Run binding examples and the submitted exact dtc fixture runner in a working environment. Coordinator already passed binding document/schema validation and four equivalent libfdt-generated instances; these are not a claim that the exact runner ran.
+4. Reuse unchanged production host evidence: independent 11 cases / 237 assertions PASS. Repeat only if relevant driver/test bytes change. No broad source research, replacement driver or DRM/QMP/GLINK patch.
+5. Update existing canonical DP handoff with exact project/kernel commits and evidence; post to issue #11 and stop for coordinator acceptance.
 
-**Scope:** generic GPIO mux driver, existing binding/vendor-prefix files, focused tests/evidence. Reference hardware WAS7227Q-10/TR; installed-board correspondence [INFERRED]. Full sleep/wake, parent-rail programming and phone behavior are later integration outcomes.
+WAS7227Q-10/TR reference identity and installed-board [INFERRED] qualification remain. willsemi prefix already exists. Preserve property-absent legacy behavior and shared L2B contract. Board enablement, parent rails and system-sleep behavior are separate.
 
-## Active independent source review: VPU — Xiaomi Iris compatibility comparison
+## Active independent review: Boot — early-output observability
 
-Accepted correction: project **53608e54e600a8800b665772dc5c63f5ed859c56** on razr/vpu; kernel **905d2403c451838a408f6bb44e80a7cf9aa6ed10** on razr/vpu-provenance-v5. Both cleanup findings are closed for disabled development scope; do not rerun unchanged suites.
+Project **razr/boot@b2f9aea38b5581781e8b07aa98a85dbbeddaa237**; accepted MBM research **0acccb329521d91b84fdcfb4bf9d7dcc25f44a25**. Accepted integration and diagnostic-v2 manifests remain inputs, not new build assignments.
 
-1. Compare fixed liuqin product kernel **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, ancestor **a19585977c11fa662435b607cb9ff4ac7133092e**, corrected oneli candidate and maintained upstream. Inspect Iris platform table/probe, Gen2 RESUME construction, capability/clock/bandwidth policy, binding and relevant DTS. Pin upstream references and preserve attribution.
-2. Explain exact resume_without_payload behavior versus oneli's current encoding and existing Motorola firmware/source evidence. Record actual firmware identity/version evidence already available; do not infer compatibility from the filename vpu20_4v.mbn alone. No new firmware download/disassembly.
-3. Reconcile reported four-pipe/vpu3_ops platform selection with oneli VPU2 source evidence. Compare capabilities, resets, PAS/IOMMU, OPP/required-domain and ICC interfaces. Distinguish reused upstream support from private changes and borrowed static tables.
-4. Deliver a compact table: already covered / source-supported adaptation / unresolved firmware-specific evidence, with the smallest justified future delta and precise verification. Include whether startup policy differs and why; no silent rate reduction, static-table transplant or new /3 hardware-proof gate.
-5. Update the existing reuse audit/canonical handoff and post exact project commit to #10; stop. **No kernel edits, builds, broader recovery work, shared DTS or enablement.**
+1. Inspect existing stock exports/manifests and accepted source evidence for framebuffer/splash and ramoops. Record proven address/size/format/stride, reserved-memory ownership and handoff/retention/readback properties where present; explicitly mark absent or runtime-dependent fields. Never guess addresses or copy Xiaomi layout.
+2. Check only relevant existing final-FDT/stock-DTBO symbol and reserved-memory requirements. Reuse corrected MBM results; no repeated disassembly, firmware retrieval/extraction or repackaging.
+3. Recommend the best evidenced early-output route and smallest missing device observation. UART TX GPIO26 ball D24 and RX GPIO27 ball C24 are recorded; physical pads/connector and electrical access remain unidentified. An evidenced equivalent output route is acceptable; UART wiring is not a mandatory gate.
+4. Update existing docs/oneli_native_loader_output_decision_2026-10-12.md, configs/oneli-native-loader-readiness-v1.json and canonical Boot handoff. Distinguish source inspection from runtime verification. Post exact project commit to issue #12 and stop.
+5. No shared-DTS enablement, new kernel/boot artifact, flashing or phone operation.
 
-**Concurrency:** DP is the sole implementation stream. VPU's source comparison uses independent fixed inputs/files and resolves a concrete firmware-protocol reuse question from the corrected Xiaomi audit.
+Concurrency is bounded: DP repairs validation tooling; Boot reviews independent existing evidence to advance first-boot logging. Their files and interfaces are independent.
 
-## Accepted and paused
+## Complete / paused / queued
 
-- **Power:** b7d80a25a19b1a581880062463f468f1ce19f9ab accepted for source supply/voltage/lifetime contract. No further BUK or 8mV research. B_PLUS remains variable; BOB/S1C live programming and full sleep retention are separate later integration decisions.
-- **USB:** prior isolated PTN3222/PS5169 acceptance retained. No driver/ID policy changes assigned.
-- **Boot/research:** b2f9aea / 0acccb3 accepted. Queued next bounded observability review: existing Motorola framebuffer/ramoops and final-FDT/overlay evidence. Not active; no repeated package/extraction, Xiaomi addresses/IDs/v2 header or overlay sink.
-- **GPU / Userspace:** paused, no changed accepted inputs.
-- **Battery/charging:** no implementation assigned.
+- **VPU:** project adc83dc27be82d940df56317af3c1812e51f22fa source comparison accepted; kernel 905d2403c451838a408f6bb44e80a7cf9aa6ed10 cleanup acceptance retained. Paused. After DP closure, coordinator may select the narrow firmware/profile-scoped payload-free RESUME quirk. Preserve default encoding for other profiles; cover DRC/drain, ports/states, 64/68-byte serialization and queue errors. Motorola compatibility remains [INFERRED]. No VPU3/static-bandwidth transplant, silent startup reduction, probe enablement or repeated /3 proof.
+- **Power:** b7d80a25a19b1a581880062463f468f1ce19f9ab accepted and paused. PTN 3.075–3.300V request selects 3.080V; 8mV difference is non-blocking. No renewed BUK identity gate. B_PLUS is variable.
+- **USB:** isolated PTN3222/PS5169 acceptance retained; paused. Unknown readable chip IDs diagnostic, failed reads abort.
+- **GPU / Userspace:** paused; accepted inputs unchanged.
+- **Battery/charging:** no implementation selected.
 
-## Integration and next selection
+## Integration
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. After these deliveries coordinator selects Boot board staging and any justified generic DP follow-up. Boot alone owns shared DTS and specifically selected combined artifacts. DP, GPU and VPU are not prerequisites for a minimal observable native boot.
+Accepted kernel **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. DP closure precedes selection of its integration. Boot alone owns shared DTS and specifically commissioned combined artifacts. VPU and external display are not prerequisites for an observable native boot. No handset Linux execution has occurred.
 
-The corrected Xiaomi audit is a research input with coordinator qualifications in the current review, not authority to import its kernel, firmware, charging or partition layout. Runtime evidence on liuqin is not oneli hardware acceptance.
+Preserve GLINK-only GPIO91, PS5169 enable GPIO19 and AUX GPIO2/71. Corrected Xiaomi audit is a qualified research input, not permission to import board layout, firmware or charging behavior.
