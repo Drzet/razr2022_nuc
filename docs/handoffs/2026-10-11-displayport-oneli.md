@@ -1,5 +1,33 @@
 # Subsystem handoff: DisplayPort / external display / Motorola oneli
 
+## Current evening deliverable: powered WAS7227Q kernel candidate (2026-10-16)
+
+**Current coordinator assignment:** [`4135c6de120a83a5d5ad5579d003ae0cd3858408`](https://github.com/Drzet/razr2022_nuc/commit/4135c6de120a83a5d5ad5579d003ae0cd3858408). Required project/power contract `Drzet/razr2022_nuc:razr/power@b7d80a25a19b1a581880062463f468f1ce19f9ab`, accepted kernel integration parent `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`. Kernel `razr/displayport` was **already fast-forwarded** to integration before these additions; no reset/force was used. These are **candidate commits**, not coordinator-accepted integration and not a phone-validated display.
+
+**Current candidate kernel source and test revisions** on `Drzet/linux:razr/displayport`:
+
+| Revision | Scope | Acceptance evidence available at handoff |
+| --- | --- | --- |
+| [`e683651477d1`](https://github.com/Drzet/linux/commit/e683651477d11953511331cd69286038d7dc5ebe) | Existing `gpio-sbu-mux.yaml`: specific `willsemi,was7227q` + generic fallback, conditional **required `vcc-supply`** | Source inspected, schema CI fixture committed; execution not yet confirmed |
+| [`5f07014b1fff`](https://github.com/Drzet/linux/commit/5f07014b1fff559311f003048c21e60be007224d) | Existing `gpio-sbu-mux.c`: explicit supply-property check; mandatory real `devm_regulator_get_optional`; regulator enable before Type-C registration; managed disable/unwind; disconnect/lock callback guard on remove; supply-less devices untouched | Source inspected; execution not yet confirmed |
+| [`1b8b9fd0da19`](https://github.com/Drzet/linux/commit/1b8b9fd0da190270577e9c81d3f2f213b65e86d0) | Production C with mocked API: 11 planned host cases, including attach/detach/PTN-off independence, callback-after-remove, GPIO/regulator/registration fault injection, no live callbacks on failed probe | Executable tests committed; no successful run independently observed here |
+| [`cdbdf43e3453`](https://github.com/Drzet/linux/commit/cdbdf43e34539ae5d3d86f8de5fe1ea1dc02569d) | dt-schema positive/negative: powered WAS valid, missing WAS supply invalid, supply-less Pericom valid, unsupported WAS ID invalid | Executable fixtures committed; no successful run independently observed here |
+| [`549962395919`](https://github.com/Drzet/linux/commit/5499623959199a0fc5a8c76398e1708107fefc3a) | Focused [`razr-gpio-sbu.yml`](https://github.com/Drzet/linux/blob/5499623959199a0fc5a8c76398e1708107fefc3a/.github/workflows/razr-gpio-sbu.yml): production host test, binding and instance validation, ARM64 `gpio-sbu-mux.ko` and `Module.symvers`/modpost with Type-C/regulator dependencies | Workflow committed; GitHub Actions API reported **zero runs** for this branch at review. **No module/CI PASS claimed.** |
+
+**Reuse/provenance:** maintained upstream `torvalds/linux@70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56` has generic SBU driver blob `1834f1a2dd9dd082648050c6aace4124ed70fd38` and SBU binding blob `793662f6f3bff4a4b4b73b38983abca12e1e61d2`. Generic `gpio-sbu-mux` is reused with a minimal supply lifetime adaptation, not replaced by new driver. An existing regulator-owning Type-C retimer comparator, `drivers/usb/typec/mux/nb7vpq904m.c` (blob `d1fa26ff442c277470efef3b9cbed16474960a28`), confirms Linux consumer lifecycle primitives but **continues after regulator-enable failure**; that error behavior is *not* reused. **`willsemi` vendor prefix already exists** in upstream/accepted integration `vendor-prefixes.yaml` blob `ba2002969373433b1f48118872c46cf7bcfff276`; no duplicated prefix change is required.
+
+**Reviewed behavior:** `devm_gpiod_get_optional(...,"enable",GPIOD_OUT_LOW)` establishes logical OE off; source schematic implies WAS active-low physical OE_N high while disconnected. `select` also starts logical low. Supply acquisition occurs before registration and an enable reference remains held across detach and PTN's independent PHY power-off. Missing or deferred declared supplier is fatal; no dummy substitution or mode-by-mode toggling. Removal and partial mux-registration failure mark the instance removing, disconnect under mutex, unregister published Type-C objects, then devres disables VCC. Property-absent legacy muxes retain no regulator acquisition. These are **source-code properties** pending real test outcome and untested Linux concurrency.
+
+**Power owner agreement:** PM8350 L2B feeds both U4500 WAS7227Q VCC and PTN3222 VDD3V3; input parent PM8350C BOB, variable B_PLUS. PTN request `3.075–3.300 V` selects `3.080 V` on 8mV hardware grid vs Motorola 3.072V initial, **nonblocking** per coordinator. This candidate does not configure providers, promise system-sleep retention, or touch Boot-owned DTS. Exact oneli assembly installed U4500 remains **[INFERRED]**.
+
+**Physical graph invariant:** GPIO2 controls WAS OE_N active-low; GPIO71 controls SEL active-high. GLINK alone consumes GPIO91 orientation, PS5169 owns GPIO19 enable and only port0/port1 (no AUX port2). Connector `port@2` must later connect exclusively to independent WAS SBU mux; FSA4480 remains disabled. No active DP/PHY/retimer, native boot, AUX, HPD or EDID result is claimed.
+
+**Source-only donor comparison:** section directly below contains pinned Pad 6 Pro/mainline source analysis and [issue #11 review comment](https://github.com/Drzet/razr2022_nuc/issues/11#issuecomment-6221445905); do **not** copy the Xiaomi QMP rate tables or its misleading SVID/HPD suppression. PHY-before-AUX timing and higher-level initial DPCD retries are distinct **future candidate fixes** if oneli logs justify them, excluded from this assignment.
+
+**Remaining concrete acceptance:** successful exact-SHA production harness, schema positive/negative and ARM64 object/module/modpost result, then coordinator review of the current kernel/project candidate. No controller DTS change or additional kernel DRM patch is authorized. When a CI run becomes available, append its **actual** tested SHA, artifact/log links and pass/fail here; a workflow file alone is not validation.
+
+---
+
 
 ## CURRENT DELIVERY: powered GPIO-SBU driver + Xiaomi DP reuse review (2026-10-16 evening)
 
