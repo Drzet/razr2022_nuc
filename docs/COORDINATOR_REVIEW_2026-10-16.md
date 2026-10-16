@@ -82,3 +82,58 @@ Select existing gpio-sbu-mux reuse and a narrow future `willsemi,was7227q` compa
 ### Current selection
 
 VPU remains the only implementation stream, now a targeted correction. Power performs an independent source-only USB/DP supply contract, using fixed schematic/driver/Boot inputs. DP pauses after accepted delivery; its minimal binding implementation is queued after the supply decision so the consumer contract is complete. Boot, USB, GPU and Userspace remain paused. Accepted integration and boot artifacts are unchanged.
+
+## Evening delivery review — 2026-10-16 (current)
+
+This section supersedes the afternoon queue. Accepted integration remains **2b5acf108ae37040ac1e652e029bb37f5609e886**; no new combined artifact or handset operation.
+
+### VPU cleanup correction accepted for disabled development scope
+
+Reviewed kernel **905d2403c451838a408f6bb44e80a7cf9aa6ed10**, direct child of 3086118, and project **53608e54e600a8800b665772dc5c63f5ed859c56**. Inspected all four changed Iris files and the framework harness/mocks. The SM8475 callback now commits VB2 ownership without firmware submission, and the guarded ioctl performs fallible firmware work afterward. A failed ioctl can deliberately leave VB2 streaming with retained buffers; subsequent cancellation is guarded. Legacy platforms retain the original callback path. Resource release preserves confirmed CLOSE through actual file/context teardown.
+
+Independent host verification:
+- All three named regression assertions fail on the old candidate: failed-start ownership, nonstreaming cancellation, lost CLOSE during file release.
+- Corrected production-function suite: **6 framework cases / 645 assertions PASS**.
+- Existing consumer suite: **52 cases / 2325 assertions PASS**.
+- All **24 production source hashes and 6 harness hashes** match the published framework result after preserving exact file endings. Local review uses a minimal source snapshot and local staging Git identity, not a full kernel-history checkout.
+- Inspected the ARM64 build record and incremental module log showing Iris link, MODPOST and qcom-iris.ko link. Compilation, binary/config hashes and target execution remain owner evidence; no independent ARM64 rebuild.
+- External firmware/provider/allocator/scheduler boundaries remain mocks. This is executable control-flow evidence, not full Linux concurrency, hardware DMA or firmware operation.
+
+The requested correction is accepted. Disabled gate, retained 480 startup restriction (including 1080p/4K rejection), uncertain OPP recovery, full quarantine reclamation and inherited IOVA failure limitations remain explicit. /3 remains **[INFERRED, USER-ACCEPTED FOR DEVELOPMENT]**; no new physical-proof requirement. Do not repeat the closed cleanup assignment or enable the candidate. Next VPU work is a bounded source-only Xiaomi Iris comparison.
+
+### DisplayPort and Power disposition
+
+Project **razr/displayport remains 186a7f251397c87f8a68a37afa8cf0556e579c01**; its kernel branch remains a5ebb76233b79db01e82e061173cb73c6d2b5c6b. No new DP implementation commit was found. Prior exact-part/graph acceptance stands.
+
+Power project **b7d80a25a19b1a581880062463f468f1ce19f9ab** is accepted as the source contract for the next bounded AUX change. Read current report/handoff; independently checked the pinned RPMh PM8350 L2B mapping, 1.504 V + 8 mV selector grid, supply-group names and ACTIVE_ONLY writes. Current PTN request 3.075–3.300 V selects 3.080 V, versus stock initial vote 3.072 V. Accept keeping the existing request: **8 mV is not a development/integration blocker**. Exact BUK datasheet provenance remains a documentation gap, not a new mandatory search. No measured voltage or universal electrical qualification is claimed.
+
+Use one shared L2B regulator for PTN and WAS7227Q. L2B parent is PM8350C BOB; L8C parent is PM8350C S1C. B_PLUS is variable, not a fabricated fixed 3.7 V provider. Preserve the separate later provider/board-integration decision rather than letting it block an isolated generic mux change.
+
+Select generic gpio-sbu-mux property-present regulator support: a real supply acquired/enabled before Type-C publication, independent enable reference for the bound lifetime, disconnected GPIO state and balanced unregister/disable on failure/remove. Older nodes without vcc-supply retain behavior. Require the supply for the new WAS7227Q binding; optional regulator API must propagate lookup/enable errors and never silently substitute a dummy on a property-present node. Active-lifetime ownership does not establish full system-sleep retention. DP suspend/wake acceptance remains separate.
+
+### Corrected Xiaomi audit: accepted research with coordinator qualifications
+
+Read the complete current **xiaomi_pad6pro_sm8475_oneli_reuse_audit_2026-10-16.md**, saved revision modified **2026-10-16T16:59:06.607902Z**. Source pins: integration **f5a535f5c1c980f042b58cb77467ff8f02a5518e**, product kernel **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, ancestor **a19585977c11fa662435b607cb9ff4ac7133092e**. Later branch heads are not substituted for product provenance.
+
+The SVID correction is correct: both macros are 0xff01, so no extra compatibility is added. Previous independent coordinator inspection also established that oneli already decodes orientation 0/1/other as normal/reverse/none. Corrected prose still calls orientation a substantive fork change without distinguishing an internal fork regression from a missing feature in our baseline; **do not assign an orientation patch** on that basis.
+
+The audit's oneli GPIO91-to-PS5169 wording is misleading for the accepted Linux ownership contract: **GLINK alone consumes TLMM91**, PS5169 receives Type-C notifications and owns enable GPIO19, AUX owns GPIO2/71. Preserve the current canonical DP contract over historical donor descriptions.
+
+The report still describes Power's voltage decision as unresolved; this is superseded by b7d80a2 and the acceptance above. Its generic conclusions do not reopen BUK chip-ID or 8 mV gates.
+
+Selected reuse:
+- **DP:** compare actual PHY-before-AUX, rate reconfiguration/unwind, bounded initial DPCD retry, HPD-state versus IRQ handling, and SM8475 QMP table differences against our baseline and maintained upstream. Report already-present versus missing changes separately. Source inspection can happen before hardware; implementation beyond the selected AUX supply/binding scope needs review. Do not blindly suppress legitimate HPD IRQ service or copy fixed two-lane/RBR assumptions.
+- **VPU:** compare the small sm8450 platform path and resume_without_payload option with our actual firmware/HFI/resource paths. Independently confirmed the option exists during the previous coordinator audit review. Four-pipe/vpu3_ops and borrowed bandwidth data are comparator inputs, not accepted replacements for the current VPU2 policy.
+- **Boot (queued):** framebuffer/ramoops observability and final-FDT/overlay-symbol comparison methods merit a later bounded check against existing oneli exports. No Xiaomi addresses, board IDs, overlay sink, v2 boot format, partition scheme or renewed full firmware extraction.
+- **USB/GPU acceptance:** distinct hardware tests for HS gadget, host, SS, hubs, Ethernet, simultaneous DP+USB, actual GPU renderer and actual V4L2 decode. Pad owner reports are not independently reproduced oneli results.
+- No FSA4480, charger, Xiaomi firmware or broad fork transplant. Installed-board applicability remains [INFERRED] wherever not established by oneli evidence.
+
+Pinned source entry points:
+- [DP control](https://github.com/yzddmr6/linux-sm8450-liuqin/blob/fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3/drivers/gpu/drm/msm/dp/dp_ctrl.c), adjacent dp_display.c / dp_aux.c.
+- [QMP combo](https://github.com/yzddmr6/linux-sm8450-liuqin/blob/fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3/drivers/phy/qualcomm/phy-qcom-qmp-combo.c).
+- [Iris platform](https://github.com/yzddmr6/linux-sm8450-liuqin/blob/fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3/drivers/media/platform/qcom/iris/iris_platform_gen2.c), adjacent iris_hfi_gen2_command.c and iris_platform_common.h.
+- [Boot symbol tool](https://github.com/yzddmr6/xiaomipad-6pro-mainline/blob/f5a535f5c1c980f042b58cb77467ff8f02a5518e/tools/lib/abl-symbols.py).
+
+### Selected sequence
+
+DP is the sole implementation stream: AUX binding/supply ownership plus bounded source comparison, with no DRM/QMP patch authorization. VPU performs the independent source-only Iris comparison on fixed inputs. Power stops after accepted delivery. Boot/USB/GPU/Userspace remain paused. After these deliverables, coordinator selects board staging and any justified generic DP fixes; minimal observable phone boot remains independent of VPU and external display.

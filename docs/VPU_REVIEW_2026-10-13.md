@@ -147,3 +147,9 @@ The retained failed-OPP uncertainty is an explicitly reported limitation, not ne
 
 
 Full disposition and next tasks: [current coordinator review](COORDINATOR_REVIEW_2026-10-16.md#delivery-review--2026-10-16-afternoon-current).
+
+## Cleanup correction accepted — 2026-10-16 evening
+
+Kernel 905d2403c451838a408f6bb44e80a7cf9aa6ed10 / project 53608e54e600a8800b665772dc5c63f5ed859c56 closes the two afternoon cleanup findings for disabled development scope. Coordinator independently reproduced all three old regression failures, then 6 framework cases / 645 assertions and 52 consumer cases / 2325 assertions passing on the correction. All 24 production/6 harness hashes match. ARM64 link evidence inspected, not independently rebuilt. No hardware or integration acceptance.
+
+The current VPU task is the source-only Xiaomi Iris comparison, not further cleanup implementation. /3 remains user-accepted [INFERRED]; startup, IOVA, OPP recovery and quarantine limitations remain recorded. See [current review](COORDINATOR_REVIEW_2026-10-16.md#evening-delivery-review--2026-10-16-current) and [NEXT_TASKS](NEXT_TASKS.md).

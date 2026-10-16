@@ -1,32 +1,33 @@
 # Project status
 
-Updated 2026-10-16 afternoon after [VPU/DisplayPort delivery review](COORDINATOR_REVIEW_2026-10-16.md#delivery-review--2026-10-16-afternoon-current).
+Updated 2026-10-16 evening after [delivery and corrected Xiaomi audit review](COORDINATOR_REVIEW_2026-10-16.md#evening-delivery-review--2026-10-16-current).
 
-**Kernel, Debian/QEMU and diagnostic boot images exist; Linux has not booted on the phone. DisplayPort's AUX reuse contract is accepted. VPU consumer code is delivered but needs two cleanup corrections before acceptance.**
+**VPU cleanup correction accepted for disabled development. Power's shared USB/DP supply contract accepted. Next implementation: DisplayPort AUX supply management and binding. Linux has not booted on the phone.**
 
 [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md) · [Branch disposition](CLEANUP_2026-10-13.md)
 
-| Owner | Current state | Next action |
+| Owner | Reviewed state | Next action |
 | --- | --- | --- |
-| VPU | Kernel 3086118 / project be103e0; 52 scenarios / 2321 assertions independently reproduced; two framework cleanup defects | Active targeted correction |
-| DisplayPort | Project 186a7f2 exact-part reuse/binding/graph proposal accepted | Paused; minimal binding work queued behind supply contract |
-| Power | USB/DP shared-rail contract unresolved | Active independent source review |
-| USB | PTN3222/PS5169 isolated software acceptance retained | Paused; supply/board integration pending |
-| Boot / research | b2f9aea / 0acccb3 accepted | Paused; handset runtime/early-output observations remain |
+| VPU | Kernel 905d2403 / project 53608e5; three old regression failures reproduced; corrected 6 framework cases / 645 assertions and 52 consumer cases / 2325 assertions independently pass | Active source-only Xiaomi Iris compatibility comparison |
+| DisplayPort | Project 186a7f2 unchanged, accepted source/graph contract; no new kernel delivery | Active AUX regulator lifetime/binding implementation and bounded DP source comparison |
+| Power | b7d80a2 accepted source contract; 8mV L2B rounding non-blocking | Paused |
+| USB | Isolated PTN3222/PS5169 acceptance retained | Paused; board integration pending |
+| Boot / research | b2f9aea / 0acccb3 acceptance retained | Paused; observability review queued |
 | GPU / Userspace | Existing accepted evidence retained | Paused |
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration record](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 record](../configs/accepted-native-console-v2-2026-10-13.json) remain unchanged. No new combined image or working phone USB/DP/VPU claim.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration record](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 record](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. No new combined image or working handset USB/DP/VPU claim.
 
-## Current review decisions
+## Decisions and remaining limits
 
-- **VPU:** submitted arithmetic/resource tests pass, but VB2 forcibly returns retained buffers after failed start; nonstreaming STREAMOFF bypasses the new cleanup preflight. Successful resource release also clears confirmed-CLOSE state before file teardown. Independent boundary probes reproduce these missing protections; full Linux concurrency is not tested. Delivery is **changes requested**, not accepted. Disabled gate remains.
-- **VPU assumptions/limits:** /3 is [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Conservative 480-fps startup still rejects 1080p/4K under current policy. IOVA failures, uncertain OPP recovery and general-purpose startup remain separate future issues.
-- **DP:** use existing gpio-sbu-mux for reference WAS7227Q-10/TR; no new I2C/DP driver. A narrow compatible/vendor-prefix addition is proposed. The generic driver does not manage its allowed vcc-supply property, so Power must settle shared L2B voltage/provider/lifetime before integration.
-- **USB:** unknown readable chip IDs warn/continue; failed reads abort. Existing acceptance does not imply enumeration or wake on hardware.
-- **Boot:** reference-firmware loading formula is known and extraction defect fixed. Runtime RAM/FDT/ramdisk selection, alignment and accessible early logs remain unobserved. No further identical packaging or firmware download needed.
+- VPU now preserves VB2 ownership across failed firmware startup and confirmed CLOSE through teardown. Host production-control-flow tests pass; ARM64 link evidence inspected, not independently rebuilt. Full Linux concurrency/DMA remains untested. SM8475 stays disabled/unintegrated.
+- VPU /3 is [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Retained 480 startup rejects 1080p/4K. IOVA errors, uncertain OPP recovery and full quarantine reclamation remain separate future issues.
+- Shared L2B feeds PTN3222 and WAS7227Q; keep PTN's 3.075–3.300V request, selecting 3.080V on the supported grid. The 8mV difference from the 3.072V stock initial vote is not a development blocker or a new BUK-document requirement.
+- Generic gpio-sbu-mux must own its supply for the bound lifetime. Board parent-rail integration and full system-sleep retention are still separate work. No fixed 3.7V B_PLUS fiction.
+- Xiaomi audit SVID correction accepted. Oneli already decodes orientation 0/1/other. Preserve GLINK-only GPIO91, PS5169 enable GPIO19, AUX GPIO2/71. No redundant SVID/orientation patch, FSA4480 or wholesale fork transplant.
+- USB unknown readable chip IDs remain diagnostic; failed reads abort. Actual enumeration, DP display and wake are untested.
 
-## Next native milestone
+## Native milestone
 
-An observable controlled boot with supported image/DT/ramdisk composition and recovery arrangements. UART pins are identified; accessible pads/voltage or another early-output route remain unresolved. Check full Image allocation and selected memory tree when observable; do not guess runtime addresses. VPU and external display are not prerequisites for a minimal UART boot.
+An observable controlled boot using the accepted image composition and a verified recovery route. UART GPIO26/27 are identified; accessible pads/voltage or another early-output route remain unresolved. Existing Motorola framebuffer/ramoops and final-FDT evidence will inform a bounded later observability review. Do not guess runtime addresses or copy Xiaomi memory layout.
 
-[Canonical schematic evidence](oneli_schematic_evidence_2026-10-15.md) preserves all reported UART, battery GPIO, rail and switch findings. Installed-board correspondence remains [INFERRED]. Reference AUX is WAS7227Q-10/TR; FSA4480 stays disabled.
+[Canonical schematic evidence](oneli_schematic_evidence_2026-10-15.md) preserves UART, battery GPIO, rails and WAS7227Q findings. Installed-board correspondence remains [INFERRED]. VPU and external display are not prerequisites for minimal native boot.

@@ -1,42 +1,44 @@
-# Current assignments — 2026-10-16 afternoon
+# Current assignments — 2026-10-16 evening
 
-Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#delivery-review--2026-10-16-afternoon-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
+Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#evening-delivery-review--2026-10-16-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
 
-## Active implementation: VPU — framework-aware cleanup correction
+## Active implementation: DisplayPort — AUX supply lifetime and binding
 
-**Delivered, changes requested:** project `razr/vpu@be103e0fc0dbedefbf647dfea46c51ad5301e501`; kernel `razr/vpu-provenance-v5@3086118adc521943bd533f98d53b136cf4694bc2`. Inspect actual heads and preserve intervening work. Submitted 52 scenarios / 2321 assertions independently pass, but do not cover the blocking framework paths below.
+Project branch **razr/displayport**, current accepted handoff **186a7f251397c87f8a68a37afa8cf0556e579c01**. Kernel branch **razr/displayport** currently remains baseline **a5ebb76233b79db01e82e061173cb73c6d2b5c6b**. Inspect actual heads; fast-forward that kernel branch to accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** before the isolated change if still at the named ancestor. Preserve any intervening work; no reset or force update. Power contract: project **b7d80a25a19b1a581880062463f468f1ce19f9ab**, canonical supply report and handoff. PTN kernel **1e5268277f6d4c25cde2f3e2b3f00439107e087a**, PS5169 kernel **4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe** are reference interfaces, not permission to merge shared board code.
 
-1. Correct failed-start ownership. Actual VB2 forcibly reclaims ACTIVE buffers when start_streaming returns failure. A failed STREAMON leaves q.streaming=false, and current iris_policy_streamoff then bypasses the STOP/CLOSE preflight and calls cancellation despite an uncertain, unclosed reservation. Protect real firmware-owned memory across start failure, subsequent STREAMOFF/REQBUFS/file-close and cancellation. A queue error or PM ref is not a substitute for this ownership contract.
-2. Correct normal teardown: successful iris_sm8475_release clears reservation.closed before iris_close removes the session and releases its VB2 context. Preserve definitive CLOSE/quiescence through callbacks or reorder teardown so no STOP/CLOSE is emitted for the already-closed removed session and no survivor is spuriously faulted.
-3. Extend production tests to include actual VB2 start/cancel control flow and real driver callbacks, not only mocked v4l2_m2m_ioctl_streamoff. Cover partial deferred submission then error/CLOSE timeout, nonstreaming cancellation, late CLOSE, successful file release with streaming queues, retained mappings and exact-once completion, surviving sessions and PM/module/device ownership. Demonstrate fail-before/pass-after for both findings. Keep mocked provider boundaries explicit.
-4. Use the smallest supported correction in Iris. If safe completion requires a missing firmware/DMA-quiescence primitive, inspect existing upstream/vendor lifecycle support and state the exact dependency before inventing recovery. No generic VB2/IOMMU rewrite, fake CLOSE success, arbitrary reset or premature freeing.
-5. Preserve already-reviewed arithmetic, three-route/OPP policy, user-accepted [INFERRED] /3, conservative startup and legacy-platform behavior. No startup expansion, cache feature or broad unrelated fault campaign. Rerun changed production tests and relevant legacy cases; focused ARM64 objects/modpost/link for changed integration, no duplicate full Image build.
-6. Publish exact project/kernel commits and one canonical handoff in issue #10, then stop for review.
+1. Check maintained upstream/pending gpio-sbu-mux and closest regulator-owning Type-C mux implementation for an existing equivalent. Pin the reuse source; adapt the smallest missing generic change.
+2. Add WAS7227Q compatible/vendor-prefix binding support with gpio-sbu-mux fallback and required vcc-supply for this part. Preserve existing compatibles and supply-absent users.
+3. If vcc-supply is present, acquire a real regulator using existing consumer APIs; propagate missing/deferred/error results, no dummy fallback. Establish disconnected OE state; enable supply before callbacks can activate OE or the Type-C objects become visible. Retain an independent enable reference throughout the bound lifetime, including PTN power-off and cable detach. No mode-by-mode rail toggling.
+4. Make callback publication/unregistration, disconnected state, regulator disable and devm unwind correctly ordered for every partial probe and removal. Synchronize against callbacks; no double disable or GPIO use after release. Keep old property-absent behavior. Do not invent system-sleep retention, always-on flags or a new switch driver.
+5. Focused validation: schema positive/negative WAS supply cases and existing compatible regression; execute production probe/unwind/remove boundaries with mocked regulator/GPIO/registration failures. Check no callbacks exposed on failure, no active OE before supply, and balanced lifetime including detach/PTN-off independence. Build changed ARM64 object/module and modpost/link with real regulator/Type-C dependencies; no full Image.
+6. In the same canonical handoff, provide a **source-only** Xiaomi DP comparison: product kernel **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, ancestor **a19585977c11fa662435b607cb9ff4ac7133092e**, our accepted integration and a pinned maintained upstream revision. Inspect dp_ctrl.c, dp_display.c, dp_aux.c, phy-qcom-qmp-combo.c and relevant GLINK code. Classify PHY-before-AUX, negotiated-rate reconfiguration/error unwind, initial DPCD retries, HPD state/IRQ semantics and QMP tables as already present, justified missing delta, or board-specific/unproven. No DRM/QMP/GLINK implementation in this assignment. No SVID patch: 0xff01 is already standard. Oneli already has 0/1/other orientation decoding.
+7. Preserve sole GLINK GPIO91 ownership, PS5169 enable GPIO19 and AUX GPIO2/71. Shared DTS remains Boot-owned. Use shared L2B supplier contract; keep PTN 3.075–3.300V request (3.080V selectable, non-blocking 8mV difference). No new BUK ID/voltage-document gate, provider programming, firmware extraction or node enablement.
+8. Deliver exact kernel/project commits, focused evidence and one canonical handoff in issue #11; stop for coordinator review.
 
-**Unchanged boundary:** SM8475 remains disabled/unintegrated. No shared DTS, active DMA, native test or combined artifact. IOVA failure behavior, general-purpose startup and full recovery/reclamation remain separate future decisions.
+**Scope:** generic GPIO mux driver, existing binding/vendor-prefix files, focused tests/evidence. Reference hardware WAS7227Q-10/TR; installed-board correspondence [INFERRED]. Full sleep/wake, parent-rail programming and phone behavior are later integration outcomes.
 
-## Active independent source review: Power — shared USB/DP supply contract
+## Active independent source review: VPU — Xiaomi Iris compatibility comparison
 
-**Project branch:** `razr/power@1013ef56961716e6afb93321036c300a9f62cbf9`; inspect actual head first. Fixed inputs: current canonical schematic record; Boot board-contract proposal `812172869a8c9665c6a39004aad9b1c52cf036bf`; accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886`; DP handoff `186a7f251397c87f8a68a37afa8cf0556e579c01`; PTN3222 `1e5268277f6d4c25cde2f3e2b3f00439107e087a`; PS5169 `4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe`.
+Accepted correction: project **53608e54e600a8800b665772dc5c63f5ed859c56** on razr/vpu; kernel **905d2403c451838a408f6bb44e80a7cf9aa6ed10** on razr/vpu-provenance-v5. Both cleanup findings are closed for disabled development scope; do not rerun unchanged suites.
 
-1. Resolve the minimal RPMh producer/parent contract for shared **L2B → PTN3222 VDD3V3 and WAS7227Q VCC**, S10B, L8C→S1C, BOB and its variable B_PLUS input. Reuse existing source and new schematic; replace obsolete HDK parent assumptions. Identify exact supported binding/property/provider ownership; do not invent fixed 3.7V or phandles.
-2. Reconcile schematic L2B 3.07V, vendor nominal 3.072V and PTN3222's current minimum 3.075V against actual Linux regulator ranges/steps/rounding. Deliver an exact supported constraints/request proposal or the precise missing source datum. No guessed safe voltage.
-3. Choose a minimal supply-lifetime policy for AUX independent of PTN3222 session votes. gpio-sbu-mux currently ignores vcc-supply; identify whether an evidenced existing owner guarantees power through DP, detach and suspend, or propose the smallest reusable regulator-management adaptation with error/unwind semantics. Do not assume another consumer always keeps L2B on.
-4. Give Boot a compact provider/consumer/voltage/lifetime table and DP a concrete binding/driver delta decision. Keep PM8350/PM8350C/PM8350BH/PM8450 distinctions and physical vs source vs [INFERRED] facts explicit.
-5. Update the existing Power regulator report and canonical handoff; post exact project commit to issue #9, cross-link supply conclusion in #11/#2, then stop. No kernel/DTS changes, enablement, charger programming, new extraction, repeated GLINK audit or full build.
+1. Compare fixed liuqin product kernel **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, ancestor **a19585977c11fa662435b607cb9ff4ac7133092e**, corrected oneli candidate and maintained upstream. Inspect Iris platform table/probe, Gen2 RESUME construction, capability/clock/bandwidth policy, binding and relevant DTS. Pin upstream references and preserve attribution.
+2. Explain exact resume_without_payload behavior versus oneli's current encoding and existing Motorola firmware/source evidence. Record actual firmware identity/version evidence already available; do not infer compatibility from the filename vpu20_4v.mbn alone. No new firmware download/disassembly.
+3. Reconcile reported four-pipe/vpu3_ops platform selection with oneli VPU2 source evidence. Compare capabilities, resets, PAS/IOMMU, OPP/required-domain and ICC interfaces. Distinguish reused upstream support from private changes and borrowed static tables.
+4. Deliver a compact table: already covered / source-supported adaptation / unresolved firmware-specific evidence, with the smallest justified future delta and precise verification. Include whether startup policy differs and why; no silent rate reduction, static-table transplant or new /3 hardware-proof gate.
+5. Update the existing reuse audit/canonical handoff and post exact project commit to #10; stop. **No kernel edits, builds, broader recovery work, shared DTS or enablement.**
 
-**Concurrency:** VPU is the sole implementation stream. Power's bounded source review has independent fixed inputs/files and resolves the next USB/DP integration dependency.
+**Concurrency:** DP is the sole implementation stream. VPU's source comparison uses independent fixed inputs/files and resolves a concrete firmware-protocol reuse question from the corrected Xiaomi audit.
 
 ## Accepted and paused
 
-- **DisplayPort:** project `186a7f251397c87f8a68a37afa8cf0556e579c01` accepted as source/binding/graph contract. Existing gpio-sbu-mux reuse selected; `willsemi,was7227q` and vendor prefix are queued minimal binding work after Power's supply decision. No kernel change delivered. Preserve TLMM2 active-low enable, TLMM71 active-high select; FSA4480 disabled; PS5169 has no AUX port. Installed correspondence [INFERRED].
-- **USB:** prior isolated PTN3222/PS5169 acceptance stands. Unknown readable IDs remain diagnostic; no BUK allowlist prerequisite or repeated lifecycle campaign.
-- **Boot/research:** b2f9aea / 0acccb3 acceptance stands. No repeated loader research or packaging. Actual runtime composition/placement and early output remain handset observations.
-- **GPU / Userspace:** no changed accepted input; paused.
-- **Power charger/battery implementation:** not assigned. GPIO endpoint evidence is retained; paired-pack charging policy remains separate from this supply-only task.
+- **Power:** b7d80a25a19b1a581880062463f468f1ce19f9ab accepted for source supply/voltage/lifetime contract. No further BUK or 8mV research. B_PLUS remains variable; BOB/S1C live programming and full sleep retention are separate later integration decisions.
+- **USB:** prior isolated PTN3222/PS5169 acceptance retained. No driver/ID policy changes assigned.
+- **Boot/research:** b2f9aea / 0acccb3 accepted. Queued next bounded observability review: existing Motorola framebuffer/ramoops and final-FDT/overlay evidence. Not active; no repeated package/extraction, Xiaomi addresses/IDs/v2 header or overlay sink.
+- **GPU / Userspace:** paused, no changed accepted inputs.
+- **Battery/charging:** no implementation assigned.
 
-## Integration and coordinator
+## Integration and next selection
 
-Accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886` and diagnostic-v2 images remain unchanged. Coordinator reviews corrected VPU and Power contracts before selecting subsequent binding/board work. Boot alone owns shared DTS and builds a specifically selected combined artifact. USB/DP/VPU progress is not a prerequisite for an otherwise ready minimal UART boot.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. After these deliveries coordinator selects Boot board staging and any justified generic DP follow-up. Boot alone owns shared DTS and specifically selected combined artifacts. DP, GPU and VPU are not prerequisites for a minimal observable native boot.
 
-Review deliveries, update status/queue and publish issue instructions together. No blanket implementation round, automatic enablement or test replay for unchanged inputs.
+The corrected Xiaomi audit is a research input with coordinator qualifications in the current review, not authority to import its kernel, firmware, charging or partition layout. Runtime evidence on liuqin is not oneli hardware acceptance.
