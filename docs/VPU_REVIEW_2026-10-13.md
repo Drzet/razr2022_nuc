@@ -119,3 +119,31 @@ Current heads verified unchanged: project 0c50bf1 / kernel 7ac8d3af. Previous ca
 Project `29c59a2cb58559e0c00c2b5baead5bb5f8c95d32` is accepted as the disabled candidate's implementation contract. Kernel remains `7ac8d3afedfde74286b52e11aaa1eca42a1329a5`; no new runtime consumer is delivered yet. Coordinator inspected the policy and pinned producer/power/resources/platform/decoder/locking source paths. [Full review](COORDINATOR_REVIEW_2026-10-16.md) records independent startup arithmetic: 1080p at retained 480 fps requires at least 822,528,000 Hz under the source estimator, above the selected 444 MHz ceiling. This restricted startup policy must be explicit; it is not a measured hardware limit or general-purpose decode acceptance.
 
 Proceed with the bounded implementation and production-path error/rollback tests in [NEXT_TASKS](NEXT_TASKS.md). Preserve the user-accepted [INFERRED] /3 assumption, four-pipe/no-cache-discount model, disabled gate and unchanged accepted integration. No silent startup reduction, stale/clamped votes, shared DTS or active DMA. Inherited IOVA reservation failure remains independently unresolved. Prior arithmetic/build evidence is reused for unchanged inputs.
+
+## Delivery review — 2026-10-16 afternoon (current)
+
+This section supersedes the earlier assignment disposition above.
+
+### VPU: changes requested; implementation not accepted
+
+Reviewed project **be103e0fc0dbedefbf647dfea46c51ad5301e501**, kernel **3086118adc521943bd533f98d53b136cf4694bc2**, against calculator base 7ac8d3af. Inspected the changed resource/admission and lifecycle paths, submitted harness and actual pinned VB2 core. Preserve the delivered commits; no rollback/history rewrite or integration promotion.
+
+**Independent execution:** submitted production-function harness passes **52 scenarios / 2321 assertions**, including 8 update, 7 repair and 4 unvote positions. All 18 recorded production-source hashes and all three test hashes match the published JSON. Used a minimal local source snapshot with its own staging Git identity, not a full kernel checkout; pinned bytes establish provenance. No unchanged calculator-vector replay. Inspected owner-produced final ARM64 modpost/module-link log, framework imports and schema log (1 positive / 11 negative); no independent ARM64 rebuild, binary/config hash verification or Linux runtime claim.
+
+Two blocking lifecycle findings remain:
+
+1. **Failed STREAMON can defeat the retention strategy.** In `iris_vb2_start_streaming()`, deferred work can already have been submitted before a later queue/start failure. If CLOSE then fails, the new error path returns without returning driver-owned buffers. Actual `videobuf2-core.c::vb2_start_streaming()` forcibly completes remaining ACTIVE buffers as QUEUED after any start callback error and clears start_streaming_called. On the STREAMON path, q->streaming never becomes true. The new `iris_policy_streamoff()` then skips its STOP/CLOSE preflight because it checks only vb2_is_streaming(q), and delegates to VB2 cancellation even while resources are uncertain and CLOSE unconfirmed. `vb2_core_streamoff()` deliberately cancels even nonstreaming queues. Queue-error flags and held PM refs do not change that framework contract.
+   - Coordinator executed the unchanged extracted VB2 start function under a callback mock that returns -EIO while retaining one ACTIVE buffer: VB2 forcibly completed it to QUEUED and driver-owned count became zero.
+   - Separately extended a temporary copy of the submitted harness with a reserved, uncertain, unclosed instance and q.streaming=false. The assertion that `iris_policy_streamoff()` must reject without invoking cancellation **fails** on the published implementation. Existing cases test streaming=true and miss this state.
+   - This establishes the framework ownership mismatch and cancellation bypass, not a physical DMA corruption experiment. Fix the actual ownership/quiescence boundary; refusing to call buffer_done from the callback alone is insufficient.
+
+2. **Successful release erases confirmed CLOSE before file teardown.** `iris_sm8475_release()` replaces the reservation with a zero-initialized inactive struct, clearing closed. `iris_close()` then removes the session and calls `v4l2_m2m_ctx_release()`. Its streaming-queue callbacks can now enter `iris_session_streamoff()` without the closed short-circuit and attempt STOP/CLOSE for an already-closed/removed session. The final HFI membership guard rejects that session, and fault processing can affect other sessions.
+   - Adding only `CHECK(inst[0].reservation.closed)` immediately after the submitted successful release case fails (check 291). The cleared state is independently executed; the subsequent whole file-release/VB2 stack is source-traced, not runtime-executed.
+   - Keep definitive firmware quiescence valid across resource release and context cancellation, or restructure teardown to achieve the same ordering. Do not merely suppress the callback error.
+
+**Next VPU task:** correct these boundaries and execute regression tests through actual framework control flow, including successful file release and nonstreaming cancellation after failed start. If a supported DMA-quiescence operation is genuinely required, identify/reuse it and report that precise dependency; do not fake successful CLOSE, arbitrarily free retained mappings or rewrite generic VB2. Existing disabled probe gate stays. This correction takes precedence over startup broadening, recovery features and IOVA enablement.
+
+The retained failed-OPP uncertainty is an explicitly reported limitation, not newly claimed recovery. No claim that a same-old-OPP cached success repairs required domains. Existing /3 assumption remains [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]; it is unrelated to these software defects.
+
+
+Full disposition and next tasks: [current coordinator review](COORDINATOR_REVIEW_2026-10-16.md#delivery-review--2026-10-16-afternoon-current).
