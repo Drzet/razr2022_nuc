@@ -1,7 +1,7 @@
 # Motorola Razr 2022 (oneli) native Linux: Wi-Fi/Bluetooth source-only handoff
 
 **Owner:** Wireless research, dedicated project/kernel branches `razr/wireless`.
-**Date:** 2026-10-16. **State:** research prepared; not an integration or handset-support claim.
+**Date:** 2026-10-16. **State:** source audit and targeted Motorola wireless firmware inventory delivered; not an integration or handset-support claim.
 **Policy gate:** The current `docs/NEXT_TASKS.md` (2026-10-16 evening) has no wireless implementation assignment. No kernel/DTS/config change is authorized. Shared DTS is Boot-owned, integration Astra-owned. This report is the only wireless handoff; do not reactivate without a new coordinator assignment.
 
 ## 1. Immutable inputs and evidence priority
@@ -69,7 +69,42 @@ Xiaomi's product README claims working client Wi-Fi/Bluetooth on its tablet. Tha
 - The archived stock filesystem inventory at `razr/vpu` `docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json` marks **`BTFM.bin` Android sparse v1, not unpacked** in that specific scan. The VPU radio scan deliberately filtered for VPU/GPU names. Consequently neither report is a complete QCA6490 firmware/board-calibration inventory; absent `amss`, `m3`, `hpbtfw` or `hpnv` entries are **not** negative searches.
 - For any later **authorized** wireless inventory, first reuse existing CI metadata/export/retained workspace and only inspect WLAN-related filenames within the *already identified* `NON-HLOS.bin` image and Bluetooth-related files within *already identified* `BTFM.bin`. If original members are not retained, request only the exact bounded ZIP members, not the whole ROM. Record sha256 and names of Motorola files actually located, then decide which are suitable for upstream `ath11k`/`btqca`; firmware was not staged or authenticated on oneli.
 
-**Motorola stock provenance already located:** historical project manifest `docs/vpu/2026-10-11-radio-non-hlos-firmware-manifest.json` at project SHA `c25ff584bde73515d036de424c57e48b985ca01b` identifies the matching public `XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11` archive (sha256 `620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c`) and embedded `NON-HLOS.bin` (sha256 `03d37634aa39ff9af06d3b583267e6d166996c22e7b4f06b0bcb7d7b4031a1d9`). It was a limited radio/GPU/VPU inventory, **not** a comprehensive QCA6490 WLAN inventory. Historical `docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json` explicitly leaves `BTFM.bin` sparse container unpacked. Never interpret absent wireless filenames in those scoped manifests as missing firmware. Reuse cached extracted objects/CI artifacts if a coordinator later authorizes exact wireless inventory. No new ROM download, extraction, hashes of unseen blobs, or cross-device firmware redistribution was performed.
+**Historical Motorola stock provenance:** project manifest `docs/vpu/2026-10-11-radio-non-hlos-firmware-manifest.json` at project SHA `c25ff584bde73515d036de424c57e48b985ca01b` identifies the matching public `XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11` archive (sha256 `620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c`) and embedded `NON-HLOS.bin` (sha256 `03d37634aa39ff9af06d3b583267e6d166996c22e7b4f06b0bcb7d7b4031a1d9`). It was a limited radio/GPU/VPU inventory, **not** a comprehensive QCA6490 WLAN inventory. Historical `docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json` explicitly leaves `BTFM.bin` sparse container unpacked. Never interpret absent wireless filenames in those scoped manifests as missing firmware. Reuse cached extracted objects/CI artifacts if a coordinator later authorizes exact wireless inventory. **Historical state at the initial handoff:** no new extraction was performed then. This is superseded by the 2026-10-16 targeted member-only wireless extraction below.
+
+### Focused oneli Wi-Fi/Bluetooth stock firmware inventory, verified 2026-10-16
+
+**Completed; supersedes the historically unsearched wireless/BTFM cases in the old VPU-only manifests.** [Run 38961849404](https://github.com/Drzet/razr2022_nuc/actions/runs/38961849404), job 117178589218, **PASS** at project commit `32c05bfa3730417d45bb51e4d483380db8092ba1`; existing Motorola parser checked out at fixed project commit `c25ff584bde73515d036de424c57e48b985ca01b`. New [metadata-only manifest](../wireless/2026-10-16-oneli-wireless-firmware-manifest.json) includes exact name, size and SHA-256 of all **231** wireless-pattern file hits among **639** NON-HLOS paths, and **113** BT file hits among **113** BTFM paths. Scripts: `scripts/inventory-oneli-wireless.py` and `.github/workflows/oneli-wireless-inventory.yml`, solely on `razr/wireless`. CI fetched **only compressed ZIP64 members `radio.img` (106517545 bytes) and `BTFM.bin` (276600 bytes)** from the previously verified public Motorola archive. No full 4.35GB redownload, no binary blobs committed/uploaded. Radio hash matches prior evidence `bcaac550d908ea72f08e9a1782714a46f52d26f20ec11c7e32f97140677769ca`.
+
+**Wi-Fi, `radio.img/SINGLE_N_LONELY/NON-HLOS.bin`, sparse ext4:**
+
+| Motorola stock path | Bytes | SHA256 |
+| --- | ---: | --- |
+| `image/amss.bin` | 5425264 | `54b78fc26bb757059b3b9d0392012b3129941714b2b39d3d2addc7770932d47d` |
+| `image/amss20.bin` | 5480448 | `ec6f63d30f02cdf35a486e470fc8fdf9879c50fb84eae0bf5a697f085bacad42` |
+| `image/m3.bin` | 266684 | `f91047ad41dcb92789fbf56b865a14b75ee68be4336a1b7d4f93205bc6bbbcce` |
+| `image/regdb.bin` | 24278 | `7825d3b90e8ffd6f0d277cd911f63ff1bea91ab460bcade7bf72fe5a687e5226` |
+| `image/bdwlan.elf.oneli.epa` | 59932 | `d2dc99c009b7e0d6659bf15759e97a946cc8db57d7a2c6e7be9a0e34c0889dca` |
+| `image/bdwlang.elf.oneli.epa` | 59932 | `1d28bbe6b59d137e3a1f32c60b4508b2d4d3a2b0b6254a930af9892abae8a9ce` |
+| `image/qca6490/Data20.msc` | 1002080 | `847d037c14d624a1e0d75fe3e597f756835d7851f001cb70acbc23454ed1936b` |
+
+Both `bdwlan.elf.oneli.epa` and `bdwlang.elf.oneli.epa` are **exact Motorola oneli-named board-data candidates**, not the shortened/nonexistent `bdwlan.elf.oneli` names. Their SHA-256 values differ from generic `bdwlan.elf` and `bdwlang.elf`. There are many other `bdwlan.e*`, `bdwlang.*`, device-specific and regional entries. Do **not** assert whether the nong- versus g-suffixed oneli BDF is chosen by this handset, or whether a vendor ELF can be passed unchanged as upstream `ath11k` `board-2.bin`. That requires compatible encoding and the observed PCI subsystem/QMI chip/board key. The single `qca6490/Data20.msc` pathname independently corroborates the source-supported QCA6490 reference family; it is not an `ath11k` firmware file.
+
+**Bluetooth, `BTFM.bin` Android sparse v1 → 4MiB ext4:**
+
+Original ZIP member `b627edd333915f7da8e3d97092b6cfb028861055c567eb870c8b8b58a75563cc`; decoded ext4 SHA256 `10e9b6119513bd17d949318862b53e04ad0e1609e02596572ebc579d208b870d`. A complete path scan found firmware patches and a large set of differently suffixed NVM variants:
+
+| Motorola stock path | Bytes | SHA256 |
+| --- | ---: | --- |
+| `image/hpbtfw20.tlv` | 201560 | `b7fcf643ee458eab7bb21e7324b915e8772f81ee9d222e039425fa65f614f929` |
+| `image/hpbtfw21.tlv` | 146068 | `8ccb65437781f31e52ea065c0e71f0c3a0e876ef56f7abec20020f63da5fbe72` |
+| `image/hpnv20.bin` | 6319 | `a48f55389677340a8b4a9a0531e606172909e506e1dfdbe460b684e285a830bf` |
+| `image/hpnv21.bin` | 6602 | `7e5cd97546e0d4be4c0867aed1613414cd3b55080f9482e871d6fe4a27fb24ac` |
+| `image/hpnv20g.bin` | 6329 | `41192727f175139b21dbc5d57aa179f1753a2f51a89961030e7b9836f6bc3653` |
+| `image/hpnv21g.bin` | 6442 | `6544abd3097c4eccf09c9659d44d520395535f23a624f800c7bacd2f1c1ebd57` |
+
+Other NVM names include `hpnv20.bXX`, `hpnv20g.bXX`, `hpnv21.bXX`, `hpnv21g.bXX`, plus region or `_sony` variants; **all 113 names and hashes** are in the manifest. Which patch/NVM the actual Bluetooth controller requests is **not proven** without its HCI ROM/board version. `btqca` firmware fallback/filename-prefix semantics must be considered before staging files; do not rename proprietary files on speculation.
+
+`fsg.mbn` ext4 had **840 filenames scanned, zero matching the targeted wireless path regex**; this is not an exhaustive absence statement about calibration encoded under opaque names or factory `persist` contents. Stock super/vendor_a was previously scanned only with a GPU/VPU filename filter and is **not** a complete WLAN/BT vendor-userspace search. Motorola binaries are now **located and SHA-verified**, but compatibility with Linux driver's requested filenames, `board-2.bin` key, hardware PCI/HCI version and runtime operation remain open. Start with mainline `linux-firmware` where matching; Motorola oneli BDF is an available board-specific fallback/reference. No additional wireless firmware download/disassembly is required for the **file-location milestone**.
 
 ## 7. Boot-owned shared DTS integration request to Astra (NOT APPLIED)
 
@@ -99,4 +134,4 @@ No patch is being suggested for generic ath11k, hci_qca, WCN PMU or PCI power-co
 
 **Astra decision requested:** accept this as a source-only research handoff; keep wireless unscheduled until native boot and current DP priorities. When scheduled, first ask Boot/Power for the ten-input PMU supply mapping, then record actual PCI/HCI identifiers and firmware key before permitting any oneli wireless node to become active. This research does not authorize further wireless implementation rounds.
 
-**Delivery:** project branch `razr/wireless` (this file only); kernel branch `razr/wireless` remains at exact accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886`, no kernel commits. No images, proprietary firmware, DTS, main or other agent branches changed.
+**Delivery:** project branch `razr/wireless` (this handoff, targeted script, CI workflow, retained metadata-only manifest); kernel branch `razr/wireless` remains at exact accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886`, no kernel commits. No images, proprietary firmware, DTS, main or other agent branches changed.
