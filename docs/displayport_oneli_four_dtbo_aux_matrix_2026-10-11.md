@@ -1,5 +1,21 @@
 # Motorola oneli DisplayPort: actual stock DTBO AUX variant matrix and binding decision
 
+## Current identity correction and final source binding decision (2026-10-16)
+
+**This supersedes the 2026-10-12 statement that the reference AUX switch part is unknown; the previous *actual stock DTBO matrix* and confirmed FSA4480 disablement remain valid.** Per the [canonical oneli schematic record](oneli_schematic_evidence_2026-10-15.md), U4500 on sheet 8/84 is **WILLSEMI WAS7227Q-10/TR**. Pin 8 `OE_N` connects to TLMM2/`AUX_SW_OE_N`; pin 10 `SEL` to TLMM71/`AUX_SW_FLIP`; pin 9 VCC through **R4500 0Ω** to PM8350 **L2B `VREG_L2B_3P07`**; pin 3 GND. It switches the independent USB-C SBU1/2 ↔ DP AUX_P/M path. The evidence is from the reference schematic, not measured installed PVT correspondence **[INFERRED]**.
+
+[WILLSEMI WAS7227Q Rev1.2 March 2017, pin/function table p.2](https://www.alldatasheet.es/html-pdf/1140435/WILLSEMI/WAS7227Q-10SLASHTR/923/2/WAS7227Q-10SLASHTR.html) confirms **OE_N=1 disconnect**, **OE_N=0, SEL=0 route D1**, **OE_N=0, SEL=1 route D2**, with pins 8/10 respectively. Thus source/vendor truth table (TLMM2,TLMM71): disconnected (1,0), DP CC1 (0,0), DP CC2 (0,1), consistent with all four stock overlays' GPIO2/71 raw properties. The reference analog VCC 3.07V lies within the original WILLSEMI 2.5–5.5V supply rating. No physical pin-level VIH/VIL test has occurred.
+
+**Reuse existing Linux `gpio-sbu-mux.c`, source blob `1834f1a2dd9dd082648050c6aace4124ed70fd38`; no new driver.** Its current device-tree schema, blob `793662f6f3bff4a4b4b73b38983abca12e1e61d2`, lacks the exact part. Proposed narrow future binding addition: `compatible = "willsemi,was7227q", "gpio-sbu-mux";`, adding `willsemi,was7227q` to the first-item enum and the `willsemi` manufacturer entry to `vendor-prefixes.yaml` (current blob `ba2002969373433b1f48118872c46cf7bcfff276`). Do **not** claim the different `onnn,fsusb42` part, even if pin compatible. Physical GPIO descriptor polarities: `enable-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>;`, `select-gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>;`, both `mode-switch;` and `orientation-switch;`.
+
+**The real power/graph hold remains:** `gpio-sbu-mux.yaml` permits `vcc-supply`, but current driver does not acquire or enable regulators; Boot/Power must provide independently managed L2B supply readiness/voltage/suspend policy (parent BOB), rather than assuming an inert DT supply property powers U4500. GLINK calls orientation switch before DP-mode mux (normal attach), so SEL is set before OE_N is driven low; detach OE_N high disconnects independently of retained SEL. Generic code may retain SEL=1 after CC2 NONE while Motorola explicitly clears SEL=0; disconnected outputs still agree with original switch truth table. No validated break-before-make for live swaps. PS5169 is separate and has **no AUX port@2**. Connector `port@0` ↔ DWC3 HS, `port@1` ↔ PS5169 (port0/1) ↔ QMP combo PHY/DRM DP, `port@2` ↔ independent WAS7227Q SBU endpoint. GLINK alone owns GPIO91 orientation input; USB owns PS5169 GPIO19; DP owns GPIO2/71; Boot owns all shared board/SoC DTS.
+
+**Disposition:** actual reference part now identified and driver reuse decided; remaining tasks are coordinator review of binding/prefix, Power/Boot L2B policy, USB/Boot graph integration and physical PVT/DP validation. All four overlays continue to disable FSA4480 regardless of the inherited base phandle. Source-only documentation update; **no kernel changes, firmware extraction, schema build or hardware test**. The [canonical current handoff](handoffs/2026-10-11-displayport-oneli.md) contains the complete exact-part contract.
+
+---
+
+## Historical four-FDT property matrix (unchanged)
+
 **Updated:** 2026-10-12; DisplayPort fourth coordinator assignment. **Status:** the four reference DTBO AUX property rows are now **inspected and resolved at the symbolic-fixup level**. **No live effective DT, actual AUX IC identification, schema-valid new AUX node, or native output test.**
 
 Kernel DisplayPort branch `Drzet/linux:razr/displayport` is unchanged at **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`**. Boot alone owns changes to the shared `sm8475.dtsi` and `sm8475-motorola-oneli.dts`.
