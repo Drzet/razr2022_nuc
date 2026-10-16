@@ -1,5 +1,63 @@
 # Subsystem handoff: DisplayPort / external display / Motorola oneli
 
+
+## CURRENT DELIVERY: powered GPIO-SBU driver + Xiaomi DP reuse review (2026-10-16 evening)
+
+**Authority:** coordinator main `4135c6de120a83a5d5ad5579d003ae0cd3858408`, `docs/NEXT_TASKS.md` evening queue; accepted integration `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`. This section **supersedes earlier "no implementation" / "unpowered generic driver" language below**. Prior four-DTBO stock evidence and ownership contract remain accepted.
+
+### Implementation, exact commits and reuse
+
+The previously unchanged **`Drzet/linux:razr/displayport`** ref was an ancestor `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. Verified accepted integration was 34 commits ahead, zero behind, then **fast-forwarded non-forcibly** to `2b5acf108ae37040ac1e652e029bb37f5609e886` using an expected-head lease. No shared DTS or accepted integration was changed. Subsequent owned commits:
+
+| Kernel commit | Changed scope | Intent |
+| --- | --- | --- |
+| [`e683651477d11953511331cd69286038d7dc5ebe`](https://github.com/Drzet/linux/commit/e683651477d11953511331cd69286038d7dc5ebe) | `Documentation/devicetree/bindings/usb/gpio-sbu-mux.yaml` | Add `willsemi,was7227q` specific compatible with generic fallback and require `vcc-supply` for this part only; old compatibles unchanged |
+| [`5f07014b1fff559311f003048c21e60be007224d`](https://github.com/Drzet/linux/commit/5f07014b1fff559311f003048c21e60be007224d) | `drivers/usb/typec/mux/gpio-sbu-mux.c` | Optional-by-property real VCC regulator acquisition/enable, managed bound-lifetime disable, disconnect/stop guard, reverse unpublish and safe removal |
+| [`1b8b9fd0da190270577e9c81d3f2f213b65e86d0`](https://github.com/Drzet/linux/commit/1b8b9fd0da190270577e9c81d3f2f213b65e86d0) | `scripts/razr/test-gpio-sbu-supply.py` | Host production-function test using injected regulator/GPIO/Type-C registration failures, legacy property-absent and detach/PTN-off lifetime |
+| [`cdbdf43e34539ae5d3d86f8de5fe1ea1dc02569d`](https://github.com/Drzet/linux/commit/cdbdf43e34539ae5d3d86f8de5fe1ea1dc02569d) | `scripts/razr/test-gpio-sbu-schema.py` | Four positive/negative dt-schema fixtures: WAS VCC present/absent, legacy Pericom without VCC, invalid part |
+| [`5499623959199a0fc5a8c76398e1708107fefc3a`](https://github.com/Drzet/linux/commit/5499623959199a0fc5a8c76398e1708107fefc3a) | `.github/workflows/razr-gpio-sbu.yml` | Focused mock/schema CI and dependency-complete ARM64 modules/modpost; **no full Image** |
+
+**Reuse verified:** `torvalds/linux@70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56` has the same generic `gpio-sbu-mux.c` **Git blob `1834f1a2dd9dd082648050c6aace4124ed70fd38`** and binding blob `793662f6f3bff4a4b4b73b38983abca12e1e61d2` as accepted integration before change. Current `drivers/mux/gpio.c` (upstream blob `f9c7863e51b82fb76ed03cf17308fae74716cf6d`) already uses managed optional regulator support, but cannot directly substitute for the Type-C SBU driver. The [pending gpio-sbu orientation fix dated 2026-08-26](https://lists.openwall.net/linux-kernel/2026/08/26/808) is distinct and was **not** imported. Crucial correction to prior DP proposal: `"^willsemi,.*"` for **Will Semiconductor Ltd.** was **already in `vendor-prefixes.yaml`** at accepted integration (blob `ba2002969373433b1f48118872c46cf7bcfff276`), so **no duplicate vendor-prefix patch** was made.
+
+**Driver lifecycle contract:** when `vcc-supply` is **absent**, existing GPIO-only users acquire no regulator and retain normal behavior. When **present**, `device_property_present()` gates a strict `devm_regulator_get_optional(dev,"vcc")`; a missing/deferred provider (including `-ENODEV`) is fatal, not silently replaced by a dummy. GPIO OE/SEL are acquired deasserted first, then real `regulator_enable()` succeeds, then `devm_add_action_or_reset()` installs exactly one eventual regulator-disable action **before** publishing Type-C switch/mux objects. Nothing in attach/detach/mode callbacks toggles that supply. On removal or partial Type-C registration failure, a mutex-protected `removing` flag prevents subsequent callback activation, OE is explicitly driven disconnected, Type-C mux/switch objects unregister, and devres disables the regulator only after removal has returned. This is *bound-lifetime active-state* supply ownership; it **does not establish RPMh sleep votes or system-suspend DP wake**. Existing mock tests target these exact ordering/error boundaries; runtime concurrency semantics remain beyond host mocks.
+
+**Hardware reference/graph unchanged:** schematic U4500 **WAS7227Q-10/TR**, pins OE_N=TLMM2 `GPIO_ACTIVE_LOW`, SEL=TLMM71 `GPIO_ACTIVE_HIGH`; VCC **shared PM8350 L2B** (nominal schematic 3.07 V, parent PM8350C BOB), separate from PTN3222 session votes. Power source contract `razr/power@b7d80a25a19b1a581880062463f468f1ce19f9ab` accepted the PTN requested 3.075–3.300V (rounding to 3.080V), 8mV over 3.072V stock initial as **non-blocking**. `connector@0/port@0` DWC3 HS, `port@1` PS5169 ports0/1→QMP→DRM DP, `port@2` independent WAS7227Q SBU. PMIC GLINK **sole GPIO91 owner**, USB PS5169 **GPIO19 enable**, DP **GPIO2/71**. FSA4480 still disabled in all four overlays. No board nodes enabled. Installed-PVT part correspondence **[INFERRED]**.
+
+### Focused validation and remaining execution gate
+
+At kernel commit **`5499623959199a0fc5a8c76398e1708107fefc3a`**, read back and independently source-checked both changed files and test/workflow files by Git blob SHA. **14/14 static structural/order/binding assertions passed in the agent's connector-side source audit** (property-gated lookup, fatal probe errors, safe GPIO initial state, enable-before-publication, managed disable, shutdown callbacks, unregister ordering, vcc-required conditional, legacy compatibles). These checks inspect textual structure, **not actual C/DT-schema execution**.
+
+**Execution not yet accepted:** GitHub's run listing for `razr/displayport` returned **zero** workflow runs after connector-authored commits. The committed production-host test aims for **11 mock scenarios**, dt-schema **four fixtures**, and ARM64 `CONFIG_TYPEC_MUX_GPIO_SBU=m` ordinary `modules`/modpost link. **Those results are not claimed PASSED.** A normal runner with GitHub Actions execution or a connected source checkout must run, inspect failures and upload exact checkout SHA, logs, compiler/schema versions, kernel configuration and module hashes before coordinator can accept the validation gate. The workflow uses a full modules target but **does not compile an Image**. Commands:
+```sh
+python3 scripts/razr/test-gpio-sbu-supply.py .
+# after dt_binding_check and dtschema setup:
+python3 scripts/razr/test-gpio-sbu-schema.py out/Documentation/devicetree/bindings/processed-schema.json
+# ARM64 build: defconfig + CONFIG_TYPEC_MUX_GPIO_SBU=m, CONFIG_TYPEC=y, CONFIG_REGULATOR=y
+make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 modules
+```
+
+### Xiaomi Pad 6 Pro (liuqin SM8475) DP source comparison, NO imported changes
+
+**Fixed sources:** `yzddmr6/linux-sm8450-liuqin` original ancestor `a19585977c11fa662435b607cb9ff4ac7133092e`, product `fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3` (product 55 commits ahead in API comparison); accepted oneli integration `2b5acf108ae37040ac1e652e029bb37f5609e886`; maintained upstream `torvalds/linux@70dd4ee72eb2d5793c62e71c14e3aba78e5a4e56`. Inspected actual file blobs for `dp_ctrl.c`, `dp_display.c`, `dp_aux.c`, `phy-qcom-qmp-combo.c`, `pmic_glink_altmode.c`, plus donor ancestor→product patches. Our accepted DP/PHY/GLINK files match maintained upstream **byte-identically** at inspection.
+
+| Feature | Already in our accepted baseline | Donor product delta, conclusion |
+| --- | --- | --- |
+| PHY-before-first-AUX | `msm_dp_display_host_phy_init()` calls `msm_dp_ctrl_phy_init()` before DPCD, **but that only calls `phy_init()`, not `phy_power_on()`** | Donor `dp_ctrl.c` checked `phy_init/configure/power_on` (provisional RBR/2-lane) and unwind, with `dp_display.c` caller errors. **Source-level missing candidate**, contingent on actual oneli QMP dependency and boot/DP traces. Provisional fixed lane/rate choices are NOT established oneli requirements |
+| Negotiated-rate reconfiguration/unwind | `msm_dp_ctrl_enable_mainlink_clocks()` sets rates and calls `phy_configure()`, `phy_power_on()` with unchecked return; downshift logic exists | Donor tracks `phy_powered` and cycles `power_off→configure negotiated rate→power_on`, checking returns and unwinding clock failure. **Potentially justified source adaptation if early-power path adopted**, but not an independent blanket requirement and NOT part of this assignment |
+| Initial DPCD | Current `msm_dp_display_process_hpd_high()` calls `drm_dp_read_dpcd_caps()` once | Donor retries up to **5×**, **100 ms** delay, motivated by *liuqin-observed* timeout. **Board-specific/unproven for oneli**; only propose after observed oneli AUX timeouts and cause classification |
+| HPD state/IRQ | PMIC GLINK uses `DP_STATUS_HPD_STATE` and `DP_STATUS_IRQ_HPD`, forwards Type-C mux state and notifies DRM aux bridge by HPD level; decodes orientation 0/1/other as NORMAL/REVERSE/NONE | Donor caches connector status and suppresses repeated bridge notifications, avoiding reported liuqin internal-panel resets. **Potentially missing transition coalescing, but unproven oneli**. Must preserve legitimate **HPD IRQ service**, not suppress it simply because connector level unchanged |
+| QMP SM8475 tables | **Already present:** `qcom,sm8475-qmp-usb3-dp-phy` maps to `sm8475_usb3dpphy_cfg`, using `qmp_v6_dp_v1_serdes_tbl` and rate-specific `qmp_v6_dp_v1_serdes_tbl_{rbr,hbr,hbr2,hbr3}`, plus SM8475 USB3 RX/PCS selection. Mainline already has SM8475-specific code | Donor defines separate SM8475 register tables and uses `qmp_v6_dp_serdes_tbl` plus custom `sm8475_dp_serdes_tbl_{rbr,hbr,hbr2,hbr3}`, and different USB3 init tables. **Both are explicit SM8475 paths with material table differences**; do not transplant donor's older tables. Require byte-level Motorola-oneli PHY-version/register evidence and lock/AUX traces before proposing corrections |
+| GLINK SVID/orientation | `USB_TYPEC_DP_SID=0xff01`; oneli `pmic_glink_altmode_orientation()` already handles 0/1/other correctly; separate HPD state and IRQ bits exist | Donor adds `PMIC_GLINK_LIUQIN_DP_SID=0xff01` check against an *identical* constant and describes it as vendor-specific vs `0x040e`. **No missing feature; no SVID or orientation patch**. The older fork's orientation correction does not imply oneli's existing code is wrong |
+| AUX timeout diagnostics | Current `dp_aux.c` has AUX timeout, error categorization and calibration | Donor adds timeout register debug prints and ISR diagnostics. **Optional debug instrumentation**, not evidence of a missing functional DP transport correction |
+
+**Remaining DP source task:** none automatically authorized. If future oneli runtime shows no first AUX response, compare `phy_init`→`power_on` timing and PHY lock before introducing early power; pair it with checked negotiated-rate retune and precise unwind. If initial DPCD intermittently times out after PHY is known ready, consider bounded retry. If HPD IRQ interrupts a live panel, distinguish state changes from IRQ pulses without discarding IRQ semantics. For QMP tables, compare actual target revision and vendor registers to *current* upstream rather than assuming older donor values. Full link/hardware testing still pending.
+
+**Stop condition:** kernel/binding and tests authored, source-only Xiaomi review delivered, **host/schema/ARM64 execution remains unverified because no workflow run was observed**. Do not merge into accepted integration or enable DP until coordinator reviews code and executed test evidence; no new source work or Boot/USB/GPU/Power change self-assigned.
+
+---
+
+## Earlier DisplayPort handoff and historical rounds (superseded where noted)
+
 ## Current evening assignment: pinned Xiaomi DP source comparison (2026-10-16)
 
 **Authority:** coordinator commit [`4135c6de120a83a5d5ad5579d003ae0cd3858408`](https://github.com/Drzet/razr2022_nuc/commit/4135c6de120a83a5d5ad5579d003ae0cd3858408), `docs/NEXT_TASKS.md` blob `c4ee18f62a9c867ad813712c00cdb224d17de32d`, `docs/STATUS.md` blob `37cebcbc1bbc22c8e9582ff84bc4e4227aed54f2`. This is the *source-only* comparison component of the active AUX supply/binding implementation. A detailed contemporaneous [cross-source issue #11 review](https://github.com/Drzet/razr2022_nuc/issues/11#issuecomment-6221445905) records the code locations. **No DRM/QMP/GLINK patch authorized.**
