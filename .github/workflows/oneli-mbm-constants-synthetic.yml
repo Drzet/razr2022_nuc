@@ -1,0 +1,24 @@
+name: Oneli MBM constants offline synthetic tests
+on:
+  push:
+    branches:
+      - research/oneli-mbm-readonly-20261015
+    paths:
+      - 'scripts/analyze-oneli-mbm-placement-constants.py'
+      - 'tests/test_oneli_mbm_placement_constants.py'
+      - '.github/workflows/oneli-mbm-constants-synthetic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Static source compilation (no third-party dependencies)
+        run: python3 -m py_compile scripts/analyze-oneli-mbm-placement-constants.py tests/test_oneli_mbm_placement_constants.py
+      - name: Run only offline synthetic regression tests
+        run: python3 -m unittest discover -s tests -p test_oneli_mbm_placement_constants.py -v
