@@ -1,0 +1,1801 @@
+{
+  "schema": "oneli-wireless-firmware-metadata-v1",
+  "date": "2026-10-16",
+  "provenance": {
+    "project_branch": "razr/wireless",
+    "script_commit": "32c05bfa3730417d45bb51e4d483380db8092ba1",
+    "vpu_helpers_commit": "c25ff584bde73515d036de424c57e48b985ca01b",
+    "workflow_run": 38961849404,
+    "job": 117178589218,
+    "conclusion": "success",
+    "source": "public Motorola XT2251-1 ONELI RETEU Android14 U2SLS34.1-42-14-11",
+    "verified_reference_archive_sha256": "620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c",
+    "archived_firmware_bytes": false,
+    "runtime_handset_validation": false,
+    "method": "Existing source-pinned Motorola ZIP64 range extraction with complete targeted read-only filesystem filename enumeration"
+  },
+  "radio": {
+    "member_sha256": "bcaac550d908ea72f08e9a1782714a46f52d26f20ec11c7e32f97140677769ca",
+    "member_size": 203319040,
+    "compressed_bytes": 106517545,
+    "members": [
+      {
+        "bytes": 126,
+        "name": "index.xml"
+      },
+      {
+        "bytes": 86,
+        "name": "radio.pkg.xml"
+      },
+      {
+        "bytes": 214,
+        "name": "radio.default.xml"
+      },
+      {
+        "bytes": 178827436,
+        "name": "NON-HLOS.bin"
+      },
+      {
+        "bytes": 24473600,
+        "name": "fsg.mbn"
+      }
+    ],
+    "non_hlos": {
+      "source_sha256": "03d37634aa39ff9af06d3b583267e6d166996c22e7b4f06b0bcb7d7b4031a1d9",
+      "filesystem_sha256": "2ea61a0b5d31b626358f0b72c102131535f08ae3fb279b1857e646b0675416c6",
+      "file_count": 639,
+      "matched_count": 231,
+      "matched_files": [
+        {
+          "bytes": 5425264,
+          "path": "image/amss.bin",
+          "sha256": "54b78fc26bb757059b3b9d0392012b3129941714b2b39d3d2addc7770932d47d"
+        },
+        {
+          "bytes": 5480448,
+          "path": "image/amss20.bin",
+          "sha256": "ec6f63d30f02cdf35a486e470fc8fdf9879c50fb84eae0bf5a697f085bacad42"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e01",
+          "sha256": "985cce8b0f72e6149e4681f76d7e926d0afe52d0fb2ea2af35503440d75848b7"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e02",
+          "sha256": "f74b75a76f2f2e260bd84f228ca0ad52ac87e629ab8d0dd344628cae78fa51d8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e03",
+          "sha256": "4abf3f9fc6eb4737a45a41077ac7f4d61f9b5db2485bb1b3f6123bba84a8f54a"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e04",
+          "sha256": "55b844bcbd299ec0538a1677ff19d1586e44f1944b84a51e2f65219aa136a148"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e05",
+          "sha256": "6d8fa6149b2b518bb63d9aee5e5385bfb11846dbae0dd782110e436fbf3c6865"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e06",
+          "sha256": "80ae8b8f6acfe52cd83d5c4f0f9d5036b75a46949e828c00281a83f43890c1c5"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e07",
+          "sha256": "f0de51b2ca2bdc750448a49f4942879e14c376db21d33c446496bbb28cc40e21"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e08",
+          "sha256": "08426c0902377f42c168c392351f001b2b0f75affdf8c30eab82ec8253cb1728"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e09",
+          "sha256": "22d3fe5745a2ac039be25572c2570c8ca997d78bc80821d09b036b162b206744"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e0a",
+          "sha256": "bdb5320c963f15e1fd72993dad146d085467d9bcfcb6a44d1fe3e8dad34622d3"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e0b",
+          "sha256": "a44cfed0bfe98abd0f860aa9c9807031eea7f443e0e8def28971a5b6d361e692"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e0c",
+          "sha256": "98406db50c9b17bffd16452c2708c3afbe7a6efc4ee7657aa18d7f9a85985ae0"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e0d",
+          "sha256": "614a2a045252fac91748da51e9e37a7fcda15cc2bebb52ae43b9c6971d5c6f26"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e0e",
+          "sha256": "a1fea5d14f1ec8fea9fd24bf57a6d726a0d6d1c4832746fee42d533be6ab7157"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e0f",
+          "sha256": "a504392f2bb1ebf4cc21f3b6209fbd94b0f3a054418c76c637ffc66ab846a2f7"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e10",
+          "sha256": "6ec1ddc8f202b9d22b3d5fec2c3512d9297e317eb0a0b141742f52b7c99eea0e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e11",
+          "sha256": "bf9e7a3bb4a9fdeb18dfa0c1384e85d663cc1d1bcd0a5b0f353c0e61a7aca180"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e12",
+          "sha256": "3a8de8a3f6539db5125f33a3dd38966769b60c5356176df29c06d0370417b589"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e13",
+          "sha256": "76e5f8a3d27feac514b332dd6d953dca3f42e06ed748d6a0a9f0e6dade27485c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e14",
+          "sha256": "3e9ec0fd0a80a24ce2e613da5f51b2b6a831fd0a6688107739a1b9f3e3eb23c4"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e15",
+          "sha256": "d3fde1a3b317e3a0ac9689c03a7509d6ed351f1ddc23e0c070a2bffb1f4a406d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e16",
+          "sha256": "0ea02abd5e6d5037e2a5e48a548e57b65129b0b330f3e465938b24294134f728"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e17",
+          "sha256": "7b4fafc019481f7d608d407125e0c8ee59010d5cb522f347dec3a1fedd390c79"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e18",
+          "sha256": "df75a6e8bc056b71a16e6d7aa0e2b38ca035b53df376f032824e08365bfb4aed"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e19",
+          "sha256": "32f1ce6f4161df583f2744ab86003390847fcfa93f8577c09ffc0c0df320f139"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e1a",
+          "sha256": "ac07297ff0bb538865725c60531c3c7a4b64faaf89ee47c861588e72bcaa33eb"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e1c",
+          "sha256": "aa74a1590b1c7a2be9d1711f2bf6f9aa6b1cd1ee53a911677098d920867ed99e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e1d",
+          "sha256": "41276186235afdc4822bae9cd635044877622ce19a62be6133d1e8a313fe3ecc"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e1e",
+          "sha256": "013d60a007aea8bae91489dbd23c7a3ed293173801b4988a2ca91f4fcb1619d5"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e1f",
+          "sha256": "a5ada74b458d2b9d82445452aac5df39b754fdc1fe565c216596f208c300addc"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e20",
+          "sha256": "fcc8b0bc36b523e07b28ed3f5cafcfb0d94009df15f015fa583682a06a9f28e8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e21",
+          "sha256": "de89e6d9a241d2468f09168c1a6d37ab6fc2f93c4910139f1bc41c24da8be5f2"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e22",
+          "sha256": "feddbbaf26c683711bca5e298021ae45e813480dcd00e00556fd52f364f69bfa"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e23",
+          "sha256": "66c3b6d85bc191611620c9ec449dc0f4eeda73c69e9258404961f78353876af8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e24",
+          "sha256": "207a13e17660645774a2ddd78a0e5902a8d5f1bc24245fcb91fd2f1b213dbd3d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e25",
+          "sha256": "c7ea61aaad192dc2ef58ae310dffeb0739452a1fcecebf1eea89b5645adc8ada"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e26",
+          "sha256": "226c4e485f436781a6055e696348b1fa8a1c16400db8c385819eb41f6d49f94a"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e27",
+          "sha256": "1d2f83934e745bfe22182dc952931655f65fa9017ed19022690f0d1f1103e412"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e28",
+          "sha256": "8bd20955dc39d1a395d75304ea1b7c6f250927b55b1993acee390953b8c79dcc"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e29",
+          "sha256": "096dc0bf3ba93d3cd00876de6a817e24c9189463ee9e9716aedca1d16093a96b"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e2a",
+          "sha256": "d9f2c7d5130396d868a7852ff6ae40f2832dab6a126dd66a18d7ffca0d5bd63c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e2b",
+          "sha256": "f8c7e0a3c5b062f670b8a2f7ee44954d57ce9f45da781bbc5f4448f4da2971d4"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e2c",
+          "sha256": "352168a568966e99c5eeeb0f43273ec7bb80aaf8da512a87d3a407f63dae3a2c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e2d",
+          "sha256": "914a6c9caedb8194810f200eef9cd07af2941a35379413937427a3b4e1d00d33"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e2e",
+          "sha256": "6c79a6f19fea6df2a089869ef189dc2ac286d607cfa9635bf27fa88fb400de28"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e2f",
+          "sha256": "52724150a2e84481b22e5babce528f6db15551b3b1e3cadeba8782d7fbf75b4b"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e30",
+          "sha256": "e41a8ad21cd58919e12193248722b7eb495085a082855adb6e512388e96faa7b"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e31",
+          "sha256": "96d25c2e4f78f9eb704edbd2111b3c0d91e7c5a0b245942ee17adc09671365a1"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e32",
+          "sha256": "63825e8bb9e9b6ba272747196585e7eb102c8b65503e8e39d82d02913e5480e5"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e33",
+          "sha256": "5d6cafbc03aae93b70a515b24b9196974a0bebcf97138c7d61eee98d4f843bd3"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e34",
+          "sha256": "b6b02ccf3a1421d2e57a2e3c443cac897dc6c21b80670dbf1cc9de72c60d33cc"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e35",
+          "sha256": "6c6485a004615db7c93410a0ce849d3d86048ff3ddf2594654011bac2d919a6d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e36",
+          "sha256": "1f27820caf20a2e6955cc7db333d89aa7bf7fd93fe8b12205f0723830385b671"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e37",
+          "sha256": "e1bd9baa18219919c656d46cb97277351bd09bf3188bf574d8654c58b068c6df"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e38",
+          "sha256": "1634477532e885905bb7a535fcb341e37a96be70b7485344ef654e9ec941ffec"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e39",
+          "sha256": "030a5ba20361c6ceecfaa0908bfcfbe4e8da41c416877e5d26378b6eda42edc0"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e3a",
+          "sha256": "f8ac4bf04abe4b8c5d66ed8b0ef521422e2bd686128a27e325e2255ffe140886"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e3b",
+          "sha256": "a5f2b1ee735cfd660024f28de6480b0b1fea48e51b7a27eabbb4ae5b29ec5bb9"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e3c",
+          "sha256": "4018346163a9df3e3005a2629b8ec88d6a067a94963dab4a9bac7ebc74b9c423"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e3d",
+          "sha256": "0631bae221295766ada8b6645c3512cbab7680b34f4afcf2085642e0527bd98e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e3e",
+          "sha256": "be4076e2fa0c8c202d687e51fd94a3704c61dd7f9abda41fc41f4d78c2396add"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e3f",
+          "sha256": "8deaccefc45b554a6fb7076a5f7bca69638623a5b3708b66540e1151c792b78b"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e40",
+          "sha256": "e99d3b948e470f16d77e50a765b7d4bfdf32c748ea33b2990d7ee1f7dcc7d430"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e41",
+          "sha256": "7cfa2b143c8f124c60c63aee8ff882c69567345bd1190783171c5646309f44d5"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e42",
+          "sha256": "45610460da393b67349538704e5a468f21bdad7473e832fbf2a4bce558cb4139"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e43",
+          "sha256": "d8c622cc01f5dc8f7f58e10155bc80bf78d7cd918ee00f7db5ea6fe6a38023f8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e44",
+          "sha256": "6335e0d6bb46446085b0af4814b6a12096071a40935cbe04b0245caa369c930c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e45",
+          "sha256": "4d58f37ba872236b6df0778ad170f7f76e83c15ae05bcc90769ee176219bf3d8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e46",
+          "sha256": "80c5a0a33c8cd8ac430e6b8a7ffeb46379b34d19da7735329f29a0941cac2856"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e47",
+          "sha256": "8ac79d91cd55e2b26cb6c969eb387d6bf7dd6bb000053d725ac69369007f7667"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e48",
+          "sha256": "c19d404594b471c39db61352778cb7a2b1e708506e070245233450934dbe9394"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e49",
+          "sha256": "8f604bd44918585b3b727a7692d5bd50dc04d8f11c20a289f926b7a7329be46f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e4a",
+          "sha256": "4a3a8effef34c48c3bb9db4de77b2e103e91a588861d57d0549bff64fdb1c710"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e4b",
+          "sha256": "61c84f61675a23d8967d87a5c4ab54df63e7777ba750125b97f7516f733ea40e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e4c",
+          "sha256": "9f7a0f42ed58b271714b5340384f86e92eae0e169cfd43c13fc8398a9faa798b"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e4d",
+          "sha256": "4e3adba397444d7196ef391be8ddb00e9351aaf203c365d389a0512a7e83b052"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e4e",
+          "sha256": "de5e3e5e977226fb4e6b9956e340678dce957fb190b26481673edf8e8c5b344f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e4f",
+          "sha256": "874187fb9442f04466099e247f224cde6d0c196aa6f9fdfd4f5e6d8232de3604"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e50",
+          "sha256": "4db9d2947af62ca73a6e7993933a18dce6e579d9393d08b9478d8751d279258d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e51",
+          "sha256": "e1c703432d557c1de6743cd25b885657e0f96bb245f4fc862a04899feda8a24d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e52",
+          "sha256": "00f75cd44fe7bb3b922bbdaeada732caebcdd1c8187f45782c64667dde7ac7dc"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e53",
+          "sha256": "3213f88413011fb51401a001441206c0a7c496b56ab8a3e1c06e1cc6cf30459b"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e54",
+          "sha256": "abd42a1f8ce5dbf200c3f7ced3aa61485ce524e94ddc294cebf64be438c932db"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e55",
+          "sha256": "b3633bf04d8ea194deb569525f803d8937b92b592d35b1133ee419ef92df4c86"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e56",
+          "sha256": "341813d9d9f3ba4cbd299f207622373a5e65d8a59727aa28b7dc8516bc2b0a15"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e57",
+          "sha256": "a65b9ae04aa4517e767e08883a3fcf807221ccbd6d3586caf6580743f601bbb1"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e59",
+          "sha256": "5e77c118f3e88e1ef9e96f7207cc07c85054c477bdc8cc4ec3b3f2a558079aa4"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e5a",
+          "sha256": "e7723c406647df993914d654b2c5766be74294839eaab6f550e617db4e51c433"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e5b",
+          "sha256": "9ba2c2ed6257229dc9e078448bded35c6fa87e9fa31d6b0d639adde3b344991f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e5c",
+          "sha256": "4d76530d5273a93e707fd9d27a9a24e4c65bb1a316cae05c4480fa1ca1548161"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e5d",
+          "sha256": "35345927e63215092d2a070a1b31b1145eb117f3344e509ace15d6ec90d0d51e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e5e",
+          "sha256": "e8e5762ff6a9456e149679415d60d18f7f74504268488974ca50ee0a9536cfda"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e5f",
+          "sha256": "daa330ae4c5e10078a3ef7119f8e9cba46a622dc3f4f87d0eebb98a158da3cd8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e60",
+          "sha256": "508630a2d08aa1fb923279740856907ba2bdcd80411ac59de183e4581c088745"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e61",
+          "sha256": "c4b258183b28827e8a055bfe944c5a2b59751beaf1328a7529533b9db76494d1"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e62",
+          "sha256": "a2219594e6c3bd0a6d4dc5dca3cb992214ae2816b8c96b8715579b9714e4c93c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e63",
+          "sha256": "dfadc4514feab0fb691e2982c8bf1ba4a2946bdc58ee8be13c5ed0a6cbea59f0"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e64",
+          "sha256": "19ecd1c978f42165bca98d15b4c33b274579580bd0e48c93cd1e052b8cfd8332"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e65",
+          "sha256": "2dc540ef15e4b4deda7c15cec15e544f809522421001de2af6e2e7fe9c3a6075"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e66",
+          "sha256": "b73416106e687edfa017be3fc2ba7391a4eb1f2e80784e386f8c8f5b2b9c8680"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e67",
+          "sha256": "f7d588aad599c8514345b11dfc2759f107c5bbbec7a1dcb1b1e1f6f9df50a113"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e68",
+          "sha256": "fa517b932c0e089bdd8c9be79fbe5eb300af48af819d2aa59d55d0a37fde6142"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e69",
+          "sha256": "46e9db5a0a47b067290d8046d6e75bc5a03e87f7f9c44d4b39c4b256d9225534"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e6a",
+          "sha256": "e4f816c4ea0d23c83c955c494ebc23662f50ef50f289b6b432c2e2ea3a314254"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e6b",
+          "sha256": "6eb9120a03abbb46e9b1d6ec6310b4291040d82b3fce6d77cc8965a51078ea0d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e6c",
+          "sha256": "7a5dd3baed01c9dba35a5f5849d04a99ff59759ec8f9c29cbb0bdc72287c948f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e6d",
+          "sha256": "7aae7063e81e4cd073f926b113b1013ce19df338eb9a911c73ca6cbe708440f8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e6e",
+          "sha256": "46df437088753865c9317cdc18a70460796175f81d86f5e5bc72b12d38c62314"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e6f",
+          "sha256": "fb5796aa532111f2acb2f6c399348653cc67e9e9df7f4e451fd8a2149808782f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e70",
+          "sha256": "d743caf0b387cd2db96fdbd2290f31f2f51ee0566e7bedec5de4a3b2f0234a08"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e71",
+          "sha256": "895e91572afad7ac08c103a372d236dc93677fb5d1d11ea06342082c74d2e5aa"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e72",
+          "sha256": "67952e6c4733a71bcd0437539b92ae4e4a2f9c6323ca905546c9ac60a988aac9"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e73",
+          "sha256": "385befe7900c5ead85f520c089f3ba4ab8d6854a8ab42de8c360a439f66676cd"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e74",
+          "sha256": "a92ae373b4ed69def65518a295cf900a2458f505a954e627b340cfc11ed8cfca"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e75",
+          "sha256": "d4667a7c8d44e134ce9a3ff3695b05dbf7b34b7b23425faa19504049bf416929"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e76",
+          "sha256": "4187a22fc8df69dc1010b4312706f9f740f12f3bf1858b1736c22b4c3f8c8095"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e77",
+          "sha256": "7b750238e60172a6ee802b628ffc38393c7f93175ae00684c52ece7fa433d16d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e78",
+          "sha256": "1150c81d45d04425b652c6d2b2416272d2f3678f37366068003eff2cd944b74e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e79",
+          "sha256": "c188df28725406b4be2c34883a7a76d726c5a0057daabdba7a4100ee262737ae"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e7a",
+          "sha256": "5b0fceb335d87298c0c6b34098b728edd2a6f50bb0981d50e1f191771d00fc90"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e7b",
+          "sha256": "2f2281f8947929dc6a6aa0ed800496414c1e579297ae9b4a95a0f44cd907ea61"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e7c",
+          "sha256": "0e5ddfb00ea9f429343a11068e8b0de2b0183aac92ffd8a852f540488c186fc3"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e7d",
+          "sha256": "38f76084932cd6bf50ff92b3a5f249eb8514a6b16e12c3be916ff4c844193e34"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e7e",
+          "sha256": "7ed6d57a44b3f72e727f26cfd2170156104685027786a075fc13f7420462fde5"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e7f",
+          "sha256": "76175f99932573f1f9c6cd1bdc7e35d74e1babe991719c6119b59bcdee924672"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e80",
+          "sha256": "b194bb024ffb325623913747d1f60dab85c3999fe9df68479ea1d91da2068f0d"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e81",
+          "sha256": "0a75f38bd0ee63dfda965010b0082c6e321172dd3d82c272b846a93c0b2f040a"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e82",
+          "sha256": "2ac898e43316628d444ace1c69b55dd0f429e5c08076c1fc882bed54ce507cab"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e83",
+          "sha256": "ca176d172534dcf17503c30e7388fd90afb60ac1d4a48e74e5f3d511dcaad4fa"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e84",
+          "sha256": "4edcf09770237671c4d59478a2412163dabbceb1e50a48001debdcbd99b4afc7"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e85",
+          "sha256": "c984b5a1c4b22e6b606ee1906a45b24d5579f0f55be768a13ca0f3df9df7ece8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e86",
+          "sha256": "9a0a0263eeea86b9d10f3d3604dc6503c6de3930403fc5070f4a5f34fb389d4c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e87",
+          "sha256": "6ae19cb791874eea7c3c1fd302a19f92999f5cd2e6a710141657879955e9de7e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e88",
+          "sha256": "ded1d8058fafc542dd4faaa22d2e05825e96bdf1893a5d4f749e37cbafeffb7f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e89",
+          "sha256": "9f3ba0ea5abcfa27030377ff18996a998e73d1f6b9e21da4fe6b52fc71ff2536"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e8a",
+          "sha256": "bd912f9ffe56c80171f593afb83e53614eeb85e817f48e9751c3bf9b3d013509"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e8b",
+          "sha256": "311e6ca1a8896a3a0c60311eb4c3497421627dc8ff3b89eed407a2da70da65d2"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e8c",
+          "sha256": "72bf28756c8dabe45f616f6077be6eb7a251476e6af336e32950ecedf5041c8c"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e8d",
+          "sha256": "22dc29062e113e40bd63e86c3a6cb6fca9ea3b38e2e7e2b497aa786b5275e2dd"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e8e",
+          "sha256": "5a377635e94d61cb027ce8a311aa5f5616d5067d3cb9f72fc64581f2e29929ae"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e8f",
+          "sha256": "e411663e987b47e3ce3075c5cfd2d9003ac46052fa21c347034ca326f488ff39"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e90",
+          "sha256": "85514c32302a62db67bb22afc30b3f4c63a351da83b11172e273657889d57e44"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e91",
+          "sha256": "f31a79d9c4d7e614db892b116e580e166372a5412a7b3854344797f0e3ba410e"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e92",
+          "sha256": "67ca9f879558f3f68b84ab0f11e79c4ce19f362d3af0ab943cd0b3412e2cbbc9"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e93",
+          "sha256": "f28c4b4b7c82861f65bf532a528d4c7fe7fb4eb01d6343ca3dae639d6afd9bf7"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e94",
+          "sha256": "bd895fabdc195f38f46904bb166d832335b91e33aa73f8a990b84e57a2c99981"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e95",
+          "sha256": "2bf73f60f3633e1cfdd6213ba04cb87792af2b16e2e2af5ae4c75119c920134a"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e96",
+          "sha256": "208f6fb1bf73f368c3ea855147e025942e02d6d3f6f855760a8ba5b4a6e50ab9"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e97",
+          "sha256": "47c324dd751da05daf662544a63cb8c6c6cf67ca314d0ddb51facd1157fe0d71"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e98",
+          "sha256": "b6f597d2f9db5e989c50b53e8a2e6072c24a01002d43140d0e73e3f11d43e4e0"
+        },
+        {
+          "bytes": 59932,
+          "path": "image/bdwlan.e9a",
+          "sha256": "3d977c7c23fde4a5624776d4eba24a82046babb97bee79f33ec34ca74cdf507a"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e9b",
+          "sha256": "42be8bcc6882674e84f8cfd7dd51da572bdfcb663a77ebc45a4fbe418bbadc61"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e9c",
+          "sha256": "ffaa161118b72f7934e377f251a734350c9981b75eb0aef338ffbed4b23a0aaf"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e9e",
+          "sha256": "7fea685f8db4c2442006cf9eee19dd54cfabc9e582264a06c12d87110ebbc38f"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.e9f",
+          "sha256": "56d76a0ffa3406a7551ff1924595e381bb0c9e5940681c23a782d05fa4052750"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.ea1",
+          "sha256": "577e72b8c30b690280eb138cd8de9c35a50f15a536691fe2ecb70c0e18c90db1"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.ea6",
+          "sha256": "a65fb7070b424492c72d47c8896ab5edd9a6db69323b22db13e5c6f58c4ca2a8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.ea7",
+          "sha256": "b013a18ddeacb53264aa560a9b813ff137b4d202b28a02f1bdf0b3f68656d7de"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.ea9",
+          "sha256": "10ebfd123be8ecc8477ee8b9e0c66d0a784a5d3d7ff46478ac021df27bdbeb02"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eac",
+          "sha256": "2fcc3d92854b8d1da461f247cef9e9822f148df66fdd2b522d8b293d61212547"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.ead",
+          "sha256": "241699e40bf194152c2782f83d58237eeff7deef1f453a09f3d18c92a6babbf9"
+        },
+        {
+          "bytes": 59932,
+          "path": "image/bdwlan.eae",
+          "sha256": "dafa2593fc073c23eafc598a8ec2a9a43f77fbed6692dd2a500292a69696fdf9"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eaf",
+          "sha256": "077e99eb75b4bb20ea3667929a379a4f7f175bb1f648e096225d2559d15ce4b6"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eb0",
+          "sha256": "326bdc0f0e5e35cb4b1c8d03076f3663fbb2fda8143642674b60c710aa99e518"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eb1",
+          "sha256": "63698181d0c7de4ebdb9be8c58eeb0726168619cbbab720112903064b01592b1"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eb5",
+          "sha256": "78ed69ce7f88a46ea6cd2a501b3cacf819109759cdd1e55a9c01aaee59b99f34"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eb6",
+          "sha256": "7a9d6f4416cc41c311a8d6f9dfaeec40ad1fba8432644df4cd3f200fd65d83d8"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.eba",
+          "sha256": "52ffd6da42e34db6008722bdf56559f6bae7c12811fa5fe08473410176714da4"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.ee1",
+          "sha256": "9e9e74a4255e1c3acd78b0e8e74eb726ece64435decfd8a7e2f7cb8698d76c74"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.elf",
+          "sha256": "74e743139d18ac98db13d8f284afbb38837e0c8a968f6f67ef95505e499d9981"
+        },
+        {
+          "bytes": 59932,
+          "path": "image/bdwlan.elf.bronco.ipa",
+          "sha256": "431f34385f664849c0c16d46c726a13e5a20e73119af4d7d84b5989edf265945"
+        },
+        {
+          "bytes": 60000,
+          "path": "image/bdwlan.elf.eqs.epa",
+          "sha256": "e6f117db4b83495759b52d1da6fff15f7b5c806d88fa531d92a5996648843986"
+        },
+        {
+          "bytes": 59956,
+          "path": "image/bdwlan.elf.felix.epa",
+          "sha256": "cdbcfc7bd8c0e992288062c51c661c8fb8de898bc490b315f53161f8f592a7e8"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlan.elf.hiphi.epa",
+          "sha256": "0fb6a72d59fe8e88169a05a8c532032d0e65d0651adf6913d5ed7ea5c7977d30"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlan.elf.hiphic.ipa",
+          "sha256": "03846961f2bf153a45021b703a19ba2220d1d0360e6c573844cbc59795c9459c"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlan.elf.hiphid.ipa",
+          "sha256": "03846961f2bf153a45021b703a19ba2220d1d0360e6c573844cbc59795c9459c"
+        },
+        {
+          "bytes": 59968,
+          "path": "image/bdwlan.elf.ironmn.epa",
+          "sha256": "c7c2d6a45737cc0e49e7fefde13f48b77ff05fbc8d7402bf5122c9e0dd639a3a"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlan.elf.li.epa",
+          "sha256": "642fb7738f271dcba5f1ed3d4c2a033d890a167735afaec374a6ce08c580b86c"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlan.elf.lynkco.jpn.epa",
+          "sha256": "ea67340581705b044549e4518ee61a5658aa44fea3f29cd9f6c113ad1fbd94a1"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlan.elf.lynkco.na.epa",
+          "sha256": "399a3888f400315a53b8c91bdd1c7c47d13bfc19780e91b7d45ac599b84095c2"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlan.elf.lynkco.prc.epa",
+          "sha256": "866590e168e1f8e3ba0eaeb2bd1aa1abcf68efab4fe138721609005d70416c80"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlan.elf.lynkco.row.epa",
+          "sha256": "9a688f453656ff5ec1330df94fa76694b5cd4c0407e190ea5b1bf245367f411b"
+        },
+        {
+          "bytes": 59932,
+          "path": "image/bdwlan.elf.oneli.epa",
+          "sha256": "d2dc99c009b7e0d6659bf15759e97a946cc8db57d7a2c6e7be9a0e34c0889dca"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlan.elf.zeekr.na.epa",
+          "sha256": "254645839fe604607fbb27a88d1af30bc947612fb7ca2cf290d7464e99a34c57"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlan.elf.zeekr.prc.epa",
+          "sha256": "35a5c1aca6ffd684420c86567df5fef3193978c5117997c8d4fdbc6c02a770f4"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlan.elf.zeekr.row.epa",
+          "sha256": "a40963facd0ee5504d85607c1faf943d78eb0b60423f1754083ff2a49ef82a87"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e8b",
+          "sha256": "71d5ea90bdd167d67dbc6bbad64809411d065259b8e11d6d57a63ed2b92b8c47"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e8c",
+          "sha256": "4c49755c77a5e81f63d443cc95405ab73239533d22481a5ca3acc96843ede43e"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e8d",
+          "sha256": "59a51ccb5179fd70f3879f9d2a5cd86b8957e220d1395ed859638e1402c73b68"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e90",
+          "sha256": "9f7c5213c17264c26621127185241b587032a1184e000035b345c3eb9c406787"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e97",
+          "sha256": "e50940805787995c267ca0bd02a53fb9af07049605e2c90dbbe325fe38c68c1b"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e98",
+          "sha256": "e58976a3b29df019588619f398e17461b4b8be223ee8812e32f6ec06a43b43a7"
+        },
+        {
+          "bytes": 59936,
+          "path": "image/bdwlang.e9a",
+          "sha256": "93269591d131869668912ae492b7df8d4fd00bc3383bb5d6c080a2ef654b4328"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e9b",
+          "sha256": "e3f4719e05e3f64a977d2fb0bc028a1bff0523f94da075f9b8f0746518bdb151"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e9d",
+          "sha256": "afbf7c930d91e505d041ed0c170083841c0ccafdba646d381efecf3ae46e96fd"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e9e",
+          "sha256": "79dfde3f05fe3cfbceeaa1d6f52e7f107bbdbfafa5df13aebb3a732d149d64d7"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.e9f",
+          "sha256": "ea5853f40ca0c8e22826a366213649828689be80b8d82d07fde2a33b37a47f2f"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.ea6",
+          "sha256": "eaadbb94a004145aef9464b1f9fc7cf3c1f08538e4a9f76df09eecf4eb881eed"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.ea7",
+          "sha256": "93ede51a6b376fc0e08f126ec6f9c625ec022dacec586506b708e9bb3ef166c7"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.ea9",
+          "sha256": "2557e3358b5287a0c522da8733425ddad7a3d020b5ba45159b008e9fa4146eb2"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eac",
+          "sha256": "cbe49ee940414b9bf7404cfa787f20efe3d7e5ae090f2c6306d5a3fdd2913c9a"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.ead",
+          "sha256": "e87d6943e6c087204aec41e477f32ae8157f6a2ed96fd5f16177d713440316cb"
+        },
+        {
+          "bytes": 59936,
+          "path": "image/bdwlang.eae",
+          "sha256": "babdb30f30785fb440d3c6c8ac4909b0e272f3662a63dded4d403ff5ebba7065"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eaf",
+          "sha256": "0bbb4d7be7143e27b918744918fd8237764c6899b6c764321a07273a456dc64a"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eb0",
+          "sha256": "0895fd19ff61569279adda6de1f5ddaa33ec4be73b1acf5d7e17471f139f612c"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eb1",
+          "sha256": "a43b7e06f5118afb59f705c2acf77dbede7882fe33d9971bf609e2398748e769"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eb5",
+          "sha256": "3e19cfba9cf64329f4eb1eb14b72e079e931a4e766c7a52ee8a0f71e6b2f39c3"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eb6",
+          "sha256": "93b17f72b12036a8193125bc75248408ec9c1720e7a5cef6f5497ed5b594cacc"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.eba",
+          "sha256": "8882a3b3f5428038004d89c14a8721aa99ba8716a4d015d4d46e42c2bc8a2731"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.elf",
+          "sha256": "2984bece6db4ff5e38d0497439e33bdc5bbb4ae7c7c4ab649d87ee88ac10ec7f"
+        },
+        {
+          "bytes": 59932,
+          "path": "image/bdwlang.elf.bronco.ipa",
+          "sha256": "4ff3e755407dbd14cb02dcec982a53db0d6e281446bd6f59d65b15c301debb30"
+        },
+        {
+          "bytes": 60004,
+          "path": "image/bdwlang.elf.eqs.epa",
+          "sha256": "c14c93444460934d59c61882bd64cfb2d36c30d6e5f385398a8f8cc4fd832c57"
+        },
+        {
+          "bytes": 59956,
+          "path": "image/bdwlang.elf.felix.epa",
+          "sha256": "cdbcfc7bd8c0e992288062c51c661c8fb8de898bc490b315f53161f8f592a7e8"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlang.elf.hiphi.epa",
+          "sha256": "d977ac671fa611f6ad98f74b78c88d34eb1d870d786eb4419614c7ae8f08c2ec"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlang.elf.hiphic.ipa",
+          "sha256": "cee28a96829aadf31b4ab3f4f710c519e80547133bba45377d75e804257f3c1a"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlang.elf.hiphid.ipa",
+          "sha256": "cee28a96829aadf31b4ab3f4f710c519e80547133bba45377d75e804257f3c1a"
+        },
+        {
+          "bytes": 59972,
+          "path": "image/bdwlang.elf.ironmn.epa",
+          "sha256": "1df97e19fb6e77988a12d005bd44f0f964787e2a6c8db04656e960e96cfda073"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlang.elf.li.epa",
+          "sha256": "1538994adf57a4f2692b2f8378461062bf515eaa413ab8c63a7a4bad28e998a8"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlang.elf.lynkco.jpn.epa",
+          "sha256": "afe66cd5999e683b682410908b9bc1405e7adadf595c0beb95b67d8f7142b260"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlang.elf.lynkco.na.epa",
+          "sha256": "97a80785d6e7e88352c05a3f354f3675b053ec32dcb90cf9a44485f9b7b27108"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlang.elf.lynkco.prc.epa",
+          "sha256": "87cc9294c0c506fed758260007955ae1400f9d709198dce5c9379e721ade553d"
+        },
+        {
+          "bytes": 59900,
+          "path": "image/bdwlang.elf.lynkco.row.epa",
+          "sha256": "9501f8ed2d1dcf55571319bf964a8c78897db3e3ffd28ec5c98b6cef2c7ee848"
+        },
+        {
+          "bytes": 59932,
+          "path": "image/bdwlang.elf.oneli.epa",
+          "sha256": "1d28bbe6b59d137e3a1f32c60b4508b2d4d3a2b0b6254a930af9892abae8a9ce"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlang.elf.zeekr.na.epa",
+          "sha256": "9fee71f359d2b0ab5fa53f6c3bb9051687031352813ee19fa2f0279f0a8c1d8b"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlang.elf.zeekr.prc.epa",
+          "sha256": "205c1f3408f0c7213f8b542291e7b1412a1353c3d683276e83da777b0bee2fc6"
+        },
+        {
+          "bytes": 59976,
+          "path": "image/bdwlang.elf.zeekr.row.epa",
+          "sha256": "8554cfef898ae850e4777da11b973832ac842c660c0385b457b79d132a515f67"
+        },
+        {
+          "bytes": 266684,
+          "path": "image/m3.bin",
+          "sha256": "f91047ad41dcb92789fbf56b865a14b75ee68be4336a1b7d4f93205bc6bbbcce"
+        },
+        {
+          "bytes": 24278,
+          "path": "image/regdb.bin",
+          "sha256": "7825d3b90e8ffd6f0d277cd911f63ff1bea91ab460bcade7bf72fe5a687e5226"
+        },
+        {
+          "bytes": 1002080,
+          "path": "image/qca6490/Data20.msc",
+          "sha256": "847d037c14d624a1e0d75fe3e597f756835d7851f001cb70acbc23454ed1936b"
+        }
+      ]
+    },
+    "fsg": {
+      "filesystem_file_count": 840,
+      "wireless_filename_matches": 0,
+      "caveat": "Zero matches by path regex only; possible device-specific data under other filenames not excluded"
+    }
+  },
+  "bluetooth": {
+    "member_sha256": "b627edd333915f7da8e3d97092b6cfb028861055c567eb870c8b8b58a75563cc",
+    "member_size": 1318988,
+    "compressed_bytes": 276600,
+    "sparse_reconstruction": {
+      "block_bytes": 4096,
+      "decoded_bytes": 4194304,
+      "decoded_sha256": "10e9b6119513bd17d949318862b53e04ad0e1609e02596572ebc579d208b870d",
+      "total_blocks": 1024,
+      "type": "Android sparse v1",
+      "typed_chunks": 4
+    },
+    "file_count": 113,
+    "matched_count": 113,
+    "matched_files": [
+      {
+        "bytes": 201560,
+        "path": "image/hpbtfw20.tlv",
+        "sha256": "b7fcf643ee458eab7bb21e7324b915e8772f81ee9d222e039425fa65f614f929"
+      },
+      {
+        "bytes": 33,
+        "path": "image/hpbtfw20.ver",
+        "sha256": "11d526728c6cab43d2d1200bf4e18040ec4857a1b4437e61f2ece9ff3c7c17b7"
+      },
+      {
+        "bytes": 146068,
+        "path": "image/hpbtfw21.tlv",
+        "sha256": "8ccb65437781f31e52ea065c0e71f0c3a0e876ef56f7abec20020f63da5fbe72"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b2f",
+        "sha256": "8123eb79091283012abc377d653a1f08de8c440510230b94782428a7539af815"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b3b",
+        "sha256": "48a7e7afcef84bb800b120adf72bfe1a79f07334dacb5ec177bb0d87e307a183"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b4b",
+        "sha256": "daf3521f5ba69b0b650877cb4d845fed11eb0afe2289716d8bc05de77d210881"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b59",
+        "sha256": "8123eb79091283012abc377d653a1f08de8c440510230b94782428a7539af815"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b5a",
+        "sha256": "8123eb79091283012abc377d653a1f08de8c440510230b94782428a7539af815"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b6a",
+        "sha256": "48a7e7afcef84bb800b120adf72bfe1a79f07334dacb5ec177bb0d87e307a183"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b6b",
+        "sha256": "48a7e7afcef84bb800b120adf72bfe1a79f07334dacb5ec177bb0d87e307a183"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b8b",
+        "sha256": "f7083e3ab32a040369087bc4166bdf4baa7392200b171a6d4ae2f10be3bf3817"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b8d",
+        "sha256": "f7083e3ab32a040369087bc4166bdf4baa7392200b171a6d4ae2f10be3bf3817"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.b90",
+        "sha256": "daf3521f5ba69b0b650877cb4d845fed11eb0afe2289716d8bc05de77d210881"
+      },
+      {
+        "bytes": 6319,
+        "path": "image/hpnv20.bin",
+        "sha256": "a48f55389677340a8b4a9a0531e606172909e506e1dfdbe460b684e285a830bf"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b2f",
+        "sha256": "9f8d45009f5da828ea2df444048fcd77640c54db49aea183c20a52a3b85e822b"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b3b",
+        "sha256": "4264b3d7a0510fe158f1a8977fc80df4770c4fea10f17131ee615e8eab050d01"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b59",
+        "sha256": "9f8d45009f5da828ea2df444048fcd77640c54db49aea183c20a52a3b85e822b"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b5a",
+        "sha256": "9f8d45009f5da828ea2df444048fcd77640c54db49aea183c20a52a3b85e822b"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b6a",
+        "sha256": "4264b3d7a0510fe158f1a8977fc80df4770c4fea10f17131ee615e8eab050d01"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b6b",
+        "sha256": "4264b3d7a0510fe158f1a8977fc80df4770c4fea10f17131ee615e8eab050d01"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b8b",
+        "sha256": "d8b4cd38613dde3e7e72a24280ee231a14a61833956016d1357608f5d598baab"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.b8d",
+        "sha256": "d8b4cd38613dde3e7e72a24280ee231a14a61833956016d1357608f5d598baab"
+      },
+      {
+        "bytes": 6329,
+        "path": "image/hpnv20g.bin",
+        "sha256": "41192727f175139b21dbc5d57aa179f1753a2f51a89961030e7b9836f6bc3653"
+      },
+      {
+        "bytes": 6852,
+        "path": "image/hpnv21.301",
+        "sha256": "f75fb3e6412a3288fd3f8537cb6b8aaf6481a5295f011a390fa97564bd1d5859"
+      },
+      {
+        "bytes": 6852,
+        "path": "image/hpnv21.302",
+        "sha256": "f75fb3e6412a3288fd3f8537cb6b8aaf6481a5295f011a390fa97564bd1d5859"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.b10c",
+        "sha256": "5ef40c572077cd6038023cd202a82d04eb5baf1823d89a3f145379a9e879ec2a"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.b111",
+        "sha256": "5ef40c572077cd6038023cd202a82d04eb5baf1823d89a3f145379a9e879ec2a"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.b5a",
+        "sha256": "038097c7c1edc84a8f55c9a326c787820bac62e46a2b4b69914cb9257194318c"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b8b",
+        "sha256": "bfce85dd7e2b2ad692fb819769be1d792e794074e24fe999671b9e49de033b22"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b8c",
+        "sha256": "bfce85dd7e2b2ad692fb819769be1d792e794074e24fe999671b9e49de033b22"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b8d",
+        "sha256": "bfce85dd7e2b2ad692fb819769be1d792e794074e24fe999671b9e49de033b22"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.b98",
+        "sha256": "e921125372aed0eae7b0addfa97f35cf9ed694c7253ba25497e0310261549715"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b9a",
+        "sha256": "6fd31758e963ad30f16b41c90ad1e17dc9c287f3132c6f386ba098cdb77044c7"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b9b",
+        "sha256": "bacab7345f02c4f34b7e95fef09be941bef82569781507a5ad42aaff41d3a859"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b9e",
+        "sha256": "6fd31758e963ad30f16b41c90ad1e17dc9c287f3132c6f386ba098cdb77044c7"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.b9f",
+        "sha256": "bacab7345f02c4f34b7e95fef09be941bef82569781507a5ad42aaff41d3a859"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.ba0",
+        "sha256": "bacab7345f02c4f34b7e95fef09be941bef82569781507a5ad42aaff41d3a859"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.ba1",
+        "sha256": "42490412f0e5d496d2fb53f07c43a1a091309e557dfdc15d572cef508b480c82"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.ba2",
+        "sha256": "42490412f0e5d496d2fb53f07c43a1a091309e557dfdc15d572cef508b480c82"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.ba3",
+        "sha256": "3f5205d041655061b6527526125625730a1adcc23cce1080ffd47ca962cea1ec"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.ba4",
+        "sha256": "3f5205d041655061b6527526125625730a1adcc23cce1080ffd47ca962cea1ec"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.ba6",
+        "sha256": "6fd31758e963ad30f16b41c90ad1e17dc9c287f3132c6f386ba098cdb77044c7"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.ba7",
+        "sha256": "038097c7c1edc84a8f55c9a326c787820bac62e46a2b4b69914cb9257194318c"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.ba8",
+        "sha256": "1782af492c717c14329a21660214eca35d56e092404a715aeb9edf57c8ae5b10"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.ba9",
+        "sha256": "6fd31758e963ad30f16b41c90ad1e17dc9c287f3132c6f386ba098cdb77044c7"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.baa",
+        "sha256": "a87e57ed03132ddf162f24d828721cbd2a582ee852c0b0ef92579b87db76b118"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.bab",
+        "sha256": "27ce4f6928d11a4f54c239cbb64b20293d7242bb8599d01622830e66f8b70d85"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bac",
+        "sha256": "89ba2bdec010d85468d72a5bbb6ac2487c71a5dd712507ec72e68472b2398c8f"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bad",
+        "sha256": "89ba2bdec010d85468d72a5bbb6ac2487c71a5dd712507ec72e68472b2398c8f"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.bb0",
+        "sha256": "e921125372aed0eae7b0addfa97f35cf9ed694c7253ba25497e0310261549715"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.bb1",
+        "sha256": "038097c7c1edc84a8f55c9a326c787820bac62e46a2b4b69914cb9257194318c"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.bb2",
+        "sha256": "b81198ea5a9831758c786086ce3da644596d1bc32d1bec221e10a26d7665e30b"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.bb3",
+        "sha256": "14eb40f000d4fbb1b947a5d38d89632025825a5255f56dd9117a6d8d0413a9dd"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bb5",
+        "sha256": "89ba2bdec010d85468d72a5bbb6ac2487c71a5dd712507ec72e68472b2398c8f"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bb6",
+        "sha256": "89ba2bdec010d85468d72a5bbb6ac2487c71a5dd712507ec72e68472b2398c8f"
+      },
+      {
+        "bytes": 6638,
+        "path": "image/hpnv21.bb7",
+        "sha256": "3e23423d4fae3ff486e8e7e4ba8b58d418338805f0a6749a41c5153b38fc99f2"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bb8",
+        "sha256": "4571b7c2d0a059b2cb2c62874fcdbdf87af21f3bcddad9dc24c686ee83e5bd57"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bb9",
+        "sha256": "b23efc416fc11f4bf5c9e5b81965e89705c7d5c2edc3b3873f7be5a28ba0dbe1"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bba",
+        "sha256": "89ba2bdec010d85468d72a5bbb6ac2487c71a5dd712507ec72e68472b2398c8f"
+      },
+      {
+        "bytes": 6678,
+        "path": "image/hpnv21.bbb",
+        "sha256": "50fafd9c645fa33064d369c90a2dde1474f12f5b3893936220cb68903e64431a"
+      },
+      {
+        "bytes": 6670,
+        "path": "image/hpnv21.bbc",
+        "sha256": "d2552b0a79dcef3ac08865f601b37fef7173a9d559c1ee7805f4f658ea55eabc"
+      },
+      {
+        "bytes": 6670,
+        "path": "image/hpnv21.bbd",
+        "sha256": "d2552b0a79dcef3ac08865f601b37fef7173a9d559c1ee7805f4f658ea55eabc"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bbe",
+        "sha256": "89ba2bdec010d85468d72a5bbb6ac2487c71a5dd712507ec72e68472b2398c8f"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bc0",
+        "sha256": "6fd31758e963ad30f16b41c90ad1e17dc9c287f3132c6f386ba098cdb77044c7"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bc1",
+        "sha256": "bacab7345f02c4f34b7e95fef09be941bef82569781507a5ad42aaff41d3a859"
+      },
+      {
+        "bytes": 6610,
+        "path": "image/hpnv21.bc2",
+        "sha256": "e921125372aed0eae7b0addfa97f35cf9ed694c7253ba25497e0310261549715"
+      },
+      {
+        "bytes": 6602,
+        "path": "image/hpnv21.bin",
+        "sha256": "7e5cd97546e0d4be4c0867aed1613414cd3b55080f9482e871d6fe4a27fb24ac"
+      },
+      {
+        "bytes": 6852,
+        "path": "image/hpnv21_sony.302",
+        "sha256": "4f2de0ba016459aacd327c625bc704b594f52ac72db9aa28109ba91919336ea5"
+      },
+      {
+        "bytes": 6692,
+        "path": "image/hpnv21g.301",
+        "sha256": "74917e92148071d98a0919b268b837fce307f3eb1e1cbd01a891317bccc08992"
+      },
+      {
+        "bytes": 6692,
+        "path": "image/hpnv21g.302",
+        "sha256": "74917e92148071d98a0919b268b837fce307f3eb1e1cbd01a891317bccc08992"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.b10c",
+        "sha256": "44d1a7c11313e82852ae60038ba33657423652c349d13b82246d192b5efffb01"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.b111",
+        "sha256": "44d1a7c11313e82852ae60038ba33657423652c349d13b82246d192b5efffb01"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.b5a",
+        "sha256": "602ebbc48a65fe3f25c0fa5636b29a5046421e48ee82af01b6204ed9f4eb0763"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b8b",
+        "sha256": "e38c500938a1be61be1fbe686ec7ed61f49c98482d2422130f2af8370f858991"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b8c",
+        "sha256": "e38c500938a1be61be1fbe686ec7ed61f49c98482d2422130f2af8370f858991"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b8d",
+        "sha256": "e38c500938a1be61be1fbe686ec7ed61f49c98482d2422130f2af8370f858991"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.b98",
+        "sha256": "051ae729c3b1e6f7beeb3b886857a5be50f39f90ebdef68f6325474218b43b7a"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b9a",
+        "sha256": "21d71ce3a3f076e2bf080f6aaa0ee924f4d9918bdcb76164db4bb496da179347"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b9b",
+        "sha256": "e2bc61dd8152e640a6f8f0ec2eb91403e02b97cc60ba455dd584e425de361552"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b9e",
+        "sha256": "21d71ce3a3f076e2bf080f6aaa0ee924f4d9918bdcb76164db4bb496da179347"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.b9f",
+        "sha256": "e2bc61dd8152e640a6f8f0ec2eb91403e02b97cc60ba455dd584e425de361552"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.ba0",
+        "sha256": "e2bc61dd8152e640a6f8f0ec2eb91403e02b97cc60ba455dd584e425de361552"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.ba1",
+        "sha256": "618e9b14cbedc41cbb6021bc4520ec568b0770d68437d0f239c981b2f964938f"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.ba2",
+        "sha256": "618e9b14cbedc41cbb6021bc4520ec568b0770d68437d0f239c981b2f964938f"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.ba3",
+        "sha256": "7d961c54175e93ecf53245465fa87ff98aca42918a3f36a6bd69f7af518f9e60"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.ba4",
+        "sha256": "7d961c54175e93ecf53245465fa87ff98aca42918a3f36a6bd69f7af518f9e60"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.ba6",
+        "sha256": "21d71ce3a3f076e2bf080f6aaa0ee924f4d9918bdcb76164db4bb496da179347"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.ba7",
+        "sha256": "602ebbc48a65fe3f25c0fa5636b29a5046421e48ee82af01b6204ed9f4eb0763"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.ba8",
+        "sha256": "a3cd13d825cabf08084c517452e68778f2a268a1080f34a875aecbe1fed3795f"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.ba9",
+        "sha256": "21d71ce3a3f076e2bf080f6aaa0ee924f4d9918bdcb76164db4bb496da179347"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.baa",
+        "sha256": "ebce52b4e79f83d306008d95fab03ec14a0d07e38442961ff491d542b4236c4e"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.bab",
+        "sha256": "d3d7c218b118228db9a63afaad4a6c08f50494e36ace5002215f999e9c31f135"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bac",
+        "sha256": "55d61c2bef797997395b7be2cb190c4ada09370fe456603f003843ba21be6060"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bad",
+        "sha256": "55d61c2bef797997395b7be2cb190c4ada09370fe456603f003843ba21be6060"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.bb0",
+        "sha256": "051ae729c3b1e6f7beeb3b886857a5be50f39f90ebdef68f6325474218b43b7a"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.bb1",
+        "sha256": "602ebbc48a65fe3f25c0fa5636b29a5046421e48ee82af01b6204ed9f4eb0763"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.bb2",
+        "sha256": "8c86b2ff2197eae90ee7305b94b168ddef507474f2ebb2494237ebb06c352ba6"
+      },
+      {
+        "bytes": 6526,
+        "path": "image/hpnv21g.bb3",
+        "sha256": "f1c1d33779aa5e8ddd389146b94e528322be5670747c5a3c80917b758a142d05"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bb5",
+        "sha256": "55d61c2bef797997395b7be2cb190c4ada09370fe456603f003843ba21be6060"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bb6",
+        "sha256": "55d61c2bef797997395b7be2cb190c4ada09370fe456603f003843ba21be6060"
+      },
+      {
+        "bytes": 6478,
+        "path": "image/hpnv21g.bb7",
+        "sha256": "14a69418632b30fc9948b1e4b95bb5a75a2ce28908af578ef9b7b0dee5aaa17f"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bb8",
+        "sha256": "317e63519916c31b18861d2ed02e6ab33985e9702b318b65238282eaf185f36c"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bb9",
+        "sha256": "db9b56bd248d7bd9c276ba534af4abc2485e6f9df4ca665b9d36b6e2ce01c3e6"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bba",
+        "sha256": "55d61c2bef797997395b7be2cb190c4ada09370fe456603f003843ba21be6060"
+      },
+      {
+        "bytes": 6518,
+        "path": "image/hpnv21g.bbb",
+        "sha256": "2bcc17491d443e30951968096e7b1549747d89b47633a83373dbd2508b14d148"
+      },
+      {
+        "bytes": 6510,
+        "path": "image/hpnv21g.bbc",
+        "sha256": "34fd73739ca8920c115a3a887f4315603345e11cdacb3985a8525c67b70e6499"
+      },
+      {
+        "bytes": 6510,
+        "path": "image/hpnv21g.bbd",
+        "sha256": "34fd73739ca8920c115a3a887f4315603345e11cdacb3985a8525c67b70e6499"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bbe",
+        "sha256": "55d61c2bef797997395b7be2cb190c4ada09370fe456603f003843ba21be6060"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bc0",
+        "sha256": "21d71ce3a3f076e2bf080f6aaa0ee924f4d9918bdcb76164db4bb496da179347"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bc1",
+        "sha256": "e2bc61dd8152e640a6f8f0ec2eb91403e02b97cc60ba455dd584e425de361552"
+      },
+      {
+        "bytes": 6450,
+        "path": "image/hpnv21g.bc2",
+        "sha256": "051ae729c3b1e6f7beeb3b886857a5be50f39f90ebdef68f6325474218b43b7a"
+      },
+      {
+        "bytes": 6442,
+        "path": "image/hpnv21g.bin",
+        "sha256": "6544abd3097c4eccf09c9659d44d520395535f23a624f800c7bacd2f1c1ebd57"
+      },
+      {
+        "bytes": 6692,
+        "path": "image/hpnv21g_sony.302",
+        "sha256": "0e20b2c8d494e135e59608ee54eb4421448d1121e6388d602ca2a70833648758"
+      }
+    ]
+  },
+  "limitations": [
+    "Matching filenames and sha256 do not prove exact selected hardware revision, PCI subsystem/QMI board key or UART HCI ROM revision",
+    "These binaries are Motorola publicly distributed reference files, not a readback of handset-installed firmware",
+    "No Wi-Fi association, Bluetooth startup, secure signature validation, or oneli native Linux hardware test",
+    "No full repeated 4.35GB firmware download; only radio.img and BTFM.bin selected ZIP64 members were fetched",
+    "Existing VPU-specific firmware inventory used a narrow filename regex; this dedicated inventory supersedes its wireless absence"
+  ]
+}
