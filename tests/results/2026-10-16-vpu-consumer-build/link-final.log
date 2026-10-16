@@ -1,0 +1,6 @@
+make[1]: Entering directory '/tmp/vpu-consumer-link'
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen2_response.o
+  LD [M]  drivers/media/platform/qcom/iris/qcom-iris.o
+  MODPOST Module.symvers
+  LD [M]  drivers/media/platform/qcom/iris/qcom-iris.ko
+make[1]: Leaving directory '/tmp/vpu-consumer-link'

@@ -1,0 +1,112 @@
+make[1]: Entering directory '/tmp/vpu-consumer-link'
+  SYNC    include/config/auto.conf
+  CC      lib/glob.o
+  CC      drivers/soc/qcom/qcom-geni-se.o
+  CC      drivers/clk/microchip/clk-mpfs.o
+  CC      drivers/soc/qcom/cmd-db.o
+  AR      lib/built-in.a
+  CC      drivers/clk/microchip/clk-mpfs-ccc.o
+  CC      drivers/soc/qcom/qcom_gsbi.o
+  CC      drivers/reset/reset-mpfs.o
+  CC      drivers/soc/qcom/rpmh-rsc.o
+  AR      drivers/clk/microchip/built-in.a
+  AR      drivers/clk/built-in.a
+  CC      drivers/soc/qcom/rpmh.o
+  CC [M]  drivers/soc/qcom/ocmem.o
+  AR      drivers/reset/built-in.a
+  CC      drivers/base/regmap/regmap.o
+  CC      drivers/base/soc.o
+  CC      drivers/base/regmap/regcache.o
+  CC [M]  drivers/soc/qcom/rmtfs_mem.o
+  CC      drivers/base/regmap/regcache-rbtree.o
+  CC [M]  drivers/soc/qcom/smem.o
+  CC      drivers/mfd/syscon.o
+  CC [M]  drivers/soc/qcom/smem_dramc.o
+  CC      drivers/base/regmap/regcache-flat.o
+  AR      drivers/mfd/built-in.a
+  CC [M]  drivers/soc/qcom/socinfo.o
+  CC      drivers/base/regmap/regcache-maple.o
+  CC [M]  drivers/soc/qcom/qcom_stats.o
+  CC      drivers/base/regmap/regmap-mmio.o
+  CC [M]  drivers/soc/qcom/llcc-qcom.o
+  CC [M]  drivers/soc/qcom/icc-bwmon.o
+  CC [M]  drivers/soc/qcom/ubwc_config.o
+  AR      drivers/base/regmap/built-in.a
+  AR      drivers/base/built-in.a
+  AR      drivers/soc/qcom/built-in.a
+  LD [M]  drivers/soc/qcom/qcom_smem.o
+  AR      drivers/soc/built-in.a
+  CC [M]  drivers/media/platform/qcom/iris/iris_buffer.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_common.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_core.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_ctrls.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_firmware.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_common.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen1_command.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen1_response.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen2.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen2_command.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen2_packet.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_gen2_response.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_hfi_queue.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_platform_vpu2.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_platform_vpu3x.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_power.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_probe.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_resources.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_state.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_utils.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vidc.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vb2.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vdec.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_venc.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vpu2.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vpu3x.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vpu4x.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vpu_buffer.o
+  CC [M]  drivers/media/platform/qcom/iris/iris_vpu_common.o
+  LD [M]  drivers/media/platform/qcom/iris/qcom-iris.o
+  AR      drivers/built-in.a
+  AR      built-in.a
+  AR      built-in-fixup.a
+  COPY    vmlinux.a
+  LD      vmlinux.o
+  MODPOST Module.symvers
+  CC      .vmlinux.export.o
+  CC [M]  drivers/soc/qcom/ocmem.mod.o
+  CC [M]  drivers/soc/qcom/rmtfs_mem.mod.o
+  CC [M]  drivers/soc/qcom/qcom_smem.mod.o
+  CC [M]  drivers/soc/qcom/socinfo.mod.o
+  CC [M]  drivers/soc/qcom/qcom_stats.mod.o
+  CC [M]  drivers/soc/qcom/llcc-qcom.mod.o
+  CC [M]  drivers/soc/qcom/icc-bwmon.mod.o
+  UPD     include/generated/utsversion.h
+  CC      init/version-timestamp.o
+  CC [M]  drivers/soc/qcom/ubwc_config.mod.o
+  CC [M]  drivers/media/platform/qcom/iris/qcom-iris.mod.o
+  LD [M]  drivers/soc/qcom/ocmem.ko
+  LD [M]  drivers/soc/qcom/rmtfs_mem.ko
+  LD [M]  drivers/soc/qcom/qcom_smem.ko
+  LD [M]  drivers/soc/qcom/socinfo.ko
+  LD [M]  drivers/soc/qcom/qcom_stats.ko
+  LD [M]  drivers/soc/qcom/llcc-qcom.ko
+  LD [M]  drivers/soc/qcom/icc-bwmon.ko
+  LD [M]  drivers/soc/qcom/ubwc_config.ko
+  LD [M]  drivers/media/platform/qcom/iris/qcom-iris.ko
+  KSYMS   .tmp_vmlinux0.kallsyms.S
+  AS      .tmp_vmlinux0.kallsyms.o
+  LD      .tmp_vmlinux1
+  NM      .tmp_vmlinux1.syms
+  KSYMS   .tmp_vmlinux1.kallsyms.S
+  AS      .tmp_vmlinux1.kallsyms.o
+  LD      .tmp_vmlinux2
+  NM      .tmp_vmlinux2.syms
+  KSYMS   .tmp_vmlinux2.kallsyms.S
+  AS      .tmp_vmlinux2.kallsyms.o
+  LD      vmlinux.unstripped
+  NM      System.map
+  SORTTAB vmlinux.unstripped
+  OBJCOPY vmlinux
+  GEN     modules.builtin.modinfo
+  GEN     modules.builtin
+make[1]: Leaving directory '/tmp/vpu-consumer-link'
