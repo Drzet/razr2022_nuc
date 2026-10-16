@@ -1,5 +1,41 @@
 # BOOT handoff: seventh-round console-summary v2 one-time host refresh
 
+## Current BOOT completion: 2026-10-16 ABL placement and decoder correction
+
+**Coordinator input:** [current review `99b37f464fedca0caacc47b59fa3b2fa525ccacf`](https://github.com/Drzet/razr2022_nuc/blob/99b37f464fedca0caacc47b59fa3b2fa525ccacf/docs/COORDINATOR_REVIEW_2026-10-15.md) and current `docs/NEXT_TASKS.md`. Original BOOT head read first: `812172869a8c9665c6a39004aad9b1c52cf036bf`. Accepted kernel remains `Drzet/linux:razr/integration@2b5acf108ae37040ac1e652e029bb37f5609e886`. **This current update supersedes seventh-round statements that the actual Motorola placement algorithm was completely unknown.** Previous accepted host images and schematic evidence remain intact.
+
+### Accepted source-backed MBM placement contract
+
+Reference branch `research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3`, [source-backed address report](https://github.com/Drzet/razr2022_nuc/blob/5a8d6ab606c825dbe776db43955c44214f7c64e3/docs/oneli_mbm_kernel_load_address_contract_2026-10-15.md), public bootloader member SHA256 `bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3`, LinuxLoader PE SHA256 `5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca`. Motorola ABL AArch64 code analysed in [run 38808611568](https://github.com/Drzet/razr2022_nuc/actions/runs/38808611568); numeric constants evidenced in [run 38809199858](https://github.com/Drzet/razr2022_nuc/actions/runs/38809199858). These are **reference-firmware static results**, not observed selected runtime values.
+
+- Define `B=KernelBaseAddr`, `Z=KernelSize`, `M=BaseMemory`, `O=FDT base-memory offset`, `E=reserved kernel end`, `K=kernel Image start`. For accepted nonzero-size uncompressed Image, successful UEFI GetVariable pair yields `K=B+text_offset+O` and `E=B+Z+O`. Accepted Image `text_offset=0`.
+- 64-bit fallback on unsuccessful UEFI query: `K=(M|0x80000)+O` (**OR**, not add); `E=M+0x06400000+O`.
+- With `P=boot page size`, `R=selected total ramdisk bytes` and `S=FDT devicetree_space_size` (default 2MiB), `initrd=E-align_up(R,P)-P`, `dtb=initrd-S-P`. ABL's check `dtb>K` is weaker than the necessary Linux nonoverlap `dtb>=K+Image.image_size`.
+- With our Image `image_size=0x32c0000` and default `P=4096`, `S=2MiB`, verify `E-K >= 0x34c2000+align_up(R,4096)`. If `M` were 2MiB aligned and `O=0`, fallback has 99.5MiB capacity but `K=M|0x80000` is **not** a valid 2MiB-aligned Image entry. Do not infer a real collision, success or chosen branch.
+- Reference code includes unlocked-guarded downloaded `fastboot boot` handling and unlocked AVB continuation; actual temporary boot/vendor_boot/FDT composition has **not** been tested. Literal public v4 header addresses no longer define the loader's computed physical positions. Runtime B/Z/M/O, memory fixup, selected FDT/DTBO, ramdisk/bootargs, output and recovery remain unobserved.
+
+### Repaired research evidence tool and focused validation
+
+**Research branch correction commits:**
+- `10d18f1c51d56c70b7b081ef738cdff2f506fa53`: fix aligned UTF-16LE terminator scanning and section-validated PE RVA→raw-offset mapping in `scripts/analyze-oneli-mbm-placement-constants.py`.
+- `59c9c875ef809c2659ab9d4c292573fc44c084f2`: `tests/test_oneli_mbm_placement_constants.py`, 12 synthetic checks, including both full UEFI strings, nonidentity RVAs and bounds failures.
+- `0acccb329521d91b84fdcfb4bf9d7dcc25f44a25`: lightweight isolated CI workflow, **without** a stock firmware download/disassembly. [Run 38830120757](https://github.com/Drzet/razr2022_nuc/actions/runs/38830120757), job 116746730360 **PASS: 12/12** and Python compilation.
+
+Independent offline re-read of [existing PE metadata artifact 12007666834](https://github.com/Drzet/razr2022_nuc/actions/runs/38808611568) verified sections `.text` RVA `0x1000` / file offset `0x1000`, raw span to `0xf0000`; `.data` 0xf0000..0x109000; `.reloc` 0x109000..0x10a000. All 11 referenced metadata RVAs (four numeric fallback values, six strings and one GUID) fall inside identity-mapped, raw-backed `.text`. Numeric values remain unchanged. Previously printed `KernelBaseAdd`/`KernelSiz` are an extractor defect; correct decoder tests `KernelBaseAddr`/`KernelSize` on **synthetic** UTF-16LE, not fresh proprietary bytes. Source recompile/synthetic pass does not constitute independent rerun of the binary extractor. Existing firmware acquisition is not repeated.
+
+**Updated BOOT records:** [loader/output decision](../oneli_native_loader_output_decision_2026-10-12.md), doc commit `f2dd8bbba75fc292ea27c9de7f57651825bb013a`; [machine readiness](../../configs/oneli-native-loader-readiness-v1.json), current data commit `45f1129c9ffc9713ec9e335f10c80db22a5bf3e7`. Both preserve the kernel Image/DTB and diagnostic-v2 artifact hashes; the old speculative header-address overlap is retained *only* as a rejected historical hypothetical.
+
+### Read-only physical observations and bounded conditional experiment
+
+Before any phone operation, verify actual bootloader/version/lock state, both-slot flags and source-matched original per-slot image hashes, credible independent recovery, physical UART GPIO26 TX pad+ground+voltage or alternate observable early output. Obtain whichever selected UEFI/fallback memory inputs are visible; a native test may be required to observe the rest. For any selected address set, check 2MiB Image alignment, **full 53,215,232-byte** reservation, downstream DTB/ramdisk allocations, real physical RAM/carveouts, FDT memory and initrd window. The oneli mainline DTB still starts with RAM size zero.
+
+Only if a coherent restore/output route and actual unlocked temporary boot contract are established, coordinator may authorize a *separate* non-flashing RAM-only trial. Before claiming valid replacement, determine whether Motorola ABL retains original vendor_boot/DTB/DTBO and how generic/vendor ramdisk and bootargs are combined. **Actual kernel entry and diagnostic bytes are measured results**, not mandatory prior achievements. No `fastboot` command is provided or executed, no flash, unlock, modem, kernel, DTS, combined build or boot image altered here.
+
+**BOOT stop:** source placement contract incorporated; static literal-tool regression closed; runtime-selected values and safe observer/recovery path remain device tests. Submit exact research and BOOT commits to issue #13 and **pause** for coordinator acceptance. VPU's policy task is separate.
+
+---
+
+
 - **Date / chat:** 2026-10-12, BOOT continuation of seventh coordinator review.
 - **Source branch:** `Drzet/razr2022_nuc:razr/boot`.
 - **Exact tested packaging source:** `0b2ee0709987831ede07a1494117c7abd3485075`.
