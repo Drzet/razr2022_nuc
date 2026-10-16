@@ -1,5 +1,70 @@
 # Subsystem handoff: DisplayPort / external display / Motorola oneli
 
+## CURRENT assigned deliverable: exact U4500 WAS7227Q AUX switch contract (2026-10-16)
+
+**Coordinator authority:** [review at `dfbac4c08358d1cc73ff262b39fe05657ecabd49`](https://github.com/Drzet/razr2022_nuc/commit/dfbac4c08358d1cc73ff262b39fe05657ecabd49), `docs/NEXT_TASKS.md` blob `b79160ee32d30ecda4da2e59800b2180021f08d1`; status blob `657bba3724383fd33d783146d59d8870240fe531`. **Scope: source/binding/graph proposal only; no kernel changes, node enablement, image build or additional ROM extraction.** This current section supersedes **historical “AUX part unknown” claims elsewhere in this handoff** for the documented *reference schematic*. The old held board/physical tests remain held for distinct reasons.
+
+**Pinned inputs:**
+- Project `Drzet/razr2022_nuc:razr/displayport` prior head `d5b45132914f075c784c6bbb2ca2e604cd262f86`. Accepted *integration* kernel `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`, unchanged by DisplayPort. The older `razr/displayport` kernel branch still sits at upstream baseline `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`, not the current accepted integration.
+- [Reference-design schematic evidence](../oneli_schematic_evidence_2026-10-15.md), derived from user's inspection of DZKJ `Schematics_256_MP_0616.pdf`, Motorola `maven.cpm` rev03, **sheet 8/84** (not redistributed). **U4500 = WILLSEMI WAS7227Q-10/TR**, pin **8 OE_N** to `AUX_SW_OE_N`, pin **10 SEL** to `AUX_SW_FLIP`, pin **9 VCC** to `VREG_L2B_3P07` through **R4500 0 Ω**, pin **3 GND**; Type-C `USB_SBU1/SBU2` and `DP_AUX_P/M` are the signal paths. This identifies the *reference* part, not confirmed exact installed PVT population **[INFERRED]**.
+- [WILLSEMI original WAS7227Q datasheet, March 2017 rev 1.2, page 2 HTML transcription](https://www.alldatasheet.es/html-pdf/1140435/WILLSEMI/WAS7227Q-10SLASHTR/923/2/WAS7227Q-10SLASHTR.html): OE **H = both disconnected**, OE **L** with SEL **L = D1±**, SEL **H = D2±**. Pin 8 enable active-low, pin 10 select, pin 9 VCC. [LCSC original WILLSEMI product entry](https://www.lcsc.com/product-detail/Analog-Switches-Multiplexers_WILLSEMI-Will-Semicon-WAS7227Q-10-TR_C213170.html) describes the **2.5–5.5 V** single-supply analog switch; schematic L2B nominal **3.07 V** lies inside that range. Do not conflate with a similarly numbered alternative-source datasheet or claim a measured control VIH at the oneli TLMM voltage.
+- [Four real standalone Motorola oneli DTBO variant matrix](../displayport_oneli_four_dtbo_aux_matrix_2026-10-11.md), VPU accepted six-FDT export project `1a59d79fda42a977956de8e06c3a60d44b2971f4` and successful job `38220276125`: every variant directs **two `fsa4480` status=disabled** overlays and supplies `mmi,aux-switch-enable-gpio = <0xffffffff 2 0>`, `mmi,aux-switch-flip-gpio = <0xffffffff 71 0>`. `__fixups__` resolves `tlmm` symbol to base `/soc/pinctrl@f000000`. Overlay **index 3, board `0x45/0xc000`** best matches reference PVT; actual bootloader selection remains unobserved. Base `qcom,dp-aux-switch` FSA phandle is **not an enablement grant**.
+- Motorola display driver `MotorolaMobilityLLC/kernel-msm-5.4-techpack-display@701a48c1db80eda2ff17154a9017783230cc22aa`, `msm/dp/dp_aux.c:714–778`. Accepted USB PS5169 `Drzet/linux@4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe`; Boot board schematic proposal `Drzet/razr2022_nuc@812172869a8c9665c6a39004aad9b1c52cf036bf`; USB [Type-C graph v1](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/typec_graph_contract_v1_2026-10-11.md).
+
+### Exact-part reuse decision
+
+**Choose existing `gpio-sbu-mux` platform driver unchanged** (Linux `drivers/usb/typec/mux/gpio-sbu-mux.c`, Git blob `1834f1a2dd9dd082648050c6aace4124ed70fd38` in BOTH accepted integration and upstream `torvalds/linux:master` at inspection). Type-C `mode-switch` enables AUX for DP mode C/D/E and disables in SAFE/USB; `orientation-switch` controls SEL. Existing driver OF match is generic `gpio-sbu-mux`, so a per-part OF driver table entry is unnecessary. No new I2C/DP driver.
+
+**Binding delta to propose for a future kernel-authorized patch, *not* committed now:** add `willsemi,was7227q` to first-item enum in `Documentation/devicetree/bindings/usb/gpio-sbu-mux.yaml`, followed by existing fallback `"gpio-sbu-mux"`. The current upstream and accepted integration binding Git blob `793662f6f3bff4a4b4b73b38983abca12e1e61d2` lists five other parts and **does not include WAS7227Q**. Also register prefix `willsemi` for **Will Semiconductor Ltd.** in `Documentation/devicetree/bindings/vendor-prefixes.yaml` (current blob `ba2002969373433b1f48118872c46cf7bcfff276`; no `willsemi` entry). Authoritative original silicon model is `WAS7227Q`; `-10/TR` is the ordering/package suffix, not a different GPIO protocol. **Do not** claim `onnn,fsusb42`, even if a comparison describes pin compatibility: manufacturer identity and exact fallback semantics cannot be silently asserted. Do not add bare `"gpio-sbu-mux"` as the sole compatible. This minimal binding-only plan needs coordinator review and later `dt_binding_check` plus a positive/negative instance-schema check on authorized patch.
+
+**Community/upstream reuse scope:** directly inspected `torvalds/linux:master` existing driver/binding and accepted integration at pinned blobs; looked for attributable exact `WAS7227Q` binding/pending patches and found none in targeted public-source search as of **2026-10-16**. Linux DT examples include `onnn,fsusb42` on Qualcomm X1E and `pericom,pi3usb102` on SC8280XP, but neither is evidence of oneli silicon identity. Existing binding permits `vcc-supply`; current `gpio-sbu-mux.c` **does not request/manage the regulator**. This is a real supply-contract issue, not justification to invent a new driver or assume the YAML property powers the chip.
+
+### Electrical polarity, control lifetime and transition ordering
+
+| Situation | Physical `OE_N` / TLMM2 | Physical `SEL` / TLMM71 | Linux logical `enable` / `select` | Evidence |
+| --- | --- | --- | --- | --- |
+| Probe initial / detach / SAFE or USB | **1** (disconnect) | **0** in vendor software; may be retained after CC2 in current upstream NONE | `0` / `0` at probe; after NONE `0` / prior orientation | Datasheet OE H disconnect; stock source GPIO2=1 and GPIO71=0 |
+| CC1 DP | **0** | **0** | `1` / `0` | Original manufacturer truth table + vendor source |
+| CC2 DP | **0** | **1** | `1` / `1` | Original manufacturer truth table + vendor source |
+
+**Proposed oneli descriptors:** `enable-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>` maps logical-enabled=1 to OE_N=0; `select-gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>` maps logical-swapped=1 to SEL=1. The source FDT flags `0` describe stock raw cells and do **not** override the physical active-low OE_N pin. At probe, upstream `GPIOD_OUT_LOW` requests both logical values false, hence physical **OE_N high/disconnected** and **SEL low**. `mode-switch;` and `orientation-switch;` are needed with `enable-gpios` for DP state C/D/E.
+
+**Source-level ordering:** In pinned `pmic_glink_altmode.c` (`Drzet/linux@2b5acf...`) `pmic_glink_altmode_worker()` invokes `typec_switch_set()` (orientation/SEL) **before** `typec_mux_set()` (DP mode/OE), so the normal disconnected→DP path sets SEL first, then enables AUX. The generic `gpio_sbu_switch_set()` only updates the enable pin when changing `enabled` and select pin when changing `swapped`; for a live CC1↔CC2 change it **does not force OE_N high around SEL**. Motorola vendor `dp_aux.c:763–767` writes OE before SEL; it does *not* prove a break-before-make implementation either. Require no unproven break-before-make guarantee. During NONE, generic code disables OE but preserves SEL, whereas stock Motorola explicitly resets SEL low: **functionally disconnected per datasheet** while OE_N high, with exact idle pin state divergent. The next normal orientation callback updates SEL before mode enable. Power-on probe order and the GLINK callback chain are code-inspection results, not hardware traces. Callback error/transaction issues require physical or separately assigned integration validation.
+
+**Power contract:** U4500 VCC pin 9 is wired via R4500 to **PM8350 L2B `VREG_L2B_3P07`**, shared with PTN3222's VDD3V3. Power owns L2B provider, actual parent **BOB** (schematic-derived, not an always-on constant), allowed voltage constraints and readiness. Boot owns the provider/consumer supply phandles and whether/how L2B is powered during DP, suspend and detach. **Crucial:** although `gpio-sbu-mux.yaml` allows `vcc-supply`, the current generic driver has no `devm_regulator_get()`/`regulator_enable()` path. Merely adding `vcc-supply = <&...>` cannot guarantee the chip is powered. Integration must either establish an independently owned L2B lifetime or select a separately reviewed, minimum regulator-management adaptation; **do not enable the rail blindly**. GPIO electrical VIH/VIL at physical TLMM drive level and real supply ramp/idle ordering remain to validate with actual hardware or authoritative source.
+
+### Precise proposed graph / owners (review contract, not an edited DT)
+
+```text
+PMIC GLINK / UCSI + DP Alt Mode/HPD  [USB firmware/Type-C owner]
+└─ connector@0
+   ├─ port@0 ⇄ usb_1_dwc3_hs                         [USB2, Boot stages]
+   ├─ port@1 ⇄ PS5169:port@0 ⇄ PS5169:port@1
+   │                        ⇄ usb_1_qmpphy_out     [USB3/DP lane retimer, USB]
+   │                            ├─ QMP USB3 ⇄ DWC3 USB3
+   │                            └─ QMP DP  ⇄ DRM mdss_dp0
+   └─ port@2 ⇄ gpio-sbu-mux (WAS7227Q):port       [AUX/SBU, DP]
+                      ├─ GPIO2 => OE_N (active LOW)
+                      ├─ GPIO71 => SEL (active HIGH)
+                      └─ VCC => L2B_3P07 (Power provider / Boot graph)
+
+TLMM91 (CC2=1) => PMIC GLINK orientation input, SOLE GPIO consumer [USB];
+Type-C switch/retimer/mux callbacks fan orientation/mode onward to QMP,
+PS5169 and independent gpio-sbu-mux, without acquiring GPIO91 again.
+PS5169 GPIO19 stays USB-owned enable; VCC S10B, VIO L8C (parent S1C).
+FSA4480 remains disabled; never create an AUX port@2 on PS5169.
+```
+
+**Later Boot-owned DT proposal (not a commit or asserted label name):** one independent `sbu-mux` node with `compatible = "willsemi,was7227q", "gpio-sbu-mux";`, `enable-gpios = <&tlmm 2 GPIO_ACTIVE_LOW>;`, `select-gpios = <&tlmm 71 GPIO_ACTIVE_HIGH>;`, `mode-switch;`, `orientation-switch;`, a `port/endpoint` **reciprocal** link to PMIC GLINK `connector@0/port@2`, and a valid L2B supply-lifetime contract. Pinmux state should keep disconnection safe until the switch is ready. The exact `&vreg_*` symbol is **not fabricated here**; Boot must use its reviewed provider label. Keep DP/Type-C device nodes disabled until producer contracts are accepted and an authorized combined DT/schema build is run. Do not alias old FSA4480 as the new mux.
+
+**Remaining actual dependencies (minimal):** (1) coordinator acceptance of `willsemi,was7227q` binding/prefix addition; (2) Power/Boot L2B provider, parent BOB, voltage and active/suspend supply-lifetime policy; (3) USB/Boot integration of reviewed PS5169/GLINK/QMP/connector and orientation ownership without duplicate GPIO consumers; (4) Boot-owned source/schema checked device-tree graph and kernel integration when assigned; (5) populated PVT part correspondence **[INFERRED]** and physical HPD/AUX/DPCD/EDID/plug-direction validation once accessible. The separate PTN3222 and PS5169 tests are not native DP test results.
+
+**Validation and stop:** reviewed immutable source blobs, vendor software/table, four stock overlays and derived schematic transcription. No new tests/CI on documentation-only work, no original firmware extraction, no Linux kernel or shared DTS edit, no phone access and no change to accepted integration. **This exact-part/source contract is complete for coordinator review; do not self-assign implementation.** All previous unknown-switch statements in older dated sections below are **historical**.
+
+---
+
+## Historical rounds (superseded where noted)
+
 - Date and originating chat: 2026-10-11; dedicated DisplayPort chat, Linux on Motorola Razr 2022.
 - Repository / branch / exact commit: `Drzet/linux`, `razr/displayport`, head **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`** (branch created at selected baseline; **no DisplayPort kernel patch committed**). Research is committed to `Drzet/razr2022_nuc` in this handoff.
 - Upstream baseline SHA: **`a5ebb76233b79db01e82e061173cb73c6d2b5c6b`**.
