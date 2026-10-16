@@ -630,7 +630,29 @@
       "accepted_kernel_config_extracted_and_inspected": true,
       "no_new_compilation": true,
       "no_kernel_DTS_or_boot_image_changes": true,
-      "no_physical_test": true
+      "no_physical_test": true,
+      "accepted_native_DTB_actual_bytes_reverified": true,
+      "actual_compiled_FDT_parser_static_ranges_checked": true
+    },
+    "accepted_FDT_binary_direct_recheck": {
+      "compiled_dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+      "artifact_id": 11768562884,
+      "original_compiled_DTB_reextracted_from_unchanged_artifact": true,
+      "FDT_struct_nodes": 898,
+      "direct_static_reserved_memory_reg_intervals": 39,
+      "fixed_stock_ramoops_region_overlaps_a_native_static_region": false,
+      "fixed_stock_splash_region_overlaps_a_native_static_region": false,
+      "contains_ramoops_node": false,
+      "contains_simple_framebuffer_node": false,
+      "nearest_preceding_existing_static_region": [
+        "0xa6f00000",
+        "0xa7000000"
+      ],
+      "nearest_following_existing_static_region": [
+        "0xbb000000",
+        "0xc0000000"
+      ],
+      "actual_dynamic_reserved_ranges_and_DRAM_verified": false
     }
   }
 }
