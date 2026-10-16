@@ -4,7 +4,7 @@
   "owner": "Boot",
   "repository": "Drzet/razr2022_nuc",
   "branch": "razr/boot",
-  "assessment": "source-and-host-inspection-complete; native-device-handoff-blocked",
+  "assessment": "abl-static-placement-resolved-for-planning; device-selected-values-and-output-unverified",
   "kernel": {
     "repository": "Drzet/linux",
     "commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
@@ -102,7 +102,9 @@
     "conclusion": "invalid-assumed-native-placement",
     "selected_native_kernel_addr": null,
     "selected_native_ramdisk_addr": null,
-    "selected_native_dtb_addr": null
+    "selected_native_dtb_addr": null,
+    "superseded_for_actual_loader_logic": true,
+    "superseded_by": "mbm_static_research; nominal v4 fields are not used as final actual placement"
   },
   "observed_phone": {
     "source": "docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md",
@@ -125,7 +127,9 @@
     ],
     "installed_partition_bytes_captured": false,
     "actual_loader_source_verified": false,
-    "physical_uart_connection_evidenced": false
+    "physical_uart_connection_evidenced": false,
+    "public_reference_MBM_PE_statically_researched": true,
+    "actual_loader_selected_runtime_values_captured": false
   },
   "host_artifact_preserved": {
     "kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
@@ -135,7 +139,10 @@
     "vendor_boot_candidate_sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572",
     "accepted_host_only": true,
     "native_flash_approved": false,
-    "hardware_tested": false
+    "hardware_tested": false,
+    "userspace_v2_artifact_id": 11777077254,
+    "boot_console_v2_artifact_id": 11777433748,
+    "boot_console_v2_sha256": "1e00e4f998f5001bc08d9e0d4e4465664100194ce211cd9eb8b329612b5563bb"
   },
   "physical_output": {
     "source_uart": "qcom-geni-uart7",
@@ -148,54 +155,60 @@
     "pinout_ground_voltage_tx_observed": false,
     "pstore_reserved_and_readout_approved": false,
     "usb_gadget_preboot_route_proven": false,
-    "next_required_observation": "Safe physical receiver+ground+voltage and actual UART bytes during boot handoff, or independently verified alternative."
+    "next_required_observation": "Safe physical receiver+ground+voltage and actual UART bytes during boot handoff, or independently verified alternative.",
+    "schematic_uart_reference": {
+      "tx": "SM8475 GPIO26 ball D24",
+      "rx": "SM8475 GPIO27 ball C24",
+      "physical_testpoint_and_voltage_known": false
+    }
   },
   "recovery_prerequisites": {
     "required_before_any_mutating_experiment": [
-      "read-only bootloader operation/capability including complete temporary multi-image boot policy",
-      "recheck active slot and both-slot successful/bootable flags",
-      "verify exact installed per-slot boot/vendor_boot/dtbo/recovery/vbmeta contents and sizes",
-      "preserve source-verified compatible stock originals and their SHA256",
-      "prove recovery entry and restoration path independent of selected test slot",
-      "prove early diagnostic output path",
-      "prove RAM placement and boot DT/DTBO/cmdline policy"
+      "confirm current identity, lock state and actual per-slot image/flags inventory",
+      "credible independent recovery and restoration plan with source-matched original images",
+      "observable physical UART or independently demonstrated early-output path",
+      "separately review exact supported temporary RAM-only boot composition and whether active vendor_boot and DT remain in use",
+      "conditional review of real RAM placement/DTB overlaps when runtime inputs are observable; native success is a trial outcome, not pre-existing proof"
     ],
     "fastboot_transient_vendor_boot_replacement_proven": false,
     "unused_slot_is_complete_backup": false,
     "restoration_route_tested": false,
-    "no_executable_flash_commands": true
+    "no_executable_flash_commands": true,
+    "static_fastboot_boot_path_code_found": true
   },
   "decisions": [
     {
       "id": "kernel_loader_format_placement",
-      "status": "blocked-device-evidence",
-      "selected_source_behavior": "uncompressed-arm64-Image; text_offset=0; 2MiB-aligned base; reserve full image_size=53215232",
+      "status": "static-placement-branch-resolved-runtime-values-unobserved",
+      "selected_source_behavior": "ABL successful UEFI route K=B+text_offset+O, E=B+Z+O; 64-bit fallback K=(M|0x80000)+O, E=M+100MiB+O; current accepted Image has text_offset=0/image_size=53215232",
       "provenance": [
         "accepted Image SHA256 and raw 64-byte header",
-        "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:Documentation/arch/arm64/booting.rst"
+        "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:Documentation/arch/arm64/booting.rst",
+        "research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3:docs/oneli_mbm_kernel_load_address_contract_2026-10-15.md"
       ],
       "owner": "Boot/device",
       "unresolved": [
-        "OEM acceptance of Image/EFI entry",
-        "physical load base and DRAM map",
-        "loader relocation and overlap"
+        "selected UEFI/fallback route and B/Z/M/O on real phone",
+        "usable DRAM/carveouts, dynamic FDT and initrd",
+        "ARM64 2MiB image entry alignment and full Image.image_size overlap validation"
       ],
-      "next_observable_check": "Attribute MBM actual Image loading from source/trace and show valid physical ranges."
+      "next_observable_check": "Observe selected K/E/DTB/ramdisk and verify image_size, 2MiB alignment, reserved regions; entry and logs are trial outcomes"
     },
     {
       "id": "reference_addresses",
-      "status": "rejected-as-literal-native-placement",
-      "selected_source_behavior": "public v4 reference fields intentionally retained as structural metadata only",
+      "status": "rejected-as-literal-native-placement-static-abl-formulas-accepted",
+      "selected_source_behavior": "Actual ABL computes K/E and downward DTB/initrd from runtime UEFI or fallback inputs; stock header 0x8000/0x1000000/0x1f00000 cannot be interpreted as final physical addresses",
       "provenance": [
         "configs/oneli-boot-packaging-v2.json",
-        "AOSP system/tools/mkbootimg/include/bootimg/bootimg.h"
+        "AOSP system/tools/mkbootimg/include/bootimg/bootimg.h",
+        "Motorola ABL reported PE RVAs 0x67584..0x678cc, research commit 5a8d6ab606c825dbe776db43955c44214f7c64e3"
       ],
       "owner": "Boot/device",
       "unresolved": [
-        "actual Motorola base adjustment if any",
-        "selected corrected kernel/ramdisk/DTB destination addresses"
+        "actual device-selected UEFI variables, M/O and branch",
+        "effective physical placement and available memory"
       ],
-      "next_observable_check": "Establish actual MBM address interpretation; prove 2MiB kernel base and nonoverlapping Image, DTB and initrd."
+      "next_observable_check": "Check live route K/E and Linux alignment/full-image overlap, rather than guessing from header"
     },
     {
       "id": "fdt_memory_and_overlay",
@@ -263,30 +276,165 @@
     },
     {
       "id": "reversible_first_experiment",
-      "status": "blocked-device-evidence",
-      "selected_source_behavior": "read-only capability, slot, recovery and image inventory before any experiment",
+      "status": "abl-fastboot-command-source-confirmed-physical-capability-unverified",
+      "selected_source_behavior": "ABL implements fastboot boot in unlocked path; whether downloaded image replaces vendor_boot/FDT and whether a RAM-only trial works remain unknown",
       "provenance": [
         "stock Android 14 ADB by-name A/B partitions",
-        "AOSP A/B seamless updates overview"
+        "AOSP A/B seamless updates overview",
+        "docs/oneli_mbm_actual_code_analysis_2026-10-15.md at 5a8d6ab606c825dbe776db43955c44214f7c64e3"
       ],
       "owner": "Boot/device",
       "unresolved": [
-        "temporary complete boot/vendor_boot support",
-        "both-slot original bytes and boot-control flags",
-        "proven restore path and observed early output"
+        "device unlock/fastboot-boot capability verified read-only",
+        "active vendor_boot/DTB/DTBO handling for downloaded image",
+        "independent restore and output route"
       ],
       "next_observable_check": "Verify bootloader operations without mutation, matched installed images and physically usable restore path."
     }
   ],
   "acceptance": {
-    "current": "blocked-on-device-observable-loader-and-console",
+    "current": "static-loader-formulas-accepted; on-device-selected-addresses-FDT-ramdisk-and-output-unverified",
     "additional_identical_kernel_build_required": false,
     "additional_identical_host_packaging_required": false,
     "userspace_v1_immutable": true,
     "userspace_revised_console_summary_dependency": "wait for exact new payload manifest, SHA and diskless QEMU test before any repackage",
     "stock_overlay_binary_apply": "optional-only-if-answering-selected-loader-DT-question",
     "no_device_mutation": true,
-    "coordinator_aggregate_docs_untouched": true
+    "coordinator_aggregate_docs_untouched": true,
+    "static_abl_loader_algorithm_resolved": true,
+    "device_runtime_parameters_known": false,
+    "actual_fastboot_boot_tested": false,
+    "actual_kernel_entry_observed": false,
+    "controlled_test_requires_successful_boot_in_advance": false,
+    "observation_and_restoration_needed_before_mutating_trial": true
   },
-  "document": "docs/oneli_native_loader_output_decision_2026-10-12.md"
+  "document": "docs/oneli_native_loader_output_decision_2026-10-12.md",
+  "updated_at": "2026-10-16",
+  "mbm_static_research": {
+    "status": "coordinator-accepted-static-source-analysis-not-physical-runtime",
+    "coordinator_decision_commit": "99b37f464fedca0caacc47b59fa3b2fa525ccacf",
+    "reference_research_commit": "5a8d6ab606c825dbe776db43955c44214f7c64e3",
+    "report": "docs/oneli_mbm_kernel_load_address_contract_2026-10-15.md",
+    "source_firmware": "U2SLS34.1-42-14-11 public RETEU; not live partition byte verified",
+    "bootloader_img_sha256": "bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3",
+    "abl_linux_loader_pe_sha256": "5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca",
+    "successful_disassembly_run": 38808611568,
+    "successful_literals_run": 38809199858,
+    "abi": "aarch64-efi-pe; all offsets PE RVAs, never physical memory addresses",
+    "uefi_variables": [
+      "KernelBaseAddr",
+      "KernelSize"
+    ],
+    "definitions": {
+      "B": "runtime KernelBaseAddr",
+      "Z": "runtime KernelSize",
+      "M": "BootParamlist.BaseMemory",
+      "O": "runtime /kernel FDT base-memory offset",
+      "S": "runtime /kernel devicetree_space_size (default 0x200000)",
+      "P": "boot image page size",
+      "R": "selected generic+vendor+recovery ramdisk bytes",
+      "K": "effective kernel address",
+      "E": "effective kernel reserve end"
+    },
+    "successful_uefi_branch": {
+      "condition": "both variables successfully read at QueryBootParams RVA 0x6b508",
+      "kernel_start": "K=B+Image.text_offset+O; current Image.text_offset=0",
+      "kernel_reserved_end": "E=B+Z+O"
+    },
+    "failed_uefi_fallback_64bit": {
+      "condition": "either GetVariable fails",
+      "kernel_start": "K=(M|0x80000)+O",
+      "kernel_reserved_end": "E=M+0x06400000+O",
+      "OR_not_plus": true,
+      "without_offset_when_M_2MiB_aligned_K_alignment_ok": false
+    },
+    "subsequent_load_addresses": {
+      "initrd": "E-align_up(R,P)-P",
+      "dtb": "initrd-S-P",
+      "abl_internal_test": "dtb>K",
+      "sufficient_linux_nonoverlap_test": "dtb >= K + Image.image_size, plus actual carveouts and RAM and initrd-window tests"
+    },
+    "sample_condition": {
+      "P": 4096,
+      "S": 2097152,
+      "image_size": 53215232,
+      "min_E_minus_K_without_R": 55320576,
+      "required_gap_formula": "E-K >= 0x34c2000+align_up(R,4096)",
+      "fallback_E_minus_K_if_M_2MiB_aligned_O_0": 104333312,
+      "fallback_available_page_rounded_R": 49012736,
+      "capacity_alone_proves_alignment": false
+    },
+    "code_locations": {
+      "UEFI_query": "0x6b508",
+      "offset_applied": "0x67730..0x677ec",
+      "ramdisk_dtb": "0x677f4..0x6784c",
+      "fallback": "0x67608..0x676dc",
+      "abl_dtb_guard": "0x67850..0x678cc"
+    },
+    "fastboot_boot": {
+      "unlocked_guard_and_image_path_in_reference_firmware": true,
+      "device_path_confirmed": false,
+      "temporary_downloaded_boot_includes_vendor_boot_and_DT": false,
+      "temporary_vendor_and_FDT_scope_unobserved": true
+    },
+    "distinct_AVB_rule": {
+      "unlocked_continue_branch_in_reference_code": true,
+      "all_verifications_bypassed_proven": false
+    },
+    "runtime_missing": [
+      "selected UEFI-success/fallback branch",
+      "actual B/Z/M/O/S/P/R",
+      "physical DRAM and carveouts",
+      "kernel K/E and region overlaps",
+      "selected and memory-populated FDT/DTBO",
+      "assembled vendor/generic initrd and bootargs",
+      "physically observed output and restoration"
+    ]
+  },
+  "mbm_literals_correction": {
+    "source_correcting_commit": "10d18f1c51d56c70b7b081ef738cdff2f506fa53",
+    "offline_test_workflow_commit": "0acccb329521d91b84fdcfb4bf9d7dcc25f44a25",
+    "offline_test_run": 38830120757,
+    "offline_test_job": 116746730360,
+    "tests_passed": 12,
+    "tests_total": 12,
+    "all_offline_synthetic": true,
+    "firmware_downloaded_for_fix": false,
+    "source_metadata_artifact": 12007666834,
+    "pe_sections_from_saved_metadata": [
+      {
+        "name": ".text",
+        "rva": 4096,
+        "raw_offset": 4096,
+        "raw_size": 978944
+      },
+      {
+        "name": ".data",
+        "rva": 983040,
+        "raw_offset": 983040,
+        "raw_size": 102400
+      },
+      {
+        "name": ".reloc",
+        "rva": 1085440,
+        "raw_offset": 1085440,
+        "raw_size": 4096
+      }
+    ],
+    "all_referenced_literal_RVAs_within_raw_backed_text": true,
+    "all_literal_RVAs_identity_mapped_to_file_offsets": true,
+    "numeric_fallback_constants_unchanged": true,
+    "string_name_correction": {
+      "original_truncated": [
+        "KernelBaseAdd",
+        "KernelSiz"
+      ],
+      "corrected_decoder_expected": [
+        "KernelBaseAddr",
+        "KernelSize"
+      ],
+      "corrected_full_names_verified_on_actual_firmware_bytes": false,
+      "corrected_full_names_verified_on_synthetic_UTF16LE": true
+    }
+  }
 }
