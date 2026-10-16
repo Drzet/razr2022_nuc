@@ -1,0 +1,54 @@
+name: Oneli targeted Motorola wireless firmware inventory
+
+on:
+  push:
+    branches:
+      - razr/wireless
+    paths:
+      - scripts/inventory-oneli-wireless.py
+      - .github/workflows/oneli-wireless-inventory.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wireless-inventory:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out wireless inventory script
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Check out pinned existing Motorola extraction helpers
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: c25ff584bde73515d036de424c57e48b985ca01b
+          path: vpu-reference
+          persist-credentials: false
+      - name: Validate syntax and pin references
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          python3 --version | tee evidence/python-version.txt
+          git rev-parse HEAD | tee evidence/wireless-head.txt
+          git -C vpu-reference rev-parse HEAD | tee evidence/vpu-ref.txt
+          python3 -m py_compile scripts/inventory-oneli-wireless.py \
+            vpu-reference/scripts/inspect-oneli-moto-radio.py \
+            vpu-reference/scripts/inspect-oneli-stock-ranges.py
+      - name: Targeted BTFM and NON-HLOS firmware scan
+        run: |
+          set -euo pipefail
+          python3 -u scripts/inventory-oneli-wireless.py \
+            --vpu-reference vpu-reference \
+            --json-out evidence/oneli-wireless-inventory.json \
+            2>&1 | tee evidence/oneli-wireless-inventory.log
+      - name: Preserve metadata only
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: oneli-targeted-wireless-inventory
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 21
