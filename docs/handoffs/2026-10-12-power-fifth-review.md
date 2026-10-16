@@ -1,5 +1,44 @@
 # Subsystem handoff: Power fifth review, VPU omission closure and read-only contract
 
+## CURRENT handoff: 2026-10-16 USB/DP shared L2B supply (new coordinator task)
+
+**This section is authoritative for Power's current assignment; the fifth-review sections below remain historical evidence.** Coordinator source [`432f2f84f6350f0c1b7670b751bf41fd349048ce`](https://github.com/Drzet/razr2022_nuc/commit/432f2f84f6350f0c1b7670b751bf41fd349048ce), branch **`Drzet/razr2022_nuc:razr/power`**. Previous HEAD `1013ef56961716e6afb93321036c300a9f62cbf9`; regulator report updated at **`d7cb74e317b6e74e6451cc9b2706682209f75889`**; this handoff will commit on top. **Kernel code unchanged**. Exact accepted integration `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`. Input owners: Boot board proposal `Drzet/razr2022_nuc@812172869a8c9665c6a39004aad9b1c52cf036bf`, DP source `186a7f251397c87f8a68a37afa8cf0556e579c01`, accepted PTN binding `Drzet/linux@1e5268277f6d4c25cde2f3e2b3f00439107e087a`, PS5169 `4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe`. Existing source-only driver restrictions retained.
+
+**One canonical Power supply report:** [`docs/power_oneli_pvt_usb_supply_audit_2026-10-12.md`](../power_oneli_pvt_usb_supply_audit_2026-10-12.md), now headed by complete 2026-10-16 electrical/voltage/lifetime decision. Earlier Power rail v2, fourth and fifth reports remain citations but their HDK-[INFERRED] parent unknowns are **superseded** by reported oneli rev03 reference schematic. No new stand-alone competing rail report.
+
+### Definitive source-level results (physical reference schematic, handset not verified)
+
+| Source device/rail | Parent at electrical input, ref board | Upstream binding/input property | Consumer / voltage, original source |
+| --- | --- | --- | --- |
+| PM8350 S10B | variable `B_PLUS` | PM8350 `vdd-s10-supply` | PTN3222 `vdd1v8`, PS5169 `vcc`; 1.800V |
+| PM8350C BOB | variable `B_PLUS` | PM8350C `vdd-bob-supply` | PM8350 L2/L7 input; 3.008–3.960V, initial source 3.296V |
+| PM8350 L2B | **PM8350C BOB** | PM8350 `vdd-l2-l7-supply` | **shared** PTN3222 `vdd3v3` and WILLSEMI WAS7227Q `vcc`; 2.7–3.3V, initial source 3.072V, schematic `VREG_L2B_3P07` |
+| PM8350C S1C | variable `B_PLUS` | PM8350C `vdd-s1-supply` | PM8350C L2/L8 input; Motorola source initial 1.880V, schematic named 1P86 nominal |
+| PM8350C L8C | **PM8350C S1C**, not BOB | PM8350C `vdd-l2-l8-supply` | PS5169 `vio`; 1.8–2.0V, initial 1.8V, reference PVT boot-on |
+| PM8350BH / PM8450 | distinct devices, no evidence as shared L2B parents | no shared-chain edge | **exclude** from this USB/DP regulator graph |
+
+The two evidenced internal parent phandles can be proposed to Boot: `vdd-l2-l7-supply=<&oneli_bobc>`, `vdd-l2-l8-supply=<&oneli_s1c>` on the **PM8350** and **PM8350C RPMh provider nodes**, respectively. These phandle **labels are illustrative**, not an authorized shared-DTS edit. Keep providers and consumers disabled. **B_PLUS is variable:** no invented fixed 3.7V voltage-source regulator or fake B_PLUS phandle. It is supported to state physical upstream parent wiring but **not** safe initial BOB/S1C programmability on installed PVT.
+
+### Voltage collision and precise missing qualification
+
+- Current PTN3222 driver `vdd3v3` consumer vote **3.075–3.300V**; stock base L2B `qcom,init-voltage=3.072V`, board label 3.07V. Mainline PM8350 L2B hardware is `pmic5_pldo` with selector voltage **1.504V + n×0.008V**. Exactly **3.072V=selector196**; current 3.075V minimum therefore chooses first valid **3.080V=selector197**. **An 8mV real target shift from the vendor's initial vote**, not a direct rounding to 3.075V. Native phone rail measurement absent.
+- Published NXP **CUK** Rev1.2 recommends VDD3V3 2.85–3.63V; official source [NXP PDF](https://www.nxp.com/docs/en/data-sheet/PTN3222_CUK.pdf), section 11 table31. WILLSEMI original WAS7227Q allows 2.5–5.5V [rev1.4 PDF](https://www.omnivision-group.com/files/product/files/WAS7227Q_V1.4.pdf). **No published authoritative BUK-specific VDD3V3 supply range or explanation for Motorola's 3.075V minimum was established**; do not claim 3.080V proved safe for oneli BUK, or silently change PTN driver minimum to 3.072V. Leave both devices and rail disabled until the variant/voltage gate is satisfied.
+- Even the stock BOB 3.296V and S1C 1.880V *initial votes* are not exact selectable points with present mainline PMIC5 maps: BOB 3.000V + 0.032Vn → nearest **3.288/3.320V**, S1C 0.320V + 0.016Vn → nearest **1.872/1.888V**. Their actual settings and PMIC headroom are not measured and should not be prescribed by rounding. Preserve source ranges; require supported vote/readback analysis at integration.
+
+### Minimal accepted reuse direction for AUX lifetime
+
+**Do not rely on PTN3222 `phy_power_on/off` votes.** Existing `gpio-sbu-mux.yaml` *permits* `vcc-supply`, but existing `gpio-sbu-mux.c` has no `regulator_get/enable`. **Direct Boot phandle alone does nothing**. DP should retain its accepted exact-part compatible `"willsemi,was7227q", "gpio-sbu-mux"` (vendor-prefix/binding delta separately queued), plus active-low OE_N GPIO2 and SEL GPIO71.
+
+**Proposed smallest reusable generic change**, *not Power-authored code*: when a switch node declares `vcc-supply`, strictly obtain regulator through devm API, propagate `-EPROBE_DEFER` or failures rather than creating a dummy, `regulator_enable` **before Type-C switch/mux registration and any active OE_N output**, then retain that enable ref **for the entire bound lifetime**. GPIO callbacks only set OE_N/SEL; no supply toggles on DP mode or detach. Immediately register a devm disable action for late-probe unwind. Remove first physically disconnects the switch and unregisters Type-C consumers, then releases the enable ref, with no double disable. Older nodes without `vcc-supply` continue to work. No new AUX driver, no fixed regulator and no PTN-owned always-on vote.
+
+**Suspend caveat:** mainline RPMh sends `RPMH_ACTIVE_ONLY_STATE`; no shown sleep-vote/retention support or firmware contract. Device-lifetime vote covers **DP attach/detach while active**, not proven suspend wake/DP routing through low-power collapse. Leave DP suspend/wake behaviour as specific later gate rather than invent `regulator-always-on`.
+
+### Validation, dependencies, stop
+
+**Source validated only:** exact schematic U1720/U4500 reference rail paths and PMIC names, pinned RPMh YAML group keys, pinned PM8350 regulator hardware tables & 8mV grid, accepted PTN request, generic gpio-sbu-mux's missing vcc handling, two manufacturers' public *non-BUK* operating conditions. **No new kernel patch, DTS, CI, full build, electrical test, native boot, USB enumeration, DP attach or suspend validation**. Oneli handset population [INFERRED] from same reference design. Authoritative reference-source revision is `maven.cpm` rev03; no schematic PDF redistributed.
+
+**Delivery to Boot:** staged *disabled* provider/consumer phandles using the correct internal BOB/S1C supply parents; no guessing B_PLUS provider, no fixed battery voltage or unreviewed BOB/S1C programmed initial. **Delivery to DP:** binding alone inadequate; regulator lifetime adaptation with strict missing-supply failure/error-unwind is needed before node enable. **USB:** PTN 3.075V min vote conflicts with 3.072V original initial setting on an 8mV grid; precise BUK limit remains missing. **Coordinator:** source contract delivered, no implementation approval. Post current exact project commit to issue #9, crosslink #11 and #2 and stop.
+
 - **Date / chat:** 2026-10-12, Power owner. Assignment: [coordinator fifth review](https://github.com/Drzet/razr2022_nuc/blob/main/docs/FIFTH_REVIEW.md), [current queue](https://github.com/Drzet/razr2022_nuc/blob/main/docs/NEXT_TASKS.md). This handoff **supersedes the fourth handoff as the active Power decision**, but preserves its source provenance and unchanged earlier tests.
 - **Project:** `Drzet/razr2022_nuc:razr/power`, earlier fourth-round head `9a163f0cea7e93af6823b6e2581b7f1db775e782`. Fifth work comprises (1) corrective update of existing canonical [USB/supply audit](../power_oneli_pvt_usb_supply_audit_2026-10-12.md) at project commit `8f1f17a1530c5dd9570e3cb10b27902cd36d3c2b`, (2) new [GLINK and BQ27426 write-path audit](../power_oneli_read_only_driver_write_audit_2026-10-12.md) at `f327578d18c08509daed8f7e64d4f3f77da3bfbc`, and (3) this handoff. This branch alone was changed. No aggregate STATUS/NEXT_TASKS edits.
 - **Kernel baseline:** `Drzet/linux@a5ebb76233b79db01e82e061173cb73c6d2b5c6b`.
