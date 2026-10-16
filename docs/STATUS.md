@@ -1,6 +1,6 @@
 # Project status
 
-Updated 2026-10-16 after [latest VPU / DP review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current).
+Updated 2026-10-17 with [wireless feasibility assessment](COORDINATOR_WIRELESS_REVIEW_2026-10-17.md), retaining [latest VPU / DP review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current).
 
 **VPU source comparison accepted. DP source/host/schema evidence accepted; final ARM64 module validation pending. DP validation and Boot observability review are active. Linux has not booted on the phone.**
 
@@ -10,7 +10,8 @@ Updated 2026-10-16 after [latest VPU / DP review](COORDINATOR_REVIEW_2026-10-16.
 | --- | --- | --- |
 | VPU | Kernel 905d2403 cleanup acceptance retained; project adc83dc comparison accepted | Paused; narrow payload-free RESUME adaptation queued |
 | DisplayPort | Project eb01acf / kernel 5499623 reviewed; independent 11 cases / 237 assertions and binding/equivalent-instance checks pass | Active dependency-complete ARM64 module/modpost validation; final acceptance pending |
-| Power | b7d80a2 accepted source contract; 8mV L2B rounding non-blocking | Paused |
+| Power | b7d80a2 USB/DP contract accepted; 8mV rounding non-blocking | Active source-only wireless PMU/L7E supply contract |
+| Wireless | b0b6360 research accepted with staging qualification; kernel branch unchanged | Active source-only transport/config contract; Boot integration queued |
 | USB | Isolated PTN3222/PS5169 acceptance retained | Paused; board integration pending |
 | Boot / research | b2f9aea / 0acccb3 acceptance retained | Active source-only framebuffer/ramoops/final-FDT observability review |
 | GPU / Userspace | Existing accepted evidence retained | Paused |
@@ -18,6 +19,8 @@ Updated 2026-10-16 after [latest VPU / DP review](COORDINATOR_REVIEW_2026-10-16.
 Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration record](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 record](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. No new combined image or working handset USB/DP/VPU claim.
 
 ## Decisions and remaining limits
+
+- Wireless driver reuse is feasible [INFERRED]. Accepted kernel already contains ath11k, hci_qca and WCN6855 power sequencing. Main remaining integration work is shared power/antenna supply mapping and board configuration. Physical PCI/HCI identity is runtime confirmation, not a prerequisite for preparing a source-supported candidate. Start with standard Linux firmware; no new radio driver or broad firmware extraction selected.
 
 - VPU now preserves VB2 ownership across failed firmware startup and confirmed CLOSE through teardown. Host production-control-flow tests pass; ARM64 link evidence inspected, not independently rebuilt. Full Linux concurrency/DMA remains untested. SM8475 stays disabled/unintegrated.
 - VPU /3 is [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Retained 480 startup rejects 1080p/4K. IOVA errors, uncertain OPP recovery and full quarantine reclamation remain separate future issues.

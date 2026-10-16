@@ -1,4 +1,4 @@
-# Current assignments — 2026-10-16 latest delivery review
+# Current assignments — 2026-10-17 wireless assessment
 
 Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
 
@@ -26,10 +26,37 @@ Project **razr/boot@b2f9aea38b5581781e8b07aa98a85dbbeddaa237**; accepted MBM res
 
 Concurrency is bounded: DP repairs validation tooling; Boot reviews independent existing evidence to advance first-boot logging. Their files and interfaces are independent.
 
+## Active independent review: Wireless — board integration contract
+
+Project **razr/wireless@b0b6360e6c995671457e734a8e36b81d055b3036**; kernel **razr/wireless@2b5acf108ae37040ac1e652e029bb37f5609e886**. [Coordinator assessment](COORDINATOR_WIRELESS_REVIEW_2026-10-17.md). Existing source audit and firmware inventory accepted within their stated limits.
+
+1. Update docs/handoffs/2026-10-16-wireless-oneli.md to remove physical PCI/HCI identity as a prerequisite for preparing a source-supported candidate. Mark compatibility [INFERRED]; runtime enumeration confirms or rejects it. No fabricated IDs or binding override.
+2. Use existing six-FDT exports/oneli overlays and pinned Motorola source to refine PCIe0/UART20 routing, pin ownership, reset/wake and wrapper requirements. Check GPIO76–82/94/96/204 against existing oneli ownership. Report source-backed versus unresolved facts; no duplicate stock extraction.
+3. Specify the minimal board-node and resolved-Kconfig requirements against the accepted kernel/bindings, including pre-enumeration power and shared PMU ownership. Power owns supply mapping and L7E conclusions; reference that delivery instead of independently deriving a competing rail contract.
+4. Record standard Linux firmware deployment paths and runtime diagnostic collection. Let drivers select revision/filenames; Motorola inventory is fallback evidence for concrete failures. No custom board-data generation or further firmware download/disassembly.
+5. Deliver one updated canonical handoff with exact commit, remaining dependencies and Boot/Userspace requests. Stop for coordinator review. No kernel/shared-DTS edits or build of unchanged drivers.
+
+## Active independent review: Power — wireless PMU and antenna supply contract
+
+Project **razr/power@b7d80a25a19b1a581880062463f468f1ce19f9ab**. Inputs: wireless b0b6360 handoff/manifest, accepted kernel 2b5acf108ae37040ac1e652e029bb37f5609e886, existing stock exports and Motorola kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359. Reuse existing Power provider work.
+
+1. Map each of the upstream WCN6855 PMU's ten supply inputs to the source-supported oneli provider and parent; record voltage constraints and existing shared consumers. Resolve downstream S2E/S11B naming by topology/evidence, not spelling. Mark reference-board extrapolation [INFERRED].
+2. Determine the source-supported function and ownership of L7E, named WLAN antenna-switch and BT ASD downstream. Establish how it should be supplied with existing Linux interfaces, or report the exact missing evidence/interface. Do not silently drop it, invent a PMU property or impose an unexplained always-on setting.
+3. Review shared WLAN/BT power lifetime against existing pwrseq and hci_qca fallback behavior, including one radio remaining active when the other stops. Separate source guarantees from untested sleep/coexistence.
+4. Update the existing canonical Power handoff with one supply/interface table and a definite ready-for-staging or named-gap conclusion. Post exact project commit to issue #9; stop for coordinator review. No driver/DTS implementation or hardware operation.
+5. Prior USB/DP supply acceptance remains closed: no renewed BUK chip-ID or 8mV research; B_PLUS remains variable.
+
+These reviews are source-only and use separate owner files. DP remains the sole implementation/validation stream; Boot's active observability work continues. This prepares wireless interfaces without starting dependent board implementation.
+
+## Queued wireless consumers — not active yet
+
+- **Boot:** after coordinator accepts Wireless/Power contracts and selects integration, apply shared PMU, PCIe Wi-Fi and UART Bluetooth board nodes/config on the Boot-owned DTS. Preserve UART7 diagnostics and existing rail consumers. Validate applicable bindings/DTB, pin ownership and dependency-complete ARM64 modules/modpost; record exact candidate/config/artifact identities. No physical-ID-before-staging gate; unresolved power connections remain explicit dependencies. Current active task is still observability.
+- **Userspace:** after a selected kernel/config/firmware contract, package matching modules and ordinary Linux firmware with NetworkManager/BlueZ. Preserve per-device address provenance; no Xiaomi MAC/calibration or assumed persist layout. No rootfs rebuild now.
+
 ## Complete / paused / queued
 
 - **VPU:** project adc83dc27be82d940df56317af3c1812e51f22fa source comparison accepted; kernel 905d2403c451838a408f6bb44e80a7cf9aa6ed10 cleanup acceptance retained. Paused. After DP closure, coordinator may select the narrow firmware/profile-scoped payload-free RESUME quirk. Preserve default encoding for other profiles; cover DRC/drain, ports/states, 64/68-byte serialization and queue errors. Motorola compatibility remains [INFERRED]. No VPU3/static-bandwidth transplant, silent startup reduction, probe enablement or repeated /3 proof.
-- **Power:** b7d80a25a19b1a581880062463f468f1ce19f9ab accepted and paused. PTN 3.075–3.300V request selects 3.080V; 8mV difference is non-blocking. No renewed BUK identity gate. B_PLUS is variable.
+- **Power USB/DP scope:** b7d80a25a19b1a581880062463f468f1ce19f9ab accepted; closed. New wireless source review is assigned above.
 - **USB:** isolated PTN3222/PS5169 acceptance retained; paused. Unknown readable chip IDs diagnostic, failed reads abort.
 - **GPU / Userspace:** paused; accepted inputs unchanged.
 - **Battery/charging:** no implementation selected.
