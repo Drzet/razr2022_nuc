@@ -155,12 +155,18 @@
     "pinout_ground_voltage_tx_observed": false,
     "pstore_reserved_and_readout_approved": false,
     "usb_gadget_preboot_route_proven": false,
-    "next_required_observation": "Safe physical receiver+ground+voltage and actual UART bytes during boot handoff, or independently verified alternative.",
+    "next_required_observation": "A physical, safe receiver for UART GPIO26 TX plus ground/logic level and source bytes, OR independently verified final-FDT/ramoops preserved readback or valid firmware framebuffer scanout. Successful Linux entry is trial outcome.",
     "schematic_uart_reference": {
       "tx": "SM8475 GPIO26 ball D24",
       "rx": "SM8475 GPIO27 ball C24",
       "physical_testpoint_and_voltage_known": false
-    }
+    },
+    "preferred_source_route": "UART7 diagnostic printk: built-in console, phone physical availability unverified",
+    "alternate_qualified_stock_ramoops": "0xae000000 + 0x60000; source console-size 0x40000 record-size 0x20000",
+    "alternate_not_yet_operational": "pstore ramoops module, PSTORE_CONSOLE not set, no oneli DT node, runtime retention/readback unproven",
+    "splash_is_only_reserved_reference": "0xb8000000 + 0x2b00000; no proven framebuffer format/stride/scanout",
+    "UEFI_GOP_handoff_proven": false,
+    "early_output_equivalent_allowed": true
   },
   "recovery_prerequisites": {
     "required_before_any_mutating_experiment": [
@@ -249,14 +255,17 @@
       "provenance": [
         "compiled accepted mainline DTB",
         "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:drivers/tty/serial/qcom_geni_serial.c",
-        "AOSP bootloader overview"
+        "AOSP bootloader overview",
+        "VPU six-FDT metadata artifact 11734430639 SHA256 1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+        "accepted kernel.config SHA256 c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e"
       ],
       "owner": "Boot/device",
       "unresolved": [
         "Motorola command line precedence and earlycon activation",
-        "physical early UART observation"
+        "physical early UART observation",
+        "stock PVT ramoops/splash reservations are reference candidates, not selected FDT or actual log output"
       ],
-      "next_observable_check": "Observe /chosen/bootargs and physical UART traffic or another independently established early log."
+      "next_observable_check": "Access UART GPIO26 TX/ground/logic level if reachable, or independently evidence equivalent early output; stock 384KiB ramoops requires built-in console capture and retention/readback, splash lacks scanout metadata"
     },
     {
       "id": "secure_boot_avb",
@@ -306,10 +315,12 @@
     "actual_fastboot_boot_tested": false,
     "actual_kernel_entry_observed": false,
     "controlled_test_requires_successful_boot_in_advance": false,
-    "observation_and_restoration_needed_before_mutating_trial": true
+    "observation_and_restoration_needed_before_mutating_trial": true,
+    "physical_uart_observation_mandatory": false,
+    "an_evidenced_equivalent_early_output_route_allowed": true
   },
   "document": "docs/oneli_native_loader_output_decision_2026-10-12.md",
-  "updated_at": "2026-10-16",
+  "updated_at": "2026-10-17",
   "mbm_static_research": {
     "status": "coordinator-accepted-static-source-analysis-not-physical-runtime",
     "coordinator_decision_commit": "99b37f464fedca0caacc47b59fa3b2fa525ccacf",
@@ -436,6 +447,190 @@
       ],
       "corrected_full_names_verified_on_actual_firmware_bytes": false,
       "corrected_full_names_verified_on_synthetic_UTF16LE": true
+    }
+  },
+  "early_output_observability_2026_10_17": {
+    "assignment_commit": "87f26ca6821b417272588901e53547e8f8ddf372",
+    "assessment": "read-only-stock-FDT-Motorola-source-and-accepted-built-config",
+    "source_artifact": {
+      "github_run_id": 38220276125,
+      "artifact_id": 11734430639,
+      "member_name": "stock-per-fdt-property-export.json",
+      "uncompressed_bytes": 15862099,
+      "member_sha256": "1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+      "recomputed_member_sha256_matches_expected": true,
+      "member_is_metadata_projection_only": true,
+      "source_phone_is_installed_firmware": false,
+      "downloaded_source_ROM_again": false
+    },
+    "compiled_kernel_config": {
+      "artifact_id": 11768562884,
+      "manifest_kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+      "kernel_config_sha256": "c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e",
+      "config_read_from_accepted_binary_artifact": true,
+      "values": {
+        "CONFIG_PSTORE": "y",
+        "CONFIG_PSTORE_RAM": "m",
+        "CONFIG_PSTORE_CONSOLE": "not set",
+        "CONFIG_PSTORE_PMSG": "not set",
+        "CONFIG_EFI_VARS_PSTORE": "y",
+        "CONFIG_SYSFB_SIMPLEFB": "not set",
+        "CONFIG_FB_SIMPLE": "not set",
+        "CONFIG_DRM_SIMPLEDRM": "not set",
+        "CONFIG_FB_EFI": "y",
+        "CONFIG_FRAMEBUFFER_CONSOLE": "y",
+        "CONFIG_SERIAL_EARLYCON": "y",
+        "CONFIG_SERIAL_QCOM_GENI": "y",
+        "CONFIG_SERIAL_QCOM_GENI_CONSOLE": "y"
+      }
+    },
+    "reference_FDT": {
+      "dtbo_sha256": [
+        "10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19",
+        "1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b",
+        "bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28",
+        "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad"
+      ],
+      "pvt_candidate_index": 3,
+      "pvt_candidate_sha256": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad",
+      "base_MSM530_sha256": "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+      "base_MSM540_sha256": "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843",
+      "all_six_standalone_memreserve_entries": 0,
+      "reference_base_memory_reg_size_zero": true,
+      "real_selected_pvt_variant_proven": false,
+      "composed_final_fdt_available": false,
+      "overlay_FIXUPS_reserved_memory_target_for_splash_and_ramoops_all_4": true,
+      "stock_overlay_can_apply_to_symbolless_mainline_dtb_unmodified": false,
+      "no_simple_framebuffer_compatible_in_six_node_indexes": true,
+      "no_chosen_framebuffer_nodes_in_six_node_indexes": true,
+      "exporter_property_selection_not_complete": true
+    },
+    "candidate_memory_regions": [
+      {
+        "name": "ramoops",
+        "from": "all four standalone stock DTBOs /fragment@28/__overlay__/ramoops_mem with __fixups__/reserved_memory target",
+        "base": "0xae000000",
+        "size": "0x60000",
+        "bytes": 393216,
+        "end_exclusive": "0xae060000",
+        "compatible": "ramoops",
+        "stock_source": "MotorolaMobilityLLC/kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359:qcom/cape-moto-common-overlay.dtsi",
+        "source_declares_no_map": true,
+        "source_console_size_bytes": 262144,
+        "source_record_size_bytes": 131072,
+        "source_allocates_pmsg_bytes": 0,
+        "retention_after_warm_reboot_proven": false,
+        "actual_selected_FDT_contains_this_node": false,
+        "mainline_oneli_dtb_contains_this_node": false,
+        "early_linux_console_ready": false
+      },
+      {
+        "name": "splash",
+        "from": "all four stock DTBOs; index3 /fragment@71/__overlay__/splash_region with __fixups__/reserved_memory target",
+        "base": "0xb8000000",
+        "size": "0x2b00000",
+        "bytes": 45088768,
+        "end_exclusive": "0xbab00000",
+        "compatible_simple_framebuffer": false,
+        "actual_scanout_address": null,
+        "framebuffer_width": null,
+        "framebuffer_height": null,
+        "framebuffer_stride_bytes": null,
+        "framebuffer_format": null,
+        "bootloader_initialized_scanout_proven": false,
+        "retention_on_kernel_handoff_proven": false,
+        "actual_installed_board_uses_region_proven": false
+      },
+      {
+        "name": "xbl_dtlog",
+        "from": "both vendor_boot base FDT reserved-memory",
+        "base": "0x80600000",
+        "size": "0x40000",
+        "bytes": 262144,
+        "readable_as_Linux_log_proven": false
+      },
+      {
+        "name": "uefi_log",
+        "from": "both vendor_boot base FDT reserved-memory",
+        "base": "0x808e4000",
+        "size": "0x10000",
+        "bytes": 65536,
+        "readable_as_Linux_log_proven": false
+      },
+      {
+        "name": "mmi_annotate",
+        "from": "all four stock DTBOs separate proprietary annotation region",
+        "base": "0xadfff000",
+        "size": "0x1000",
+        "bytes": 4096,
+        "ordinary_linux_console_proven": false
+      }
+    ],
+    "stock_node_naming_and_source_caveat": "Original Cape dynamic 2MiB ramoops/pmsg node is removed by cape-moto-common-base.dtsi. The overlay's fixed 384KiB ramoops uses console-size 256KiB and record-size 128KiB. Do not inherit original 2MiB pmsg/mem-type properties. Selected full JSON omits ramoops child property bytes: sized layout/ no-map are independently from pinned Motorola source.",
+    "mainline_reserved_comparison": {
+      "count": 39,
+      "static_pairwise_overlaps": 0,
+      "splash_and_ramoops_overlap_existing_static_ranges": false,
+      "nearby_oem_vm_start": "0xbb000000",
+      "splash_to_oem_vm_nominal_gap_bytes": 5242880,
+      "usable_runtime_RAM_and_dynamic_overlaps_verified": false
+    },
+    "options": [
+      {
+        "route": "UART7",
+        "order": 1,
+        "status": "best-configured-early-output-path-not-physically-observed",
+        "minimum_device_observation": "Locate safe reachable TX GPIO26/ball D24 and ground, determine logic voltage and see UART bytes during stock/MBM handoff; alternate proven early receiver acceptable",
+        "source_UART_RX": "GPIO27/ball C24",
+        "requires_DTS_edit_now": false
+      },
+      {
+        "route": "ramoops",
+        "order": 2,
+        "status": "stock-reference-region-proven-but-early-console-inactive-and-readback-untested",
+        "additional_prerequisites": [
+          "select/reserve safe actual oneli memory without overlaps",
+          "future reviewed built-in ramoops/PSTORE_CONSOLE config and node, not current module-only",
+          "retained RAM over relevant reboot",
+          "readable data by subsequent stock Android or alternative OS at /sys/fs/pstore"
+        ],
+        "requires_DTS_edit_now": false
+      },
+      {
+        "route": "splash-framebuffer",
+        "order": 3,
+        "status": "reservation-only-not-a-composed-framebuffer",
+        "missing": [
+          "runtime actual framebuffer address",
+          "width",
+          "height",
+          "stride",
+          "pixel format",
+          "scanout still active across ABL handoff",
+          "firmware-to-Linux resource and panel ownership"
+        ],
+        "requires_DTS_edit_now": false
+      }
+    ],
+    "selected_recommendation": "UART7 first if physically accessible; ramoops after separate verified retention and kernel-config/DTS review; not splash reservation alone",
+    "exact_device_inputs_still_unobserved": [
+      "actual installed MBM-selected base and PVT overlay",
+      "effective final /memory and /reserved-memory and FDT memreserve",
+      "actual framebuffer scanout fields and lifetime if any",
+      "actual ramoops retention/readback",
+      "actual access to GPIO26 TX pad, ground and logic voltage",
+      "actual output from any route"
+    ],
+    "validation": {
+      "full_six_FDT_JSON_SHA256_verified": true,
+      "indexed_all_6_standalone_node_paths": true,
+      "all_four_Ramoops_and_splash_reg_values_equal": true,
+      "all_four_reserved_memory_fixups_matched": true,
+      "stock_Motorola_source_inspected": true,
+      "accepted_kernel_config_extracted_and_inspected": true,
+      "no_new_compilation": true,
+      "no_kernel_DTS_or_boot_image_changes": true,
+      "no_physical_test": true
     }
   }
 }
