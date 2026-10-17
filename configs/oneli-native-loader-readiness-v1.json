@@ -654,5 +654,194 @@
       ],
       "actual_dynamic_reserved_ranges_and_DRAM_verified": false
     }
+  },
+  "wireless_disabled_board_staging_2026_10_17": {
+    "state": "source-backed proposal; branch-only source staging; not accepted integrated runtime",
+    "source": {
+      "coordinator_commit": "eb4444d63fc185f7a8b23c4ba6aa8ff2e0cc90eb",
+      "accepted_integration_kernel": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+      "project_accepted_before": "638a9d7989617783e2d2112847ca293cf08773a4",
+      "kernel_base_before": "7d30153d3b2d890a42b48b6b12bcc8e9fcc7810e",
+      "wireless_source_contract": "af57d1a8dc626992843079d987d49ac5338d780f",
+      "power_source_contract": "b8e85bbe4936814d29ac1db770e2b286c69e9dca",
+      "wireless_implementation_reference": "3b674aa5c15e9334878b0241a4664f4fe88d413d",
+      "motorola_source": "MotorolaMobilityLLC/kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359",
+      "comparator": "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:arch/arm64/boot/dts/qcom/sm8450-hdk.dts"
+    },
+    "kernel_branch": "razr/boot",
+    "kernel_staging_commit": "d2f8f002278fe8f3999af7dc4165608277d5427f",
+    "config_fragment_commit": "0ce8f5aba5ff233e2dacd6fe09cfc48b3f037458",
+    "compiled_assertions_commit": "51b1bc2bb80be8cff1846eef24258ffca4fe7c09",
+    "consolidated_workflow_commit": "6b40ea433e8b8aedbfab5bf93fc9c6c8fbf21985",
+    "changed_kernel_files": [
+      "arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dts",
+      "arch/arm64/configs/razr-oneli-wireless.config",
+      "scripts/razr/check-oneli-wireless-staging.py",
+      ".github/workflows/razr-oneli-dt.yml"
+    ],
+    "inherited_gpio_ownership": {
+      "debug_serial7": [
+        26,
+        27
+      ],
+      "uart20": [
+        76,
+        77,
+        78,
+        79
+      ],
+      "wlan_enable": 80,
+      "bt_enable": 81,
+      "swctrl_input_state_only": 82,
+      "xo_clk": 204,
+      "pcie_perst": 94,
+      "pcie_clkreq": 95,
+      "pcie_wake": 96,
+      "pmic_glink_orientation_only": 91,
+      "ps5169_enable": 19,
+      "aux_select": 71,
+      "aux_enable": 2
+    },
+    "nodes_requested_disabled": [
+      "/wcn6855-pmu",
+      "/soc@0/rsc@17a00000/regulators-0",
+      "/soc@0/rsc@17a00000/regulators-1",
+      "/soc@0/rsc@17a00000/regulators-3",
+      "/soc@0/pcie@1c00000",
+      "/soc@0/phy@1c06000",
+      "/soc@0/pcie@1c00000/pcie@0/wifi@0",
+      "/soc@0/geniqup@8c0000",
+      "/soc@0/geniqup@8c0000/serial@894000",
+      "/soc@0/geniqup@8c0000/serial@894000/bluetooth"
+    ],
+    "regulator_constraints": [
+      {
+        "provider": "PM8350",
+        "node": "smps10",
+        "rail": "S10B",
+        "requested_min_uV": 1800000,
+        "requested_max_uV": 1800000,
+        "selector_min_uV": 1800000,
+        "selector_max_uV": 1800000,
+        "label": "oneli_s10b",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PM8350",
+        "node": "smps11",
+        "rail": "S11B",
+        "requested_min_uV": 966000,
+        "requested_max_uV": 1170000,
+        "selector_min_uV": 968000,
+        "selector_max_uV": 1168000,
+        "label": "oneli_s11b",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PM8350",
+        "node": "smps12",
+        "rail": "S12B",
+        "requested_min_uV": 1350000,
+        "requested_max_uV": 2024000,
+        "selector_min_uV": 1352000,
+        "selector_max_uV": 2024000,
+        "label": "oneli_s12b",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PM8350C",
+        "node": "smps1",
+        "rail": "S1C",
+        "requested_min_uV": 1900000,
+        "requested_max_uV": 2024000,
+        "selector_min_uV": 1904000,
+        "selector_max_uV": 2016000,
+        "label": "oneli_s1c",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PMR735A",
+        "node": "smps2",
+        "rail": "S2E",
+        "requested_min_uV": 1012000,
+        "requested_max_uV": 1040000,
+        "selector_min_uV": 1012000,
+        "selector_max_uV": 1040000,
+        "label": "oneli_s2e",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PMR735A",
+        "node": "ldo7",
+        "rail": "L7E",
+        "requested_min_uV": 2800000,
+        "requested_max_uV": 2800000,
+        "selector_min_uV": 2800000,
+        "selector_max_uV": 2800000,
+        "label": "oneli_l7e",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      }
+    ],
+    "source_parent_edges": [
+      {
+        "child": "PM8350 L2/L7",
+        "parent": "PM8350C BOB",
+        "evidence": "oneli reference schematic"
+      },
+      {
+        "child": "PM8350 L3/L5",
+        "parent": "PM8350 S11B",
+        "evidence": "oneli reference schematic, not HDK BOB"
+      },
+      {
+        "child": "PM8350 L6/L9/L10",
+        "parent": "PM8350 S12B",
+        "evidence": "oneli reference schematic"
+      },
+      {
+        "child": "PM8350C L2/L8",
+        "parent": "PM8350C S1C",
+        "evidence": "oneli reference schematic, not HDK BOB"
+      },
+      {
+        "child": "PMR735A L7E",
+        "parent": "PM8350C BOB",
+        "evidence": "[INFERRED] SM8450 HDK topology; oneli L7 physical input schematic not traced"
+      }
+    ],
+    "physical_parent_unmodelled": "variable B_PLUS for PM8350/PM8350C buck inputs and PM8350C BOB; PMR735A buck input wiring unconfirmed; no invented 3.7V regulator",
+    "shared_radio_pmu_inputs": [
+      "vddio",
+      "vddaon",
+      "vddpmu",
+      "vddpmumx",
+      "vddpmucx",
+      "vddrfa0p95",
+      "vddrfa1p3",
+      "vddrfa1p9",
+      "vddpcie1p3",
+      "vddpcie1p9"
+    ],
+    "optional_shared_antenna_supply": "vddasd-supply -> PMR735A L7E, WCN6855 upstream driver before accepted optional extension did not request it",
+    "wireless_identity": "[INFERRED] pci17cb,1103 source-supported, installed endpoint identity not tested",
+    "bluetooth_identity": "[INFERRED] qcom,wcn6855-bt compatible, installed HCI not tested",
+    "swctrl82": "binding property reserved and pinctrl input configured; no software output request/drive",
+    "voltage_constraint_semantics": "of_regulator.c sets constraints->apply_uV when both nonzero endpoints; subject to source/runtime validation and disabled parent. Grids are computed from RPMh driver's linear ranges; no measured voltage",
+    "current_validation": {
+      "method": "automatic exact-node DTS+config+schema/FDT checks, not module/phone",
+      "run_id": 39025973401,
+      "status": "pending; superseding earlier CI",
+      "reported_pass": false
+    },
+    "enables_hardware": false,
+    "accepted_kernel_changed": false,
+    "no_new_image_or_rootfs": true,
+    "pending": "Final selected run result, matching compiled DTB/config artifact hashes, and coordinator integration acceptance; optional vddasd producer and device runtime remain separately gated"
   }
 }
