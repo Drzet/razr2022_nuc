@@ -895,15 +895,15 @@
     "status": "combined-radio-source-committed; automatic-two-job-build-pending",
     "kernel_repository": "Drzet/linux",
     "kernel_branch": "razr/boot",
-    "kernel_commit": "542fdc104f9282bf84546e36f3b4b0e2256014d2",
+    "kernel_commit": "8603c558a032dfe42f1c617cf58432bef594ee4f",
     "preceding_staging": "5d261b415a494621c276f8a680286c66971dc57b",
     "reviewed_wireless_producer": "5d191e2dd449cb226eecd7086f76fc202a6f2257",
     "wireless_driver_blob_sha": "4fdc74a71f2cd88601252b4f043725881e657b0c",
     "host_harness_blob_sha": "765103391539183b4f8f99461243e4a8d285d46c",
     "accepted_integration_promoted": false,
     "accepted_image_modification": false,
-    "auto_workflow_run": 39044700866,
-    "cheap_gate_result": "pending",
+    "auto_workflow_run": 39045171934,
+    "cheap_gate_result": "pending final staging variant",
     "combined_arm64_result": "pending",
     "image_sha256": null,
     "dtb_sha256": null,
@@ -980,7 +980,19 @@
     "document": "docs/handoffs/2026-10-12-boot-seventh-console-v2-repackage.md",
     "source_integration_commit": "d4bbbe7d55cdc6696384463d18ba8c8ea420b49b",
     "focused_pre_power_fix_commit": "542fdc104f9282bf84546e36f3b4b0e2256014d2",
-    "preceding_failed_run": 39044250747,
-    "preceding_failed_reason": "resolved PCI_PWRCTRL_PWRSEQ=m despite fragment request y; dtb/schema/selector stages passed"
+    "preceding_failed_run": 39044700866,
+    "preceding_failed_reason": "cheap job PASS; expensive job blocked before compilation by CONFIG_PAHOLE_VERSION 0 vs installed dwarves version, exact-config cmp mismatch",
+    "build_tool_alignment_commit": "558b43ecce688ac2d25c3eb026ffd2f43318d582",
+    "usb_ufs_isolation_commit": "8603c558a032dfe42f1c617cf58432bef594ee4f",
+    "ufs_only_regulators_disabled": [
+      "PM8350 L7B",
+      "PM8350 L9B"
+    ],
+    "ufs_only_regulators_not_registered_due_to_of_available_filter": true,
+    "ufs_pcie_phy_shared_regulators_still_required": [
+      "PM8350 L5B",
+      "PM8350C L10C"
+    ],
+    "preceding_superseded_run": 39045013110
   }
 }
