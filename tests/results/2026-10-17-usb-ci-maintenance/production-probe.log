@@ -5,4 +5,3 @@ production ps5169_probe: 27 ordered stock writes, 10ms GPIO/delay and remove PAS
 production ps5169_probe: 30 partial-write failures, cleanup and reprobe PASS
 production ps5169_probe: all seven forbidden OEM properties rejected before I2C writes and reprobe PASS
 PS5169 production lifecycle fault injection PASS (host mocks, not kernel/hardware)
-
