@@ -1,4 +1,28 @@
-# Motorola Razr 2022 (oneli) native Linux: Wi-Fi/Bluetooth source-only handoff
+# Motorola Razr 2022 (oneli): Wi-Fi/Bluetooth canonical handoff
+
+**Current delivery (2026-10-17):** optional shared WCN6855 L7E/vddasd power-sequencer implementation, commissioned by [coordinator eb4444d](https://github.com/Drzet/razr2022_nuc/commit/eb4444d63fc185f7a8b23c4ba6aa8ff2e0cc90eb). Accepted functional kernel baseline remains `2b5acf108ae37040ac1e652e029bb37f5609e886`; development candidate is [Drzet/linux:razr/wireless@3b674aa5c15e9334878b0241a4664f4fe88d413d](https://github.com/Drzet/linux/commit/3b674aa5c15e9334878b0241a4664f4fe88d413d). The prior source-only board/firmware research below is retained as **historical evidence**, including its then-valid "no driver edit/build" restriction. It is superseded **only** for this specifically authorized generic driver change.
+
+## 0. Authorized 2026-10-17 WCN6855 optional ASD regulator implementation
+
+**Reason and authoritative power contract:** [Power@b8e85bbe4936814d29ac1db770e2b286c69e9dca](https://github.com/Drzet/razr2022_nuc/commit/b8e85bbe4936814d29ac1db770e2b286c69e9dca) records Motorola's L7E (2.8 V) as a shared WLAN antenna-switch and Bluetooth ASD supply, with a possible independent FM consumer. The existing upstream `qcom,qca6390-pmu.yaml` binding already permits `vddasd-supply`; pinned WCN6855 `pwrseq-qcom-wcn.c` omits it from its fixed ten-regulator bulk. Merely adding the DT phandle would not enable the supply. The regulator framework, not a GPIO82 output, must own L7E.
+
+**Focused reuse check:** compared the pinned kernel with maintained upstream `torvalds/linux` `drivers/power/sequencing/pwrseq-qcom-wcn.c` (GPL-2.0-only, original Linaro implementation), contemporary [mainline source](https://code.googlesource.com/linux/torvalds/linux/+/8abc1c8badc11c859bb4ba43211611347e59c55c/drivers/power/sequencing/pwrseq-qcom-wcn.c) and [original WCN6855 PMU patch](https://lists.openwall.net/linux-kernel/2024/08/13/1461). None of the inspected implementations offers WCN6855 property-present optional ASD management. Targeted pending-patch searches supplied no equivalent solution; this is a focused reuse check, not a claim to have exhaustively audited every unpublished series. Reuse the existing pwrseq unit and regulator bulk APIs, not a new radio driver or variant-wide hard-coded voltage.
+
+**Exact implementation:** `drivers/power/sequencing/pwrseq-qcom-wcn.c` adds a WCN6855-only `optional_vddasd` match-data flag and per-instance bulk count. When its DT node has `vddasd-supply`, validate that the phandle parses, add `vddasd` as the eleventh regulator and obtain it together with the original ten via the mandatory `devm_regulator_bulk_get` call. Malformed phandles return `-EINVAL`; missing/unready providers propagate the bulk-get error/deferred probe. No dummy/optional regulator getter. When absent, WCN6855 keeps ten rails. WCN6750's original seven-rail list, all other variants, radio drivers and existing bindings stay unchanged. The original shared `regulators-enable` pwrseq dependency is unmodified: both targets use the same unit, so it holds a common regulator vote until the last successful consumer disables. No SWCTRL82 behavior is introduced.
+
+**Boundaries:** Regulator bulk rollback and reference sharing rely on the existing Linux regulator and pwrseq core code, respectively. Correct shared-core lifetime, actual regulator output/voltage selectors, sleep/resume and Qualcomm radio operation still require kernel/handset checks; the host harness exercises unmodified driver probe/bulk callbacks but **mocks** regulator-core services and consumer reference accounting. The property is binding-permitted and no binding changes were necessary.
+
+**Changed kernel files:** `drivers/power/sequencing/pwrseq-qcom-wcn.c`, `scripts/razr/test-wcn6855-vddasd.py`, `.github/workflows/razr-wireless-pwrseq.yml`. The workflow runs automatic relevant-change builds, cheap host/binding-gate first, then matching AArch64 vmlinux/provider-exports plus dependency-complete module modpost/link; workflow- and ref-scoped cancellation avoids superseded duplicate runs. No Image or rootfs packaging, firmware extraction, shared DTS or modifications to other agent branches.
+
+**Host evidence:** [CI run 39016073214](https://github.com/Drzet/linux/actions/runs/39016073214), cheap job `117348329676` PASS: **17 scenarios/326 assertions** using actual modified driver function bodies with **mocked** kernel APIs and consumers; property present/absent, malformed/deferred/error lookup, bulk enable rollback, Wi-Fi/BT orders, one stopping first, WCN6750 unchanged. Existing binding property-optional check PASS. Its ARM64 job failed *before compilation* because an initially requested modular pwrseq-core did not survive resolved Kconfig. The follow-up build workflow requests built-in core with WCN driver module; the final ARM64 result must be recorded below, not inferred from host success.
+
+**Boot dependency:** Boot may stage its own **disabled** radio DTS and proposed Power supply/voltage interface. Do not enable radios until optional-L7E producer is reviewed/accepted and Boot's real regulator constraints and phandles validate. Userspace remains queued. No physical PCI/HCI identity gate for disabled staging; later hardware IDs are runtime diagnostics.
+
+**Stop:** after focused ARM64 validation and documentation, return this development branch to coordinator for acceptance. This is **not** evidence of a working Razr radio or merged integration.
+
+---
+
+## Historical transport/configuration/firmware source contract (2026-10-16 to 17)
 
 **Owner:** Wireless research, dedicated project/kernel branches `razr/wireless`.
 **Date:** 2026-10-16; integration contract updated 2026-10-17. **State:** source-only board transport/configuration handoff delivered; neither integration nor handset support demonstrated.
