@@ -1,5 +1,23 @@
 # Subsystem handoff: DisplayPort / external display / Motorola oneli
 
+## Current closure: automatic CI efficiency and successful ARM64 build (2026-10-17)
+
+**Authority:** coordinator [`0e10c58e58f220b7e39acf60532945d0940b9320`](https://github.com/Drzet/razr2022_nuc/commit/0e10c58e58f220b7e39acf60532945d0940b9320) explicitly supersedes the earlier Actions hold and authorizes automatic validation on assigned work. This current result supersedes the historic hold and zero-run diagnoses below; retain those only as dated history.
+
+**Current kernel branch:** [`Drzet/linux:razr/displayport@d28598f544682eed5997ac9d57d423e9a5031624`](https://github.com/Drzet/linux/commit/d28598f544682eed5997ac9d57d423e9a5031624). CI-only changes:
+- [`b1cca0d7196bda221db2f7b956cfa0abc13dda99`](https://github.com/Drzet/linux/commit/b1cca0d7196bda221db2f7b956cfa0abc13dda99): expensive ARM64 `arm64-module-link` now has `needs: production-host-and-schema`; workflow/branch-scoped `concurrency` cancels superseded same-ref runs; relevant branch/path push filters preserved.
+- [`d28598f544682eed5997ac9d57d423e9a5031624`](https://github.com/Drzet/linux/commit/d28598f544682eed5997ac9d57d423e9a5031624): correct vmlinux-stage provider evidence to `out/vmlinux.symvers`; `out/Module.symvers` is checked after ordinary `make modules`. Production source, binding, test harnesses, shared DTS and accepted integration remain unchanged.
+
+**Completed successful build, direct GitHub API evidence:** [Actions run #38987006218](https://github.com/Drzet/linux/actions/runs/38987006218), `event=push`, `head_sha=d28598f544682eed5997ac9d57d423e9a5031624`, `status=completed`, **`conclusion=success`**. Both jobs individually `success`:
+- `production-host-and-schema` job [117260700595](https://github.com/Drzet/linux/actions/runs/38987006218/job/117260700595): production probe harness, `dtschema==2026.9` setup, binding example and exact positive/negative instance runner, evidence upload steps all success.
+- `arm64-module-link` job [117261174622](https://github.com/Drzet/linux/actions/runs/38987006218/job/117261174622): ARM64 config generation, matching `vmlinux` provider export check, ordinary `make modules` / `gpio-sbu-mux.ko` / modpost, and evidence upload steps all success. This is a real dependency-complete ARM64 module/link CI result, **not** a full Image build or phone test.
+- Uploaded artifacts (GitHub reports present and unexpired): `gpio-sbu-host-schema-38987006218` (3,010 bytes, artifact ID 12083931132) and `gpio-sbu-arm64-link-38987006218` (190,803 bytes, artifact ID 12084757955). The workflow records compiler versions, exact SHA, config SHA256, module and symvers hashes, `modinfo`, and provider export evidence; these **individual artifact values were not independently downloaded/transcribed** in this handoff. Download the artifacts if coordinator needs to record concrete hashes.
+- Prior [run #38985439713](https://github.com/Drzet/linux/actions/runs/38985439713) at `b1cca0d` failed; corrected by `d28598f` and superseded by its **successful** run. No additional rerun is needed.
+
+**Acceptance request:** coordinator inspect run and artifacts, accept or name a specific remaining failure. Do not launch duplicate builds. WAS7227Q installed-board correspondence and physical DP functionality remain **[INFERRED]/untested**. DP candidate remains unintegrated pending coordinator decision. Stop at this delivery.
+
+---
+
 ## Current instruction: speculative workflow changes reverted; Actions forbidden until user permission (2026-10-17)
 
 **User instruction:** Do **not** use, trigger, enable, schedule or request GitHub Actions until the user explicitly authorizes it. Do not propose empty pushes, PR trigger experiments or further workflow rewrites. The DP execution gate is on hold, irrespective of future fork administration state.
