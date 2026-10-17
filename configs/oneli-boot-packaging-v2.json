@@ -1,0 +1,288 @@
+{
+  "schema": "oneli-native-boot-packaging-contract-v2",
+  "created": "2026-10-12",
+  "owner": "Boot",
+  "evidence_classification": "PUBLIC_STOCK_REFERENCE_NOT_INSTALLED_IMAGE",
+  "coordination": {
+    "kernel_repo": "Drzet/linux",
+    "kernel_branch": "razr/boot",
+    "kernel_baseline": "a5ebb76233b79db01e82e061173cb73c6d2b5c6b",
+    "stock_report": "docs/vpu/2026-10-11-stock-filesystem-firmware-manifest.json",
+    "radio_report": "docs/vpu/2026-10-11-radio-non-hlos-firmware-manifest.json",
+    "reconstructed_stock_live_device": false,
+    "six_fdt_ref_commit": "1a59d79fda42a977956de8e06c3a60d44b2971f4",
+    "full_export_sha256": "1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+    "pvt_symbolic_matrix": "configs/oneli-pvt-symbolic-composition-v1.json"
+  },
+  "stock_public_archive": {
+    "name": "XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip",
+    "size": 4353164507,
+    "sha256": "620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c"
+  },
+  "reference_images": {
+    "boot": {
+      "header_version": 4,
+      "header_bytes": 1584,
+      "layout_page_bytes": 4096,
+      "sha256": "287b3b5e3c61dec6a40f2b9203942b57533df206b0ed2ef16ecdb6bbe01e305d",
+      "member_bytes": 100663296,
+      "kernel_bytes": 46854172,
+      "kernel_offset": 4096,
+      "generic_ramdisk_bytes": 1380093,
+      "signature_bytes": null,
+      "os_version_raw": null,
+      "cmdline": null,
+      "compression": "unknown until payload bytes inspected"
+    },
+    "vendor_boot": {
+      "header_version": 4,
+      "header_bytes": 2128,
+      "page_bytes": 4096,
+      "sha256": "1c27e22565f6f50919812bfcb5254cea2f3b629d98f5c26a7b54f5ece452036e",
+      "member_bytes": 100663296,
+      "vendor_ramdisk_bytes": 13335589,
+      "vendor_ramdisk_offset": 4096,
+      "dtb_region_bytes": 958962,
+      "dtb_region_offset": 13340672,
+      "dtb_region_sha256": "88b605e746f829545f3a5ceabc8ac669eee803db1397d32cc7f49ec91fbba71e",
+      "ramdisk_table_bytes": 108,
+      "ramdisk_table_offset": 14303232,
+      "ramdisk_table_entries": 1,
+      "ramdisk_table_entry_bytes": 108,
+      "ramdisk_fragment_type": 1,
+      "ramdisk_fragment_board_id_words": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bootconfig_bytes": 85,
+      "bootconfig_offset": 14307328,
+      "bootconfig_keys": [
+        "androidboot.hardware",
+        "androidboot.memcg",
+        "androidboot.usbcontroller"
+      ],
+      "dtb_addr": 32505856,
+      "kernel_addr": 32768,
+      "ramdisk_addr": 16777216,
+      "tags_addr": 256,
+      "ramdisk_compression": "legacy-LZ4 (magic 02214c18; not decompression tested)",
+      "embedded_dtb_count": 2,
+      "embedded_dtb_roots": [
+        {
+          "index": 0,
+          "relative_offset": 0,
+          "bytes": 479481,
+          "sha256": "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+          "msm_id": [
+            530,
+            65536
+          ]
+        },
+        {
+          "index": 1,
+          "relative_offset": 479481,
+          "bytes": 479481,
+          "sha256": "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843",
+          "msm_id": [
+            540,
+            65536
+          ]
+        }
+      ],
+      "table_entry_name": null,
+      "embedded_dtb_concatenation": "unpadded; no four-byte padding between FDTs",
+      "fragment_bytes": 13335589,
+      "fragment_offset": 0
+    },
+    "dtbo": {
+      "version": 0,
+      "member_bytes": 24117248,
+      "sha256": "daf02eb24af55cf4c20569db51b5bca70f0550d035846672ef3054f0c0484bd0",
+      "entries": 4,
+      "table_id_revision_custom": "zero for all four; not active bootloader selection",
+      "fdt_sha256_by_index": [
+        "10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19",
+        "1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b",
+        "bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28",
+        "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad"
+      ],
+      "numeric_root_board_id_by_index": [
+        [
+          69,
+          45488
+        ],
+        [
+          69,
+          45728
+        ],
+        [
+          69,
+          41216
+        ],
+        [
+          69,
+          49152
+        ]
+      ],
+      "numeric_root_msm_id_by_index": [
+        [
+          531,
+          65536,
+          540,
+          65536,
+          530,
+          65536
+        ],
+        [
+          531,
+          65536,
+          540,
+          65536,
+          530,
+          65536
+        ],
+        [
+          531,
+          65536,
+          540,
+          65536,
+          530,
+          65536
+        ],
+        [
+          531,
+          65536,
+          540,
+          65536,
+          530,
+          65536
+        ]
+      ],
+      "effective_overlay_index": null,
+      "pvt_reference_candidate_index": 3,
+      "pvt_symbolic_resolved_against": [
+        "MSM530",
+        "MSM540"
+      ]
+    }
+  },
+  "hardware_context": {
+    "physical_phone": "XT2251-1 PVT",
+    "hwrev": "0xC000",
+    "build": "U2SLS34.1-42-14-11",
+    "bootloader_locked_during_ADB": true,
+    "stock_source_pvt_board_id": [
+      69,
+      49152
+    ],
+    "selected_running_dtb_unknown": true
+  },
+  "prototype": {
+    "source_file": "scripts/oneli_boot_v4_layout.py",
+    "test_file": "tests/test_oneli_boot_v4_layout.py",
+    "boot_action": "prototype",
+    "roundtrip_action": "roundtrip",
+    "fully_structural_candidate": true,
+    "candidate_signed": false,
+    "flash_recipe": false,
+    "boot_tested": false,
+    "source_boot_payload_reused": false,
+    "requires_explicit_payload_paths": [
+      "kernel",
+      "initramfs",
+      "dtb",
+      "vendor-ramdisk",
+      "bootconfig",
+      "ramdisk-descriptor",
+      "header-inputs"
+    ],
+    "requires_explicit_strings": [
+      "cmdline",
+      "vendor-cmdline",
+      "vendor-name"
+    ],
+    "verified_against_actual_stock_member_bytes": false,
+    "header_inputs_file": "--header-inputs explicit-header-fields.json",
+    "header_inputs_fields": [
+      "os_version_raw",
+      "kernel_addr",
+      "ramdisk_addr",
+      "tags_addr",
+      "dtb_addr",
+      "purpose",
+      "phone_boot_validated"
+    ],
+    "header_inputs_require_explicit_os_version": true,
+    "header_inputs_reference_vendor_values_only": true,
+    "implicit_reference_placement_inheritance": false,
+    "validation_stages": {
+      "source_format": {
+        "result": "proven-reference-metadata",
+        "source_commit": "1a59d79fda42a977956de8e06c3a60d44b2971f4"
+      },
+      "own_parser_synthetic_roundtrip": {
+        "result": "passed",
+        "run_id": 38280337730,
+        "tested_commit": "78aa7b8a67aa3d79d3cc027f3eed820e4e9fb114"
+      },
+      "independent_aosp_parser": {
+        "result": "passed-synthetic",
+        "run_id": 38280888156,
+        "tested_project_sha": "bdf6512626ba261f1e17c546acd864c2a24e973d",
+        "upstream_derived_tools_repository": "ntherning/mkbootimg",
+        "upstream_derived_tools_commit": "7209a7164f1772db43f92928012c86a00f6202ff",
+        "test_scope": "independent AOSP mkbootimg and unpack_bootimg on size-changed synthetic v4 boot/vendor_boot, payload SHA256 and alignment; no real stock payload"
+      },
+      "signed_native_composition": {
+        "result": "blocked-explicit-native-placement-and-AVB-contract"
+      },
+      "hardware_acceptance": {
+        "result": "not-tested"
+      }
+    },
+    "native_header_inputs_example": {
+      "purpose": "structural-only",
+      "phone_boot_validated": false,
+      "os_version_raw": null,
+      "kernel_addr": 32768,
+      "ramdisk_addr": 16777216,
+      "tags_addr": 256,
+      "dtb_addr": 32505856,
+      "note": "The reference addresses are ONLY an observation. A real prototype requires a deliberately selected integer OS-version field; null is rejected. These reference values are not validated for mainline Image placement."
+    },
+    "native_ready": false,
+    "hardware_accepted": false
+  },
+  "userspace_handoff": {
+    "kernel_format": "AArch64 mainline Image; compression/loading assumptions held until bootloader contract",
+    "kernel_modules_required_in_initramfs": "unresolved module/driver selection",
+    "initramfs_source": "Userspace provides a new dedicated initramfs; not stock Android generic/vendor ramdisk",
+    "dtb": "Boot-provided sm8475-motorola-oneli.dtb exact SHA required",
+    "embedded_dtb_region": "mainline DTB replacement experimental: bootloader acceptance/DTBO combination unknown",
+    "fdt_selection": "reference v4 vendor_boot embedded DTB(s) and selected DTBO need variant inspection",
+    "binary_integration": "kernel Image and matching modules/firmware immutable hashes required",
+    "avb_signing": "no signing/protection strategy established",
+    "hardware_boot_validation": false,
+    "version": "v2",
+    "boot_packaging_contract_status": "reference-structural-format-only",
+    "structural_format_validated": true,
+    "native_composition_ready": false,
+    "hardware_accepted": false,
+    "zero_firmware_on_disabled_vpu_gpu": "per-selected-configuration review required; do not infer global requirements"
+  },
+  "supersedes": "configs/oneli-boot-packaging-v1.json"
+}

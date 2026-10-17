@@ -1,0 +1,22 @@
+{
+  "schema": "oneli-native-host-header-inputs-v1",
+  "purpose": "structural-only",
+  "phone_boot_validated": false,
+  "os_version_raw": 0,
+  "kernel_addr": 32768,
+  "ramdisk_addr": 16777216,
+  "tags_addr": 256,
+  "dtb_addr": 32505856,
+  "provenance": "Public Motorola reference vendor_boot v4 addresses; deliberately selected for host-only structural verification, not native placement",
+  "signature_size": 0,
+  "boot_cmdline": "",
+  "vendor_cmdline": "",
+  "bootconfig": "",
+  "vendor_ramdisk_fragment": {
+    "name": "native-diag",
+    "type": 1,
+    "board_id": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    "content": "deterministic empty newc, gzip -n -9",
+    "status": "structural-only; no Android vendor files and no native-device endorsement"
+  }
+}

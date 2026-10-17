@@ -1,0 +1,1050 @@
+{
+  "schema": "oneli-native-loader-readiness-v1",
+  "date": "2026-10-12",
+  "owner": "Boot",
+  "repository": "Drzet/razr2022_nuc",
+  "branch": "razr/boot",
+  "assessment": "abl-static-placement-resolved-for-planning; device-selected-values-and-output-unverified",
+  "kernel": {
+    "repository": "Drzet/linux",
+    "commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "release": "7.3.0-rc6-g2b5acf108ae3",
+    "image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "image_file_bytes": 52369920,
+    "image_header": {
+      "header_bytes": 64,
+      "magic_hex": "0x644d5241",
+      "text_offset_bytes": 0,
+      "effective_image_bytes": 53215232,
+      "effective_image_hex": "0x32c0000",
+      "extra_required_allocation_bytes": 845312,
+      "flags_hex": "0xa",
+      "little_endian": true,
+      "kernel_page_size_bytes": 4096,
+      "physical_placement_bit_set": true,
+      "pe_coff_offset_bytes": 64,
+      "boot_via_efi_proven": false
+    },
+    "arm64_boot_protocol": {
+      "image_start_from_2mib_aligned_base_bytes": 0,
+      "base_alignment_bytes": 2097152,
+      "min_free_bytes_from_image_start": 53215232,
+      "dtb_alignment_bytes": 8,
+      "dtb_max_bytes": 2097152,
+      "initrd_window_alignment_bytes": 1073741824,
+      "initrd_max_window_bytes": 34359738368,
+      "physical_memory_map_verified": false
+    },
+    "artifact_source": {
+      "github_artifact_id": 11768562884,
+      "combined_bundle_sha256": "5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896"
+    }
+  },
+  "mainline_dtb": {
+    "sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+    "bytes": 104726,
+    "fdt_nodes": 898,
+    "fdt_properties": 3418,
+    "memory_node": "/memory@a0000000",
+    "memory_reg_cells_u32": [
+      0,
+      2684354560,
+      0,
+      0
+    ],
+    "memory_size_bytes": 0,
+    "bootloader_must_supply_valid_memory": true,
+    "has_chosen_bootargs": false,
+    "has_symbols_node": false,
+    "has_fixups_node": false,
+    "chosen_stdout_path": "serial0:115200n8",
+    "serial0_path": "/soc@0/geniqup@9c0000/serial@99c000",
+    "geni_compatible": "qcom,geni-debug-uart",
+    "uart_enabled": true,
+    "physical_serial_access_proven": false
+  },
+  "stock_reference": {
+    "public_reference_not_installed_partition": true,
+    "vendor_boot_version": 4,
+    "boot_version": 4,
+    "stock_kernel_bytes": 46854172,
+    "stock_boot_signature_bytes": 4096,
+    "stock_header_os_version_raw": 402653593,
+    "reference_fields": {
+      "kernel_addr_raw": 32768,
+      "ramdisk_addr_raw": 16777216,
+      "dtb_addr_raw": 32505856,
+      "tags_addr_raw": 256
+    },
+    "pvt_reference_overlay_index": 3,
+    "pvt_reference_board_id_u32": [
+      69,
+      49152
+    ],
+    "source_base_fdt_candidates": [
+      "MSM530",
+      "MSM540"
+    ],
+    "selected_overlay_on_device": null,
+    "stock_vendor_ramdisk_compression": "lz4-legacy",
+    "stock_bootconfig_bytes": 85,
+    "stock_v4_signature_is_not_avb": true
+  },
+  "hypothetical_literal_address_test": {
+    "interpretation": "raw address fields treated *hypothetically* as absolute physical destinations; not accepted as Motorola loader behavior",
+    "kernel_start": 32768,
+    "kernel_effective_end_exclusive": 53248000,
+    "kernel_base_2mib_aligned": false,
+    "ramdisk_start": 16777216,
+    "ramdisk_start_inside_kernel": true,
+    "dtb_start": 32505856,
+    "dtb_start_inside_kernel": true,
+    "conclusion": "invalid-assumed-native-placement",
+    "selected_native_kernel_addr": null,
+    "selected_native_ramdisk_addr": null,
+    "selected_native_dtb_addr": null,
+    "superseded_for_actual_loader_logic": true,
+    "superseded_by": "mbm_static_research; nominal v4 fields are not used as final actual placement"
+  },
+  "observed_phone": {
+    "source": "docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md",
+    "hardware_observed_at": "2026-10-11",
+    "stock_bootloader": "MBM-3.0-oneli-c66ed235df0-250923-U2SLS34.1-42-14-11-e37c37",
+    "model": "XT2251-1",
+    "hardware_revision": "pvt",
+    "hwrev_hex": "0xc000",
+    "stock_android": "14",
+    "stock_active_slot_at_capture": "_a",
+    "verified_boot_state_at_capture": "green",
+    "bootloader_locked_at_capture": true,
+    "slot_mapped_partitions": [
+      "boot",
+      "vendor_boot",
+      "dtbo",
+      "recovery",
+      "vbmeta",
+      "vbmeta_system"
+    ],
+    "installed_partition_bytes_captured": false,
+    "actual_loader_source_verified": false,
+    "physical_uart_connection_evidenced": false,
+    "public_reference_MBM_PE_statically_researched": true,
+    "actual_loader_selected_runtime_values_captured": false
+  },
+  "host_artifact_preserved": {
+    "kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "userspace_artifact_id": 11772559465,
+    "boot_candidate_artifact_id": 11774750168,
+    "boot_candidate_sha256": "f47686e4cff28d9491ece814dd6c91c6f22eab32b3061a46f9bb935ae1fcda74",
+    "vendor_boot_candidate_sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572",
+    "accepted_host_only": true,
+    "native_flash_approved": false,
+    "hardware_tested": false,
+    "userspace_v2_artifact_id": 11777077254,
+    "boot_console_v2_artifact_id": 11777433748,
+    "boot_console_v2_sha256": "1e00e4f998f5001bc08d9e0d4e4465664100194ce211cd9eb8b329612b5563bb"
+  },
+  "physical_output": {
+    "source_uart": "qcom-geni-uart7",
+    "linux_console": "ttyMSM",
+    "source_tlmm_gpio_numbers": [
+      26,
+      27
+    ],
+    "gpio_as_physical_board_test_points_proven": false,
+    "pinout_ground_voltage_tx_observed": false,
+    "pstore_reserved_and_readout_approved": false,
+    "usb_gadget_preboot_route_proven": false,
+    "next_required_observation": "A physical, safe receiver for UART GPIO26 TX plus ground/logic level and source bytes, OR independently verified final-FDT/ramoops preserved readback or valid firmware framebuffer scanout. Successful Linux entry is trial outcome.",
+    "schematic_uart_reference": {
+      "tx": "SM8475 GPIO26 ball D24",
+      "rx": "SM8475 GPIO27 ball C24",
+      "physical_testpoint_and_voltage_known": false
+    },
+    "preferred_source_route": "UART7 diagnostic printk: built-in console, phone physical availability unverified",
+    "alternate_qualified_stock_ramoops": "0xae000000 + 0x60000; source console-size 0x40000 record-size 0x20000",
+    "alternate_not_yet_operational": "pstore ramoops module, PSTORE_CONSOLE not set, no oneli DT node, runtime retention/readback unproven",
+    "splash_is_only_reserved_reference": "0xb8000000 + 0x2b00000; no proven framebuffer format/stride/scanout",
+    "UEFI_GOP_handoff_proven": false,
+    "early_output_equivalent_allowed": true
+  },
+  "recovery_prerequisites": {
+    "required_before_any_mutating_experiment": [
+      "confirm current identity, lock state and actual per-slot image/flags inventory",
+      "credible independent recovery and restoration plan with source-matched original images",
+      "observable physical UART or independently demonstrated early-output path",
+      "separately review exact supported temporary RAM-only boot composition and whether active vendor_boot and DT remain in use",
+      "conditional review of real RAM placement/DTB overlaps when runtime inputs are observable; native success is a trial outcome, not pre-existing proof"
+    ],
+    "fastboot_transient_vendor_boot_replacement_proven": false,
+    "unused_slot_is_complete_backup": false,
+    "restoration_route_tested": false,
+    "no_executable_flash_commands": true,
+    "static_fastboot_boot_path_code_found": true
+  },
+  "decisions": [
+    {
+      "id": "kernel_loader_format_placement",
+      "status": "static-placement-branch-resolved-runtime-values-unobserved",
+      "selected_source_behavior": "ABL successful UEFI route K=B+text_offset+O, E=B+Z+O; 64-bit fallback K=(M|0x80000)+O, E=M+100MiB+O; current accepted Image has text_offset=0/image_size=53215232",
+      "provenance": [
+        "accepted Image SHA256 and raw 64-byte header",
+        "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:Documentation/arch/arm64/booting.rst",
+        "research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3:docs/oneli_mbm_kernel_load_address_contract_2026-10-15.md"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "selected UEFI/fallback route and B/Z/M/O on real phone",
+        "usable DRAM/carveouts, dynamic FDT and initrd",
+        "ARM64 2MiB image entry alignment and full Image.image_size overlap validation"
+      ],
+      "next_observable_check": "Observe selected K/E/DTB/ramdisk and verify image_size, 2MiB alignment, reserved regions; entry and logs are trial outcomes"
+    },
+    {
+      "id": "reference_addresses",
+      "status": "rejected-as-literal-native-placement-static-abl-formulas-accepted",
+      "selected_source_behavior": "Actual ABL computes K/E and downward DTB/initrd from runtime UEFI or fallback inputs; stock header 0x8000/0x1000000/0x1f00000 cannot be interpreted as final physical addresses",
+      "provenance": [
+        "configs/oneli-boot-packaging-v2.json",
+        "AOSP system/tools/mkbootimg/include/bootimg/bootimg.h",
+        "Motorola ABL reported PE RVAs 0x67584..0x678cc, research commit 5a8d6ab606c825dbe776db43955c44214f7c64e3"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "actual device-selected UEFI variables, M/O and branch",
+        "effective physical placement and available memory"
+      ],
+      "next_observable_check": "Check live route K/E and Linux alignment/full-image overlap, rather than guessing from header"
+    },
+    {
+      "id": "fdt_memory_and_overlay",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "mainline oneli DTB (not stock reference); no direct application of stock PVT overlay",
+      "provenance": [
+        "compiled mainline FDT structural inspection",
+        "configs/oneli-pvt-symbolic-composition-v1.json"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "real memory reg injection",
+        "bootloader base FDT and PVT overlay selector",
+        "vendor stock overlay compatibility with substituted FDT"
+      ],
+      "next_observable_check": "Read actual selected/mutated loader FDT; establish whether dtbo partition is applied to replacement DTB."
+    },
+    {
+      "id": "initramfs_and_bootconfig",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "AOSP generic after selected vendor fragment; host gzip empty vendor + gzip diagnostic generic, zero bootconfig",
+      "provenance": [
+        "AOSP vendor-boot partitions spec",
+        "accepted artifact 11774750168"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "OEM vendor-fragment choice and type acceptance",
+        "native concatenation and physical allocation",
+        "bootconfig trailer generation"
+      ],
+      "next_observable_check": "Inspect actual bootloader-assembled initrd and initial kernel extraction."
+    },
+    {
+      "id": "cmdline_console",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "mainline stdout-path serial0:115200n8; command-line/bootconfig host values deliberately empty",
+      "provenance": [
+        "compiled accepted mainline DTB",
+        "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:drivers/tty/serial/qcom_geni_serial.c",
+        "AOSP bootloader overview",
+        "VPU six-FDT metadata artifact 11734430639 SHA256 1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+        "accepted kernel.config SHA256 c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "Motorola command line precedence and earlycon activation",
+        "physical early UART observation",
+        "stock PVT ramoops/splash reservations are reference candidates, not selected FDT or actual log output"
+      ],
+      "next_observable_check": "Access UART GPIO26 TX/ground/logic level if reachable, or independently evidence equivalent early output; stock 384KiB ramoops requires built-in console capture and retention/readback, splash lacks scanout metadata"
+    },
+    {
+      "id": "secure_boot_avb",
+      "status": "blocked-device-evidence",
+      "selected_source_behavior": "boot-v4 signature zero in structural candidate; separately identify AVB partition chain",
+      "provenance": [
+        "AOSP boot-image-header v4",
+        "stock Android 14 ADB verifiedbootstate=green on locked handset"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "real unlocked-state AVB policy",
+        "consistent per-slot verified partition set",
+        "rollback/recovery tested"
+      ],
+      "next_observable_check": "Read actual bootloader AVB/slot state and preserve separately verified OEM original images."
+    },
+    {
+      "id": "reversible_first_experiment",
+      "status": "abl-fastboot-command-source-confirmed-physical-capability-unverified",
+      "selected_source_behavior": "ABL implements fastboot boot in unlocked path; whether downloaded image replaces vendor_boot/FDT and whether a RAM-only trial works remain unknown",
+      "provenance": [
+        "stock Android 14 ADB by-name A/B partitions",
+        "AOSP A/B seamless updates overview",
+        "docs/oneli_mbm_actual_code_analysis_2026-10-15.md at 5a8d6ab606c825dbe776db43955c44214f7c64e3"
+      ],
+      "owner": "Boot/device",
+      "unresolved": [
+        "device unlock/fastboot-boot capability verified read-only",
+        "active vendor_boot/DTB/DTBO handling for downloaded image",
+        "independent restore and output route"
+      ],
+      "next_observable_check": "Verify bootloader operations without mutation, matched installed images and physically usable restore path."
+    }
+  ],
+  "acceptance": {
+    "current": "static-loader-formulas-accepted; on-device-selected-addresses-FDT-ramdisk-and-output-unverified",
+    "additional_identical_kernel_build_required": false,
+    "additional_identical_host_packaging_required": false,
+    "userspace_v1_immutable": true,
+    "userspace_revised_console_summary_dependency": "wait for exact new payload manifest, SHA and diskless QEMU test before any repackage",
+    "stock_overlay_binary_apply": "optional-only-if-answering-selected-loader-DT-question",
+    "no_device_mutation": true,
+    "coordinator_aggregate_docs_untouched": true,
+    "static_abl_loader_algorithm_resolved": true,
+    "device_runtime_parameters_known": false,
+    "actual_fastboot_boot_tested": false,
+    "actual_kernel_entry_observed": false,
+    "controlled_test_requires_successful_boot_in_advance": false,
+    "observation_and_restoration_needed_before_mutating_trial": true,
+    "physical_uart_observation_mandatory": false,
+    "an_evidenced_equivalent_early_output_route_allowed": true
+  },
+  "document": "docs/oneli_native_loader_output_decision_2026-10-12.md",
+  "updated_at": "2026-10-17",
+  "mbm_static_research": {
+    "status": "coordinator-accepted-static-source-analysis-not-physical-runtime",
+    "coordinator_decision_commit": "99b37f464fedca0caacc47b59fa3b2fa525ccacf",
+    "reference_research_commit": "5a8d6ab606c825dbe776db43955c44214f7c64e3",
+    "report": "docs/oneli_mbm_kernel_load_address_contract_2026-10-15.md",
+    "source_firmware": "U2SLS34.1-42-14-11 public RETEU; not live partition byte verified",
+    "bootloader_img_sha256": "bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3",
+    "abl_linux_loader_pe_sha256": "5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca",
+    "successful_disassembly_run": 38808611568,
+    "successful_literals_run": 38809199858,
+    "abi": "aarch64-efi-pe; all offsets PE RVAs, never physical memory addresses",
+    "uefi_variables": [
+      "KernelBaseAddr",
+      "KernelSize"
+    ],
+    "definitions": {
+      "B": "runtime KernelBaseAddr",
+      "Z": "runtime KernelSize",
+      "M": "BootParamlist.BaseMemory",
+      "O": "runtime /kernel FDT base-memory offset",
+      "S": "runtime /kernel devicetree_space_size (default 0x200000)",
+      "P": "boot image page size",
+      "R": "selected generic+vendor+recovery ramdisk bytes",
+      "K": "effective kernel address",
+      "E": "effective kernel reserve end"
+    },
+    "successful_uefi_branch": {
+      "condition": "both variables successfully read at QueryBootParams RVA 0x6b508",
+      "kernel_start": "K=B+Image.text_offset+O; current Image.text_offset=0",
+      "kernel_reserved_end": "E=B+Z+O"
+    },
+    "failed_uefi_fallback_64bit": {
+      "condition": "either GetVariable fails",
+      "kernel_start": "K=(M|0x80000)+O",
+      "kernel_reserved_end": "E=M+0x06400000+O",
+      "OR_not_plus": true,
+      "without_offset_when_M_2MiB_aligned_K_alignment_ok": false
+    },
+    "subsequent_load_addresses": {
+      "initrd": "E-align_up(R,P)-P",
+      "dtb": "initrd-S-P",
+      "abl_internal_test": "dtb>K",
+      "sufficient_linux_nonoverlap_test": "dtb >= K + Image.image_size, plus actual carveouts and RAM and initrd-window tests"
+    },
+    "sample_condition": {
+      "P": 4096,
+      "S": 2097152,
+      "image_size": 53215232,
+      "min_E_minus_K_without_R": 55320576,
+      "required_gap_formula": "E-K >= 0x34c2000+align_up(R,4096)",
+      "fallback_E_minus_K_if_M_2MiB_aligned_O_0": 104333312,
+      "fallback_available_page_rounded_R": 49012736,
+      "capacity_alone_proves_alignment": false
+    },
+    "code_locations": {
+      "UEFI_query": "0x6b508",
+      "offset_applied": "0x67730..0x677ec",
+      "ramdisk_dtb": "0x677f4..0x6784c",
+      "fallback": "0x67608..0x676dc",
+      "abl_dtb_guard": "0x67850..0x678cc"
+    },
+    "fastboot_boot": {
+      "unlocked_guard_and_image_path_in_reference_firmware": true,
+      "device_path_confirmed": false,
+      "temporary_downloaded_boot_includes_vendor_boot_and_DT": null,
+      "temporary_vendor_and_FDT_scope_unobserved": true,
+      "vendor_boot_and_DT_inclusion_unverified": true
+    },
+    "distinct_AVB_rule": {
+      "unlocked_continue_branch_in_reference_code": true,
+      "all_verifications_bypassed_proven": false
+    },
+    "runtime_missing": [
+      "selected UEFI-success/fallback branch",
+      "actual B/Z/M/O/S/P/R",
+      "physical DRAM and carveouts",
+      "kernel K/E and region overlaps",
+      "selected and memory-populated FDT/DTBO",
+      "assembled vendor/generic initrd and bootargs",
+      "physically observed output and restoration"
+    ]
+  },
+  "mbm_literals_correction": {
+    "source_correcting_commit": "10d18f1c51d56c70b7b081ef738cdff2f506fa53",
+    "offline_test_workflow_commit": "0acccb329521d91b84fdcfb4bf9d7dcc25f44a25",
+    "offline_test_run": 38830120757,
+    "offline_test_job": 116746730360,
+    "tests_passed": 12,
+    "tests_total": 12,
+    "all_offline_synthetic": true,
+    "firmware_downloaded_for_fix": false,
+    "source_metadata_artifact": 12007666834,
+    "pe_sections_from_saved_metadata": [
+      {
+        "name": ".text",
+        "rva": 4096,
+        "raw_offset": 4096,
+        "raw_size": 978944
+      },
+      {
+        "name": ".data",
+        "rva": 983040,
+        "raw_offset": 983040,
+        "raw_size": 102400
+      },
+      {
+        "name": ".reloc",
+        "rva": 1085440,
+        "raw_offset": 1085440,
+        "raw_size": 4096
+      }
+    ],
+    "all_referenced_literal_RVAs_within_raw_backed_text": true,
+    "all_literal_RVAs_identity_mapped_to_file_offsets": true,
+    "numeric_fallback_constants_unchanged": true,
+    "string_name_correction": {
+      "original_truncated": [
+        "KernelBaseAdd",
+        "KernelSiz"
+      ],
+      "corrected_decoder_expected": [
+        "KernelBaseAddr",
+        "KernelSize"
+      ],
+      "corrected_full_names_verified_on_actual_firmware_bytes": false,
+      "corrected_full_names_verified_on_synthetic_UTF16LE": true
+    }
+  },
+  "early_output_observability_2026_10_17": {
+    "assignment_commit": "87f26ca6821b417272588901e53547e8f8ddf372",
+    "assessment": "read-only-stock-FDT-Motorola-source-and-accepted-built-config",
+    "source_artifact": {
+      "github_run_id": 38220276125,
+      "artifact_id": 11734430639,
+      "member_name": "stock-per-fdt-property-export.json",
+      "uncompressed_bytes": 15862099,
+      "member_sha256": "1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+      "recomputed_member_sha256_matches_expected": true,
+      "member_is_metadata_projection_only": true,
+      "source_phone_is_installed_firmware": false,
+      "downloaded_source_ROM_again": false
+    },
+    "compiled_kernel_config": {
+      "artifact_id": 11768562884,
+      "manifest_kernel_commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+      "kernel_config_sha256": "c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e",
+      "config_read_from_accepted_binary_artifact": true,
+      "values": {
+        "CONFIG_PSTORE": "y",
+        "CONFIG_PSTORE_RAM": "m",
+        "CONFIG_PSTORE_CONSOLE": "not set",
+        "CONFIG_PSTORE_PMSG": "not set",
+        "CONFIG_EFI_VARS_PSTORE": "y",
+        "CONFIG_SYSFB_SIMPLEFB": "not set",
+        "CONFIG_FB_SIMPLE": "not set",
+        "CONFIG_DRM_SIMPLEDRM": "not set",
+        "CONFIG_FB_EFI": "y",
+        "CONFIG_FRAMEBUFFER_CONSOLE": "y",
+        "CONFIG_SERIAL_EARLYCON": "y",
+        "CONFIG_SERIAL_QCOM_GENI": "y",
+        "CONFIG_SERIAL_QCOM_GENI_CONSOLE": "y"
+      }
+    },
+    "reference_FDT": {
+      "dtbo_sha256": [
+        "10c199f0176717d93eb2e99ae7a19e2fcaf3669d96655a0b31a8feff6e4a0f19",
+        "1adcb600d11d3d2b1e25a75fc16e8b754439f279acea2dcecf97dec7d488752b",
+        "bdfc575aa20f2ccb00e9a2414119b03ac6229af531c906ff3f3068fc995cdf28",
+        "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad"
+      ],
+      "pvt_candidate_index": 3,
+      "pvt_candidate_sha256": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad",
+      "base_MSM530_sha256": "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+      "base_MSM540_sha256": "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843",
+      "all_six_standalone_memreserve_entries": 0,
+      "reference_base_memory_reg_size_zero": true,
+      "real_selected_pvt_variant_proven": false,
+      "composed_final_fdt_available": false,
+      "overlay_FIXUPS_reserved_memory_target_for_splash_and_ramoops_all_4": true,
+      "stock_overlay_can_apply_to_symbolless_mainline_dtb_unmodified": false,
+      "no_simple_framebuffer_compatible_in_six_node_indexes": true,
+      "no_chosen_framebuffer_nodes_in_six_node_indexes": true,
+      "exporter_property_selection_not_complete": true
+    },
+    "candidate_memory_regions": [
+      {
+        "name": "ramoops",
+        "from": "all four standalone stock DTBOs /fragment@28/__overlay__/ramoops_mem with __fixups__/reserved_memory target",
+        "base": "0xae000000",
+        "size": "0x60000",
+        "bytes": 393216,
+        "end_exclusive": "0xae060000",
+        "compatible": "ramoops",
+        "stock_source": "MotorolaMobilityLLC/kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359:qcom/cape-moto-common-overlay.dtsi",
+        "source_declares_no_map": true,
+        "source_console_size_bytes": 262144,
+        "source_record_size_bytes": 131072,
+        "source_allocates_pmsg_bytes": 0,
+        "retention_after_warm_reboot_proven": false,
+        "actual_selected_FDT_contains_this_node": false,
+        "mainline_oneli_dtb_contains_this_node": false,
+        "early_linux_console_ready": false
+      },
+      {
+        "name": "splash",
+        "from": "all four stock DTBOs; index3 /fragment@71/__overlay__/splash_region with __fixups__/reserved_memory target",
+        "base": "0xb8000000",
+        "size": "0x2b00000",
+        "bytes": 45088768,
+        "end_exclusive": "0xbab00000",
+        "compatible_simple_framebuffer": false,
+        "actual_scanout_address": null,
+        "framebuffer_width": null,
+        "framebuffer_height": null,
+        "framebuffer_stride_bytes": null,
+        "framebuffer_format": null,
+        "bootloader_initialized_scanout_proven": false,
+        "retention_on_kernel_handoff_proven": false,
+        "actual_installed_board_uses_region_proven": false
+      },
+      {
+        "name": "xbl_dtlog",
+        "from": "both vendor_boot base FDT reserved-memory",
+        "base": "0x80600000",
+        "size": "0x40000",
+        "bytes": 262144,
+        "readable_as_Linux_log_proven": false
+      },
+      {
+        "name": "uefi_log",
+        "from": "both vendor_boot base FDT reserved-memory",
+        "base": "0x808e4000",
+        "size": "0x10000",
+        "bytes": 65536,
+        "readable_as_Linux_log_proven": false
+      },
+      {
+        "name": "mmi_annotate",
+        "from": "all four stock DTBOs separate proprietary annotation region",
+        "base": "0xadfff000",
+        "size": "0x1000",
+        "bytes": 4096,
+        "ordinary_linux_console_proven": false
+      }
+    ],
+    "stock_node_naming_and_source_caveat": "Original Cape dynamic 2MiB ramoops/pmsg node is removed by cape-moto-common-base.dtsi. The overlay's fixed 384KiB ramoops uses console-size 256KiB and record-size 128KiB. Do not inherit original 2MiB pmsg/mem-type properties. Selected full JSON omits ramoops child property bytes: sized layout/ no-map are independently from pinned Motorola source.",
+    "mainline_reserved_comparison": {
+      "count": 39,
+      "static_pairwise_overlaps": 0,
+      "splash_and_ramoops_overlap_existing_static_ranges": false,
+      "nearby_oem_vm_start": "0xbb000000",
+      "splash_to_oem_vm_nominal_gap_bytes": 5242880,
+      "usable_runtime_RAM_and_dynamic_overlaps_verified": false
+    },
+    "options": [
+      {
+        "route": "UART7",
+        "order": 1,
+        "status": "best-configured-early-output-path-not-physically-observed",
+        "minimum_device_observation": "Locate safe reachable TX GPIO26/ball D24 and ground, determine logic voltage and see UART bytes during stock/MBM handoff; alternate proven early receiver acceptable",
+        "source_UART_RX": "GPIO27/ball C24",
+        "requires_DTS_edit_now": false
+      },
+      {
+        "route": "ramoops",
+        "order": 2,
+        "status": "stock-reference-region-proven-but-early-console-inactive-and-readback-untested",
+        "additional_prerequisites": [
+          "select/reserve safe actual oneli memory without overlaps",
+          "future reviewed built-in ramoops/PSTORE_CONSOLE config and node, not current module-only",
+          "retained RAM over relevant reboot",
+          "readable data by subsequent stock Android or alternative OS at /sys/fs/pstore"
+        ],
+        "requires_DTS_edit_now": false
+      },
+      {
+        "route": "splash-framebuffer",
+        "order": 3,
+        "status": "reservation-only-not-a-composed-framebuffer",
+        "missing": [
+          "runtime actual framebuffer address",
+          "width",
+          "height",
+          "stride",
+          "pixel format",
+          "scanout still active across ABL handoff",
+          "firmware-to-Linux resource and panel ownership"
+        ],
+        "requires_DTS_edit_now": false
+      }
+    ],
+    "selected_recommendation": "UART7 first if physically accessible; ramoops after separate verified retention and kernel-config/DTS review; not splash reservation alone",
+    "exact_device_inputs_still_unobserved": [
+      "actual installed MBM-selected base and PVT overlay",
+      "effective final /memory and /reserved-memory and FDT memreserve",
+      "actual framebuffer scanout fields and lifetime if any",
+      "actual ramoops retention/readback",
+      "actual access to GPIO26 TX pad, ground and logic voltage",
+      "actual output from any route"
+    ],
+    "validation": {
+      "full_six_FDT_JSON_SHA256_verified": true,
+      "indexed_all_6_standalone_node_paths": true,
+      "all_four_Ramoops_and_splash_reg_values_equal": true,
+      "all_four_reserved_memory_fixups_matched": true,
+      "stock_Motorola_source_inspected": true,
+      "accepted_kernel_config_extracted_and_inspected": true,
+      "no_new_compilation": true,
+      "no_kernel_DTS_or_boot_image_changes": true,
+      "no_physical_test": true,
+      "accepted_native_DTB_actual_bytes_reverified": true,
+      "actual_compiled_FDT_parser_static_ranges_checked": true
+    },
+    "accepted_FDT_binary_direct_recheck": {
+      "compiled_dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03",
+      "artifact_id": 11768562884,
+      "original_compiled_DTB_reextracted_from_unchanged_artifact": true,
+      "FDT_struct_nodes": 898,
+      "direct_static_reserved_memory_reg_intervals": 39,
+      "fixed_stock_ramoops_region_overlaps_a_native_static_region": false,
+      "fixed_stock_splash_region_overlaps_a_native_static_region": false,
+      "contains_ramoops_node": false,
+      "contains_simple_framebuffer_node": false,
+      "nearest_preceding_existing_static_region": [
+        "0xa6f00000",
+        "0xa7000000"
+      ],
+      "nearest_following_existing_static_region": [
+        "0xbb000000",
+        "0xc0000000"
+      ],
+      "actual_dynamic_reserved_ranges_and_DRAM_verified": false
+    }
+  },
+  "wireless_disabled_board_staging_2026_10_17": {
+    "state": "source-backed proposal; branch-only source staging; not accepted integrated runtime",
+    "source": {
+      "coordinator_commit": "eb4444d63fc185f7a8b23c4ba6aa8ff2e0cc90eb",
+      "accepted_integration_kernel": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+      "project_accepted_before": "638a9d7989617783e2d2112847ca293cf08773a4",
+      "kernel_base_before": "7d30153d3b2d890a42b48b6b12bcc8e9fcc7810e",
+      "wireless_source_contract": "af57d1a8dc626992843079d987d49ac5338d780f",
+      "power_source_contract": "b8e85bbe4936814d29ac1db770e2b286c69e9dca",
+      "wireless_implementation_reference": "3b674aa5c15e9334878b0241a4664f4fe88d413d",
+      "motorola_source": "MotorolaMobilityLLC/kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359",
+      "comparator": "Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886:arch/arm64/boot/dts/qcom/sm8450-hdk.dts"
+    },
+    "kernel_branch": "razr/boot",
+    "kernel_staging_commit": "5d261b415a494621c276f8a680286c66971dc57b",
+    "config_fragment_commit": "0ce8f5aba5ff233e2dacd6fe09cfc48b3f037458",
+    "compiled_assertions_commit": "1f0056f5bbaa9db93fd12e40c52ab14396d44a0e",
+    "consolidated_workflow_commit": "5d261b415a494621c276f8a680286c66971dc57b",
+    "changed_kernel_files": [
+      "arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dts",
+      "arch/arm64/configs/razr-oneli-wireless.config",
+      "scripts/razr/check-oneli-wireless-staging.py",
+      ".github/workflows/razr-oneli-dt.yml"
+    ],
+    "inherited_gpio_ownership": {
+      "debug_serial7": [
+        26,
+        27
+      ],
+      "uart20": [
+        76,
+        77,
+        78,
+        79
+      ],
+      "wlan_enable": 80,
+      "bt_enable": 81,
+      "swctrl_input_state_only": 82,
+      "xo_clk": 204,
+      "pcie_perst": 94,
+      "pcie_clkreq": 95,
+      "pcie_wake": 96,
+      "pmic_glink_orientation_only": 91,
+      "ps5169_enable": 19,
+      "aux_select": 71,
+      "aux_enable": 2
+    },
+    "nodes_requested_disabled": [
+      "/wcn6855-pmu",
+      "/soc@0/rsc@17a00000/regulators-0",
+      "/soc@0/rsc@17a00000/regulators-1",
+      "/soc@0/rsc@17a00000/regulators-3",
+      "/soc@0/pcie@1c00000",
+      "/soc@0/phy@1c06000",
+      "/soc@0/pcie@1c00000/pcie@0/wifi@0",
+      "/soc@0/geniqup@8c0000",
+      "/soc@0/geniqup@8c0000/serial@894000",
+      "/soc@0/geniqup@8c0000/serial@894000/bluetooth"
+    ],
+    "regulator_constraints": [
+      {
+        "provider": "PM8350",
+        "node": "smps10",
+        "rail": "S10B",
+        "requested_min_uV": 1800000,
+        "requested_max_uV": 1800000,
+        "selector_min_uV": 1800000,
+        "selector_max_uV": 1800000,
+        "label": "oneli_s10b",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PM8350",
+        "node": "smps11",
+        "rail": "S11B",
+        "requested_min_uV": 966000,
+        "requested_max_uV": 1170000,
+        "selector_min_uV": 968000,
+        "selector_max_uV": 1168000,
+        "label": "oneli_s11b",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PM8350",
+        "node": "smps12",
+        "rail": "S12B",
+        "requested_min_uV": 1350000,
+        "requested_max_uV": 2024000,
+        "selector_min_uV": 1352000,
+        "selector_max_uV": 2024000,
+        "label": "oneli_s12b",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PM8350C",
+        "node": "smps1",
+        "rail": "S1C",
+        "requested_min_uV": 1900000,
+        "requested_max_uV": 2024000,
+        "selector_min_uV": 1904000,
+        "selector_max_uV": 2016000,
+        "label": "oneli_s1c",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PMR735A",
+        "node": "smps2",
+        "rail": "S2E",
+        "requested_min_uV": 1012000,
+        "requested_max_uV": 1040000,
+        "selector_min_uV": 1012000,
+        "selector_max_uV": 1040000,
+        "label": "oneli_s2e",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      },
+      {
+        "provider": "PMR735A",
+        "node": "ldo7",
+        "rail": "L7E",
+        "requested_min_uV": 2800000,
+        "requested_max_uV": 2800000,
+        "selector_min_uV": 2800000,
+        "selector_max_uV": 2800000,
+        "label": "oneli_l7e",
+        "output_measured": false,
+        "source": "Power consumer envelope, not vendor initial vote"
+      }
+    ],
+    "source_parent_edges": [
+      {
+        "child": "PM8350 L2/L7",
+        "parent": "PM8350C BOB",
+        "evidence": "oneli reference schematic"
+      },
+      {
+        "child": "PM8350 L3/L5",
+        "parent": "PM8350 S11B",
+        "evidence": "oneli reference schematic, not HDK BOB"
+      },
+      {
+        "child": "PM8350 L6/L9/L10",
+        "parent": "PM8350 S12B",
+        "evidence": "oneli reference schematic"
+      },
+      {
+        "child": "PM8350C L2/L8",
+        "parent": "PM8350C S1C",
+        "evidence": "oneli reference schematic, not HDK BOB"
+      },
+      {
+        "child": "PMR735A L7E",
+        "parent": "PM8350C BOB",
+        "evidence": "[INFERRED] SM8450 HDK topology; oneli L7 physical input schematic not traced"
+      }
+    ],
+    "physical_parent_unmodelled": "variable B_PLUS for PM8350/PM8350C buck inputs and PM8350C BOB; PMR735A buck input wiring unconfirmed; no invented 3.7V regulator",
+    "shared_radio_pmu_inputs": [
+      "vddio",
+      "vddaon",
+      "vddpmu",
+      "vddpmumx",
+      "vddpmucx",
+      "vddrfa0p95",
+      "vddrfa1p3",
+      "vddrfa1p9",
+      "vddpcie1p3",
+      "vddpcie1p9"
+    ],
+    "optional_shared_antenna_supply": "vddasd-supply -> PMR735A L7E, WCN6855 upstream driver before accepted optional extension did not request it",
+    "wireless_identity": "[INFERRED] pci17cb,1103 source-supported, installed endpoint identity not tested",
+    "bluetooth_identity": "[INFERRED] qcom,wcn6855-bt compatible, installed HCI not tested",
+    "swctrl82": "binding property reserved and pinctrl input configured; no software output request/drive",
+    "voltage_constraint_semantics": "of_regulator.c sets constraints->apply_uV when both nonzero endpoints; subject to source/runtime validation and disabled parent. Grids are computed from RPMh driver's linear ranges; no measured voltage",
+    "current_validation": {
+      "method": "automatic dependency-scoped DTS/DT-schema/FDT/merged-resolved-Kconfig validation; not radio driver module or device hardware",
+      "run_id": 39026414041,
+      "run_url": "https://github.com/Drzet/linux/actions/runs/39026414041",
+      "job_id": 117378234746,
+      "status": "success",
+      "reported_pass": true,
+      "artifact_id": 12098329381,
+      "artifact_name": "oneli-dt-39026414041-1",
+      "artifact_zip_sha256": "a751503225d17fc65f89cda9e493ef55e957d4d452e156e6b7371e26c38e3be7",
+      "artifact_SHA256SUMS_items_checked": 17,
+      "artifact_SHA256SUMS_mismatches": 0,
+      "compiled_dtb_sha256": "f38d0a88b2416e267fd6fa5d26b405ca5e9a0a00082586c24db7dfe8e800448c",
+      "resolved_config_sha256": "2b8f7de18c8142a361751652e131b46236308eb668ca7185fc33b0bc00183fdb",
+      "compiler": "aarch64-linux-gnu-gcc 13.3.0 Ubuntu 24.04.1",
+      "dtc": "1.7.0",
+      "dtschema": "2026.9",
+      "python": "3.12.3",
+      "compiled_nodes": 924,
+      "baseline_compiled_nodes": 898,
+      "reserved_regions": 39,
+      "overlaps": 0,
+      "phandle_references": 928,
+      "new_active_to_disabled_warnings": 0,
+      "baseline_active_to_disabled_warnings": 7,
+      "compiled_active_to_disabled_warnings": 7,
+      "all_existing_warnings_same_as_baseline": true,
+      "radio_regulator_selector_ranges_checked": 6,
+      "radio_pmu_supply_phandles_checked": 11,
+      "radio_parent_group_edges_checked": 5,
+      "resolved_config_assertions": 20,
+      "disabled_ancestor_checks_passed": true,
+      "console_UART7_unchanged": true,
+      "config_PCI_PWRCTRL_PWRSEQ": "m",
+      "config_BT_LE": "y",
+      "config_PHY_QCOM_QMP": "m",
+      "config_PHY_QCOM_QMP_PCIE": "m",
+      "prior_failed_run_id": 39025973401,
+      "prior_failure": "GPIO82 TLMM input-enable schema violation; PHY QMP child y request normalized to m by modular parent",
+      "prior_failure_fixed_by": [
+        "83bade370babeda6608af5a5c29b608c547c817a",
+        "80af4b591bd5b251978b6e781461c05480986043",
+        "1f0056f5bbaa9db93fd12e40c52ab14396d44a0e"
+      ],
+      "superseded_runs_cancelled": [
+        39025729083,
+        39025892989,
+        39026347729,
+        39026358493
+      ]
+    },
+    "enables_hardware": false,
+    "accepted_kernel_changed": false,
+    "no_new_image_or_rootfs": true,
+    "pending": "Coordinator review of disabled board staging; producer optional-vddasd acceptance before enabled integration; device PCI/HCI identity, final selected DT, actual radio/voltage and physical output remain untested.",
+    "kernel_dts_source_commit": "83bade370babeda6608af5a5c29b608c547c817a",
+    "kernel_config_source_commit": "80af4b591bd5b251978b6e781461c05480986043"
+  },
+  "wireless_enabled_radio_candidate_2026_10_17": {
+    "status": "accepted-combined-radio-development-source-build-for-userspace-consumption; Boot paused",
+    "kernel_repository": "Drzet/linux",
+    "kernel_branch": "razr/boot",
+    "kernel_commit": "7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce",
+    "preceding_staging": "5d261b415a494621c276f8a680286c66971dc57b",
+    "reviewed_wireless_producer": "5d191e2dd449cb226eecd7086f76fc202a6f2257",
+    "wireless_driver_blob_sha": "4fdc74a71f2cd88601252b4f043725881e657b0c",
+    "host_harness_blob_sha": "765103391539183b4f8f99461243e4a8d285d46c",
+    "accepted_integration_promoted": false,
+    "accepted_image_modification": false,
+    "auto_workflow_run": 39050113058,
+    "cheap_gate_result": "PASS: DT/schema/resolved Kconfig/compiled FDT checks (21 configs, 11 WCN supplies, six parent edges) and WCN host harness 17 scenarios/326 mocked assertions; job 117446794445",
+    "combined_arm64_result": "PASS: Image/modules ordinary MODPOST/link; real built-in exports checked in Module.symvers; modules_install and DEPMOD; pci-pwrctrl-pwrseq, ath11k_pci and hci_uart modprobe dependency records; compressed matching radio-modules.tar.zst; 11/11 SHA256SUMS checks; job 117447403567",
+    "image_sha256": "0a28060210e747f8c63755142935feda101df4f5d9759f4e876bc2bb1373fb2e",
+    "dtb_sha256": "70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435",
+    "kernel_config_sha256": "e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273",
+    "module_symvers_sha256": "5802d8bb9cb077c61dcf0d7b2bdc8d32793329389156b3b312e7339f9a3d3151",
+    "module_bundle_sha256": null,
+    "pre_enumeration": {
+      "device_tree_enabled": [
+        "apps_rsc/regulators-0",
+        "apps_rsc/regulators-1",
+        "apps_rsc/regulators-3",
+        "/wcn6855-pmu",
+        "pcie0",
+        "pcie0_phy",
+        "wifi@0",
+        "qupv3_id_2",
+        "uart20",
+        "uart20/bluetooth"
+      ],
+      "built_in_expected": [
+        "CONFIG_REGULATOR_QCOM_RPMH=y",
+        "CONFIG_POWER_SEQUENCING=y",
+        "CONFIG_POWER_SEQUENCING_QCOM_WCN=y",
+        "CONFIG_PCIE_QCOM=y",
+        "CONFIG_PHY_QCOM_QMP=y",
+        "CONFIG_PHY_QCOM_QMP_PCIE=y"
+      ],
+      "prepower_call_path": "qcom_pcie_host_init -> pci_pwrctrl_create_devices -> pci_pwrctrl_power_on_devices returns -EPROBE_DEFER for unbound child -> early pci-pwrctrl-pwrseq platform driver bind -> devm_pwrseq_get(wlan) and deferred host retry",
+      "unknown_selected_controller_identity": true,
+      "early_probe_deferral_when_pwrctrl_unbound": true,
+      "module_required_early": "CONFIG_PCI_PWRCTRL_PWRSEQ=m; matching pci-pwrctrl-pwrseq.ko now built and installed in accepted matching module archive; Userspace must load early via initramfs/equivalent so Qualcomm PCI host deferred probe can retry before enumeration.",
+      "built_in_pre_power_complete": false
+    },
+    "userspace_modules_expected": [
+      "ath11k_pci",
+      "hci_uart"
+    ],
+    "gpio80_policy": "pinctrl no forced high/low; WCN pwrseq GPIOD_ASIS preserves current gpio value before setting direction",
+    "gpio81_gpio204": "PMU-owned output-low startup",
+    "gpio82": "status/input pinctrl only; not driven by sequencer",
+    "voltage_envelopes_uv": {
+      "S10B": [
+        1800000,
+        1800000
+      ],
+      "S11B": [
+        966000,
+        1170000
+      ],
+      "S12B": [
+        1350000,
+        2024000
+      ],
+      "S1C": [
+        1900000,
+        2024000
+      ],
+      "S2E": [
+        1012000,
+        1040000
+      ],
+      "L7E": [
+        2800000,
+        2800000
+      ]
+    },
+    "source_confirmed_internal_parent": "PM8350C L10C<-PM8350 S12B",
+    "inferred_parent": "PMR735A L7E<-PM8350C BOB (SM8450 HDK)",
+    "b_plus_fixed_provider_invented": false,
+    "prior_console_preserved": true,
+    "other_peripherals_enabled": false,
+    "software_combined_validated": true,
+    "on_device_verified": false,
+    "document": "docs/handoffs/2026-10-12-boot-seventh-console-v2-repackage.md",
+    "source_integration_commit": "d4bbbe7d55cdc6696384463d18ba8c8ea420b49b",
+    "focused_pre_power_fix_commit": "542fdc104f9282bf84546e36f3b4b0e2256014d2",
+    "preceding_failed_run": 39044700866,
+    "preceding_failed_reason": "cheap job PASS; expensive job blocked before compilation by CONFIG_PAHOLE_VERSION 0 vs installed dwarves version, exact-config cmp mismatch",
+    "build_tool_alignment_commit": "558b43ecce688ac2d25c3eb026ffd2f43318d582",
+    "usb_ufs_isolation_commit": "8603c558a032dfe42f1c617cf58432bef594ee4f",
+    "ufs_only_regulators_disabled": [
+      "PM8350 L7B",
+      "PM8350 L9B"
+    ],
+    "ufs_only_regulators_not_registered_due_to_of_available_filter": true,
+    "ufs_pcie_phy_shared_regulators_still_required": [
+      "PM8350 L5B",
+      "PM8350C L10C"
+    ],
+    "preceding_superseded_run": 39045013110,
+    "cheap_gate_artifact_id": 12105472677,
+    "cheap_gate_artifact_zip_sha256": "fa29a3077866568e7961dbb2a303265dbce4bed4fa784b6a463c228c3ff723f0",
+    "cheap_gate_sha256sum_entries_verified": 18,
+    "fdt_summary": {
+      "nodes": 924,
+      "reserved_static": 39,
+      "reservation_overlaps": 0,
+      "inherited_active_disabled_phy_refs": 6,
+      "selector_ranges": 6,
+      "pmu_input_supplies": 11,
+      "grouped_parent_edges": 6,
+      "host_scenarios": 17,
+      "host_mocked_assertions": 326
+    },
+    "combined_arm64_job_id": 117447403567,
+    "combined_workflow_conclusion": "success",
+    "dt_job_id": 117446794445,
+    "image_bytes": 52632064,
+    "partial_combined_artifact_id": 12106506674,
+    "partial_combined_artifact_name": "oneli-radio-combined-39045171934-1",
+    "partial_combined_artifact_zip_sha256": "77a8355f44f0a22b12f40e466be9f521ddf1452cd29bdfa2886895f66f188665",
+    "partial_combined_artifact_bytes": 18434786,
+    "kernel_release": "7.3.0-rc6-g7f3865ee17c3",
+    "toolchain": "AArch64 GCC 13.3.0; GNU ld 2.42; GNU Make 4.3; Python 3.12.3; Zstandard 1.5.7",
+    "partial_release_checksums_verified": 4,
+    "compiled_module_types_verified": [
+      "ath11k_pci.ko AArch64 relocatable",
+      "hci_uart.ko AArch64 relocatable",
+      "pci-pwrctrl-pwrseq.ko AArch64 relocatable"
+    ],
+    "vmlinux_symbols_in_Module_symvers": [
+      "devm_regulator_bulk_get",
+      "pci_pwrctrl_create_devices",
+      "devm_pwrseq_get"
+    ],
+    "failed_assertion": "Historical only: test -s out/vmlinux.symvers; corrected to verify vmlinux-owned exports from actual Module.symvers in accepted kernel.",
+    "module_install_completed": true,
+    "module_dependencies_verified": true,
+    "final_manifest_present": true,
+    "next_gate": "Userspace consumes and independently verifies final 12109240146 artifact/archive and packages matching release. No new Boot CI or kernel build.",
+    "coordinator_acceptance": "Accepted 2026-10-17 in docs/COORDINATOR_REVIEW_2026-10-17.md, final run 39050113058; Userspace owns exact-artifact consumption",
+    "accepted_source_build_scope": true,
+    "combined_artifact_id": 12109240146,
+    "combined_artifact_name": "oneli-radio-combined-39050113058-1",
+    "combined_artifact_zip_sha256": "d5ad99f03097655f03bc25b243ef2c1758b183bb49963167437750a3781a9de1",
+    "combined_artifact_zip_bytes": 38392709,
+    "dt_evidence_artifact_id": 12107262705,
+    "final_release_SHA256SUMS_entries_verified": 11,
+    "module_bundle_present": true,
+    "owner_next_action": "Boot paused; Userspace integrates exact accepted Image/DTB/matching modules, early PCI pre-power module and Debian firmware/services. No kernel rebuild or further Boot task.",
+    "previous_failed_run": 39045171934,
+    "previous_failed_reason": "Historical only: compiled Image/modules but false vmlinux.symvers assertion blocked packaging; fixed at 7f3865e and final CI PASS."
+  }
+}
