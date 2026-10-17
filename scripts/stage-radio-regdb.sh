@@ -39,7 +39,7 @@ mount --bind /dev "$root/dev"
 chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get update > "$work/evidence/apt-update.log" 2>&1
 chroot "$root" /usr/bin/env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends wireless-regdb > "$work/evidence/apt-install.log" 2>&1
 # Custom upstream mainline kernel trusts sforshee/wens, not Debian's separate signer.
-chroot "$root" update-alternatives --set regulatory.db /usr/lib/firmware/regulatory.db-upstream \
+chroot "$root" update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream \
     > "$work/evidence/selected-alternative.txt" 2>&1
 chroot "$root" update-alternatives --display regulatory.db > "$work/evidence/alternatives.txt"
 chroot "$root" dpkg-query -W -f='${Package}\t${Version}\t${Architecture}\n' wireless-regdb > "$work/evidence/regdb-package.tsv"
