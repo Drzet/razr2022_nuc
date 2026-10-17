@@ -47,12 +47,12 @@ chroot "$root" dpkg -V wireless-regdb > "$work/evidence/dpkg-verify.txt"
 [[ ! -s "$work/evidence/dpkg-verify.txt" ]]
 # Both active names MUST resolve to matching upstream files, not Debian-only signatures.
 for file in regulatory.db regulatory.db.p7s; do
-    selected=$(realpath "$root/usr/lib/firmware/$file")
-    [[ "$selected" == "$root/usr/lib/firmware/$file-upstream" ]] || {
+    selected=$(chroot "$root" readlink -f "/usr/lib/firmware/$file")
+    [[ "$selected" == "/usr/lib/firmware/$file-upstream" ]] || {
       echo "Wrong selected trusted signature for $file: $selected" >&2; exit 1;
     }
-    [[ -s "$selected" ]] || exit 1
-    printf '%s  %s\n' "$(sha256sum "$selected" | cut -d' ' -f1)" "usr/lib/firmware/$file-upstream" \
+    [[ -s "$root$selected" ]] || exit 1
+    printf '%s  %s\n' "$(sha256sum "$root$selected" | cut -d' ' -f1)" "usr/lib/firmware/$file-upstream" \
        >> "$work/evidence/regdb-sha256.txt"
 done
 # Existing source firmware and matching module ABI are retained.
