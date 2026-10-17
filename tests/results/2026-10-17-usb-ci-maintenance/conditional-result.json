@@ -1,0 +1,120 @@
+{
+  "valid": {
+    "expected_valid": true,
+    "diagnostics_bytes": 0,
+    "validator_exit": 0,
+    "dtb_sha256": "c453860124eae6038b8b760bebf7cf0a1a065003aa45f64dc610903ac2bacc6c",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-dp-eq": {
+    "expected_valid": false,
+    "diagnostics_bytes": 884,
+    "validator_exit": 0,
+    "dtb_sha256": "9b04dd05dc6dde42550941fffafcda649ec6a7400ce79318a6c2a8d43efe7282",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-usb-rx-eq": {
+    "expected_valid": false,
+    "diagnostics_bytes": 892,
+    "validator_exit": 0,
+    "dtb_sha256": "4a8ae318d6b70d075c6d3bde41797474cf54a872755da0fccd529016b9d481f5",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-usb-tx-eq": {
+    "expected_valid": false,
+    "diagnostics_bytes": 892,
+    "validator_exit": 0,
+    "dtb_sha256": "84c67b18ac2a940e1b6eaf94d09ebc3e4cde3dafad721400103169dd62a814b5",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-dp-gain": {
+    "expected_valid": false,
+    "diagnostics_bytes": 887,
+    "validator_exit": 0,
+    "dtb_sha256": "1650344859ca0eb2c59e4462076fbbb32b0e3fa3a3a9db356186a0cf0518d141",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-usb-rx-gain": {
+    "expected_valid": false,
+    "diagnostics_bytes": 895,
+    "validator_exit": 0,
+    "dtb_sha256": "b0d7ef813688b3b7c2bb7942d3bb91127842147771c89e8f6ddd74bf890fa28a",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-usb-tx-gain": {
+    "expected_valid": false,
+    "diagnostics_bytes": 895,
+    "validator_exit": 0,
+    "dtb_sha256": "1dff2c146fbff0910215ab1fd5d76386001db8bf11b2c5d201d0502a7054fb4c",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-lfps": {
+    "expected_valid": false,
+    "diagnostics_bytes": 893,
+    "validator_exit": 0,
+    "dtb_sha256": "ade81d615827dc83c9fc36f70f84ca13742e1dece4953490d94def5f9f4d874e",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "invalid-both-gpios": {
+    "expected_valid": false,
+    "diagnostics_bytes": 656,
+    "validator_exit": 0,
+    "dtb_sha256": "0ec77818a19b76400eb68af7768b6b97b1194affa672ff900af683899c98bb9d",
+    "enable_gpio_cells": [
+      3,
+      19,
+      0
+    ]
+  },
+  "runtime": {
+    "probe_harness_sha256": "4dec5abb36dc52045e745b398c27b5cd8353a98ba0e08d9a213f943d5fe7237e",
+    "generated_host_harness_sha256": "64d75c80cf252ab3731121a4c766009c7db2740a7e015a3ff407c81e78e794bc",
+    "returncode": 0,
+    "rejected_properties": [
+      "parade,dp-eq-db",
+      "parade,usb-rx-eq-db",
+      "parade,usb-tx-eq-db",
+      "parade,dp-set-gain",
+      "parade,usb-rx-set-gain",
+      "parade,usb-tx-set-gain",
+      "parade,fine-tune-lfps-swing"
+    ]
+  },
+  "provenance": {
+    "binding_sha256": "f29cf0c237b386dc82257ebf91171f0409cdd200dc81c4dcbbab7c49931cc399",
+    "valid_fixture_sha256": "b397c8bfdd09ce0e3fb05c87b770d79b01baf494d726bda5ecbdb1278df5610b",
+    "driver_sha256": "238cb7343c30003da59a24b875b3cdecedcc9198fa74762235e05fdec33aabd3"
+  }
+}

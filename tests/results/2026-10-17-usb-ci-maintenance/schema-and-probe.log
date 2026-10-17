@@ -1,0 +1,12 @@
+Building processed DT schema with the real Parade binding and referenced USB switch schemas
+PASS valid oneli-compatible PS5169, GPIO19 active-high, no EQ/gain/LFPS
+PASS invalid-dp-eq: actual binding rejected fixture (p.returncode=0)
+PASS invalid-usb-rx-eq: actual binding rejected fixture (p.returncode=0)
+PASS invalid-usb-tx-eq: actual binding rejected fixture (p.returncode=0)
+PASS invalid-dp-gain: actual binding rejected fixture (p.returncode=0)
+PASS invalid-usb-rx-gain: actual binding rejected fixture (p.returncode=0)
+PASS invalid-usb-tx-gain: actual binding rejected fixture (p.returncode=0)
+PASS invalid-lfps: actual binding rejected fixture (p.returncode=0)
+PASS invalid-both-gpios: actual binding rejected fixture (p.returncode=0)
+PASS actual production ps5169_probe: seven generic tuning property rejections before register writes, clean reprobe
+PS5169 conditional schema + production runtime test: ALL PASS

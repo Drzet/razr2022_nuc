@@ -1,0 +1,67 @@
+{
+  "assignment": "Drzet/razr2022_nuc@0e10c58e58f220b7e39acf60532945d0940b9320, USB CI-maintenance exception",
+  "project_base": "481c399cee777014586b083f0305614e09aa9c68",
+  "kernel_branches": {
+    "razr/usb": {
+      "base": "87d7277ced4c562e2379ee58aaed5c5fd7db4f32",
+      "head": "305bc34cac710adc9fe7c4794a6e909abdf83ee0"
+    },
+    "razr/usb-ps5169": {
+      "base": "4dcbc7ba1c04afea37ab0b0caf6b4c16bfcc3dfe",
+      "head": "57d4d32b614cf23c2d9f60cdb06daa30870d7b61"
+    },
+    "razr/usb-ptn3222": {
+      "head": "1e5268277f6d4c25cde2f3e2b3f00439107e087a",
+      "changed": false,
+      "existing_workflow": false
+    }
+  },
+  "workflow_sha256": {
+    ".github/workflows/razr-ps5169-fault-ci.yml": "129b10e8bad366cad0a41e6dfbf039213d3c70b2dbf2756daf05e4d9ac1229bd",
+    ".github/workflows/razr-usb-schema.yml": "1eb772407f8751f3b3fd9f408beb8a0d6213bd19facbe7a2ab488263346412f3"
+  },
+  "local_tools": {
+    "actionlint": "1.7.12",
+    "actionlint_archive_sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+    "shellcheck": "not installed; disabled in actionlint; Bash syntax checked separately",
+    "python": "3.14.4",
+    "gcc": "15.2.0 (Ubuntu 15.2.0-16ubuntu1)",
+    "dtc": "1.7.2",
+    "dtschema": "2026.6"
+  },
+  "actions_pins": {
+    "checkout_v4": "11d5960a326750d5838078e36cf38b85af677262",
+    "upload_artifact_v4": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+  },
+  "results": {
+    "actionlint": "PASS (three maintained definitions)",
+    "workflow_wiring_bash_and_real_git_selector": "PASS (25 cases)",
+    "transition_faults": "PASS",
+    "conditional_schema_and_probe": "PASS (1 positive, 8 negative DTB fixtures; original probe/remove tests plus 7 forbidden-property cases)"
+  },
+  "unchanged_code_check": "Both kernel diffs contain only .github/workflows paths; no driver, binding, test harness, Kconfig or DTS byte change.",
+  "limits": "Automation validation and actual production-function host mocks; no kernel/hardware execution, new driver build or acceptance change.",
+  "github_run_ids": [
+    38986262436,
+    38986262582,
+    38986268226
+  ],
+  "local_log_sha256": {
+    "production-probe.log": "19afb06f4f300c5b4d94ebe180736a9c864b09fd8ea7c56372393b72771a50df",
+    "selector.log": "5a443ff1a8fe1ef762afa4a97d643c6d42f963d8f87afbccf0bf1233625edb9d",
+    "schema-and-probe.log": "b38537bab891027510dc175b637d54934433503eec53eb8b0a12ff73e687c072",
+    "transitions.log": "a4cba2c9f444805c95dfd9c490ed56f217bea94049fbf0e755389d5ff56c414a",
+    "conditional-result.json": "8d6379572f57a15d6539633d2bc21a0195b26500d9be9ce7ec043c0aa9edc88d",
+    "actions-receipt.json": "466ef5d3711f4e021b9f44a28aeb3d3841a4aef4d3a3362b92d8f7c934a256bd",
+    "actionlint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "selector-result.json": "a820a1a3c6c4bba6e047827368d790aa930a2ed77368ae1bf8510bdb08d4fc13"
+  },
+  "workflow_test_sha256": "c58d2b0eb0ec549d7e53824fa399cc5a2289c6dd24bbaa75b7116886e5f10722",
+  "actions_receipt": "actions-receipt.json",
+  "github_conclusions": {
+    "38986262436": "success",
+    "38986262582": "success",
+    "38986268226": "success"
+  },
+  "arm64_maintenance_job": "skipped (117258746214); no unchanged driver build"
+}

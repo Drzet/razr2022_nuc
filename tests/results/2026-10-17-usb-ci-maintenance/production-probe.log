@@ -1,0 +1,8 @@
+$ /tmp/razr-ptn3222-schema-venv/bin/python /tmp/razr-usb-ci-ps5169/ps5169-conditional-record/production-probe-override-injection.py
+returncode=0
+production ps5169_probe: acquisition, ID, aux, switch, retimer failure unwind PASS
+production ps5169_probe: 27 ordered stock writes, 10ms GPIO/delay and remove PASS
+production ps5169_probe: 30 partial-write failures, cleanup and reprobe PASS
+production ps5169_probe: all seven forbidden OEM properties rejected before I2C writes and reprobe PASS
+PS5169 production lifecycle fault injection PASS (host mocks, not kernel/hardware)
+
