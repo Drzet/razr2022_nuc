@@ -1,5 +1,40 @@
 # BOOT handoff: seventh-round console-summary v2 one-time host refresh
 
+## 2026-10-17 active BOOT delivery: disabled radio board/config staging
+
+**Assignment:** [coordinator eb4444d](https://github.com/Drzet/razr2022_nuc/commit/eb4444d63fc185f7a8b23c4ba6aa8ff2e0cc90eb), `docs/NEXT_TASKS.md`. Starting project BOOT `638a9d7989617783e2d2112847ca293cf08773a4`, kernel BOOT `7d30153d3b2d890a42b48b6b12bcc8e9fcc7810e`. Accepted tested functional integration remains **`2b5acf108ae37040ac1e652e029bb37f5609e886` unchanged**. Producer inputs pinned: [Wireless source contract af57d1a](https://github.com/Drzet/razr2022_nuc/commit/af57d1a8dc626992843079d987d49ac5338d780f), [Power supply contract b8e85bb](https://github.com/Drzet/razr2022_nuc/commit/b8e85bbe4936814d29ac1db770e2b286c69e9dca). Wireless subsequently completed its *driver implementation candidate* [`3b674aa`](https://github.com/Drzet/linux/commit/3b674aa5c15e9334878b0241a4664f4fe88d413d), which is separate from this disabled-source DTS staging and **not merged into BOOT**. Wireless CI outcome/acceptance are independently gated.
+
+### Changes and unchanged hardware state
+
+**Kernel `Drzet/linux:razr/boot`:**
+
+- `9d8d27bfb90a35ad593103c60a210ad7aa921a83`, formatting/description correction `d2f8f002278fe8f3999af7dc4165608277d5427f`: only `arch/arm64/boot/dts/qcom/sm8475-motorola-oneli.dts`. Extend *already disabled* PM8350/C RPMh providers with S10B, S11B, S12B, S1C and variable-B_PLUS-fed BOB-C; add **disabled** PMR735A provider S2E/L7E. Connect reviewed grouped parents. Add root `qcom,wcn6855-pmu` with **ten** bulk input supplies, one **`vddasd-supply` → L7E** and ten upstream internal LDO outputs. Both PCIe0 host/PHY and WCN-compatible `wifi@0` endpoint are disabled; QUP2 wrapper, UART20 and `qcom,wcn6855-bt` are disabled. No stock GPIOs are driven and no module probes. The hypothetical `pci17cb,1103` and BT WCN compatible are **[INFERRED]**, not real oneli hardware IDs.
+- `0ce8f5aba5ff233e2dacd6fe09cfc48b3f037458`: development-only `arch/arm64/configs/razr-oneli-wireless.config`; requests PCIe/QMP, WCN pwrseq, ath11k PCI/MHI/QRTR, Bluetooth HCI UART/QCA and **BT_LE=y**. No actual Image/rootfs rebuilt. `CONFIG_PCI_PWRCTRL_PWRSEQ=m` must be **verified in resolved Kconfig**, not presumed from merely listing a hidden Kconfig symbol.
+- `51b1bc2bb80be8cff1846eef24258ffca4fe7c09`: `scripts/razr/check-oneli-wireless-staging.py` reads the **actual compiled DTB**, checks phandle equality and all eleven WCN supply slots, five parent edges, six regulator selector envelopes, disabled ancestry (including PCIe PHY and QUP wrapper), selected radio GPIOs and unchanged UART7; also checks 19 **resolved** Kconfig symbols.
+- `6b40ea433e8b8aedbfab5bf93fc9c6c8fbf21985`: extend already consolidated, automatically triggered `razr-oneli-dt.yml` to merge the source fragment then `olddefconfig`, compile the DTB **once**, validate all binding schemas/FDT, and run the focused stage/selector/config checker. Keep workflow/ref-scoped supersession cancellation; no duplicate FDT workflow, driver/module/Image build or firmware download.
+
+**Proposed requested vs actually selectable voltage envelopes (µV, *not* measured outputs):**
+
+| RPMh output | Source-supported board constraints (µV) | Pinned driver's selector intersection (µV) | Other consumers |
+| --- | --- | --- | --- |
+| PM8350 S10B | 1800000..1800000 | 1800000 | WLAN/BT IO, PTN3222, PS5169 |
+| PM8350 S11B | 966000..1170000 | 968000..1168000 (8mV step) | shared digital/AON, L5B parent |
+| PM8350 S12B | **1350000..2024000** | 1352000..2024000 (8mV step) | WLAN/BT RF and L9B/L10B parent, BT's 2.024V max honoured |
+| PM8350C S1C | 1900000..2024000 | 1904000..2016000 (16mV step) | WLAN/BT RF, L8C parent shared with PS5169 |
+| PMR735A S2E | **1012000..1040000** | 1012000..1040000 (4mV step) | WLAN PMU MX. **Vendor 0.500V initial is NOT an active consumer vote** |
+| PMR735A L7E | 2800000..2800000 | 2800000 (8mV step) | shared Wi-Fi antenna switch / Bluetooth ASD; optional FM [INFERRED] |
+
+Per pinned `drivers/regulator/of_regulator.c`, populated min/max DT fields set `constraints->apply_uV`; these are *deliberate regulator-core startup requests when providers eventually probe*, rather than copying ineffective vendor initial values. No board runtime voltage has been measured. The existing RPMh driver has appropriate selector intersections; the board's **disabled** providers cannot apply these requests now. Later enabled integration must still validate actual votes, shared consumers, provider dependencies, PMIC headroom and runtime sleep policy.
+
+**Source/caveat ledger:** PM8350 L2/L7←PM8350C BOB, L3/L5←PM8350 S11B (not HDK BOB), L6/L9/L10←PM8350 S12B, PM8350C L2/L8←PM8350C S1C are from inspected Motorola oneli rev03 schematic evidence; **PMR735A L7E←PM8350C BOB is [INFERRED] from SM8450 HDK**. Motorola reference PMR735A buck inputs were not physically verified; PM8350/8350C buck and BOB high-side source is **variable B_PLUS**, deliberately left without an invented fixed-voltage regulator or fabricated phandle. Existing L5B/L7B/L9B/L10C UFS nodes remain disabled and preserve consumers. PCIe0 upstream host already owns PERST94/CLKREQ95/WAKE96, and UART20 uses inherited QUP20 TLMM76–79 mux. One PMU node owns GPIO80 WLAN_EN, 81 BT_EN, 204 XO, with SWCTRL82 *status/input* only; no separate second owner or invented output. Existing UART7/`serial0:115200n8`, GLINK GPIO91, USB/DP GPIO19/2/71 are unchanged.
+
+**Validation:** unified automatic DTB/schema/FDT/merged-configuration CI triggered by the new staged source. Latest exact workflow-only source tree `d2f8f002278fe8f3999af7dc4165608277d5427f`; [automatic run 39025973401](https://github.com/Drzet/linux/actions/runs/39025973401) is **pending/in progress as of this initial handoff**. Previous [run 39025892989](https://github.com/Drzet/linux/actions/runs/39025892989) is superseded by scoped cancellation; no new passing compiled artifact claimed yet. Planned evidence: actual DTB/check-schema/audit logs, matched resolved `kernel.config` and checksums. No ARM64 module or phone validation commissioned until Wireless's optional-vddasd producer is independently accepted for integration.
+
+**Stop condition:** after CI result, correct only attributable compiler/schema/config issues, write final hashes/toolchain/result here and in [machine readiness](../../configs/oneli-native-loader-readiness-v1.json), then post the exact project/kernel commit and run to [BOOT issue #12](https://github.com/Drzet/razr2022_nuc/issues/12). No radio enable, merged producer, Userspace packaging, boot candidate, broad radio research or device operation without coordinator's next decision.
+
+---
+
+
 ## 2026-10-17 scoped CI consolidation (coordinator latest NEXT_TASKS)
 
 **Kernel workflow-only change**, on `Drzet/linux:razr/boot` starting at `525b504b82dbca593a9a697af9be63f53915e0a3`:
