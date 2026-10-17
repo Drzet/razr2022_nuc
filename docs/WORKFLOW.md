@@ -1,6 +1,6 @@
 # Development and integration policy
 
-Current policy, 2026-10-14. Replaces accumulated round-specific instructions. Only [NEXT_TASKS](NEXT_TASKS.md) selects work; [STATUS](STATUS.md) records acceptance. Historical reports remain evidence.
+Current policy, 2026-10-17. Replaces accumulated round-specific instructions. Only [NEXT_TASKS](NEXT_TASKS.md) selects work; [STATUS](STATUS.md) records acceptance. Historical reports remain evidence.
 
 ## Stable project boundaries
 
@@ -38,3 +38,15 @@ Keep authored patch provenance, source and integration SHAs, configurations, rel
 Owner authorization covers routine task selection, review, queue/status maintenance and posting project instructions. Coordinator completes these together; a recommendation in chat is not an assignment until recorded in NEXT_TASKS. Subsystem agents still stop at their deliverable and do not activate queued work themselves. GitHub comments publish instructions but do not launch or directly control another chat.
 
 Test local Git access once per session when needed. If unavailable, use available GitHub connector operations and focused CI; do not repeatedly clone or re-check access. Report the exact failed operation and fallback outcome if execution remains blocked. Reuse existing objects/checkouts in an isolated worktree where available. Failed ref leases require inspecting the actual current head; they are not evidence of another writer by themselves. Preserve tested history and use expected-head updates.
+
+## Automatic CI policy — user decision 2026-10-17
+
+User reports workflows re-enabled and authorizes automatic builds for assigned work. This supersedes the earlier temporary Actions hold. Builds remain automatic; do not convert them to manual-only or require per-run permission. Do not change repository settings or default branches as part of this policy.
+
+- Run cheap syntax/configuration, host and relevant schema checks first. Expensive compilation jobs must depend on their successful completion. Validate workflow syntax and available cheap tests before pushing; batch related fixes rather than probing triggers through repeated commits.
+- Preserve automatic branch/path filters for relevant source changes. Documentation-only updates must not start kernel builds. Workflow-only changes should exercise the affected validation without unnecessarily rebuilding unrelated subsystems.
+- Combine duplicate checks for identical source SHA, resolved configuration and toolchain. Build a DTB or module once and reuse it for its applicable checks; retain all distinct assertions and dependency/modpost requirements.
+- Use concurrency scoped to workflow and branch with cancellation of superseded runs. Owners may cancel their own older redundant run after confirming the replacement covers the same validation purpose. Do not cancel another owner's work, a distinct configuration, or an explicitly retained acceptance run.
+- Retire superseded prototype workflows from active use. Verify which current workflow replaces their necessary checks, then remove obsolete definitions from maintained branches or disable the exact obsolete workflow. Preserve historical commits, logs and accepted artifacts; do not rewrite frozen branches or delete evidence.
+- Pin dependencies, retain exact tested SHA/config/toolchain identities and use finite timeouts. A workflow failing to schedule requires a read-only state/event diagnosis; do not repeatedly alter triggers speculatively.
+- Workflow maintenance does not activate paused subsystem implementation or authorize a new combined kernel candidate.

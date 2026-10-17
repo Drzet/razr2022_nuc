@@ -1,6 +1,18 @@
-# Current assignments — 2026-10-17 wireless assessment
+# Current assignments — 2026-10-17 wireless and CI maintenance
 
 Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
+
+## Active CI maintenance — all workflow owners
+
+User reports Actions re-enabled on 2026-10-17. Automatic builds remain authorized for assigned work; the earlier temporary hold is superseded. Apply [automatic CI policy](WORKFLOW.md#automatic-ci-policy--user-decision-2026-10-17). No manual-only conversion or central dispatcher migration.
+
+- **DisplayPort:** on current razr/displayport head, make expensive ARM64 validation depend on successful cheap production-host/schema checks; preserve automatic relevant-change triggers. Add workflow/branch-scoped supersession cancellation. Continue the existing dependency-complete build assignment. Diagnose any scheduling failure from repository/event evidence before changing triggers.
+- **Boot:** consolidate razr-oneli-dt.yml and razr-oneli-fdt.yml so identical oneli DTB compilation is performed once and reused for schema/FDT checks. Preserve distinct assertions, pinned provenance and automatic relevant-change triggers. Retire the redundant workflow only after its checks are covered. Add scoped supersession cancellation. This workflow-only maintenance is independent of the active observability review; it does not select a new combined Image.
+- **USB:** limited workflow-maintenance exception to paused status: inspect current owned workflow definitions, retire superseded candidate/durable prototype automation where current PS5169/PTN checks replace it, and combine duplicate checks for identical inputs. Cheap host/schema checks must gate expensive builds. Preserve automatic relevant-change triggers and add scoped supersession cancellation. Do not rebuild accepted unchanged drivers merely to reproduce old evidence or change driver/DTS code.
+- **VPU:** limited workflow-maintenance exception to paused status: on the canonical razr/vpu-provenance-v5 branch, ensure cheap host/schema jobs gate expensive builds and avoid duplicate lifecycle checks. Add scoped supersession cancellation; retire superseded prototype automation without modifying frozen historical branches. Preserve all necessary checks and automatic relevant-change triggers. No RESUME implementation is activated.
+- **Power / Wireless / GPU / Userspace:** apply this policy to workflows you own when needed for an assigned change; do not launch new extraction/build work solely for cleanup. Do not edit another owner's workflow.
+
+Each maintenance owner inspects actual branch heads before editing, preserves intervening work, updates its existing handoff with retired/replacement workflows and exact commits, and stops after delivery. Evidence retention and acceptance criteria remain unchanged. Automated checks caused by these scoped maintenance changes are authorized; avoid redundant reruns. No repository-wide settings changes or cancellation of unrelated runs.
 
 ## Active: DisplayPort — validation closure
 
