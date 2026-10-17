@@ -1,51 +1,45 @@
 # Subsystem handoff: DisplayPort / external display / Motorola oneli
 
-## Current closure: automatic CI efficiency and successful ARM64 build (2026-10-17)
+## Final closure: coordinator-accepted DisplayPort AUX source/build validation (2026-10-17)
 
-**Authority:** coordinator [`0e10c58e58f220b7e39acf60532945d0940b9320`](https://github.com/Drzet/razr2022_nuc/commit/0e10c58e58f220b7e39acf60532945d0940b9320) explicitly supersedes the earlier Actions hold and authorizes automatic validation on assigned work. This current result supersedes the historic hold and zero-run diagnoses below; retain those only as dated history.
+**Disposition: ACCEPTED for isolated source/build scope; documentation closure complete; DP paused.** The current coordinator [STATUS](https://github.com/Drzet/razr2022_nuc/blob/ee76a93e3a2e091b446478189681ab36717c1058/docs/STATUS.md) and [NEXT_TASKS](https://github.com/Drzet/razr2022_nuc/blob/ee76a93e3a2e091b446478189681ab36717c1058/docs/NEXT_TASKS.md) accept kernel `d28598f` and the successful dependency-complete host/schema + ARM64 module CI. The prior pending-build and Actions-disabled instructions below are **historical, not active holds**. No additional build, workflow change, new driver or oneli DTS change is authorized by this closure.
 
-**Current kernel branch:** [`Drzet/linux:razr/displayport@d28598f544682eed5997ac9d57d423e9a5031624`](https://github.com/Drzet/linux/commit/d28598f544682eed5997ac9d57d423e9a5031624). CI-only changes:
-- [`b1cca0d7196bda221db2f7b956cfa0abc13dda99`](https://github.com/Drzet/linux/commit/b1cca0d7196bda221db2f7b956cfa0abc13dda99): expensive ARM64 `arm64-module-link` now has `needs: production-host-and-schema`; workflow/branch-scoped `concurrency` cancels superseded same-ref runs; relevant branch/path push filters preserved.
-- [`d28598f544682eed5997ac9d57d423e9a5031624`](https://github.com/Drzet/linux/commit/d28598f544682eed5997ac9d57d423e9a5031624): correct vmlinux-stage provider evidence to `out/vmlinux.symvers`; `out/Module.symvers` is checked after ordinary `make modules`. Production source, binding, test harnesses, shared DTS and accepted integration remain unchanged.
+**Pinned source and workflow changes**
+- Kernel: [`Drzet/linux:razr/displayport@d28598f544682eed5997ac9d57d423e9a5031624`](https://github.com/Drzet/linux/commit/d28598f544682eed5997ac9d57d423e9a5031624), descending from accepted integration `2b5acf108ae37040ac1e652e029bb37f5609e886`; candidate remains **unmerged/unintegrated**. Existing generic GPIO-SBU driver, Willsemi binding, two test harnesses, board DTS and legacy/other subsystem logic are unchanged by final workflow maintenance.
+- [`b1cca0d7196bda221db2f7b956cfa0abc13dda99`](https://github.com/Drzet/linux/commit/b1cca0d7196bda221db2f7b956cfa0abc13dda99): inexpensive production-host and exact schema fixture job must succeed before ARM64 `vmlinux`/modules; `concurrency` cancellation limited to this workflow and same Git ref; original relevant branch/path push filters preserved.
+- [`d28598f544682eed5997ac9d57d423e9a5031624`](https://github.com/Drzet/linux/commit/d28598f544682eed5997ac9d57d423e9a5031624): assert built-in symbol exports from `out/vmlinux.symvers` after `make vmlinux`, then `out/Module.symvers` after ordinary `make modules`; preserve actual linked `gpio-sbu-mux.ko`. No fake symvers or suppressed unresolved module references. Tooling pins `dtschema==2026.9`.
 
-**Completed successful build, direct GitHub API evidence:** [Actions run #38987006218](https://github.com/Drzet/linux/actions/runs/38987006218), `event=push`, `head_sha=d28598f544682eed5997ac9d57d423e9a5031624`, `status=completed`, **`conclusion=success`**. Both jobs individually `success`:
-- `production-host-and-schema` job [117260700595](https://github.com/Drzet/linux/actions/runs/38987006218/job/117260700595): production probe harness, `dtschema==2026.9` setup, binding example and exact positive/negative instance runner, evidence upload steps all success.
-- `arm64-module-link` job [117261174622](https://github.com/Drzet/linux/actions/runs/38987006218/job/117261174622): ARM64 config generation, matching `vmlinux` provider export check, ordinary `make modules` / `gpio-sbu-mux.ko` / modpost, and evidence upload steps all success. This is a real dependency-complete ARM64 module/link CI result, **not** a full Image build or phone test.
-- Uploaded artifacts (GitHub reports present and unexpired): `gpio-sbu-host-schema-38987006218` (3,010 bytes, artifact ID 12083931132) and `gpio-sbu-arm64-link-38987006218` (190,803 bytes, artifact ID 12084757955). The workflow records compiler versions, exact SHA, config SHA256, module and symvers hashes, `modinfo`, and provider export evidence; these **individual artifact values were not independently downloaded/transcribed** in this handoff. Download the artifacts if coordinator needs to record concrete hashes.
-- Prior [run #38985439713](https://github.com/Drzet/linux/actions/runs/38985439713) at `b1cca0d` failed; corrected by `d28598f` and superseded by its **successful** run. No additional rerun is needed.
+**Successful run and direct GitHub job-log evidence**
+- [Run `38987006218`](https://github.com/Drzet/linux/actions/runs/38987006218): `push` of exact kernel SHA `d28598f544682eed5997ac9d57d423e9a5031624`, `completed/success`, attempt 1. [Host/schema job `117260700595`](https://github.com/Drzet/linux/actions/runs/38987006218/job/117260700595) passed **11 production host cases / 237 assertions**, installed `dtschema 2026.9`, passed binding check and **all four exact positive/negative schema instances** (`GPIO_SBU_SCHEMA_FIXTURES_PASS 4`).
+- [ARM64 module job `117261174622`](https://github.com/Drzet/linux/actions/runs/38987006218/job/117261174622) passed matching `vmlinux`, checks of real regulator/Type-C/GPIO provider exports, then ordinary ARM64 module build, MODPOST, ELF/vermagic/config identity and `ARM64_SBU_MODULE_MODPOST_PASS`. The `.ko` was verified `ELF 64-bit ... ARM aarch64`; cross-GCC `13.3.0`, GNU binutils linker `2.42`. Key resolved settings: `CONFIG_TYPEC_MUX_GPIO_SBU=m`, `CONFIG_MODULES=y`, `CONFIG_REGULATOR=y`, `CONFIG_TYPEC=y`, `CONFIG_GPIOLIB=y`.
+- SHA-256 values below are transcribed **from this successful job's printed output**, not guessed or independently recomputed from a local recompile:
 
-**Acceptance request:** coordinator inspect run and artifacts, accept or name a specific remaining failure. Do not launch duplicate builds. WAS7227Q installed-board correspondence and physical DP functionality remain **[INFERRED]/untested**. DP candidate remains unintegrated pending coordinator decision. Stop at this delivery.
+| CI output | SHA-256 |
+| --- | --- |
+| `out/.config` (before and after build, equal) | `0bedc70610221d4995877520dfc57f23bec865cb7cd4696f29eaa0883970ebd3` |
+| `out/drivers/usb/typec/mux/gpio-sbu-mux.ko` | `6717c84e3d4f8f2d93a54666471181702fdd7d2f6bed32777873babe2d7b7c05` |
+| `out/vmlinux` | `05f09911f81d66a80613b7f41f628e5e349b5828efe174bb5c7b79daa16907b4` |
+| `out/vmlinux.symvers` (built-in providers) | `71f8686f9e893c7552fff8ffdee959a79bb1697c0b6c5733e0388727994d7a52` |
+| `out/Module.symvers` (after modules) | `f46edb2a83b837e02e790a25c54ddf1fb8d46fb9eb492f28ff73617cf275e124` |
 
----
+**Retained artifacts and traceability**
+- [Host/schema evidence ZIP, artifact `12083931132`](https://github.com/Drzet/linux/actions/runs/38987006218/artifacts/12083931132), `gpio-sbu-host-schema-38987006218`, 3,010 bytes, upload ZIP SHA-256 `b41119facf9a2f0d9e08a0f6bb3ad3405fcc243b6cbb6dc20c9b4c046d3328de`.
+- [ARM64 evidence/module ZIP, artifact `12084757955`](https://github.com/Drzet/linux/actions/runs/38987006218/artifacts/12084757955), `gpio-sbu-arm64-link-38987006218`, 190,803 bytes, upload ZIP SHA-256 `40a7cc75411098b542d9685ae7c039c0a52f753c0809e21adceaed11967cbaf8`. The archived module is the exact tested `.ko`; hashes above come from CI logs, not independently unpacked artifact bytes.
+- Historical [failed run `38985439713`](https://github.com/Drzet/linux/actions/runs/38985439713) at `b1cca0d` reflected the incorrect expectation for `Module.symvers` at `vmlinux` stage; superseded by the successful `d28598f` correction. The earlier fork-disabled, workflow-registration and speculative-trigger incidents are **closed historical diagnostics**; speculative triggers were reverted at `9912ff28`, [draft PR #7](https://github.com/Drzet/linux/pull/7) closed without merge, and this accepted workflow retained its original branch/path triggers.
 
-## Current instruction: speculative workflow changes reverted; Actions forbidden until user permission (2026-10-17)
-
-**User instruction:** Do **not** use, trigger, enable, schedule or request GitHub Actions until the user explicitly authorizes it. Do not propose empty pushes, PR trigger experiments or further workflow rewrites. The DP execution gate is on hold, irrespective of future fork administration state.
-
-**Reversal complete:** [kernel commit `9912ff28e40a680def95b2b9c42e057a0b21fb7b`](https://github.com/Drzet/linux/commit/9912ff28e40a680def95b2b9c42e057a0b21fb7b) restores `.github/workflows/razr-gpio-sbu.yml` **byte-for-byte** to the last coordinator-authorized source at `d02a2ab9631b1af57ef6912aa58343802b38a3fc`: Git blob **`e54ec240f0ee5ba3c1944eb370daf68be1be7537`**. This reverses all speculative trigger modifications introduced by kernel commits `81f3ec7e`, `9c0b1e7c`, `fe480fd0` through a new non-forced linear commit; earlier authorized ARM64 provider-first/supply validation changes remain intact. The experimental [draft kernel PR #7](https://github.com/Drzet/linux/pull/7) was **closed without merge**. No change to the driver, binding, test source, shared DTS or accepted integration.
-
-**No Actions run or validation occurred as part of the reversal.** Historic host/schema results remain as reviewed, and full ARM64 module/modpost remains untested. Coordinator should treat all prior "try empty push", "enable fork", or "dispatch now" language below/within prior issue comments as **withdrawn** until explicit user permission.
-
----
-
-## Confirmed GitHub Actions scheduling root cause (2026-10-17; overrides speculative trigger reports)
-
-**No further workflow edits, empty pushes, PR trigger experiments, CI runs or branch rewrites are authorized without the user's explicit permission, even if the fork becomes enabled.**
-
-**Authoritative live GitHub evidence (read-only queries):**
-1. [GitHub's own Actions page for `Drzet/linux`](https://github.com/Drzet/linux/actions) explicitly displays: **“Workflows are not currently being run on this fork due to the scale of GitHub Actions usage. A repository maintainer can choose to re-enable these.”** The public repo API verifies `fork=true`, `parent=torvalds/linux`, `default_branch=master`; this is a **fork-level disabled Actions state**, not a confirmed workflow syntax/runner/branch-filter fault.
-2. Unauthenticated public [GitHub Actions workflow registry API](https://api.github.com/repos/Drzet/linux/actions/workflows) reports **14 previously registered, `state=active` workflows**. It **does not include** `.github/workflows/razr-gpio-sbu.yml`. Direct [API lookup by path](https://api.github.com/repos/Drzet/linux/actions/workflows/razr-gpio-sbu.yml) responds **404**, and [direct Actions workflow URL](https://github.com/Drzet/linux/actions/workflows/razr-gpio-sbu.yml) says “This workflow does not exist.” This is **not** evidence of YAML parser failure: GitHub cannot register/schedule a new workflow while Actions is disabled on the fork.
-3. [GitHub Actions runs API](https://api.github.com/repos/Drzet/linux/actions/runs?branch=razr/displayport) returns **zero**, despite the workflow file existing in branch Git tree and connector/PR/fast-forward changes. Previously successful VPU/USB/etc workflow runs are **historical** and do not contradict the present fork-wide disabled message. The earlier hypothesis that “GitHub connector credentials suppress all events” was **not established** and is **withdrawn**.
-4. [Official GitHub documentation, Events that trigger workflows: Workflows in forked repositories](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflows-in-forked-repositories) says forked repository workflows do **not** run by default and **must be enabled in the Actions tab**. [Repository Actions settings documentation](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository) describes Settings → Actions → General and separately advises GitHub Support if a GitHub-controlled disabled state cannot be reversed by the settings.
-5. We have **no Actions-administration mutation tool** exposed through the GitHub connector or authenticated GitHub UI session. Re-enablement requires the `Drzet/linux` repo maintainer to visit [Actions](https://github.com/Drzet/linux/actions) while signed in and choose the presented **enable workflows/Actions** control. If no enable control is shown or it fails, inspect Settings → Actions → General; for a GitHub-controlled block use GitHub Support. Only **after** re-enablement will a fresh authorized branch push/PR event (and the previously corrected CI workflow) be meaningful. A previously missed event cannot be assumed retroactively replayed.
-6. The experimental draft [`Drzet/linux` PR #7](https://github.com/Drzet/linux/pull/7) is now **closed, unmerged**. Kernel `razr/displayport@9912ff28e40a680def95b2b9c42e057a0b21fb7b` has restored the original coordinator-authorized path-filtered workflow exactly. No additional event/trigger experiments are permitted without user authorization.
-7. Last kernel source/binding/test bytes, coordinator-accepted 11/237 host cases and equivalent schema checks unchanged. **Exact fixture runner, matching ARM64 vmlinux/provider exports, ordinary module modpost and module SHA still await a real CI run.** This is a *repository administration/scheduling blocker*, not evidence of a failed kernel compile.
-
-**Disposition:** Trigger diagnosis is **resolved** with a directly visible GitHub fork-wide disabled banner. **Owner action** to re-enable fork Actions is required before validation can continue. Do not create workflow changes or claim PASS as a substitute. This section supersedes earlier “connector-push suppression” and “unknown zero-run cause” statements elsewhere in this dated handoff.
+**Remaining scope boundary:** physical WAS7227Q installed-population correspondence is **[INFERRED]**; external DisplayPort display, VCC behavior on hardware, GLINK orientation, suspend/wake and full oneli integration are **not tested or claimed**. Coordinator alone selects any future merge and Boot owns shared DTS. **Stop and pause after this documentation closure; do not rerun or expand validation.**
 
 ---
 
-## Latest coordinator assignment: correct ARM64 validation workflow (2026-10-17)
+## Historical: Actions fork restriction and reverted speculative trigger experiments (2026-10-17)
+
+At the time of the earlier zero-run investigation, GitHub's Actions UI reported a fork-wide suspension; branch workflow runs were absent. Speculative `pull_request` / widened `push` / run-name changes at `81f3ec7e`, `9c0b1e7c`, and `fe480fd0` did not resolve this and were reversed at `9912ff28`, restoring the authorized workflow blob `e54ec240f0ee5ba3c1944eb370daf68be1be7537`. The temporary user instruction to avoid Actions was in force during that interval, then explicitly superseded by coordinator [`0e10c58`](https://github.com/Drzet/razr2022_nuc/commit/0e10c58e58f220b7e39acf60532945d0940b9320) recording the user's re-enablement and authorization of automatic, cheap-gated CI. The **later successful run `38987006218` definitively supersedes all zero-run observations**. Original diagnoses and instructions remain accessible in [prior handoff history](https://github.com/Drzet/razr2022_nuc/commit/3beb434ed7d990f0fff8c02bc03404a1e99d2c31) and [issue #11](https://github.com/Drzet/razr2022_nuc/issues/11); none is a current blocker.
+
+---
+
+## Historical coordinator assignment: ARM64 validation correction (2026-10-17; completed)
+
+> **Archive note:** this section and all older dated sections below describe the state at their original handoff, including then-unexecuted checks; the accepted CI execution and disposition are documented in the final closure above.
 
 **Authority:** [coordinator commit `87f26ca6821b417272588901e53547e8f8ddf372`](https://github.com/Drzet/razr2022_nuc/commit/87f26ca6821b417272588901e53547e8f8ddf372), `docs/NEXT_TASKS.md` blob `67d2b78a391978b83e9f9eb24a0f57c74ca1756c`. **Prior source/lifetime, Xiaomi comparison, and coordinator-independent production-host/schema review are accepted.** Current task is a CI/build validation correction, not a new SBU driver or DP/DRM implementation.
 
@@ -77,7 +71,7 @@
 
 ---
 
-## Current evening deliverable: powered WAS7227Q kernel candidate (2026-10-16)
+## Historical evening deliverable: powered WAS7227Q kernel candidate (2026-10-16)
 
 **Current coordinator assignment:** [`4135c6de120a83a5d5ad5579d003ae0cd3858408`](https://github.com/Drzet/razr2022_nuc/commit/4135c6de120a83a5d5ad5579d003ae0cd3858408). Required project/power contract `Drzet/razr2022_nuc:razr/power@b7d80a25a19b1a581880062463f468f1ce19f9ab`, accepted kernel integration parent `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`. Kernel `razr/displayport` was **already fast-forwarded** to integration before these additions; no reset/force was used. These are **candidate commits**, not coordinator-accepted integration and not a phone-validated display.
 
@@ -106,7 +100,7 @@
 ---
 
 
-## CURRENT DELIVERY: powered GPIO-SBU driver + Xiaomi DP reuse review (2026-10-16 evening)
+## Historical delivery: powered GPIO-SBU driver + Xiaomi DP reuse review (2026-10-16 evening)
 
 **Authority:** coordinator main `4135c6de120a83a5d5ad5579d003ae0cd3858408`, `docs/NEXT_TASKS.md` evening queue; accepted integration `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`. This section **supersedes earlier "no implementation" / "unpowered generic driver" language below**. Prior four-DTBO stock evidence and ownership contract remain accepted.
 
@@ -163,7 +157,7 @@ make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 modules
 
 ## Earlier DisplayPort handoff and historical rounds (superseded where noted)
 
-## Current evening assignment: pinned Xiaomi DP source comparison (2026-10-16)
+## Historical evening assignment: pinned Xiaomi DP source comparison (2026-10-16)
 
 **Authority:** coordinator commit [`4135c6de120a83a5d5ad5579d003ae0cd3858408`](https://github.com/Drzet/razr2022_nuc/commit/4135c6de120a83a5d5ad5579d003ae0cd3858408), `docs/NEXT_TASKS.md` blob `c4ee18f62a9c867ad813712c00cdb224d17de32d`, `docs/STATUS.md` blob `37cebcbc1bbc22c8e9582ff84bc4e4227aed54f2`. This is the *source-only* comparison component of the active AUX supply/binding implementation. A detailed contemporaneous [cross-source issue #11 review](https://github.com/Drzet/razr2022_nuc/issues/11#issuecomment-6221445905) records the code locations. **No DRM/QMP/GLINK patch authorized.**
 
@@ -182,7 +176,7 @@ make O=out ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j4 modules
 
 ---
 
-## CURRENT assigned deliverable: exact U4500 WAS7227Q AUX switch contract (2026-10-16)
+## Historical assigned deliverable: U4500 WAS7227Q AUX switch contract (2026-10-16)
 
 **Coordinator authority:** [review at `dfbac4c08358d1cc73ff262b39fe05657ecabd49`](https://github.com/Drzet/razr2022_nuc/commit/dfbac4c08358d1cc73ff262b39fe05657ecabd49), `docs/NEXT_TASKS.md` blob `b79160ee32d30ecda4da2e59800b2180021f08d1`; status blob `657bba3724383fd33d783146d59d8870240fe531`. **Scope: source/binding/graph proposal only; no kernel changes, node enablement, image build or additional ROM extraction.** This current section supersedes **historical “AUX part unknown” claims elsewhere in this handoff** for the documented *reference schematic*. The old held board/physical tests remain held for distinct reasons.
 
