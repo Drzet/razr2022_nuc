@@ -14,7 +14,21 @@ The new Debian rootfs was inspected and packaged, but the successful QEMU tests 
 4. In particular verify resolver setup: staging deliberately removes temporary /etc/resolv.conf. Report whether the installed NetworkManager configuration supplies working resolver state in the booted guest; correct only demonstrated packaging defects. Preserve any temporary test credentials outside distributed artifacts.
 5. Run this one meaningful automatic smoke test after cheap harness checks. Update the same canonical handoff with exact input hashes, guest outcomes, limitations and logs; post to #13 and stop. No repeat of completed diskless HOLD/early-loader tests for unchanged inputs.
 
-All other subsystem implementation remains paused/queued. This is the sole active stream.
+Userspace continues this task independently of the bounded display-console task below.
+
+
+## Active independent task: GPU/display agent — disabled early-framebuffer console port
+
+Create isolated kernel and project branches **razr/display-earlycon**: kernel base **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, project base this assignment commit. If a branch already exists, inspect and preserve it. Boot retains shared DTS/cmdline ownership. No Adreno/GPU activation is required or assigned.
+
+1. Use the user-supplied 2026-10-17 internal-display feasibility audit as the starting research, not proof of active oneli scanout. Pin closest reusable Xiaomi source **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, drivers/tty/serial/earlycon-simplefb.c plus its Kconfig/Makefile dependencies. Check current maintained alternatives/pending support narrowly before porting; preserve license/authorship. No repeated panel/firmware inventory.
+2. Review and adapt only the generic earlycon implementation, default disabled. Coordinator independently inspected the pinned source and found review targets: width * 4 is evaluated as u32 before the stride comparison; format is passed to strcmp without a demonstrated NUL within DT-property length; selection does not check framebuffer status before taking the first compatible child. Reject malformed/out-of-range geometry and disabled nodes, check address/end and pixel-offset overflow/alignment, and define handling of multiple nodes. A reg extent alone does not prove RAM reservation or ownership.
+3. Audit early mappings, transition to permanent WC mapping, console unregister/init-memory lifetime, font bounds and write/wrap progress. Verify exact earlycon selection behavior alongside UART; do not assume two earlycon= arguments provide simultaneous consoles. Preserve the accepted UART-first configuration.
+4. Add focused malformed-DT and bounds/write tests with real production logic where practical, explicitly marking mocks. Cheap checks precede a targeted ARM64 object build with necessary Kconfig dependencies. No full Image/modules rebuild, no new rootfs or phone boot package.
+5. No oneli framebuffer node, copied Xiaomi geometry, display bootargs, reserved-memory changes or MDSS/DPU/DSI/panel activation. The shared 0xb8000000/0x02b00000 reference reservation is not evidence of active scanout. Hardware-free source work may proceed; actual enablement waits for confirmed geometry/format/stride/ownership and handoff continuity.
+6. Deliver one canonical handoff at docs/handoffs/2026-10-17-display-earlycon.md with exact source provenance, delta, focused tests, remaining source issues and exact hardware observations needed. Stop for coordinator review. Do not start a native panel driver.
+
+**Concurrency exception:** Userspace consumes frozen binary artifacts in its own branch; GPU/display changes an isolated serial earlycon implementation and its tests, with no shared DTS, kernel configuration baseline or Userspace file edits. This advances offline preparation without blocking the current rootfs test.
 
 ## Boot — documentation closure only, no build
 
@@ -38,7 +52,7 @@ Append exact final run/job/artifact, config/module hashes and acceptance to the 
 - **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** ac293ee project / c318805 kernel CI maintenance accepted; production source identical to accepted 905d2403. RESUME quirk remains queued after current radio prerequisite; not active. Preserve VPU2, disabled gate, user-accepted /3 and current startup policy.
-- **GPU:** paused.
+- **GPU/display:** only the isolated earlycon task above is active; Adreno implementation remains paused.
 - **Userspace:** active only for the prepared-rootfs runtime smoke above.
 - **Battery/charging:** no implementation assigned.
 

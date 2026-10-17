@@ -13,7 +13,7 @@ Updated 2026-10-17 after [Wireless/Boot delivery review](COORDINATOR_REVIEW_2026
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
 | VPU | Project ac293ee; workflow-only c318805 accepted; production 905d2403 acceptance retained | Paused; RESUME adaptation queued |
 | Userspace | Source 8f54a67; delivery 8aedb72; run 39056127007 packaging and diskless QEMU PASS | Boot existing prepared rootfs in QEMU; no kernel/rootfs rebuild |
-| GPU | Prior acceptance unchanged | Paused |
+| GPU/display | Internal-display audit reviewed; generic earlycon source inspected | Isolated default-disabled earlycon port/review; no board display enablement |
 
 Accepted legacy diagnostic integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. New radio development build **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, artifact **12109240146**, is accepted for Userspace consumption; it does not replace the packaged diagnostic-v2 release.
 
