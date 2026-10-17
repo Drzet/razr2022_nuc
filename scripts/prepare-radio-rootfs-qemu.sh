@@ -28,7 +28,7 @@ test ! -e "$root/etc/resolv.conf" || echo 'Note: prepared rootfs already has res
 test ! -e "$root/home/razr/.ssh/authorized_keys"
 test -f "$root/etc/NetworkManager/NetworkManager.conf"
 test -x "$root/usr/sbin/update-initramfs"
-test -f "$root/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
+test -L "$root/etc/systemd/system/multi-user.target.wants/NetworkManager.service" || test -f "$root/etc/systemd/system/multi-user.target.wants/NetworkManager.service"
 # Explicit matching pre-power module in initramfs, no native storage support implied.
 test -f "$root/usr/lib/modules/$release/kernel/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko"
 cp "$release_root/kernel.config" "$root/boot/config-$release"
