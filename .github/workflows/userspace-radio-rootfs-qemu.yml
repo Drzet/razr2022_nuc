@@ -85,8 +85,9 @@ jobs:
       - name: Boot exact radio kernel with Debian systemd and verify radio service profile
         run: |
           set -Eeuo pipefail
-          bash scripts/smoke-radio-rootfs-qemu.sh "$RADIO_WORK" "$GITHUB_WORKSPACE/run-evidence" \
+          sudo bash scripts/smoke-radio-rootfs-qemu.sh "$RADIO_WORK" "$GITHUB_WORKSPACE/run-evidence" \
             | tee run-evidence/qemu-smoke-result.txt
+          sudo chown -R "$(id -u):$(id -g)" run-evidence
           grep -Fq RADIO_ROOTFS_QEMU_SMOKE_PASS run-evidence/qemu-smoke-result.txt
           test "$(cat run-evidence/qemu-exit-code.txt)" = 0
       - name: Preserve verifiable evidence
