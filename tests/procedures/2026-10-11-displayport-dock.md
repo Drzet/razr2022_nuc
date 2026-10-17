@@ -1,13 +1,17 @@
 # Motorola oneli: native Linux USB-C DisplayPort dock validation
 
-**Date:** 2026-10-11. **Status:** physical execution **deferred: owner has no access to the handset**. No AUX/HPD/EDID/link-training/monitor results. **Hardware revision/firmware:** unknown. **Kernel baseline:** `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. **DisplayPort handoff:** [docs/handoffs/2026-10-11-displayport-oneli.md](../../docs/handoffs/2026-10-11-displayport-oneli.md).
+**Date:** 2026-10-11. **Status:** physical execution **deferred: owner has no access to the handset**. No AUX/HPD/EDID/link-training/monitor results. **Stock device observed:** XT2251-1 PVT, hwrev 0xC000, SKU dn; Android 14 fingerprint `motorola/oneli_ge/oneli:14/U2SLS34.1-42-14-11/e37c37-31202:user/release-keys`. **Loaded DTB/DTBO identity:** unknown. **Kernel baseline:** `a5ebb76233b79db01e82e061173cb73c6d2b5c6b`. **DisplayPort handoff:** [docs/handoffs/2026-10-11-displayport-oneli.md](../../docs/handoffs/2026-10-11-displayport-oneli.md).
+
+## Stock Android evidence: connector registration only
+
+The [read-only ADB report](../../docs/oneli_stock_android14_adb_hardware_capture_2026-10-11.md) records `card0-DP-1` under DRM and `/sys/class/drm/card0-DP-1/enabled = disabled`. Android denied reads of `status` and `modes`; no DP adapter, dock, EDID, AUX, monitor or link training was tested. This is **hardware-observed stock connector registration**, not native DP success. The phone was disconnected after the short session. A future stock check should use a powered DP-capable dock + monitor in both connector orientations, documenting visible picture and sink-power/host-data separately.
 
 ## Offline results and next gate (2026-10-11)
 
 - [Pinned vendor AUX-routing investigation](../../docs/displayport_oneli_aux_routing_2026-10-11.md) establishes **vendor software** outputs: GPIO2/GPIO71 = `1/0` when disconnected, `0/0` in DP CC1, `0/1` in DP CC2. Exact physical mux IC and runtime polarity remain unknown.
-- 13/13 GPIO/mux plus 10/10 baseline graph pinned-source assertions passed for the vendor GPIO path and existing mainline GPIO-SBU logic/binding. This is **source validation, not DT schema or hardware verification**.
+- Reproducible [23-source-check audit](../displayport/oneli_dp_source_audit.py) passed 13 GPIO/mux and 10 baseline graph checks twice (network and offline); tampered source rejected. [Actions run 38174309894](https://github.com/Drzet/razr2022_nuc/actions/runs/38174309894) at project SHA `fc5f56328b3cf2569705c8ebd56f280be90b2960`. These are **source checks only, not DT schema or hardware validation**.
 - No switch compatible can be justified from available oneli hardware evidence. Do **not** create a false GPIO-SBU compatible or enable DP in the board tree simply to make `dtbs_check` pass; the independently-controlled SBU mux and USB/PS5169 graph must first be identified.
-- [Cross-subsystem coordination issue #3](https://github.com/Drzet/razr2022_nuc/issues/3) tracks the Type-C connector, PS5169, GPIO91 and DP/AUX ownership.
+- USB and Power acknowledged [cross-subsystem issue #3](https://github.com/Drzet/razr2022_nuc/issues/3). USB's [graph contract v1](https://github.com/Drzet/razr2022_nuc/blob/razr/usb/docs/typec_graph_contract_v1_2026-10-11.md) reserves connector port@2 for the separate AUX mux, port@1 for PS5169 and GLINK as the sole GPIO91 input owner. [AUX binding disposition](../../docs/displayport_oneli_binding_disposition_round3_2026-10-11.md) documents the unresolved part-compatible and a benign-but-real vendor/generic disconnect-select behaviour difference.
 - **All matrix entries below are deferred until the handset and required dock/monitor become available.** A subsequent passing CI DTB/schema check is not an on-device DP test.
 
 ## Required prerequisites
@@ -65,10 +69,10 @@ Start with an advertised low-bandwidth mode; try 1920x1080 at 60 Hz **only if ED
 | --- | --- | --- | --- | --- | --- |
 | Normal | Direct DP adapter | Deferred | N/A | N/A | N/A |
 | Reversed | Direct DP adapter | Deferred | N/A | N/A | N/A |
-| Normal | Unpowered multifunction dock | Deferred | To test | Deferred | N/A |
-| Reversed | Unpowered multifunction dock | Deferred | To test | Deferred | N/A |
-| Normal | Powered multifunction dock | Deferred | To test | Deferred | To test |
-| Reversed | Powered multifunction dock | Deferred | To test | Deferred | To test |
+| Normal | Unpowered multifunction dock | Deferred | Deferred | Deferred | N/A |
+| Reversed | Unpowered multifunction dock | Deferred | Deferred | Deferred | N/A |
+| Normal | Powered multifunction dock | Deferred | Deferred | Deferred | Deferred |
+| Reversed | Powered multifunction dock | Deferred | Deferred | Deferred | Deferred |
 
 For every test, save timestamped DRM connector state, Type-C role/orientation/Alt Mode state if exposed, PS5169 I2C probe log and debug data if available, AUX/DPCD/EDID result, negotiated lane/rate, USB speed, PD contract/battery indicators, errors and photo of screen output. Separate a physical dock failure from Linux/firmware failure by testing the adapter/dock on a known-good DP Alt Mode host first.
 
