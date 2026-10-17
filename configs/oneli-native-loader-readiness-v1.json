@@ -892,7 +892,7 @@
     "kernel_config_source_commit": "80af4b591bd5b251978b6e781461c05480986043"
   },
   "wireless_enabled_radio_candidate_2026_10_17": {
-    "status": "combined-radio-source-committed; automatic-two-job-build-pending",
+    "status": "combined-radio-source-and-Image-modules-MODPOST-compiled; overall-CI-failed-final-symbol-file-assertion",
     "kernel_repository": "Drzet/linux",
     "kernel_branch": "razr/boot",
     "kernel_commit": "8603c558a032dfe42f1c617cf58432bef594ee4f",
@@ -904,11 +904,11 @@
     "accepted_image_modification": false,
     "auto_workflow_run": 39045171934,
     "cheap_gate_result": "PASS: run 39045171934 DT job, exact schema/compiled-FDT/config/host coverage",
-    "combined_arm64_result": "started, actual Image/modules/MODPOST outcome pending",
-    "image_sha256": null,
+    "combined_arm64_result": "PARTIAL: job 117432887380 compiled matching ARM64 Image and three radio .ko through MODPOST, then FAILED at test -s out/vmlinux.symvers; modules_install/dependency archiving/final manifest not reached",
+    "image_sha256": "aa69703e4dd7f2e8e104713e1a944037f7135b023e5fcecab5b3f2b86dd2b64e",
     "dtb_sha256": "70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435",
     "kernel_config_sha256": "e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273",
-    "module_symvers_sha256": null,
+    "module_symvers_sha256": "5802d8bb9cb077c61dcf0d7b2bdc8d32793329389156b3b312e7339f9a3d3151",
     "module_bundle_sha256": null,
     "pre_enumeration": {
       "device_tree_enabled": [
@@ -1007,6 +1007,32 @@
       "grouped_parent_edges": 6,
       "host_scenarios": 17,
       "host_mocked_assertions": 326
-    }
+    },
+    "combined_arm64_job_id": 117432887380,
+    "combined_workflow_conclusion": "failure",
+    "dt_job_id": 117432350986,
+    "image_bytes": 52632064,
+    "partial_combined_artifact_id": 12106506674,
+    "partial_combined_artifact_name": "oneli-radio-combined-39045171934-1",
+    "partial_combined_artifact_zip_sha256": "77a8355f44f0a22b12f40e466be9f521ddf1452cd29bdfa2886895f66f188665",
+    "partial_combined_artifact_bytes": 18434786,
+    "kernel_release": "7.3.0-rc6-g8603c558a032",
+    "toolchain": "AArch64 GCC 13.3.0; GNU ld 2.42; GNU Make 4.3; Python 3.12.3; Zstandard 1.5.7",
+    "partial_release_checksums_verified": 4,
+    "compiled_module_types_verified": [
+      "ath11k_pci.ko AArch64 relocatable",
+      "hci_uart.ko AArch64 relocatable",
+      "pci-pwrctrl-pwrseq.ko AArch64 relocatable"
+    ],
+    "vmlinux_symbols_in_Module_symvers": [
+      "devm_regulator_bulk_get",
+      "pci_pwrctrl_create_devices",
+      "devm_pwrseq_get"
+    ],
+    "failed_assertion": "test -s out/vmlinux.symvers; this file is absent; expected vmlinux symbols appear in release/Module.symvers as EXPORT_SYMBOL_GPL owned by vmlinux",
+    "module_install_completed": false,
+    "module_dependencies_verified": false,
+    "final_manifest_present": false,
+    "next_gate": "Correct only the false vmlinux.symvers assertion, preferably validate Module.symvers vmlinux-owner entries; finish module-install/depmod and full release evidence without repeating completed DT analysis or extra full builds."
   }
 }
