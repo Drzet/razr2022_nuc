@@ -1,15 +1,21 @@
-# Current assignments — 2026-10-17 Userspace and earlycon review
+# Current assignments — 2026-10-17 signed regdb review and VPU activation
 
-[Review](COORDINATOR_USERSPACE_DISPLAY_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes previous Userspace smoke and display port assignments.
+[Review](COORDINATOR_REGDB_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the Userspace regulatory correction and queued VPU state.
 
-## Active: Userspace — regulatory database packaging correction
+## Active: VPU — bounded firmware-specific RESUME adaptation
 
-Tested source **e5de7e3961bf16fe65fd599514a6804316ef5a49**, handoff **f84d71e5e126d9f74a43b555a3062a3c3c153767** accepted for actual Debian QEMU software scope. No repeat of the unchanged completed systemd/NM/DNS smoke.
+Userspace regulatory prerequisite is accepted; VPU is now the sole implementation stream. Continue kernel `razr/vpu-provenance-v5@c31880525671f65c2d10d8d60d2ab9475c0797e4` (production 905d2403) and project `razr/vpu@ac293ee4c22e4407d53f03ed55809da1b3eeddf4`. Read the canonical VPU handoff and its already accepted fixed-revision Xiaomi comparison; do not repeat the broad audit.
 
-1. Confirm the handoff-reported cfg80211 regulatory.db ENOENT against preserved serial log in artifact **12110358882**, run **39058718000**. Identify the exact missing filename and configured signature requirements.
-2. Use the same signed Debian snapshot to obtain the normal **wireless-regdb** package; verify actual package contents, install paths, signature and matching kernel support. Do not modify regulatory rules, fabricate a country setting or substitute a custom/unsigned database. If a different package/path is required, explain it from inspected inputs.
-3. Update the existing staging recipe and produce a versioned corrected rootfs by layering only the required package/dependencies onto accepted tar **1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b**. No kernel rebuild, base bootstrap or repeat firmware extraction. Preserve old artifact identities.
-4. Verify installed database/signature and package hashes cheaply, then one focused guest cfg80211 load check with accepted kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**. Check actual database acceptance, not just absence of a grep match. Reuse existing runtime harness and avoid duplicate full suites. Record exact new rootfs/package hashes and logs in canonical handoff, then stop. No physical radio claims.
+1. Implement the narrowly scoped payload-free Gen2 RESUME option for the oneli development firmware profile, preferably in its existing firmware descriptor. Cover both DRC/settings-change and drain/restart command paths. Preserve default U32 reason payloads for other profiles. Preserve upstream attribution and record the donor revision.
+2. Enabled option must emit NONE/NULL/zero payload bytes, with the expected 64-byte single-command message instead of 68; preserve response/interrupt flags, session, port and command/packet IDs. Do not transplant Xiaomi VPU3 operations, limits, bandwidth tables or 30-fps policy.
+3. Add cheap tests against actual production serialization for both reasons, applicable ports, option states and queue-write failure propagation. Assert exact packet fields/lengths and unchanged defaults. Reuse current harness and consolidated automatic CI; run cheap gates before the existing required ARM64 build, once for the final source. No new full-build matrix or unrelated regression campaign.
+4. Record exact kernel/project commits, test/run/artifact identities and scope in the canonical handoff and issue #10, then stop for coordinator review. Keep SM8475 disabled and unintegrated; no shared DTS, release, firmware or Userspace changes.
+
+Applicability to reference Motorola firmware `video-firmware.2.4-33580ad5a949b4d45b3b008988280e60573cd894` remains [INFERRED]. No physical chip-ID or /3 proof gate: /3 stays [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Retain VPU2, 480-fps startup and existing admission/resource/ownership policies. On-device acceptance later needs PAS/init/version, DRC/reallocation/resume and drain/LAST/restart with verified frames, not init-only success.
+
+## Userspace — regulatory correction accepted, pause
+
+Tested source **840d53bbceadc4fb33248c2d2487795d35160dd0**, documentation **eff19bcff7d5eb0fc1f181f4c86b9aa32bb18846**, automatic run **39061160706** accepted for package and focused QEMU scope. New rootfs tar SHA256 **630738c3ac43726199f56d326511fb8a69a443a01eea8e0a234318de5d3e8b38**; artifact **12111471711**. Debian wireless-regdb uses its upstream-signed alternative with existing kernel 7f3865e; no kernel rebuild. No repeated smoke, bootstrap or firmware extraction assigned. Native root-device selection and handset radio behavior remain unverified.
 
 ## GPU/display — isolated port accepted, pause
 
@@ -40,9 +46,9 @@ Append exact final run/job/artifact, config/module hashes and acceptance to the 
 - **Power:** b8e85bb wireless source contract accepted. Paused; respond only to a specific dependency from active owners. USB/DP 8mV and chip-ID policy stays closed. No broad voltage research.
 - **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
-- **VPU:** ac293ee project / c318805 kernel CI maintenance accepted; production source identical to accepted 905d2403. RESUME quirk remains queued after current radio prerequisite; not active. Preserve VPU2, disabled gate, user-accepted /3 and current startup policy.
+- **VPU:** active only for the bounded RESUME adaptation above; all other recovery/resource work remains queued.
 - **GPU/display:** isolated earlycon port accepted and paused; Adreno implementation remains paused.
-- **Userspace:** active only for the regulatory database correction above.
+- **Userspace:** regulatory correction accepted; paused.
 - **Battery/charging:** no implementation assigned.
 
 ## CI and integration

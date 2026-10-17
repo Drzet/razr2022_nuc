@@ -1,8 +1,8 @@
 # Project status
 
-Updated 2026-10-17 after [Wireless/Boot delivery review](COORDINATOR_REVIEW_2026-10-17.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
+Updated 2026-10-17 after [signed regulatory database review](COORDINATOR_REGDB_REVIEW_2026-10-17.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. A reported missing regulatory.db is assigned a narrow package correction. Linux has not booted on the phone.**
+**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU firmware-specific RESUME adaptation is now active. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
@@ -11,8 +11,8 @@ Updated 2026-10-17 after [Wireless/Boot delivery review](COORDINATOR_REVIEW_2026
 | Wireless | Kernel 5d191e2 accepted; final successful result now recorded in handoff | Paused |
 | Power | b8e85bb wireless map/L7E review accepted | Paused; answer concrete integration dependencies |
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
-| VPU | Project ac293ee; workflow-only c318805 accepted; production 905d2403 acceptance retained | Paused; RESUME adaptation queued |
-| Userspace | Tested e5de7e3; delivery f84d71e; run 39058718000 rootfs QEMU PASS | Add/verify signed regulatory database; focused firmware-load check |
+| VPU | Project ac293ee; workflow-only c318805 accepted; production 905d2403 acceptance retained | Active: bounded firmware-specific RESUME adaptation |
+| Userspace | Tested 840d53b; delivery eff19bc; run 39061160706 signed-regdb QEMU PASS | Accepted and paused; no rebuild |
 | GPU/display | Kernel 5d9e2e7 isolated earlycon source/predicate/object scope accepted | Paused, default disabled; no board display activation |
 
 Accepted legacy diagnostic integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. New radio development build **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, artifact **12109240146**, is accepted for Userspace consumption; it does not replace the packaged diagnostic-v2 release.
