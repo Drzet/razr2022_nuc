@@ -49,8 +49,15 @@ test "$(cat /proc/1/comm)" = systemd && say RAZR_RADIO_SYSTEMD_PID1_PASS || bad 
 test "$(dpkg --print-architecture)" = arm64 || bad USERSPACE_ARCH
 test "$(uname -r)" = 7.3.0-rc6-g7f3865ee17c3 && say RAZR_RADIO_RELEASE_PASS || bad KERNEL_RELEASE
 if grep -q '^pci_pwrctrl_pwrseq ' /proc/modules; then say RAZR_RADIO_PREPOWER_PRESENT_PASS; else bad PREPOWER_EARLY; fi
-if modprobe --show-depends dummy >/run/razr-dummy-deps.log 2>&1 && modprobe dummy &&
-    grep -q '^dummy ' /proc/modules; then say RAZR_RADIO_MODULE_LOAD_PASS; else bad MODULE_LOAD; fi
+# Selected radio kernel has no CONFIG_DUMMY; validate its real HCI UART module.
+if modprobe --show-depends hci_uart >/run/razr-hci-deps.log 2>&1 &&
+    modprobe hci_uart &&
+    grep -q '^hci_uart ' /proc/modules; then
+    say RAZR_RADIO_MODULE_LOAD_PASS
+else
+    bad MODULE_LOAD
+    while IFS= read -r line; do say "RAZR_RADIO_MODULE_DEBUG=$line"; done < /run/razr-hci-deps.log
+fi
 if command -v busctl >/dev/null && busctl --system list --no-pager >/run/razr-dbus.log 2>&1; then
     say RAZR_RADIO_DBUS_PASS
 else bad DBUS; fi
