@@ -895,14 +895,14 @@
     "status": "combined-radio-source-committed; automatic-two-job-build-pending",
     "kernel_repository": "Drzet/linux",
     "kernel_branch": "razr/boot",
-    "kernel_commit": "d4bbbe7d55cdc6696384463d18ba8c8ea420b49b",
+    "kernel_commit": "542fdc104f9282bf84546e36f3b4b0e2256014d2",
     "preceding_staging": "5d261b415a494621c276f8a680286c66971dc57b",
     "reviewed_wireless_producer": "5d191e2dd449cb226eecd7086f76fc202a6f2257",
     "wireless_driver_blob_sha": "4fdc74a71f2cd88601252b4f043725881e657b0c",
     "host_harness_blob_sha": "765103391539183b4f8f99461243e4a8d285d46c",
     "accepted_integration_promoted": false,
     "accepted_image_modification": false,
-    "auto_workflow_run": 39044250747,
+    "auto_workflow_run": 39044700866,
     "cheap_gate_result": "pending",
     "combined_arm64_result": "pending",
     "image_sha256": null,
@@ -927,14 +927,15 @@
         "CONFIG_REGULATOR_QCOM_RPMH=y",
         "CONFIG_POWER_SEQUENCING=y",
         "CONFIG_POWER_SEQUENCING_QCOM_WCN=y",
-        "CONFIG_PCI_PWRCTRL_PWRSEQ=y",
         "CONFIG_PCIE_QCOM=y",
         "CONFIG_PHY_QCOM_QMP=y",
         "CONFIG_PHY_QCOM_QMP_PCIE=y"
       ],
-      "prepower_call_path": "qcom_pcie_host_init -> pci_pwrctrl_create_devices -> pci_pwrctrl_power_on_devices -> devm_pwrseq_get(wlan) -> shared vddasd bulk enable before enumeration",
+      "prepower_call_path": "qcom_pcie_host_init -> pci_pwrctrl_create_devices -> pci_pwrctrl_power_on_devices returns -EPROBE_DEFER for unbound child -> early pci-pwrctrl-pwrseq platform driver bind -> devm_pwrseq_get(wlan) and deferred host retry",
       "unknown_selected_controller_identity": true,
-      "early_probe_deferral_when_pwrctrl_unbound": true
+      "early_probe_deferral_when_pwrctrl_unbound": true,
+      "module_required_early": "CONFIG_PCI_PWRCTRL_PWRSEQ=m; load pci-pwrctrl-pwrseq.ko through boot initramfs/equivalent and allow qcom_pcie_host_init EPROBE_DEFER retry prior to enumeration",
+      "built_in_pre_power_complete": false
     },
     "userspace_modules_expected": [
       "ath11k_pci",
@@ -976,6 +977,10 @@
     "other_peripherals_enabled": false,
     "software_combined_validated": false,
     "on_device_verified": false,
-    "document": "docs/handoffs/2026-10-12-boot-seventh-console-v2-repackage.md"
+    "document": "docs/handoffs/2026-10-12-boot-seventh-console-v2-repackage.md",
+    "source_integration_commit": "d4bbbe7d55cdc6696384463d18ba8c8ea420b49b",
+    "focused_pre_power_fix_commit": "542fdc104f9282bf84546e36f3b4b0e2256014d2",
+    "preceding_failed_run": 39044250747,
+    "preceding_failed_reason": "resolved PCI_PWRCTRL_PWRSEQ=m despite fragment request y; dtb/schema/selector stages passed"
   }
 }
