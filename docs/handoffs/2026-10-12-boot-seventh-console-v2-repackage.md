@@ -1,5 +1,20 @@
 # BOOT handoff: seventh-round console-summary v2 one-time host refresh
 
+## 2026-10-17 scoped CI consolidation (coordinator latest NEXT_TASKS)
+
+**Kernel workflow-only change**, on `Drzet/linux:razr/boot` starting at `525b504b82dbca593a9a697af9be63f53915e0a3`:
+
+- `30caad671e46c04613283884858183e559153662`: [`razr-oneli-dt.yml`](https://github.com/Drzet/linux/blob/razr/boot/.github/workflows/razr-oneli-dt.yml) now has workflow/ref-scoped `cancel-in-progress`, retains automatic push paths and manual dispatch, and uses **one** `CHECK_DTBS=y` make invocation to compile the exact oneli DTB and check applicable schemas. Direct `dt-validate`, pinned `check-oneli-dtb.py`, resolved DTS decompile, explicit binding docs, version evidence and SHA256SUMS still consume that same DTB. Original pinned project audit commit `c35c4249bdd6b6353446f12505a4d2c7e693a5a8` is unchanged.
+- `7d30153d3b2d890a42b48b6b12bcc8e9fcc7810e`: retired duplicate [`razr-oneli-fdt.yml`](https://github.com/Drzet/linux/blob/525b504b82dbca593a9a697af9be63f53915e0a3/.github/workflows/razr-oneli-fdt.yml). Its compiled-FDT audit, kernel/config and version evidence, DTB export and 30-day artifact retention are all represented by the retained `razr-oneli-dt.yml`. The retired workflow previously duplicated the exact oneli DTB compilation, so the change reduces CI cost without removing FDT checks.
+- [Automatic validation run 38985414833](https://github.com/Drzet/linux/actions/runs/38985414833) triggered by the changed retained workflow at commit `30caad6`; **in progress at handoff**. No claim of successful new CI until completed. No unchanged kernel Image, modules or diagnostic payload rebuilt. No action dispatch or rerun requested.
+
+**Project documentation-only handoff** follows the already completed [2026-10-17 early-output observability review](../oneli_native_loader_output_decision_2026-10-12.md) and does not alter its findings or the machine-readable readiness record. Original host evidence and MBM formulas are unchanged. No shared DTS edits. Boot wireless node staging is still **queued** until Wireless and Power source contracts are accepted and coordinator selects integration.
+
+**Stop:** report this workflow maintenance to Boot issue #12; await automatic CI outcome and coordinator acceptance. No unrelated workflow changes or device operations.
+
+---
+
+
 ## Latest BOOT handoff: 2026-10-17 early-output observability
 
 **Assigned source-only task:** [coordinator `87f26ca6821b417272588901e53547e8f8ddf372`](https://github.com/Drzet/razr2022_nuc/commit/87f26ca6821b417272588901e53547e8f8ddf372) and current `NEXT_TASKS.md`, plus [Boot issue #12](https://github.com/Drzet/razr2022_nuc/issues/12). Starting source project `razr/boot@b2f9aea38b5581781e8b07aa98a85dbbeddaa237`; Motorola research `0acccb329521d91b84fdcfb4bf9d7dcc25f44a25`. **Accepted kernel is unchanged**: `Drzet/linux@2b5acf108ae37040ac1e652e029bb37f5609e886`; no added DTS, driver, config, initramfs or image. Wireless/Power source-only contracts are independent and wireless Boot integration remains queued.
