@@ -1,30 +1,23 @@
-# Current assignments — 2026-10-17 morning delivery review
+# Current assignments — 2026-10-17 Wireless/Boot review
 
-Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
+Supersedes the morning implementation assignments. [Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
 
-## Active implementation: Wireless — optional shared L7E supply
+## Active: Wireless — close the actual ARM64 validation failure
 
-Project **razr/wireless@af57d1a8dc626992843079d987d49ac5338d780f**; kernel **razr/wireless@2b5acf108ae37040ac1e652e029bb37f5609e886**. Power contract **b8e85bbe4936814d29ac1db770e2b286c69e9dca**, docs/handoffs/2026-10-12-power-fifth-review.md. Preserve later intervening work if heads advance.
+Project **razr/wireless@e5176e18199377d51e6782915dc27c3018ec9257**; kernel **razr/wireless@3b674aa5c15e9334878b0241a4664f4fe88d413d**. Preserve intervening work.
 
-1. Perform only the focused maintained-upstream/pending-series reuse check for WCN6855 optional vddasd management. Pin closest implementation and licensing; reuse it if equivalent. No repeated radio/firmware inventory.
-2. Implement the smallest missing extension in existing drivers/power/sequencing/pwrseq-qcom-wcn.c: when WCN6855 declares vddasd-supply, obtain a real regulator, propagate absent-provider/defer/errors and include its lifetime in the shared regulator dependency before radio enable. No dummy fallback. Keep property-absent WCN6855 and other variants, especially WCN6750, unchanged.
-3. Use existing common pwrseq/regulator mechanisms. Ensure both radios share the vote; disabling one must retain it while the other remains active. Respect failures and balanced cleanup. Do not add a radio driver, change ath11k/HCI behavior, drive SWCTRL82, or hard-code oneli voltages into the generic driver.
-4. Execute focused production-path tests for property absent/present, lookup/defer, enable failures, rollback, both target orders, stopping either target, final disable and failed second-target activation. Exercise actual shared-unit accounting or clearly distinguish mocked boundaries. Use binding fixtures where affected; vddasd is already schema-permitted, so no invented binding.
-5. Cheap checks gate an automatic dependency-complete ARM64 object/module/modpost build with real regulator/pwrseq dependencies. Preserve exact code/config/toolchain/log/module identities. No unnecessary full boot image.
-6. Update existing Wireless handoff with exact project/kernel commits and tests; stop for coordinator acceptance. Shared board DTS stays Boot-owned.
+1. Correct the provider assertion in .github/workflows/razr-wireless-pwrseq.yml. Run **39016225711**, job **117348898289**, failed with `Missing actual built-in provider: of_parse_phandle` after successful AArch64 vmlinux compilation. In this exact tree, include/linux/of.h defines that function inline and calls **__of_parse_phandle_with_args**, exported by drivers/of/base.c. Assert the real provider; inspect the other listed helpers for the same mistake before pushing.
+2. Retain automatic cheap-first validation, real matching vmlinux exports, ordinary modules MODPOST/link, AArch64/vermagic/config checks and artifact identities. Do not suppress unresolved symbols, fabricate symvers, or change production code solely to satisfy this incorrect assertion. Batch the focused correction; no speculative trigger changes or new broad research.
+3. Reuse the 17-scenario/326-assertion production-source harness and clearly retain its mocked regulator/shared-consumer boundary. Complete the automatic ARM64 job through module link. Report any further actual error rather than claiming success from vmlinux alone.
+4. Update the canonical handoff's stale “running” result with the failed run, correction SHA and final completed run/job/module/config hashes. Post to #14 and stop for acceptance.
 
-## Active independent implementation: Boot — disabled wireless board staging
+Driver design/source review is complete with no blocking source defect identified in the inspected delta. Final source/build acceptance remains pending the link result. No DTS edits or radio enablement.
 
-Project **razr/boot@638a9d7989617783e2d2112847ca293cf08773a4**; kernel **razr/boot@7d30153d3b2d890a42b48b6b12bcc8e9fcc7810e**. Accepted functional integration remains **2b5acf108ae37040ac1e652e029bb37f5609e886**. Fixed inputs: Wireless af57d1a and Power b8e85bb canonical handoffs.
+## Boot — accepted disabled staging; pause
 
-1. Stage the source-supported oneli PMU, ten inputs/internal LDO outputs, L7E provider/phandle, PCIe0/PHY and UART20/BT topology in Boot-owned board DTS. Use existing upstream bindings and inherited pinctrl/reset properties. Keep new providers/consumers effectively disabled and verify disabled ancestry prevents activation. Preserve UART7/serial0 and existing USB/DP pin ownership.
-2. Encode deliberate source-supported active regulator constraints: S10B 1.800V; S11B 0.966–1.170V; S2E 1.012–1.040V; S12B common 1.350–2.024V; S1C 1.900–2.024V; L7E 2.800V. These are proposed consumer envelopes, not measured outputs. Check supported selector intersections and shared-consumer compatibility. Where a different constraint/vote mechanism is required, document the exact reason and implementation instead of copying broad stock initial ranges.
-3. Preserve the reviewed parent graph, marking HDK-derived PMR735A connections [INFERRED]. Do not fabricate a fixed 3.7V B_PLUS provider. Use supported representation for an unmodelled physical input; report a concrete binding/provider obstacle if one exists. Unknown physical PCI/HCI revision is not a staging blocker.
-4. Treat SWCTRL82 as reserved radio state/input evidence; no invented output control. Preserve inherited PCIe0 94–96 and UART20 76–79 muxing. Do not introduce a second GPIO80/81/204 owner.
-5. Deliver the required config fragment and inspect resolved Kconfig (including PCI pre-power and BT_LE). Build only the staged DTB/schema and necessary configuration checks now, using consolidated automatic CI; no new Image/rootfs or firmware extraction. Confirm disabled nodes, supply phandles, pin ownership and unchanged diagnostics. Enabled runtime/module integration waits for accepted optional-supply implementation.
-6. Update canonical handoff/readiness with exact commit and compiled evidence; post to #12 and stop.
+Project **razr/boot@37dba10d18516e5f4295e637013d529314a2caa4**; kernel **razr/boot@5d261b415a494621c276f8a680286c66971dc57b** accepted for disabled DTS/configuration scope. Run **39026414041**, job **117378234746** passed. No repeat build, extraction, or staging assignment.
 
-**Concurrency exception:** Wireless changes generic power-sequencer code/tests; Boot changes disabled board description/config evidence. Their files are independent and the interface is the existing vddasd-supply property. This advances board preparation while the producer is validated. No merge of unreviewed producer code or radio enablement.
+Next integration is queued, not active: after coordinator accepts Wireless's completed module evidence, select its immutable final SHA together with this Boot staging commit for one combined enabled radio candidate/build. Review provider/ancestor enablement, shared regulator users and GPIO80 startup state against the existing pwrseq GPIOD_ASIS behavior at that point. Keep UART7 diagnostics intact; retain [INFERRED] hardware/parent assumptions. Do not simply enable every disabled board node. No physical chip-ID gate.
 
 ## Active documentation closure: DisplayPort
 
@@ -46,4 +39,4 @@ Append exact final run/job/artifact, config/module hashes and acceptance to the 
 
 CI maintenance assignments are complete. Builds remain automatic with relevant path/branch filters, cheap gates, reuse of identical inputs and scoped supersession cancellation. No blanket cleanup or manual-only migration.
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. After the active producer and disabled board deliveries, coordinator selects enabled integration and one meaningful combined validation. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Disabled board delivery is accepted; after Wireless's corrected module validation, coordinator selects exact commits for enabled integration and one meaningful combined validation. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.

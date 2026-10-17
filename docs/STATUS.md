@@ -1,14 +1,14 @@
 # Project status
 
-Updated 2026-10-17 after [morning delivery review](COORDINATOR_REVIEW_2026-10-17.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
+Updated 2026-10-17 after [Wireless/Boot delivery review](COORDINATOR_REVIEW_2026-10-17.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**DP's missing ARM64 validation now passes. Boot, USB and VPU CI maintenance is accepted. Wireless/Power source contracts are accepted; next work is shared antenna-supply support and disabled wireless board configuration. Linux has not booted on the phone.**
+**Boot's disabled wireless board/configuration staging is accepted. Wireless's shared antenna-supply implementation is reviewed, but final ARM64 validation failed on an incorrect CI symbol assertion before module link. Correct that gate, then review the completed link before selecting enabled integration. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
 | DP | Kernel d28598f; run 38987006218 host/schema and real ARM64 module/modpost PASS | Final handoff documentation only, then pause |
-| Boot | Project 638a9d7; kernel 7d30153 CI consolidation PASS; observability review accepted | Disabled wireless board/config staging |
-| Wireless | af57d1a source contract accepted; kernel still accepted baseline | Implement optional WCN6855 shared vddasd supply |
+| Boot | Project 37dba10; kernel 5d261b4 disabled wireless staging accepted; run 39026414041 PASS | Paused at accepted staging; combined integration follows Wireless acceptance |
+| Wireless | Project e5176e1; kernel 3b674aa reviewed; cheap tests PASS; ARM64 run 39016225711 FAILED before module link | Correct inline-function export assertion; complete real module/modpost evidence |
 | Power | b8e85bb wireless map/L7E review accepted | Paused; answer concrete integration dependencies |
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
 | VPU | Project ac293ee; workflow-only c318805 accepted; production 905d2403 acceptance retained | Paused; RESUME adaptation queued |
@@ -18,8 +18,8 @@ Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration 
 
 ## Remaining work and qualifications
 
-- WCN6855 pwrseq does not currently consume the schema-permitted vddasd supply. L7E needs shared active lifetime across Wi-Fi and Bluetooth; selected change reuses that driver and common sequence.
-- Active radio voltage requirements must be encoded deliberately. Low stock initial voltage is not itself a fault. Parent mapping and installed hardware compatibility retain [INFERRED] labels where based on reference evidence.
+- Wireless branch implements optional WCN6855 vddasd in the existing common regulator sequence. Host coverage uses mocked regulator/shared-consumer accounting; it is not kernel lifetime or hardware proof. ARM64 vmlinux built, but CI incorrectly requires exported of_parse_phandle (an inline wrapper). Module link remains unverified.
+- Boot has encoded deliberate active radio voltage envelopes and verified supported selectors in disabled staging. Low stock initial voltage is not itself a fault. Parent mapping and installed hardware compatibility retain [INFERRED] labels where based on reference evidence.
 - Normal Linux drivers select firmware revisions; physical PCI/HCI identity and missing board-data entries are runtime checks, not requirements before disabled staging.
 - SWCTRL GPIO82 is not actively consumed by current upstream PMU; do not invent output behavior. Preserve diagnostic UART7 and established USB/DP pins.
 - DP source/build acceptance does not establish external-display operation, board power or sleep/wake.

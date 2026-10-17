@@ -61,3 +61,34 @@ Ten-input mapping and PMR735A parent topology remain source-supported proposals 
 Wireless owns the sole generic driver implementation: optional property-present WCN6855 vddasd shared supply, existing common sequence, strict lookup/unwind and focused tests. Boot independently stages disabled board topology and deliberate regulator constraints using fixed Wireless/Power contracts. This bounded second implementation uses separate files and a fixed existing binding interface; enabled consumption waits for reviewed producer code.
 
 Power pauses after accepted contract and answers only a concrete Boot/Wireless dependency. VPU RESUME remains queued behind this immediate radio integration prerequisite; its prior acceptance and user-accepted /3 assumption remain intact. DP performs only final evidence documentation. USB, GPU and Userspace pause. Full assignments: [NEXT_TASKS](NEXT_TASKS.md).
+
+
+## Wireless/Boot follow-up review — 2026-10-17 afternoon
+
+This section supersedes the morning delivery states and implementation selection above.
+
+### Boot: accept disabled staging
+
+Reviewed project **37dba10d18516e5f4295e637013d529314a2caa4**, kernel **5d261b415a494621c276f8a680286c66971dc57b**, canonical handoff, staging changes/checker and actual automatic [run 39026414041](https://github.com/Drzet/linux/actions/runs/39026414041), job **117378234746**. Accept disabled board/configuration scope.
+
+The final checker confirms 20 resolved Kconfig requirements (the earlier handoff count of 19 is stale), eleven PMU supplies including ASD, regulator selector intersections, five grouped parent edges, disabled ancestry and preserved UART7. Actual FDT result: 924 nodes, 39 reserved ranges, zero overlaps, 928 phandle references, zero decode errors; seven inherited active-to-disabled references remain disclosed. No new radio enablement or native execution is established.
+
+CI-reported DTB SHA256: **f38d0a88b2416e267fd6fa5d26b405ca5e9a0a00082586c24db7dfe8e800448c**. Artifact **12098329381**, ZIP SHA256 **a751503225d17fc65f89cda9e493ef55e957d4d452e156e6b7371e26c38e3be7**. Config hash **2b8f7de18c8142a361751652e131b46236308eb668ca7185fc33b0bc00183fdb** and 17/17 artifact-file verification are owner-reported evidence, not a coordinator rehash. Coordinator read actual CI logs and source; did not rebuild.
+
+The corrected GPIO82 state does not invent output control. Active regulator ranges are deliberate consumer envelopes, not measured outputs. PMR735A parent mapping remains [INFERRED]; B_PLUS is not replaced with a fictional fixed supply. Before enabled integration, review GPIO80's output-low pinctrl against the existing sequencer's GPIOD_ASIS initialization and shared provider activation. This does not block acceptance of inactive staging.
+
+### Wireless: source reviewed; CI correction required
+
+Reviewed project **e5176e18199377d51e6782915dc27c3018ec9257**, kernel **3b674aa5c15e9334878b0241a4664f4fe88d413d**, functional delta and final workflow. Optional vddasd is WCN6855-only, appended to the per-instance bulk list when declared, acquired through existing regulator lookup and managed in the existing common sequence. Property-absent and other-variant behavior is retained. No blocking source defect identified in this delta.
+
+Cheap job **117348778996** in [run 39016225711](https://github.com/Drzet/linux/actions/runs/39016225711) passed. The production-source harness reports 17 scenarios / 326 assertions, with regulator behavior and shared-consumer accounting mocked. It does not execute real pwrseq core lifetime accounting; this boundary is explicitly disclosed and allowed by the assignment.
+
+**Final ARM64 job 117348898289 FAILED**, superseding the handoff's “running” status. Actual log shows successful AArch64 vmlinux, then `Missing actual built-in provider: of_parse_phandle`. The subsequent modules step did not run. Independently inspected exact source: include/linux/of.h defines of_parse_phandle as an inline wrapper calling __of_parse_phandle_with_args; drivers/of/base.c exports the latter. The workflow requires the wrong symbol. This is a CI assertion defect, not evidence of missing kernel OF support.
+
+Assign the bounded workflow correction and completed real module/MODPOST result to Wireless. Keep production code unless a real build defect appears. No full acceptance or integrated radio artifact yet.
+
+### Project position and next sequence
+
+Boot staging is complete and paused. Wireless owns the sole active implementation/correction stream. Once its final link passes and is reviewed, select immutable producer/staging commits for Boot's combined enabled candidate; then provide the accepted kernel/config/modules contract to Userspace for normal Linux firmware packaging and NetworkManager/BlueZ integration. Physical radio revision is a runtime observation, not a new development gate.
+
+DP's prior source/build acceptance, USB and VPU acceptance remain intact; DP still owes documentation closure. VPU RESUME remains queued, with the user-accepted /3 assumption preserved. Accepted integration stays **2b5acf108ae37040ac1e652e029bb37f5609e886**. No new Image/rootfs, handset boot, Wi-Fi association, Bluetooth pairing or display output is claimed. No handset operation assigned.
