@@ -1,80 +1,49 @@
-# Current assignments — 2026-10-17 wireless and CI maintenance
+# Current assignments — 2026-10-17 morning delivery review
 
-Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
+Supersedes previous queues. [Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
 
-## Active CI maintenance — all workflow owners
+## Active implementation: Wireless — optional shared L7E supply
 
-User reports Actions re-enabled on 2026-10-17. Automatic builds remain authorized for assigned work; the earlier temporary hold is superseded. Apply [automatic CI policy](WORKFLOW.md#automatic-ci-policy--user-decision-2026-10-17). No manual-only conversion or central dispatcher migration.
+Project **razr/wireless@af57d1a8dc626992843079d987d49ac5338d780f**; kernel **razr/wireless@2b5acf108ae37040ac1e652e029bb37f5609e886**. Power contract **b8e85bbe4936814d29ac1db770e2b286c69e9dca**, docs/handoffs/2026-10-12-power-fifth-review.md. Preserve later intervening work if heads advance.
 
-- **DisplayPort:** on current razr/displayport head, make expensive ARM64 validation depend on successful cheap production-host/schema checks; preserve automatic relevant-change triggers. Add workflow/branch-scoped supersession cancellation. Continue the existing dependency-complete build assignment. Diagnose any scheduling failure from repository/event evidence before changing triggers.
-- **Boot:** consolidate razr-oneli-dt.yml and razr-oneli-fdt.yml so identical oneli DTB compilation is performed once and reused for schema/FDT checks. Preserve distinct assertions, pinned provenance and automatic relevant-change triggers. Retire the redundant workflow only after its checks are covered. Add scoped supersession cancellation. This workflow-only maintenance is independent of the active observability review; it does not select a new combined Image.
-- **USB:** limited workflow-maintenance exception to paused status: inspect current owned workflow definitions, retire superseded candidate/durable prototype automation where current PS5169/PTN checks replace it, and combine duplicate checks for identical inputs. Cheap host/schema checks must gate expensive builds. Preserve automatic relevant-change triggers and add scoped supersession cancellation. Do not rebuild accepted unchanged drivers merely to reproduce old evidence or change driver/DTS code.
-- **VPU:** limited workflow-maintenance exception to paused status: on the canonical razr/vpu-provenance-v5 branch, ensure cheap host/schema jobs gate expensive builds and avoid duplicate lifecycle checks. Add scoped supersession cancellation; retire superseded prototype automation without modifying frozen historical branches. Preserve all necessary checks and automatic relevant-change triggers. No RESUME implementation is activated.
-- **Power / Wireless / GPU / Userspace:** apply this policy to workflows you own when needed for an assigned change; do not launch new extraction/build work solely for cleanup. Do not edit another owner's workflow.
+1. Perform only the focused maintained-upstream/pending-series reuse check for WCN6855 optional vddasd management. Pin closest implementation and licensing; reuse it if equivalent. No repeated radio/firmware inventory.
+2. Implement the smallest missing extension in existing drivers/power/sequencing/pwrseq-qcom-wcn.c: when WCN6855 declares vddasd-supply, obtain a real regulator, propagate absent-provider/defer/errors and include its lifetime in the shared regulator dependency before radio enable. No dummy fallback. Keep property-absent WCN6855 and other variants, especially WCN6750, unchanged.
+3. Use existing common pwrseq/regulator mechanisms. Ensure both radios share the vote; disabling one must retain it while the other remains active. Respect failures and balanced cleanup. Do not add a radio driver, change ath11k/HCI behavior, drive SWCTRL82, or hard-code oneli voltages into the generic driver.
+4. Execute focused production-path tests for property absent/present, lookup/defer, enable failures, rollback, both target orders, stopping either target, final disable and failed second-target activation. Exercise actual shared-unit accounting or clearly distinguish mocked boundaries. Use binding fixtures where affected; vddasd is already schema-permitted, so no invented binding.
+5. Cheap checks gate an automatic dependency-complete ARM64 object/module/modpost build with real regulator/pwrseq dependencies. Preserve exact code/config/toolchain/log/module identities. No unnecessary full boot image.
+6. Update existing Wireless handoff with exact project/kernel commits and tests; stop for coordinator acceptance. Shared board DTS stays Boot-owned.
 
-Each maintenance owner inspects actual branch heads before editing, preserves intervening work, updates its existing handoff with retired/replacement workflows and exact commits, and stops after delivery. Evidence retention and acceptance criteria remain unchanged. Automated checks caused by these scoped maintenance changes are authorized; avoid redundant reruns. No repository-wide settings changes or cancellation of unrelated runs.
+## Active independent implementation: Boot — disabled wireless board staging
 
-## Active: DisplayPort — validation closure
+Project **razr/boot@638a9d7989617783e2d2112847ca293cf08773a4**; kernel **razr/boot@7d30153d3b2d890a42b48b6b12bcc8e9fcc7810e**. Accepted functional integration remains **2b5acf108ae37040ac1e652e029bb37f5609e886**. Fixed inputs: Wireless af57d1a and Power b8e85bb canonical handoffs.
 
-Project **razr/displayport@eb01acfb7dd1e177735de7a30151197a0b2647fb**; kernel **razr/displayport@5499623959199a0fc5a8c76398e1708107fefc3a**. Preserve these commits and append any required workflow correction. Source/lifetime direction and Xiaomi comparison accepted; implementation acceptance awaits complete ARM64 build evidence.
+1. Stage the source-supported oneli PMU, ten inputs/internal LDO outputs, L7E provider/phandle, PCIe0/PHY and UART20/BT topology in Boot-owned board DTS. Use existing upstream bindings and inherited pinctrl/reset properties. Keep new providers/consumers effectively disabled and verify disabled ancestry prevents activation. Preserve UART7/serial0 and existing USB/DP pin ownership.
+2. Encode deliberate source-supported active regulator constraints: S10B 1.800V; S11B 0.966–1.170V; S2E 1.012–1.040V; S12B common 1.350–2.024V; S1C 1.900–2.024V; L7E 2.800V. These are proposed consumer envelopes, not measured outputs. Check supported selector intersections and shared-consumer compatibility. Where a different constraint/vote mechanism is required, document the exact reason and implementation instead of copying broad stock initial ranges.
+3. Preserve the reviewed parent graph, marking HDK-derived PMR735A connections [INFERRED]. Do not fabricate a fixed 3.7V B_PLUS provider. Use supported representation for an unmodelled physical input; report a concrete binding/provider obstacle if one exists. Unknown physical PCI/HCI revision is not a staging blocker.
+4. Treat SWCTRL82 as reserved radio state/input evidence; no invented output control. Preserve inherited PCIe0 94–96 and UART20 76–79 muxing. Do not introduce a second GPIO80/81/204 owner.
+5. Deliver the required config fragment and inspect resolved Kconfig (including PCI pre-power and BT_LE). Build only the staged DTB/schema and necessary configuration checks now, using consolidated automatic CI; no new Image/rootfs or firmware extraction. Confirm disabled nodes, supply phandles, pin ownership and unchanged diagnostics. Enabled runtime/module integration waits for accepted optional-supply implementation.
+6. Update canonical handoff/readiness with exact commit and compiled evidence; post to #12 and stop.
 
-1. Correct .github/workflows/razr-gpio-sbu.yml so the selected ARM64 configuration explicitly produces matching built-in provider symbols before ordinary module modpost/link. Fresh defconfig plus make modules alone does not guarantee vmlinux.o/Module.symvers. Use vmlinux or a demonstrated equivalent matching build dependency; real regulator/Type-C/GPIO providers, no fake symvers or unresolved-symbol suppression.
-2. Pin dtschema (coordinator used 2026.9) and record actual compiler/tool versions, exact kernel SHA and config hash. Execute changed ARM64 object/module/modpost/link and preserve logs, resulting module hash and dependency evidence. No full Image packaging or shared-DTS change.
-3. Run binding examples and the submitted exact dtc fixture runner in a working environment. Coordinator already passed binding document/schema validation and four equivalent libfdt-generated instances; these are not a claim that the exact runner ran.
-4. Reuse unchanged production host evidence: independent 11 cases / 237 assertions PASS. Repeat only if relevant driver/test bytes change. No broad source research, replacement driver or DRM/QMP/GLINK patch.
-5. Update existing canonical DP handoff with exact project/kernel commits and evidence; post to issue #11 and stop for coordinator acceptance.
+**Concurrency exception:** Wireless changes generic power-sequencer code/tests; Boot changes disabled board description/config evidence. Their files are independent and the interface is the existing vddasd-supply property. This advances board preparation while the producer is validated. No merge of unreviewed producer code or radio enablement.
 
-WAS7227Q-10/TR reference identity and installed-board [INFERRED] qualification remain. willsemi prefix already exists. Preserve property-absent legacy behavior and shared L2B contract. Board enablement, parent rails and system-sleep behavior are separate.
+## Active documentation closure: DisplayPort
 
-## Active independent review: Boot — early-output observability
+Kernel **d28598f544682eed5997ac9d57d423e9a5031624** is accepted for isolated AUX source/build scope. Successful automatic **38987006218** includes host/schema plus dependency-complete ARM64 link. Project **60fbc3a3dbc28d173cc67e632f57f25d99a3e58e** handoff is stale.
 
-Project **razr/boot@b2f9aea38b5581781e8b07aa98a85dbbeddaa237**; accepted MBM research **0acccb329521d91b84fdcfb4bf9d7dcc25f44a25**. Accepted integration and diagnostic-v2 manifests remain inputs, not new build assignments.
+Append exact final run/job/artifact, config/module hashes and acceptance to the existing DP handoff; remove the obsolete current Actions hold. Preserve historical failures as history. **Do not rerun the successful build or expand driver/DRM/PHY/DTS scope.** Post the documentation commit to #11; pause.
 
-1. Inspect existing stock exports/manifests and accepted source evidence for framebuffer/splash and ramoops. Record proven address/size/format/stride, reserved-memory ownership and handoff/retention/readback properties where present; explicitly mark absent or runtime-dependent fields. Never guess addresses or copy Xiaomi layout.
-2. Check only relevant existing final-FDT/stock-DTBO symbol and reserved-memory requirements. Reuse corrected MBM results; no repeated disassembly, firmware retrieval/extraction or repackaging.
-3. Recommend the best evidenced early-output route and smallest missing device observation. UART TX GPIO26 ball D24 and RX GPIO27 ball C24 are recorded; physical pads/connector and electrical access remain unidentified. An evidenced equivalent output route is acceptable; UART wiring is not a mandatory gate.
-4. Update existing docs/oneli_native_loader_output_decision_2026-10-12.md, configs/oneli-native-loader-readiness-v1.json and canonical Boot handoff. Distinguish source inspection from runtime verification. Post exact project commit to issue #12 and stop.
-5. No shared-DTS enablement, new kernel/boot artifact, flashing or phone operation.
+## Accepted / paused / queued
 
-Concurrency is bounded: DP repairs validation tooling; Boot reviews independent existing evidence to advance first-boot logging. Their files and interfaces are independent.
+- **Power:** b8e85bb wireless source contract accepted. Paused; respond only to a specific dependency from active owners. USB/DP 8mV and chip-ID policy stays closed. No broad voltage research.
+- **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
+- **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
+- **VPU:** ac293ee project / c318805 kernel CI maintenance accepted; production source identical to accepted 905d2403. RESUME quirk remains queued after current radio prerequisite; not active. Preserve VPU2, disabled gate, user-accepted /3 and current startup policy.
+- **GPU:** paused.
+- **Userspace:** queued after accepted enabled kernel/config contract; ordinary Linux firmware, matching modules, NetworkManager/BlueZ and device-identity provenance. No rebuild now.
+- **Battery/charging:** no implementation assigned.
 
-## Active independent review: Wireless — board integration contract
+## CI and integration
 
-Project **razr/wireless@b0b6360e6c995671457e734a8e36b81d055b3036**; kernel **razr/wireless@2b5acf108ae37040ac1e652e029bb37f5609e886**. [Coordinator assessment](COORDINATOR_WIRELESS_REVIEW_2026-10-17.md). Existing source audit and firmware inventory accepted within their stated limits.
+CI maintenance assignments are complete. Builds remain automatic with relevant path/branch filters, cheap gates, reuse of identical inputs and scoped supersession cancellation. No blanket cleanup or manual-only migration.
 
-1. Update docs/handoffs/2026-10-16-wireless-oneli.md to remove physical PCI/HCI identity as a prerequisite for preparing a source-supported candidate. Mark compatibility [INFERRED]; runtime enumeration confirms or rejects it. No fabricated IDs or binding override.
-2. Use existing six-FDT exports/oneli overlays and pinned Motorola source to refine PCIe0/UART20 routing, pin ownership, reset/wake and wrapper requirements. Check GPIO76–82/94/96/204 against existing oneli ownership. Report source-backed versus unresolved facts; no duplicate stock extraction.
-3. Specify the minimal board-node and resolved-Kconfig requirements against the accepted kernel/bindings, including pre-enumeration power and shared PMU ownership. Power owns supply mapping and L7E conclusions; reference that delivery instead of independently deriving a competing rail contract.
-4. Record standard Linux firmware deployment paths and runtime diagnostic collection. Let drivers select revision/filenames; Motorola inventory is fallback evidence for concrete failures. No custom board-data generation or further firmware download/disassembly.
-5. Deliver one updated canonical handoff with exact commit, remaining dependencies and Boot/Userspace requests. Stop for coordinator review. No kernel/shared-DTS edits or build of unchanged drivers.
-
-## Active independent review: Power — wireless PMU and antenna supply contract
-
-Project **razr/power@b7d80a25a19b1a581880062463f468f1ce19f9ab**. Inputs: wireless b0b6360 handoff/manifest, accepted kernel 2b5acf108ae37040ac1e652e029bb37f5609e886, existing stock exports and Motorola kernel-devicetree@90fa7be1db5bd47202673d4431408659149a7359. Reuse existing Power provider work.
-
-1. Map each of the upstream WCN6855 PMU's ten supply inputs to the source-supported oneli provider and parent; record voltage constraints and existing shared consumers. Resolve downstream S2E/S11B naming by topology/evidence, not spelling. Mark reference-board extrapolation [INFERRED].
-2. Determine the source-supported function and ownership of L7E, named WLAN antenna-switch and BT ASD downstream. Establish how it should be supplied with existing Linux interfaces, or report the exact missing evidence/interface. Do not silently drop it, invent a PMU property or impose an unexplained always-on setting.
-3. Review shared WLAN/BT power lifetime against existing pwrseq and hci_qca fallback behavior, including one radio remaining active when the other stops. Separate source guarantees from untested sleep/coexistence.
-4. Update the existing canonical Power handoff with one supply/interface table and a definite ready-for-staging or named-gap conclusion. Post exact project commit to issue #9; stop for coordinator review. No driver/DTS implementation or hardware operation.
-5. Prior USB/DP supply acceptance remains closed: no renewed BUK chip-ID or 8mV research; B_PLUS remains variable.
-
-These reviews are source-only and use separate owner files. DP remains the sole implementation/validation stream; Boot's active observability work continues. This prepares wireless interfaces without starting dependent board implementation.
-
-## Queued wireless consumers — not active yet
-
-- **Boot:** after coordinator accepts Wireless/Power contracts and selects integration, apply shared PMU, PCIe Wi-Fi and UART Bluetooth board nodes/config on the Boot-owned DTS. Preserve UART7 diagnostics and existing rail consumers. Validate applicable bindings/DTB, pin ownership and dependency-complete ARM64 modules/modpost; record exact candidate/config/artifact identities. No physical-ID-before-staging gate; unresolved power connections remain explicit dependencies. Current active task is still observability.
-- **Userspace:** after a selected kernel/config/firmware contract, package matching modules and ordinary Linux firmware with NetworkManager/BlueZ. Preserve per-device address provenance; no Xiaomi MAC/calibration or assumed persist layout. No rootfs rebuild now.
-
-## Complete / paused / queued
-
-- **VPU:** project adc83dc27be82d940df56317af3c1812e51f22fa source comparison accepted; kernel 905d2403c451838a408f6bb44e80a7cf9aa6ed10 cleanup acceptance retained. Paused. After DP closure, coordinator may select the narrow firmware/profile-scoped payload-free RESUME quirk. Preserve default encoding for other profiles; cover DRC/drain, ports/states, 64/68-byte serialization and queue errors. Motorola compatibility remains [INFERRED]. No VPU3/static-bandwidth transplant, silent startup reduction, probe enablement or repeated /3 proof.
-- **Power USB/DP scope:** b7d80a25a19b1a581880062463f468f1ce19f9ab accepted; closed. New wireless source review is assigned above.
-- **USB:** isolated PTN3222/PS5169 acceptance retained; paused. Unknown readable chip IDs diagnostic, failed reads abort.
-- **GPU / Userspace:** paused; accepted inputs unchanged.
-- **Battery/charging:** no implementation selected.
-
-## Integration
-
-Accepted kernel **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. DP closure precedes selection of its integration. Boot alone owns shared DTS and specifically commissioned combined artifacts. VPU and external display are not prerequisites for an observable native boot. No handset Linux execution has occurred.
-
-Preserve GLINK-only GPIO91, PS5169 enable GPIO19 and AUX GPIO2/71. Corrected Xiaomi audit is a qualified research input, not permission to import board layout, firmware or charging behavior.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. After the active producer and disabled board deliveries, coordinator selects enabled integration and one meaningful combined validation. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.

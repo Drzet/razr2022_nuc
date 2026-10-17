@@ -1,36 +1,30 @@
 # Project status
 
-Updated 2026-10-17 with [wireless feasibility assessment](COORDINATOR_WIRELESS_REVIEW_2026-10-17.md), retaining [latest VPU / DP review](COORDINATOR_REVIEW_2026-10-16.md#latest-vpu--dp-delivery-review--2026-10-16-current).
+Updated 2026-10-17 after [morning delivery review](COORDINATOR_REVIEW_2026-10-17.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**VPU source comparison accepted. DP source/host/schema evidence accepted; final ARM64 module validation pending. DP validation and Boot observability review are active. Linux has not booted on the phone.**
-
-[Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md) · [Branch disposition](CLEANUP_2026-10-13.md)
+**DP's missing ARM64 validation now passes. Boot, USB and VPU CI maintenance is accepted. Wireless/Power source contracts are accepted; next work is shared antenna-supply support and disabled wireless board configuration. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
-| VPU | Kernel 905d2403 cleanup acceptance retained; project adc83dc comparison accepted | Paused; narrow payload-free RESUME adaptation queued |
-| DisplayPort | Project eb01acf / kernel 5499623 reviewed; independent 11 cases / 237 assertions and binding/equivalent-instance checks pass | Active dependency-complete ARM64 module/modpost validation; final acceptance pending |
-| Power | b7d80a2 USB/DP contract accepted; 8mV rounding non-blocking | Active source-only wireless PMU/L7E supply contract |
-| Wireless | b0b6360 research accepted with staging qualification; kernel branch unchanged | Active source-only transport/config contract; Boot integration queued |
-| USB | Isolated PTN3222/PS5169 acceptance retained | Paused; board integration pending |
-| Boot / research | b2f9aea / 0acccb3 acceptance retained | Active source-only framebuffer/ramoops/final-FDT observability review |
-| GPU / Userspace | Existing accepted evidence retained | Paused |
+| DP | Kernel d28598f; run 38987006218 host/schema and real ARM64 module/modpost PASS | Final handoff documentation only, then pause |
+| Boot | Project 638a9d7; kernel 7d30153 CI consolidation PASS; observability review accepted | Disabled wireless board/config staging |
+| Wireless | af57d1a source contract accepted; kernel still accepted baseline | Implement optional WCN6855 shared vddasd supply |
+| Power | b8e85bb wireless map/L7E review accepted | Paused; answer concrete integration dependencies |
+| USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
+| VPU | Project ac293ee; workflow-only c318805 accepted; production 905d2403 acceptance retained | Paused; RESUME adaptation queued |
+| GPU / Userspace | Prior acceptance unchanged | Paused; Userspace awaits selected kernel contract |
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration record](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 record](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. No new combined image or working handset USB/DP/VPU claim.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. Branch acceptance is not integration promotion.
 
-## Decisions and remaining limits
+## Remaining work and qualifications
 
-- Wireless driver reuse is feasible [INFERRED]. Accepted kernel already contains ath11k, hci_qca and WCN6855 power sequencing. Main remaining integration work is shared power/antenna supply mapping and board configuration. Physical PCI/HCI identity is runtime confirmation, not a prerequisite for preparing a source-supported candidate. Start with standard Linux firmware; no new radio driver or broad firmware extraction selected.
+- WCN6855 pwrseq does not currently consume the schema-permitted vddasd supply. L7E needs shared active lifetime across Wi-Fi and Bluetooth; selected change reuses that driver and common sequence.
+- Active radio voltage requirements must be encoded deliberately. Low stock initial voltage is not itself a fault. Parent mapping and installed hardware compatibility retain [INFERRED] labels where based on reference evidence.
+- Normal Linux drivers select firmware revisions; physical PCI/HCI identity and missing board-data entries are runtime checks, not requirements before disabled staging.
+- SWCTRL GPIO82 is not actively consumed by current upstream PMU; do not invent output behavior. Preserve diagnostic UART7 and established USB/DP pins.
+- DP source/build acceptance does not establish external-display operation, board power or sleep/wake.
+- VPU remains disabled/unintegrated. /3 is [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]; retained 480-fps startup limits, IOVA errors, uncertain OPP recovery and reclamation remain explicit.
+- Shared USB/DP L2B and PTN 3.080V selector result remain accepted; 8mV rounding is non-blocking. No new BUK chip-ID gate.
+- UART7 is the best evidenced early-output route, conditional on physical access/logic level. Stock splash/ramoops reservations are not working consoles; live memory/retention/readback remain untested. No repeated broad bootloader research is selected.
 
-- VPU now preserves VB2 ownership across failed firmware startup and confirmed CLOSE through teardown. Host production-control-flow tests pass; ARM64 link evidence inspected, not independently rebuilt. Full Linux concurrency/DMA remains untested. SM8475 stays disabled/unintegrated.
-- VPU /3 is [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Retained 480 startup rejects 1080p/4K. IOVA errors, uncertain OPP recovery and full quarantine reclamation remain separate future issues.
-- Shared L2B feeds PTN3222 and WAS7227Q; keep PTN's 3.075–3.300V request, selecting 3.080V on the supported grid. The 8mV difference from the 3.072V stock initial vote is not a development blocker or a new BUK-document requirement.
-- Generic gpio-sbu-mux must own its supply for the bound lifetime. Board parent-rail integration and full system-sleep retention are still separate work. No fixed 3.7V B_PLUS fiction.
-- Xiaomi audit SVID correction accepted. Oneli already decodes orientation 0/1/other. Preserve GLINK-only GPIO91, PS5169 enable GPIO19, AUX GPIO2/71. No redundant SVID/orientation patch, FSA4480 or wholesale fork transplant.
-- USB unknown readable chip IDs remain diagnostic; failed reads abort. Actual enumeration, DP display and wake are untested.
-
-## Native milestone
-
-An observable controlled boot using the accepted image composition and a verified recovery route. UART GPIO26/27 are identified; accessible pads/voltage or another early-output route remain unresolved. Existing Motorola framebuffer/ramoops and final-FDT evidence are the inputs to the active bounded observability review. Do not guess runtime addresses or copy Xiaomi memory layout.
-
-[Canonical schematic evidence](oneli_schematic_evidence_2026-10-15.md) preserves UART, battery GPIO, rails and WAS7227Q findings. Installed-board correspondence remains [INFERRED]. VPU and external display are not prerequisites for minimal native boot.
+[Canonical schematic evidence](oneli_schematic_evidence_2026-10-15.md) remains authoritative. No phone Linux execution, wireless association, BT pairing or DP display result is claimed.
