@@ -1,0 +1,51 @@
+name: Motorola oneli radio packed firmware reference audit
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oneli-radio-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  radio-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify metadata inspector source
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          python3 --version | tee evidence/python-version.txt
+          git rev-parse HEAD | tee evidence/tested-project-sha.txt
+          python3 -m py_compile scripts/inspect-oneli-stock-ranges.py \
+            scripts/inspect-oneli-moto-radio.py scripts/inspect-oneli-lp-firmware.py
+      - name: HTTP-range download only radio.img and test known Motorola pack formats
+        run: |
+          set -euo pipefail
+          python3 -u scripts/inspect-oneli-moto-radio.py \
+            --json-out evidence/radio-pack-manifest.json \
+            2>&1 | tee evidence/radio-inspection.log
+      - name: Publish metadata only; no binary radio/firmware artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-radio-manifest-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Scope
+        if: always()
+        run: |
+          {
+            echo "## Public Motorola oneli radio member"
+            echo "Only the ZIP64 central directory and compressed radio.img member fetched."
+            echo "Try known Motorola SINGLE_N_LONELY and MBOOTV1 headers; reject unverifiable extents."
+            echo "Firmware authorization, signed loading and HFI compatibility NOT established."
+          } >> "$GITHUB_STEP_SUMMARY"

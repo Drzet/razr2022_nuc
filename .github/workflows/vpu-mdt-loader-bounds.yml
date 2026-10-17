@@ -1,0 +1,64 @@
+name: Oneli Qualcomm firmware loader structural bounds check
+
+on:
+  push:
+    branches: [razr/vpu]
+    paths:
+      - '.github/workflows/vpu-mdt-loader-bounds.yml'
+      - 'scripts/check-oneli-mdt-loader-bounds.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vpu-oneli-mdt-bounds
+  cancel-in-progress: false
+
+jobs:
+  source-loader-bounds:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: razr/vpu
+          persist-credentials: true
+      - name: Source-pinned Qualcomm ELF and split segment checks, radio member only
+        run: |
+          set -euo pipefail
+          mkdir -p docs/vpu/evidence
+          dpkg-query -W e2fsprogs python3 | tee "$RUNNER_TEMP/loader-tool-versions.txt"
+          python3 -m py_compile scripts/check-oneli-mdt-loader-bounds.py
+          git rev-parse HEAD | tee "$RUNNER_TEMP/loader-tested-project-sha.txt"
+          git hash-object scripts/check-oneli-mdt-loader-bounds.py \
+            scripts/inspect-oneli-moto-radio.py scripts/inspect-oneli-stock-ranges.py \
+            | tee "$RUNNER_TEMP/loader-parser-blobs.txt"
+          python3 -u scripts/check-oneli-mdt-loader-bounds.py \
+            --json-out docs/vpu/evidence/qualified-mdt-loader-bounds.json \
+            2>&1 | tee "$RUNNER_TEMP/loader-validation.log"
+          python3 - <<'PY'
+          import json
+          m=json.load(open("docs/vpu/evidence/qualified-mdt-loader-bounds.json"))
+          assert len(m["files"])==3
+          assert all(x["would_fit_reserved_region_by_size"] for x in m["files"])
+          assert all(x["program_header_count"]>1 for x in m["files"])
+          assert all(x["hash_segment_indices"] for x in m["files"])
+          assert all(x["pas_metadata_hash_segment_placement"] for x in m["files"])
+          print("Validated three firmware ELF header structures; no SCM acceptance implied")
+          PY
+          sha256sum docs/vpu/evidence/qualified-mdt-loader-bounds.json \
+            | tee "$RUNNER_TEMP/qualified-mdt-sha256.txt"
+      - name: Commit only derived structural values
+        run: |
+          set -euo pipefail
+          git add docs/vpu/evidence/qualified-mdt-loader-bounds.json
+          if git diff --cached --quiet; then
+            echo 'unchanged evidence'
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit -m 'evidence(vpu): hash-qualified Qualcomm MDT/MBN/ZAP segment and relocation audit'
+          git push origin HEAD:razr/vpu
+          git rev-parse HEAD

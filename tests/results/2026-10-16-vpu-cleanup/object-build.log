@@ -1,0 +1,6 @@
+make[1]: Entering directory '/tmp/vpu-checked-build'
+  UPD     include/config/kernel.release
+  UPD     include/generated/utsrelease.h
+  CC [M]  drivers/media/platform/qcom/iris/iris_vidc.o
+  LD [M]  drivers/media/platform/qcom/iris/qcom-iris.o
+make[1]: Leaving directory '/tmp/vpu-checked-build'

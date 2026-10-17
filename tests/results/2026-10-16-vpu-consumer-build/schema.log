@@ -1,0 +1,13 @@
+PASS missing-llcc-name rejected: interconnect-names
+PASS two-paths rejected: interconnects
+PASS wrong-path-order rejected: video-llcc
+PASS valid accepted
+PASS missing-pixel rejected: pixel
+PASS missing-nonpixel rejected: non-pixel
+PASS missing-pixel-range rejected: iommu-ranges
+PASS missing-nonpixel-range rejected: iommu-ranges
+PASS controller-iommus rejected: False schema does not allow
+PASS missing-dma-ranges rejected: dma-ranges
+PASS secure-child rejected: False schema does not allow
+PASS unknown-pixel-property rejected: unknown-test
+PASS Motorola reference ranges, malformed-bound negatives, accepted oneli SoC cells and upstream v5-derived binding

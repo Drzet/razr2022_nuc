@@ -1,0 +1,18 @@
+-----------------------------------------------
+drivers/media/platform/qcom/iris/iris_vpu2_bw.c
+-----------------------------------------------
+total: 0 errors, 0 warnings, 0 checks, 234 lines checked
+
+drivers/media/platform/qcom/iris/iris_vpu2_bw.c has no obvious style problems and is ready for submission.
+-----------------------------------------------
+drivers/media/platform/qcom/iris/iris_vpu2_bw.h
+-----------------------------------------------
+total: 0 errors, 0 warnings, 0 checks, 50 lines checked
+
+drivers/media/platform/qcom/iris/iris_vpu2_bw.h has no obvious style problems and is ready for submission.
+----------------------------------------------------
+drivers/media/platform/qcom/iris/iris_vpu2_bw_math.h
+----------------------------------------------------
+total: 0 errors, 0 warnings, 0 checks, 82 lines checked
+
+drivers/media/platform/qcom/iris/iris_vpu2_bw_math.h has no obvious style problems and is ready for submission.

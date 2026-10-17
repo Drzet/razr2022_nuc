@@ -1,0 +1,24 @@
+{
+  "kernel_revision": "3086118adc521943bd533f98d53b136cf4694bc2",
+  "artifact_sha256": {
+    "qcom-iris.ko": "f47b98e3252efb622d08748657ebaea14d84f5a53e8134a7c8299f8c799e02c8",
+    "Module.symvers": "9f4914a135355be3e776b6d917a615f62e3ac5b0191ce4501b054b486c8aa64e",
+    "link.config": "d3b9555dd16a17d6f06d9caf7cea941745052ec923df16e15f18ac3d6727bffa",
+    "object.config": "8ed994a9873de36b7cf2d40e33740d18c35e3961bf580b5d18bb5a8197fac0f7"
+  },
+  "durable_sha256": {
+    "config.log": "133a1fa939d9de3cd1a864174ff40b422b546cfec7780dcf0fe283eeca922205",
+    "implementation-checkpatch.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "link-build.log": "b16d8854238cf35bf1ecd80dd6205dd0f1cb70e6c8da4fe942924b2a04ed1941",
+    "link-final.log": "4182d3149aab5a11ba6a5a406d53a3220994ed145c073727ac1cbd439e65aede",
+    "link.config.gz": "f81258ae9c1d15a852ee7bce14abae1a43dae81176762dccd2cd659ea440fd39",
+    "module-elf.txt": "cabfd44d37024185fac8708d4aa24569de23bc951647cc73a3d12629b162d56e",
+    "module-framework-imports.txt": "a1b71f18993c5305dad7afffab2da4e012188e3ca604c530af9df434fabfaf1d",
+    "object-build.log": "0ebff5fa07f04318600031c1824614afe283580261a21ea6913929f716743294",
+    "object.config.gz": "998d66bfe4dba7eaae2d2d03a8c83c846418ea9b6c7f7d381940074f46ae4d42",
+    "quarantine-checkpatch.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "schema.log": "96af35bd91d18a6ba6032f907205ecaa5ea2c20cf183997191f583be4dd5eb5c"
+  },
+  "compiler": "aarch64-linux-gnu-gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "schema": "2026.10.dev2+g840a01d41"
+}

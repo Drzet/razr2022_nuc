@@ -1,0 +1,78 @@
+name: Oneli public stock reference inventory (bounded)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stock-reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    env:
+      STOCK_URL: https://mirrors-obs-1.lolinet.com/firmware/lenomola/2022/oneli/official/RETGB/XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip
+      STOCK_NAME: XT2251-1_ONELI_RETEU_14_U2SLS34.1-42-14-11_subsidy-DEFAULT_regulatory-DEFAULT_cid50_CFC.xml.zip
+    steps:
+      - name: Check out project (metadata tools only)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Public mirror request with hard size and duration bounds
+        id: acquisition
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          archive="$RUNNER_TEMP/oneli-reference-stock.zip"
+          trap 'rm -f "$archive"' EXIT
+          df -h "$RUNNER_TEMP" | tee evidence/runner-storage.txt
+          curl --version | head -n 1 | tee evidence/curl-version.txt
+          printf "%s\n" "$STOCK_URL" > evidence/reference-url.txt
+          # Enforce a 4.7-GB maximum object, a 12-minute curl limit,
+          # a 13-minute overall process cap, and 20-second connect limit.
+          # Store all downloaded bytes ONLY under temporary runner storage.
+          set +e
+          timeout 780s curl --fail --location --silent --show-error \
+            --connect-timeout 20 --max-time 720 --max-filesize 4700000000 \
+            --output "$archive" \
+            --write-out 'http_code=%{http_code}\nremote_ip=%{remote_ip}\ncontent_type=%{content_type}\nsize_download=%{size_download}\ntime_total=%{time_total}\nurl_effective=%{url_effective}\n' \
+            "$STOCK_URL" > evidence/http-metrics.txt 2> evidence/curl-error.txt
+          result=$?
+          set -e
+          printf '%s\n' "$result" > evidence/curl-exit-code.txt
+          if [ "$result" -ne 0 ]; then
+            echo "acquired=false" >> "$GITHUB_OUTPUT"
+            echo "Public mirror download failed with curl/timeout exit $result. No ZIP hash or member inventory exists." | tee evidence/acquisition-status.txt
+            exit 0
+          fi
+          # The ZIP was fully downloaded; its SHA256 and member inventory
+          # belong in JSON, but neither the ZIP nor its raw DTBO are uploaded.
+          sha256sum "$archive" | sed "s|$archive|$STOCK_NAME|" | tee evidence/archive-sha256.txt
+          python3 scripts/inventory-oneli-firmware.py \
+            --stock-zip "$archive" --source-url "$STOCK_URL" \
+            --json-out evidence/oneli-reference-firmware-manifest.json \
+            2>&1 | tee evidence/stock-inventory.log
+          echo "acquired=true" >> "$GITHUB_OUTPUT"
+          echo "Downloaded public reference and recorded manifest; this is not the device's installed firmware." | tee evidence/acquisition-status.txt
+      - name: Publish text-only metadata, never proprietary binaries
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-public-reference-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Explicit result
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "## Oneli public firmware reference"
+            echo "Requested URL: $STOCK_URL"
+            echo "Public archive acquired: ${{ steps.acquisition.outputs.acquired }}"
+            echo "See HTTP metrics, archive SHA256 and metadata-only JSON if successful."
+            echo "Not installed-on-device evidence; no firmware binaries uploaded."
+            echo "Per-job cap: 4.7 GB, 12-minute curl, 13-minute process, 22-minute job."
+          } >> "$GITHUB_STEP_SUMMARY"

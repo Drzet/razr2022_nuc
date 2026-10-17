@@ -1,0 +1,579 @@
+{
+  "assignment": "fcc6f13b8fbece67eba1c9c333621f97879b394f",
+  "project_parent": "3b085bb0ae3493d4ff630027b035ccbadd0fc43e",
+  "evidence": "host extracted-source reference; not kernel, ICC or hardware execution",
+  "model": {
+    "use_sys_cache": false,
+    "compression_ratio_q16": 65536,
+    "complexity_factor_q16": 262144,
+    "rate": "max(frame_rate, operating_rate)"
+  },
+  "sources": {
+    "calculator.c": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/variant/iris2/src/msm_vidc_power_iris2.c",
+      "sha256": "a1a76266d723a855ec0f9f404ec4f5d04b88c7f6194a97945fb67782e1e4b0d0",
+      "bytes": 24047
+    },
+    "power.h": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/inc/msm_vidc_power.h",
+      "sha256": "36fa8f6a79a87af5b40f087865bcd986ad79074b52ade298073cf86b8d7f517d",
+      "bytes": 5977
+    },
+    "fixedpoint.h": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/inc/fixedpoint.h",
+      "sha256": "0f3b78b435c3f3a54ff1511bcaacbd5762af85fd24099a9456d3ce13ce39217a",
+      "bytes": 1473
+    },
+    "internal.h": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/inc/msm_vidc_internal.h",
+      "sha256": "93d21670685bb82f405592d83a3aa173a04b53f30d9dbd9da9244585718f7a98",
+      "bytes": 24704
+    },
+    "power.c": {
+      "url": "https://raw.githubusercontent.com/LowTension/android_kernel_xiaomi_sm8475/39382bf760ccf05a8fb4dddee7138ecac02d4a59/techpack/video/driver/vidc/src/msm_vidc_power.c",
+      "sha256": "be2d9fa49d3058b6ccb1d8a355ee3d3f72b80e705f2ae51e5ee8fb2efb6e7f68",
+      "bytes": 16859
+    },
+    "platform.h": {
+      "url": "https://raw.githubusercontent.com/Drzet/linux/a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac/drivers/media/platform/qcom/iris/iris_platform_common.h",
+      "sha256": "988f60d3a7f7b9d0d1412c6184ff23153f1a5d162d02ab07bc9a6344a08ba757",
+      "bytes": 7953
+    },
+    "platform.c": {
+      "url": "https://raw.githubusercontent.com/Drzet/linux/a1f0288d7c3d8d51fc53398d0ffe6bcdff8a54ac/drivers/media/platform/qcom/iris/iris_platform_vpu2.c",
+      "sha256": "584f116f71a157ef652a98b884e103de9a9268deca92911a3c5992307f72e408",
+      "bytes": 8474
+    }
+  },
+  "extractions": [
+    {
+      "source": "calculator.c",
+      "first_line": 1,
+      "last_line": 4,
+      "sha256": "51419acf7935fbd02565dcd9e2916b1f259af029b1a1bfae3c74d7add78c3f73",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 1,
+      "last_line": 5,
+      "sha256": "8b2b9e11a8e868b8dfccddf7e65c7cde5e9dc79b69bb3e378f78d63971cb9be2",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 1,
+      "last_line": 5,
+      "sha256": "2012b41fde2cee0ab7c0c84e9e8a625e5e434c94632a18ec0cac405666877983",
+      "unchanged": true
+    },
+    {
+      "source": "power.c",
+      "first_line": 1,
+      "last_line": 5,
+      "sha256": "debd197553c623bb24eaa3816e7d0d2612ef1a97a35955fc0e957dd0691ca4cd",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 138,
+      "last_line": 141,
+      "sha256": "2939bf071ebc053bf74f3717060ef0d4f9ec025f41f09168e058e6089dd24238",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 143,
+      "last_line": 148,
+      "sha256": "80e4c4b748b5b84625bb7f44815d19ca550635c73aa2a7d9a5d1401216b10a2a",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 155,
+      "last_line": 164,
+      "sha256": "0684cd910482410f24282b983f935709a7ec2afb88c6f3b72da887b8da6c7f09",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 742,
+      "last_line": 746,
+      "sha256": "fdbd0311213f0df971a3c0c4c464582d9dd1f75d9cb3bc5321329aa89db353c8",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 748,
+      "last_line": 768,
+      "sha256": "d26ce8242bbb9920bbc0a7de54dcafc64edcfaea4f4c067c52fd04b4b74f22f2",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 30,
+      "last_line": 35,
+      "sha256": "b4325ab5f9e67df5b655907c6052b4dd9ccfdaca6abc6b32a068aaeebd2f1b8e",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 38,
+      "last_line": 38,
+      "sha256": "2956a3f50a8541450fe1e527c41cd7bd02c1f7c0da2434a666139bdf23616960",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 39,
+      "last_line": 39,
+      "sha256": "d0edbd4b38d0d61140c801f038fc860b2e747197467eb9b14d73c384d3be9580",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 211,
+      "last_line": 211,
+      "sha256": "397f7c008fb9534480450f7b79dd7531fd6581860110ad308f5ff0c780c7e13e",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 212,
+      "last_line": 212,
+      "sha256": "5a54e7c4e870ee249241d7e0cd43ba11c43972e8667dc29632467a280e0c92da",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 119,
+      "last_line": 119,
+      "sha256": "d40ee8331130455f7b2ac7ab0f31776d4e61b5f8851995e81dc111f965834979",
+      "unchanged": true
+    },
+    {
+      "source": "internal.h",
+      "first_line": 120,
+      "last_line": 120,
+      "sha256": "60a155814217e847ecd08c5d9fcd0146be1c708ba75c984427bfbe1ae525cbaa",
+      "unchanged": true
+    },
+    {
+      "source": "power.c",
+      "first_line": 22,
+      "last_line": 22,
+      "sha256": "43ecc38637e0cc8f27b3da6727777013649350956ab94d8e7d268065c4e13e0a",
+      "unchanged": true
+    },
+    {
+      "source": "power.c",
+      "first_line": 21,
+      "last_line": 21,
+      "sha256": "ba8b43f29ef9f35288ecd4e962367a1eaaf8c2d9061e1bd4ba570d233c7641ec",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 214,
+      "last_line": 218,
+      "sha256": "e9e90966ae23f9e31810b6f02c3aa0e457e5fedab571b5b78fceaae0f5f3d23d",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 224,
+      "last_line": 233,
+      "sha256": "73ae83f0563a6ddad1feb72234177fd76f151718f2d1f4f7f813e98b1c4fa8c3",
+      "unchanged": true
+    },
+    {
+      "source": "power.h",
+      "first_line": 235,
+      "last_line": 250,
+      "sha256": "510757e87e35d57da93f230f9a8cd19ab93363c110b314a1017b3645a5890e2c",
+      "unchanged": true
+    },
+    {
+      "source": "calculator.c",
+      "first_line": 190,
+      "last_line": 444,
+      "sha256": "6e3179cbe6dd022d3b5551add2f00bae51bfc682c9fbf71e7afee541b1810ce6",
+      "unchanged": true
+    }
+  ],
+  "fixedpoint_header_unchanged": true,
+  "generated_reference_sha256": "460aaf1984561973c42d65cc0adeb1fd63a933072e416407ecc845d7c6552dd5",
+  "fixture_sha256": "fc7f03cee028d5939d79f6758e62094b404320dc2429e691ceb0c6531a72ac71",
+  "runner_sha256": "05c46ddcf4f29d5ab73bcaba212be42984d73f75fc10f8351b99cbb36c505294",
+  "retrieval_mode": "HTTPS",
+  "python_version": "3.14.4",
+  "candidate_limits": {
+    "min_frame_width": 96,
+    "max_frame_width": 8192,
+    "min_frame_height": 96,
+    "max_frame_height": 8192,
+    "max_mbpf": 138240,
+    "num_vpp_pipe": 4,
+    "max_core_mbpf": 276480,
+    "max_core_mbps": 7833600,
+    "DEFAULT_FPS": 30,
+    "MAXIMUM_FPS": 480
+  },
+  "compiler": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "commands": [
+    [
+      "gcc",
+      "-std=c11",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=undefined",
+      "-fno-sanitize-recover=all",
+      "-fno-omit-frame-pointer",
+      "-I",
+      "$BUILD",
+      "/workspace/razr2022_nuc/tests/vpu/decoder-bandwidth-reference.c",
+      "-o",
+      "$BUILD/reference"
+    ],
+    [
+      "$BUILD/reference"
+    ]
+  ],
+  "results": [
+    {
+      "case": "h264-nv12-1080p30",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 689000,
+      "llcc_kBps": 689000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "h264-cache-paired",
+      "kind": "synthetic-cache-on",
+      "fps": 30,
+      "ddr_kBps": 535000,
+      "llcc_kBps": 685000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "hevc-nv12-1080p30",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 633000,
+      "llcc_kBps": 633000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "hevc-p010-1080p30",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 893000,
+      "llcc_kBps": 893000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "hevc-cache-paired",
+      "kind": "synthetic-cache-on",
+      "fps": 30,
+      "ddr_kBps": 829000,
+      "llcc_kBps": 891000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "vp9-p010-1080p30",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 893000,
+      "llcc_kBps": 893000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "vp9-nv12-1080p30",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 633000,
+      "llcc_kBps": 633000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "vp9-cache-paired",
+      "kind": "synthetic-cache-on",
+      "fps": 30,
+      "ddr_kBps": 585000,
+      "llcc_kBps": 631000,
+      "bitrate_Mbps": 24,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 100000
+    },
+    {
+      "case": "vp9-p010-4k60",
+      "kind": "selected-model",
+      "fps": 60,
+      "ddr_kBps": 6979000,
+      "llcc_kBps": 6979000,
+      "bitrate_Mbps": 96,
+      "width": 3840,
+      "height": 2160,
+      "queued_bytes": 200000
+    },
+    {
+      "case": "floor-640x352",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 292000,
+      "llcc_kBps": 292000,
+      "bitrate_Mbps": 1,
+      "width": 640,
+      "height": 352,
+      "queued_bytes": 1000
+    },
+    {
+      "case": "floor-1280x704",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 292000,
+      "llcc_kBps": 292000,
+      "bitrate_Mbps": 1,
+      "width": 1280,
+      "height": 704,
+      "queued_bytes": 1000
+    },
+    {
+      "case": "minimum-96x96",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 280000,
+      "llcc_kBps": 280000,
+      "bitrate_Mbps": 0,
+      "width": 96,
+      "height": 96,
+      "queued_bytes": 0
+    },
+    {
+      "case": "startup-480-retained",
+      "kind": "selected-model",
+      "fps": 480,
+      "ddr_kBps": 10859000,
+      "llcc_kBps": 10859000,
+      "bitrate_Mbps": 252,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 65536
+    },
+    {
+      "case": "operating-rate-wins",
+      "kind": "selected-model",
+      "fps": 60,
+      "ddr_kBps": 1765000,
+      "llcc_kBps": 1765000,
+      "bitrate_Mbps": 32,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 65536
+    },
+    {
+      "case": "frame-rate-wins",
+      "kind": "selected-model",
+      "fps": 120,
+      "ddr_kBps": 3528000,
+      "llcc_kBps": 3528000,
+      "bitrate_Mbps": 63,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 65536
+    },
+    {
+      "case": "candidate-mbps-last-whole-fps",
+      "kind": "selected-model",
+      "fps": 241,
+      "ddr_kBps": 19229000,
+      "llcc_kBps": 19229000,
+      "bitrate_Mbps": 2,
+      "width": 3840,
+      "height": 2160,
+      "queued_bytes": 1000
+    },
+    {
+      "case": "candidate-mbps-next-fps",
+      "kind": "rejected-before-calculation",
+      "reason": "candidate-mbps"
+    },
+    {
+      "case": "signed-pixel-last-fps",
+      "kind": "selected-model",
+      "fps": 204,
+      "ddr_kBps": 23577000,
+      "llcc_kBps": 23577000,
+      "bitrate_Mbps": 2,
+      "width": 96,
+      "height": 8192,
+      "queued_bytes": 1000
+    },
+    {
+      "case": "signed-pixel-next-fps",
+      "kind": "rejected-before-calculation",
+      "reason": "pixel-arithmetic"
+    },
+    {
+      "case": "bitrate-last-queued-byte",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 3626000,
+      "llcc_kBps": 3626000,
+      "bitrate_Mbps": 2147,
+      "width": 1920,
+      "height": 1088,
+      "queued_bytes": 8943681
+    },
+    {
+      "case": "bitrate-next-byte",
+      "kind": "rejected-before-calculation",
+      "reason": "bitrate-arithmetic"
+    },
+    {
+      "case": "queued-u64-overflow",
+      "kind": "rejected-before-calculation",
+      "reason": "bitrate-arithmetic"
+    },
+    {
+      "case": "bitrate-ceil-below-1Mbit",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 292000,
+      "llcc_kBps": 292000,
+      "bitrate_Mbps": 1,
+      "width": 1280,
+      "height": 704,
+      "queued_bytes": 4166
+    },
+    {
+      "case": "bitrate-ceil-above-1Mbit",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 293000,
+      "llcc_kBps": 293000,
+      "bitrate_Mbps": 2,
+      "width": 1280,
+      "height": 704,
+      "queued_bytes": 4167
+    },
+    {
+      "case": "zero-queued-bytes-is-not-unvote",
+      "kind": "selected-model",
+      "fps": 30,
+      "ddr_kBps": 290000,
+      "llcc_kBps": 290000,
+      "bitrate_Mbps": 0,
+      "width": 1280,
+      "height": 704,
+      "queued_bytes": 0
+    },
+    {
+      "case": "compressed-output-out-of-scope",
+      "kind": "rejected-before-calculation",
+      "reason": "unsupported-format"
+    },
+    {
+      "case": "h264-10bit-out-of-scope",
+      "kind": "rejected-before-calculation",
+      "reason": "unsupported-format"
+    },
+    {
+      "case": "heic-out-of-scope",
+      "kind": "rejected-before-calculation",
+      "reason": "unsupported-format"
+    },
+    {
+      "case": "zero-output",
+      "kind": "rejected-before-calculation",
+      "reason": "dimension-envelope"
+    },
+    {
+      "case": "zero-input",
+      "kind": "rejected-before-calculation",
+      "reason": "dimension-envelope"
+    },
+    {
+      "case": "below-candidate-dimensions",
+      "kind": "rejected-before-calculation",
+      "reason": "dimension-envelope"
+    },
+    {
+      "case": "unaligned-source",
+      "kind": "rejected-before-calculation",
+      "reason": "dimension-envelope"
+    },
+    {
+      "case": "candidate-mbpf",
+      "kind": "rejected-before-calculation",
+      "reason": "candidate-mbpf"
+    },
+    {
+      "case": "above-candidate-dimensions",
+      "kind": "rejected-before-calculation",
+      "reason": "dimension-envelope"
+    },
+    {
+      "case": "zero-frame-rate",
+      "kind": "rejected-before-calculation",
+      "reason": "rate-envelope"
+    },
+    {
+      "case": "below-reference-rate",
+      "kind": "rejected-before-calculation",
+      "reason": "rate-envelope"
+    },
+    {
+      "case": "above-reference-rate",
+      "kind": "rejected-before-calculation",
+      "reason": "rate-envelope"
+    },
+    {
+      "case": "above-operating-rate",
+      "kind": "rejected-before-calculation",
+      "reason": "rate-envelope"
+    },
+    {
+      "case": "source-helper-edges",
+      "kind": "rounding-Q16-units",
+      "result": "PASS"
+    },
+    {
+      "case": "independent-vote-contract",
+      "kind": "host-contract-only",
+      "result": "PASS"
+    },
+    {
+      "summary": "PASS",
+      "checks": 271,
+      "production_decoder_calls": 21
+    }
+  ],
+  "unsigned_checks": "explicit preflight bounds and documented interval proof; GCC UBSan does not detect unsigned wrap"
+}
