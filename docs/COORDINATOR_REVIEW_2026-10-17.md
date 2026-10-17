@@ -92,3 +92,22 @@ Assign the bounded workflow correction and completed real module/MODPOST result 
 Boot staging is complete and paused. Wireless owns the sole active implementation/correction stream. Once its final link passes and is reviewed, select immutable producer/staging commits for Boot's combined enabled candidate; then provide the accepted kernel/config/modules contract to Userspace for normal Linux firmware packaging and NetworkManager/BlueZ integration. Physical radio revision is a runtime observation, not a new development gate.
 
 DP's prior source/build acceptance, USB and VPU acceptance remain intact; DP still owes documentation closure. VPU RESUME remains queued, with the user-accepted /3 assumption preserved. Accepted integration stays **2b5acf108ae37040ac1e652e029bb37f5609e886**. No new Image/rootfs, handset boot, Wi-Fi association, Bluetooth pairing or display output is claimed. No handset operation assigned.
+
+
+## Wireless final acceptance — 2026-10-17, after completed replacement build
+
+Supersedes the earlier pending ARM64 decision. Kernel **5d191e2dd449cb226eecd7086f76fc202a6f2257** is accepted for isolated source/build scope. Coordinator inspected the exact commit diff: only the workflow provider assertion changes from inline of_parse_phandle to exported __of_parse_phandle_with_args, with explanation. Production driver and harness are unchanged from the reviewed implementation.
+
+Independently retrieved [run 39037486109](https://github.com/Drzet/linux/actions/runs/39037486109) job results: cheap **117410138942** PASS and ARM64 **117410265783** PASS, completed 14:15:49 UTC. Actual ARM64 log contains matching vmlinux exports, ordinary modules MODPOST, linked AArch64 pwrseq-qcom-wcn.ko, successful vermagic/config checks and WCN6855_ARM64_MODPOST_PASS. No unresolved-symbol suppression or fabricated exports added.
+
+CI-reported hashes (log inspected; coordinator did not independently rebuild/download/rehash):
+- Module: **2dda988c8026ddcc58bf297020391e4444f78f8487af47b9e5bd5253d573204c**
+- Module.symvers: **5802d8bb9cb077c61dcf0d7b2bdc8d32793329389156b3b312e7339f9a3d3151**
+- Resolved config: **e26d4a5759494cbb51e9322c49e66bbbe7a34cf803c5137cc2845dc631cc22c1**
+- Artifact: **12103078488**, wireless-arm64-39037486109.
+
+Project head **44f57b4bed055a843e0f829bea79353ca548360b** correctly pins the new kernel and accepted Boot staging, but its final result still says pending. This is documentation closure, not a reason to repeat the passing build or block integration. Wireless updates that canonical result and pauses.
+
+Select Boot as sole implementation owner for a combined radio development candidate from accepted Boot **5d261b415a494621c276f8a680286c66971dc57b** plus accepted Wireless **5d191e2dd449cb226eecd7086f76fc202a6f2257**, under the detailed NEXT_TASKS assignment. Review shared provider activation and GPIO startup, resolve actual module/pre-power dependencies, then one cheap-gated combined build. Userspace consumes its exact accepted artifacts afterward. No new DP/VPU/GPU integration is bundled into this task.
+
+Accepted integration and diagnostic-v2 manifests remain unchanged until candidate review. Mocked host lifetime tests and successful compilation do not establish native kernel lifetime, firmware loading or hardware operation.
