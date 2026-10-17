@@ -3,7 +3,21 @@
 set -Eeuo pipefail
 [[ $EUID -eq 0 && $# == 4 ]] || { echo "usage: sudo bash $0 VERSIONED-ROOTFS RADIO-RELEASE-DIR ROOTFS-SHA NEW-WORKDIR" >&2; exit 2; }
 script_dir=$(cd "$(dirname "$0")" && pwd)
-bash "$script_dir/prepare-radio-rootfs-qemu.sh" "$@"
+# Preserve the accepted QEMU helper unchanged. Its fixed original-tar hash is
+# adapted only in a temporary script for this separately pinned v2 tar.
+newsha=$3
+[[ "$newsha" =~ ^[0-9a-f]{64}$ ]] || exit 2
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+python3 - "$script_dir/prepare-radio-rootfs-qemu.sh" "$tmp/prepare.sh" "$newsha" <<'PY'
+import pathlib,sys
+source=pathlib.Path(sys.argv[1]).read_text()
+old='[[ "$expected_sha" == 1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b ]] || exit 2'
+new='[[ "$expected_sha" == '+sys.argv[3]+' ]] || exit 2'
+assert source.count(old)==1
+pathlib.Path(sys.argv[2]).write_text(source.replace(old,new))
+PY
+bash "$tmp/prepare.sh" "$@"
 work=$(realpath "$4")
 root="$work/rootfs"
 test -s "$work/initrd.img"
