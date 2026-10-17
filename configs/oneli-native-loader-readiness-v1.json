@@ -890,5 +890,92 @@
     "pending": "Coordinator review of disabled board staging; producer optional-vddasd acceptance before enabled integration; device PCI/HCI identity, final selected DT, actual radio/voltage and physical output remain untested.",
     "kernel_dts_source_commit": "83bade370babeda6608af5a5c29b608c547c817a",
     "kernel_config_source_commit": "80af4b591bd5b251978b6e781461c05480986043"
+  },
+  "wireless_enabled_radio_candidate_2026_10_17": {
+    "status": "combined-radio-source-committed; automatic-two-job-build-pending",
+    "kernel_repository": "Drzet/linux",
+    "kernel_branch": "razr/boot",
+    "kernel_commit": "d4bbbe7d55cdc6696384463d18ba8c8ea420b49b",
+    "preceding_staging": "5d261b415a494621c276f8a680286c66971dc57b",
+    "reviewed_wireless_producer": "5d191e2dd449cb226eecd7086f76fc202a6f2257",
+    "wireless_driver_blob_sha": "4fdc74a71f2cd88601252b4f043725881e657b0c",
+    "host_harness_blob_sha": "765103391539183b4f8f99461243e4a8d285d46c",
+    "accepted_integration_promoted": false,
+    "accepted_image_modification": false,
+    "auto_workflow_run": 39044250747,
+    "cheap_gate_result": "pending",
+    "combined_arm64_result": "pending",
+    "image_sha256": null,
+    "dtb_sha256": null,
+    "kernel_config_sha256": null,
+    "module_symvers_sha256": null,
+    "module_bundle_sha256": null,
+    "pre_enumeration": {
+      "device_tree_enabled": [
+        "apps_rsc/regulators-0",
+        "apps_rsc/regulators-1",
+        "apps_rsc/regulators-3",
+        "/wcn6855-pmu",
+        "pcie0",
+        "pcie0_phy",
+        "wifi@0",
+        "qupv3_id_2",
+        "uart20",
+        "uart20/bluetooth"
+      ],
+      "built_in_expected": [
+        "CONFIG_REGULATOR_QCOM_RPMH=y",
+        "CONFIG_POWER_SEQUENCING=y",
+        "CONFIG_POWER_SEQUENCING_QCOM_WCN=y",
+        "CONFIG_PCI_PWRCTRL_PWRSEQ=y",
+        "CONFIG_PCIE_QCOM=y",
+        "CONFIG_PHY_QCOM_QMP=y",
+        "CONFIG_PHY_QCOM_QMP_PCIE=y"
+      ],
+      "prepower_call_path": "qcom_pcie_host_init -> pci_pwrctrl_create_devices -> pci_pwrctrl_power_on_devices -> devm_pwrseq_get(wlan) -> shared vddasd bulk enable before enumeration",
+      "unknown_selected_controller_identity": true,
+      "early_probe_deferral_when_pwrctrl_unbound": true
+    },
+    "userspace_modules_expected": [
+      "ath11k_pci",
+      "hci_uart"
+    ],
+    "gpio80_policy": "pinctrl no forced high/low; WCN pwrseq GPIOD_ASIS preserves current gpio value before setting direction",
+    "gpio81_gpio204": "PMU-owned output-low startup",
+    "gpio82": "status/input pinctrl only; not driven by sequencer",
+    "voltage_envelopes_uv": {
+      "S10B": [
+        1800000,
+        1800000
+      ],
+      "S11B": [
+        966000,
+        1170000
+      ],
+      "S12B": [
+        1350000,
+        2024000
+      ],
+      "S1C": [
+        1900000,
+        2024000
+      ],
+      "S2E": [
+        1012000,
+        1040000
+      ],
+      "L7E": [
+        2800000,
+        2800000
+      ]
+    },
+    "source_confirmed_internal_parent": "PM8350C L10C<-PM8350 S12B",
+    "inferred_parent": "PMR735A L7E<-PM8350C BOB (SM8450 HDK)",
+    "b_plus_fixed_provider_invented": false,
+    "prior_console_preserved": true,
+    "other_peripherals_enabled": false,
+    "software_combined_validated": false,
+    "on_device_verified": false,
+    "document": "docs/handoffs/2026-10-12-boot-seventh-console-v2-repackage.md"
   }
 }
