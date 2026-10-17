@@ -903,11 +903,11 @@
     "accepted_integration_promoted": false,
     "accepted_image_modification": false,
     "auto_workflow_run": 39045171934,
-    "cheap_gate_result": "pending final staging variant",
-    "combined_arm64_result": "pending",
+    "cheap_gate_result": "PASS: run 39045171934 DT job, exact schema/compiled-FDT/config/host coverage",
+    "combined_arm64_result": "started, actual Image/modules/MODPOST outcome pending",
     "image_sha256": null,
-    "dtb_sha256": null,
-    "kernel_config_sha256": null,
+    "dtb_sha256": "70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435",
+    "kernel_config_sha256": "e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273",
     "module_symvers_sha256": null,
     "module_bundle_sha256": null,
     "pre_enumeration": {
@@ -993,6 +993,20 @@
       "PM8350 L5B",
       "PM8350C L10C"
     ],
-    "preceding_superseded_run": 39045013110
+    "preceding_superseded_run": 39045013110,
+    "cheap_gate_artifact_id": 12105472677,
+    "cheap_gate_artifact_zip_sha256": "fa29a3077866568e7961dbb2a303265dbce4bed4fa784b6a463c228c3ff723f0",
+    "cheap_gate_sha256sum_entries_verified": 18,
+    "fdt_summary": {
+      "nodes": 924,
+      "reserved_static": 39,
+      "reservation_overlaps": 0,
+      "inherited_active_disabled_phy_refs": 6,
+      "selector_ranges": 6,
+      "pmu_input_supplies": 11,
+      "grouped_parent_edges": 6,
+      "host_scenarios": 17,
+      "host_mocked_assertions": 326
+    }
   }
 }
