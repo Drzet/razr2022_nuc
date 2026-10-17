@@ -145,3 +145,24 @@ These were validation/workflow mistakes, not demonstrated radio-source compilati
 Userspace is now the sole implementation stream: consume the exact build, package matching modules and standard Debian firmware/services, supply the early PCI pre-power module, validate archive/load contract and relevant QEMU userspace behavior. Native UFS/USB remain disabled; no root-device assumption or phone boot claim. No kernel rebuild.
 
 Boot handoff at project **372fabd6a0688e2bbe08a2bb6e80bb4deb122fc2** remains stale at failed 8603c55; only documentation/readiness closure is assigned. Wireless final handoff now records its successful build and is closed. Other acceptance remains unchanged.
+
+
+## Userspace radio packaging review — 2026-10-17
+
+**Accept source 8f54a679c2aa285398e4b12a5f370b5fb7f16201 / delivery 8aedb729895bfd47f19507d9b54e43c3bae8e73e for package/archive and diskless early-module execution scope.** Coordinator read both packaging scripts and workflow, final handoff, completed job statuses and actual CI log. No blocking defect identified in this scope. No kernel was rebuilt.
+
+[Run 39056127007](https://github.com/Drzet/razr2022_nuc/actions/runs/39056127007): cheap job **117464347990** and development job **117464371671** PASS. Exact accepted radio Image/config/module tree reused; verifier pins source/release and critical file digests, checks all 1,699 module hashes and dependency closure, and checks radio entry-point ELF/vermagic. Early initramfs contains the pre-power module and explicitly inserts it before READY. QEMU tests require actual insertion success, matching release, PID1, controlled shutdown or resident HOLD. The positive test rejects an insertion-failure marker. The HOLD test checks READY/HOLD and timeout but does not itself assert insertion success; owner reports inspecting actual HOLD log. READY alone is not proof that every mount/module succeeded.
+
+Debian staging uses the signed existing snapshot, installs normal firmware-atheros, NetworkManager, BlueZ and diagnostics, retains full matching modules/depmod, and removes temporary interpreter/resolver/host SSH keys. Installed package versions were independently visible in CI: firmware-atheros 20250410-2, network-manager 1.52.1-1, bluez 5.82-1.1. The temporary resolver is removed; the rootfs's boot-time resolver behavior has not been tested. This is a targeted next-test item, not an asserted DNS defect.
+
+CI upload hashes independently read from log:
+- Evidence/early loader artifact **12110065036**, ZIP **1210294bd8fe51e43e88b2f2d12be44cda333b2adf092cf1a8c725327f98d72b**.
+- Rootfs artifact **12109815613**, ZIP **74d4948115beff682e38b918854ab62cce756358998839cf63ecc6b5a83b3306**.
+
+Owner independently downloaded/verified those outputs, reports 32/32 evidence hashes, 1,699 module entries, expected firmware/service files and no embedded test credentials. Coordinator did not repeat archive downloads. Owner-reported inner hashes: rootfs tar **1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b**; early cpio **42d46ffc90a8566fad1ecf9ec0a28c6befe51b158ef01100362c2015e9040e1c**; compressed early cpio **797bd16b74f195a0ed07305f88213cd41e4e5393a36dcdaeb374ba75aed0c990**.
+
+### Scope and next decision
+
+The successful guest runs are diskless BusyBox early-loader tests. They do not boot the newly staged Debian rootfs or exercise its systemd/NetworkManager/D-Bus/BlueZ environment. The handoff states this accurately. Select one existing-rootfs QEMU runtime smoke to close that distinct software integration gap, reusing both accepted kernel and rootfs without rebuilding either. Prior generic Debian tests used a different rootfs and do not replace this check.
+
+This milestone supplies kernel + matching modules + signed firmware/services + an early module loader. It does not supply a demonstrated native storage path, new accepted phone boot package, phone console or working radios. UFS/USB/native root selection and physical early output remain separate. Diagnostic-v2 artifacts and accepted legacy integration remain unchanged; hardware assumptions retain [INFERRED] qualification.

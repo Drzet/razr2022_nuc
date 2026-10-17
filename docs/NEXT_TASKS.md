@@ -1,19 +1,20 @@
-# Current assignments — 2026-10-17 combined radio build accepted
+# Current assignments — 2026-10-17 Userspace packaging accepted
 
-[Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes Boot's implementation assignment.
+[Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the radio packaging implementation assignment.
 
-## Active implementation: Userspace — consume the accepted radio build
+## Active: Userspace — one prepared-rootfs runtime smoke test
 
-Project branch **razr/userspace**, reviewed head **428274b220e38d242b1cda2cfca63706f7374074**; preserve intervening work. Reuse existing Debian builder, native payload tooling and boot interface. Exact kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, release **7.3.0-rc6-g7f3865ee17c3**. Successful run **39050113058**, combined artifact **12109240146** (`oneli-radio-combined-39050113058-1`), ZIP SHA256 **d5ad99f03097655f03bc25b243ef2c1758b183bb49963167437750a3781a9de1**. Read the final coordinator review for Image/DTB/config hashes and qualifications.
+Packaging source **8f54a679c2aa285398e4b12a5f370b5fb7f16201**, handoff **8aedb729895bfd47f19507d9b54e43c3bae8e73e**, run **39056127007** accepted for package/archive and diskless early-module QEMU scope. Work on razr/userspace, preserving intervening commits.
 
-1. Download once, verify ZIP and internal SHA256SUMS, consume the existing Image/DTB and matching radio-modules.tar.zst. No kernel rebuild; no mixing modules from a different release or the generic Debian QEMU kernel.
-2. Extend existing Debian ARM64 packaging with these modules, normal firmware-atheros from signed Debian non-free-firmware, NetworkManager, BlueZ and focused diagnostics (iw, pciutils, rfkill). Pin actual package/source versions and hashes. Reuse existing Motorola inventory only if an observed firmware request later requires fallback; no speculative extraction, board-data fabrication or Xiaomi identity/NVM.
-3. Include pci-pwrctrl-pwrseq and its actual dependency closure in an early initramfs and explicitly arrange its loading. Built-in PCIe host defers until the power-control child binds. Preserve modules.dep/aliases and verify module vermagic. Arrange ath11k_pci/hci_uart loading once their matching modules and firmware are accessible. Do not mistake host modprobe --show-depends for runtime operation.
-4. Preserve the accepted diagnostic-v2 payload and its resident HOLD behavior as a separate release. Deliver a versioned radio-development payload/rootfs using existing interface schemas where applicable; explain any necessary extension. UFS/USB storage paths remain disabled: do not invent a native root device, partition or claim this rootfs is bootable on oneli. Keep a self-contained early diagnostic path, without requiring native storage.
-5. Validate changed packaging/configuration cheaply first, inspect archive/module/firmware closure, and perform one relevant QEMU userspace/payload smoke test with explicit emulation boundaries. QEMU does not validate the oneli DTB, PMIC, PCIe radio or BT. Do not rebuild the kernel for these tests or repeat unchanged diagnostic suites without a concrete regression risk.
-6. Deliver exact artifacts/hashes/package inventory, boot-interface/load-order contract and focused test results in one current Userspace handoff; post to #13 and stop for coordinator acceptance. No phone operations or Boot/kernel/DTS edits.
+The new Debian rootfs was inspected and packaged, but the successful QEMU tests boot only the separate BusyBox early initramfs. This follow-up checks the changed systemd/network/service environment, not the already-proved early module insertion.
 
-Sole implementation stream. VPU RESUME remains queued until this immediate radio packaging handoff; no new blanket subsystem round.
+1. Reuse exact rootfs artifact **12109815613**, ZIP **74d4948115beff682e38b918854ab62cce756358998839cf63ecc6b5a83b3306**, rootfs tar **1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b**. Reuse accepted kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce** from artifact **12109240146**, exact release **7.3.0-rc6-g7f3865ee17c3**. Verify hashes. No kernel rebuild, Debian bootstrap, apt reinstall or repeat firmware inventory.
+2. Use existing project-kernel QEMU harness with a disposable copy of this rootfs and QEMU-only virtio disk/DT/PL011 settings. Generate only the test-specific boot wrapper/initramfs needed to mount the virtual disk. Preserve distributed rootfs/early payload hashes; no invented native oneli root device.
+3. Verify actual systemd PID1, exact kernel release, matching module dependency resolution/loading, NetworkManager startup and virtual NIC address/route/DNS setup. Check D-Bus and BlueZ package/unit behavior; no Bluetooth controller exists in this QEMU setup, so a documented hardware-dependent unit skip/no-adapter result is not a failure. Test clean shutdown. Do not claim Wi-Fi association, firmware requests or Bluetooth pairing.
+4. In particular verify resolver setup: staging deliberately removes temporary /etc/resolv.conf. Report whether the installed NetworkManager configuration supplies working resolver state in the booted guest; correct only demonstrated packaging defects. Preserve any temporary test credentials outside distributed artifacts.
+5. Run this one meaningful automatic smoke test after cheap harness checks. Update the same canonical handoff with exact input hashes, guest outcomes, limitations and logs; post to #13 and stop. No repeat of completed diskless HOLD/early-loader tests for unchanged inputs.
+
+All other subsystem implementation remains paused/queued. This is the sole active stream.
 
 ## Boot — documentation closure only, no build
 
@@ -38,7 +39,7 @@ Append exact final run/job/artifact, config/module hashes and acceptance to the 
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** ac293ee project / c318805 kernel CI maintenance accepted; production source identical to accepted 905d2403. RESUME quirk remains queued after current radio prerequisite; not active. Preserve VPU2, disabled gate, user-accepted /3 and current startup policy.
 - **GPU:** paused.
-- **Userspace:** active only under the exact-artifact assignment above.
+- **Userspace:** active only for the prepared-rootfs runtime smoke above.
 - **Battery/charging:** no implementation assigned.
 
 ## CI and integration
