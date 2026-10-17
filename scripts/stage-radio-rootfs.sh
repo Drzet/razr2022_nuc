@@ -27,6 +27,8 @@ sed -i -E '/^deb /s/ main$/ main non-free-firmware/' "$root/etc/apt/sources.list
 cp "$root/etc/apt/sources.list" "$work/evidence/apt-sources.txt"
 [[ -x /usr/bin/qemu-aarch64-static ]] || exit 2
 cp /usr/bin/qemu-aarch64-static "$root/usr/bin/qemu-aarch64-static"
+# Bootstrap tar deliberately omits resolver configuration; use the host resolver only during staging.
+cp /etc/resolv.conf "$root/etc/resolv.conf"
 cat > "$root/usr/sbin/policy-rc.d" <<'POLICY'
 #!/bin/sh
 exit 101
@@ -68,7 +70,7 @@ find "$root/usr/lib/firmware" "$root/lib/firmware" -type f 2>/dev/null | LC_ALL=
 [[ -s "$work/evidence/firmware-files.txt" ]] || { echo 'Firmware files not installed' >&2; exit 1; }
 chroot "$root" /usr/bin/dpkg -V firmware-atheros network-manager bluez iw pciutils rfkill \
   > "$work/evidence/dpkg-verify.txt"
-rm -f "$root/usr/bin/qemu-aarch64-static" "$root/usr/sbin/policy-rc.d"
+rm -f "$root/usr/bin/qemu-aarch64-static" "$root/usr/sbin/policy-rc.d" "$root/etc/resolv.conf"
 rm -f "$root"/etc/ssh/ssh_host_*
 : > "$root/etc/machine-id"
 for target in "$root/dev" "$root/sys" "$root/proc"; do umount "$target"; done
