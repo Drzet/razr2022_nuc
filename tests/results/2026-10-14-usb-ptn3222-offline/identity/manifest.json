@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-15",
+  "authorization": "User authorized making undocumented BUK IDs informational, focused offline validation, publication and updated handoff.",
+  "project_base": "5a9e2c5f4fa743fd79580eac44ccd00379f0ed17",
+  "kernel_base": "61202a82ad004302fcc04e321075e190f00b29ed",
+  "kernel_driver_commit": "d87632e89fbbfe090afa841796ef67bed5eea449",
+  "kernel_head": "1e5268277f6d4c25cde2f3e2b3f00439107e087a",
+  "kernel_tree": "a4ea7bfa43182f6fddcae88601ee2be7b32c3923",
+  "source_sha256": "2130a965f1f31d340e8279d64515979c8813664e906f77a92730487b4cb5827f",
+  "binding_sha256": "f1c7bd0f17ea10b33de3ce6b217afb504e8160c0c88e9e5370de1adf96ebd611",
+  "config_sha256": "789bbe87f9479e856cd8303545d28126dba0d0c0d77f20658039b05b8de940ef",
+  "module_sha256": "b490b1c51511a9bd0796f9c8b33f7319dc957aaf821e7bd3cd32cd11b58e9160",
+  "module_symvers_sha256": "23e17467b4dc6e379c2b4bf698d912a6d947f65d7b830f07482d53755eb0a605",
+  "unit_test_sha256": "1f64d7a846ebe468b864f23052ad864c0fff4f2d1c22f961662fa8d78c7ba15e",
+  "host_environment": {
+    "python": "3.14.4",
+    "gcc": "15.2.0 (Ubuntu 15.2.0-16ubuntu1)",
+    "sanitizers": "address,undefined",
+    "ASAN_OPTIONS": "detect_leaks=0"
+  },
+  "cross_compiler": "aarch64-linux-gnu-gcc 15.2.0 (Ubuntu 15.2.0-16ubuntu1)",
+  "results": {
+    "before": "New unknown-ID continuation assertion fails on base61202a82; C assertion abort (runner250).",
+    "after": "44 production-driver scenarios pass.",
+    "arm64": "Changed PTN3222 object, MODPOST and module link pass.",
+    "binding": "Description only; all other bytes identical. Prior schema evidence reused, no validation rerun."
+  },
+  "limits": "Host mocks and ARM64 cross compilation; no kernel runtime, emulation, electrical identity or handset result.",
+  "local_generated_artifacts": [
+    "/tmp/razr-ptn3222-identity-before",
+    "/tmp/razr-ptn3222-identity-after",
+    "/tmp/razr-ptn3222-build/drivers/phy/phy-nxp-ptn3222.ko"
+  ],
+  "logs_sha256": {
+    "before.log": "f85f07c927bfa4f67c7ab46e259e01a86724b5d5e6690fc0a549a92a7dc189a4",
+    "before-result.json": "be9a8120f0487952f41857880480fb7ea7ff2ff2dc29132e1220994c53753a8f",
+    "after-result.json": "ba9d10860c818106e7dd105afa146711a90a8f7d9d741ea914ddeffdb4cef65f",
+    "modules.log": "70fd1b25041ac82b5f316794034466f3c42230a3331370ceeddbb4966c12e40e",
+    "driver-checkpatch.log": "b9401e6e5ce277def71d2195ab6a4096c9d48fa9622b300141ef813d4ed48340",
+    "binding-checkpatch.log": "05bce624178a2b9f2a69ac24743c1b42bd9e3965bbfc8bd2f96b47a3aea7a173",
+    "binding-constraints.log": "5887b00a45146c89cd65a98335f9852d9ebe91d5677614bd44816fc27a1bb402"
+  }
+}

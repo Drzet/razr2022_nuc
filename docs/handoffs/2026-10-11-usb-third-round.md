@@ -1,0 +1,34 @@
+# Subsystem handoff: USB third coordinator review and stock evidence
+
+- **Date and originating chat:** 2026-10-11, USB / Motorola razr 2022 oneli.
+- **Kernel repository / branch / exact reviewed commit:** Drzet/linux **razr/usb-ps5169 at 4cbfc0145d9c837d2ba3fd9050f529a786135403**, branched from USB base **87d7277ced4c562e2379ee58aaed5c5fd7db4f32**; standalone eUSB2 PHY binding **0119d73b40bed1041278cf9307bdec9c17880618**.
+- **Evidence repo / branch:** Drzet/razr2022_nuc, razr/usb. Source-consumption report commit **b5a3ec4a34954588fb1ee78e80546bcbb583de49**. This handoff is a subsequent docs commit; find its SHA in GitHub branch history.
+- **Selected upstream kernel baseline:** a5ebb76233b79db01e82e061173cb73c6d2b5c6b, unchanged.
+- **Required board/subsystem commits:** Boot staged inactive eUSB2 **822449a4445cecf44bb303cda91295031cb47650**, DWC3 **7dffd93e9b78017a4b0cd621af207e4e8a95f621**, disabled GLINK connector **df983169abb51a37d2555b3418bec188df049512**, all reviewed on Boot-only shared DTS branch. Source-backed Power [rail v2](https://github.com/Drzet/razr2022_nuc/blob/razr/power/docs/power_oneli_rail_contract_v2_2026-10-11.md). DisplayPort [graph issue #3](https://github.com/Drzet/razr2022_nuc/issues/3) and [VPU shared firmware inventory issue #10](https://github.com/Drzet/razr2022_nuc/issues/10).
+- **Evidence stages:** researched yes; durable attributable PS5169 implemented yes, but source held experimental; initial isolated x86 compiler and schema tests passed; new durable PS5169 ARM64 Image/modules normal modpost, linked ps5169.ko and binding schema **PASSED** at exact source SHA 4cbfc0145d9c837d2ba3fd9050f529a786135403; actual physical USB/DP hardware-tested **NO**.
+
+## Changes and provenance
+
+[Third-review USB source and variant audit](../usb_third_review_stock_and_ps5169_2026-10-11.md) records exact Motorola stock reference and the later VPU discovery superseding firmware-location assumptions: actual VPU firmware and A730 SQE/ZAP located in public archive radio.img nested SINGLE_N_LONELY NON-HLOS ext4, with full source hashes, VPU version video-firmware.2.4. This is not native hardware acceptance. Shared [metadata](https://github.com/Drzet/razr2022_nuc/blob/razr/vpu/docs/vpu/2026-10-11-radio-non-hlos-firmware-manifest.json) and CI [38180934057](https://github.com/Drzet/razr2022_nuc/actions/runs/38180934057). Firmware archive full ZIP SHA256 620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c.
+
+Durable PS5169 draft [kernel PR #5](https://github.com/Drzet/linux/pull/5), original Esteban Urrutia August v3 commits **3212e1d8a836f3dbbd0a258410b18683a38207ad** binding and **551c094e0ce5e7f492fe21d7e6ab2de815343b6a** driver. Separate USB direct-headers repair **cbed833e9d5131fbed49774f385bba38bcd7944f** and separate both VCC/VIO regulator+binding change **4cbfc0145d9c837d2ba3fd9050f529a786135403**. GitHub Actions orchestration commit **068af1339724278235fa0880f565c47c344b3f7b**. Original source file hashes pinned by CI and recorded in full audit. No silent build-time driver rewrite is needed after branch import.
+
+## Shared files and integration
+
+USB-owned files under kernel candidate: Documentation/devicetree/bindings/usb/parade,ps5169.yaml; MAINTAINERS; drivers/usb/typec/mux/{Kconfig,Makefile,ps5169.c}, plus workflow. Does **not** alter shared sm8475.dtsi / oneli board DTS. Sole owner Boot staged *disabled* USB2-first PHY, controller and connector graph on separate Boot commits and used source-backed USB contract. An independent AUX switch does not live inside PS5169; port@2 GPIO2/GPIO71 is DisplayPort-owned and not enabled. GLINK GPIO91 single input owner. Power must review S10B/L8C PS5169 and S10B/L2B NXP rail parents before active consumers.
+
+## Validation
+
+- **Prior completed:** [x86-64 temporary candidate compile + binding schema run 38170306651](https://github.com/Drzet/linux/actions/runs/38170306651), passed at USB head 87d7277ced4c562e2379ee58aaed5c5fd7db4f32 (temporary source applied in runner). Preserved source hashes and object SHA in [result](../../tests/results/2026-10-11-usb-ps5169-candidate.md).
+- **Durable candidate workflow:** [GitHub Actions run 38181747728](https://github.com/Drzet/linux/actions/runs/38181747728). Final job `114595592411` **PASS**; attribution/import/push, PS5169 binding `SCHEMA/LINT/STYLE/DTEX/DTC [C]`, full ARM64 `Image modules`, ordinary `MODPOST Module.symvers`, and linked `ps5169.ko` all succeeded. Actual tested source was `4cbfc0145d9c837d2ba3fd9050f529a786135403`, not workflow-trigger pre-import SHA `068af1339724278235fa0880f565c47c344b3f7b`. `readelf` verified ELF64/AArch64. Output SHA256: Image `7faf96a0d51be28c57a323c6ccd32aebfa5eccd60064b51dd88253a87178df0e`; Module.symvers `ad4f64708b64e132fea71feb4602c437831a2ba1c4f267708f2f8cfcf63725d9`; ps5169.ko `fd9b63ca50dd45d50e3a69b281ba1148673c39a33e359a03228a49846d05dea5`. [Full validation record](../../tests/results/2026-10-11-usb-ps5169-arm64-integration.md) and [CI artifact](https://github.com/Drzet/linux/actions/runs/38181747728/artifacts/11719113329).
+- **No actual USB/DP hardware result**. Previously observed stock Android Type-C roles do not demonstrate native driver support.
+
+## Blockers and next tests
+
+1. **Completed:** run 38181747728 passed with normal ARM64 Image/modules build, Module.symvers, linked ps5169.ko, full .config and hashes recorded. No unchanged rebuild needed. Next review the source error paths and electrical reset/supply policy.
+2. Source-review reset: Motorola TLMM19 is high-enable/low-disable, not proven electrical reset polarity/pulse timing. Inherited v3 devm_gpiod_get/reset-gpios is held from active oneli DT. Driver I2C writes/EQ update return codes are ignored and explicit suspend/resume is absent; evaluate bounded error-path improvements before active enablement.
+3. Stock DTBO 4-variant USB node status/property comparison awaits VPU export [specific request in issue #10](https://github.com/Drzet/razr2022_nuc/issues/10#issuecomment-6114753777). All four contain NXP and Diodes strings, **not** active component identification. Matching PVT Android build label is not proof of installed public archive bytes or selected overlay.
+4. Boot maintains disabled USB2 path; physical NXP I2C chip ID 0x13..0x16, reset PM8350C GPIO7, regulator parents and source registration not resolved. No guessed PTN3222 or Diodes physical identity.
+5. Future on-device acceptance: native USB2 serial/network enumeration, role switch, flipped cable, then PS5169 SuperSpeed and DP dock after safe rails and real AUX binding. Handset presently unavailable.
+
+**Consumers:** coordinator for candidate PR selection, Boot for disabled USB2 and later GLINK/USB3 integration, Power for regulators, DisplayPort for separate AUX and Type-C port@2, VPU for centralized reference extraction. No merge performed.

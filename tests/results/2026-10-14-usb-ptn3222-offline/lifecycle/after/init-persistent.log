@@ -1,0 +1,7 @@
+first init: -5
+STATE: outer=0 inner=0 reset=1 votes=1/1 own=0/0 faulted=1 initialized=0
+core init retry: -11
+STATE: outer=0 inner=0 reset=1 votes=1/1 own=0/0 faulted=1 initialized=0
+STATE: outer=1 inner=1 reset=0 votes=1/1 own=1/1 faulted=0 initialized=1
+STATE: outer=0 inner=0 reset=1 votes=0/0 own=0/0 faulted=0 initialized=0
+PASS: init-persistent

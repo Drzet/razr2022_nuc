@@ -1,0 +1,13 @@
+{
+  "local_commit": "c071561e5fbdf01e757e58935ef43df8d47a480e",
+  "published_commit": "61202a82ad004302fcc04e321075e190f00b29ed",
+  "parent": "d513929e8c1ef2ea7f5158ebfb57fda99ff531e9",
+  "identical_tree": "d8151528d81c04e4fdd0a139d78a62322fcb9852",
+  "config_sha256": "789bbe87f9479e856cd8303545d28126dba0d0c0d77f20658039b05b8de940ef",
+  "schema_binding_sha256": "a663388f2104a9da9cf02038255f8cb7c4b2043ea3d244ea04df6d51037666db",
+  "artifacts": {
+    "drivers/phy/phy-nxp-ptn3222.ko": "6f50cbfb8d65c8c6aef2ed880991f29f14784b28a7a1ddc8f00e25e0bbdaaaa7",
+    "drivers/phy/phy-snps-eusb2.ko": "213f78c708673c2186315c0fa756af43705d9f22436fc1cde54c4417d6af02c0",
+    "Module.symvers": "23e17467b4dc6e379c2b4bf698d912a6d947f65d7b830f07482d53755eb0a605"
+  }
+}

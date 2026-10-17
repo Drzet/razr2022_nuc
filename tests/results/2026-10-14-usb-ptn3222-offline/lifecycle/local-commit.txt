@@ -1,0 +1,26 @@
+tree d8151528d81c04e4fdd0a139d78a62322fcb9852
+parent d513929e8c1ef2ea7f5158ebfb57fda99ff531e9
+author Codex <codex@kutuk> 1791971204 +0000
+committer Codex <codex@kutuk> 1791971204 +0000
+
+phy: fix PTN3222 cleanup retry through the SNPS lifecycle
+
+After failed provider init, PHY core holds no init reference and cannot
+call provider exit to clear pending cleanup. Retry recorded PTN3222
+cleanup before acquiring new regulator votes and preserve cleanup faults.
+
+Track the SNPS consumer's outstanding repeater init reference. Retain it
+when repeater exit fails and drain it before reconnect or failed-init
+retry. SNPS releases its own completed teardown reference: returning an
+exit error would retain the outer init count and bypass callbacks on the
+next phy_init. Deferred cleanup is logged; persistent errors are returned
+by the next init, without duplicate votes or false initialization.
+
+Source is based on the retained candidate d513929e. Generic PHY core,
+DWC3, profile ABI, board DTS and other subsystem code remain unchanged.
+
+Validation: both regressions fail before this change with actual core
+phy_init/phy_exit dispatch and SNPS/provider bodies under host mocks;
+12 focused lifecycle cases and 37 direct provider cases pass after it
+with ASan/UBSan. Affected ARM64 modules compile/link with modpost using
+the existing reduced configuration. Original source attribution retained.

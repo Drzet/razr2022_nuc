@@ -1,0 +1,2 @@
+STATE: outer=0 inner=0 reset=1 votes=0/0 own=0/0 faulted=0 initialized=0
+PASS: optional-repeater

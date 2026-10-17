@@ -1,0 +1,106 @@
+{
+  "result": "PASS",
+  "selector_cases": [
+    {
+      "case": ".github/workflows/razr-ps5169-fault-ci.yml",
+      "build": false
+    },
+    {
+      "case": "docs/usb.md",
+      "build": false
+    },
+    {
+      "case": "Documentation/devicetree/bindings/usb/parade,ps5169.yaml",
+      "build": false
+    },
+    {
+      "case": "tests/usb/ps5169/oneli-valid.dts",
+      "build": false
+    },
+    {
+      "case": "scripts/razr/ps5169-fault-injection.py",
+      "build": false
+    },
+    {
+      "case": "scripts/razr/ps5169-probe-fault-injection.py",
+      "build": false
+    },
+    {
+      "case": "scripts/razr/ps5169-conditional-validation.py",
+      "build": false
+    },
+    {
+      "case": "drivers/usb/typec/mux/ps5169.c",
+      "build": true
+    },
+    {
+      "case": "drivers/usb/typec/mux/Kconfig",
+      "build": true
+    },
+    {
+      "case": "drivers/usb/typec/mux/Makefile",
+      "build": true
+    },
+    {
+      "case": "include/linux/usb/typec_mux.h",
+      "build": true
+    },
+    {
+      "case": "include/linux/regulator/consumer.h",
+      "build": true
+    },
+    {
+      "case": "include/linux/gpio/consumer.h",
+      "build": true
+    },
+    {
+      "case": "include/linux/regmap.h",
+      "build": true
+    },
+    {
+      "case": "include/drm/bridge/aux-bridge.h",
+      "build": true
+    },
+    {
+      "case": "arch/arm64/configs/defconfig",
+      "build": true
+    },
+    {
+      "case": "multi-commit push",
+      "build": true
+    },
+    {
+      "case": "new branch",
+      "build": true
+    },
+    {
+      "case": "missing before",
+      "build": true
+    },
+    {
+      "case": "invalid before",
+      "build": true
+    },
+    {
+      "case": "unavailable before (fetch failure)",
+      "build": true
+    },
+    {
+      "case": "explicit dispatch",
+      "build": true
+    },
+    {
+      "case": "rename source",
+      "build": true
+    },
+    {
+      "case": "empty effective diff",
+      "build": false
+    },
+    {
+      "case": "shallow clone fetches older push base",
+      "build": true
+    }
+  ],
+  "scope": "real workflow step with local Git fixtures; workflow graph/assertion checks; no Actions scheduler or kernel build"
+}

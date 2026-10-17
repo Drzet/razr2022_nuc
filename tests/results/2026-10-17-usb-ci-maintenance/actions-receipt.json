@@ -1,0 +1,226 @@
+{
+  "repository": "Drzet/linux",
+  "scope": "GitHub run/job/artifact metadata read after automatic push runs; artifact digests are GitHub-reported, not independently downloaded/hash-verified.",
+  "runs": [
+    {
+      "run_id": 38986262436,
+      "name": "Razr PS5169 fault handling ARM64 module validation",
+      "head_branch": "razr/usb-ps5169",
+      "head_sha": "57d4d32b614cf23c2d9f60cdb06daa30870d7b61",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Drzet/linux/actions/runs/38986262436",
+      "created_at": "2026-10-17T00:24:59Z",
+      "updated_at": "2026-10-17T00:26:39Z",
+      "jobs": [
+        {
+          "id": 117258336384,
+          "name": "checks",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Select compilation from the actual push range",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install cheap host and schema tools",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Record exact cheap-check inputs and tools",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate binding document and examples",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Execute transition faults, schema fixtures and production probe faults once",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 117258746214,
+          "name": "arm64-and-binding",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 12083745020,
+          "name": "ps5169-checks-57d4d32b614cf23c2d9f60cdb06daa30870d7b61",
+          "size_in_bytes": 58227,
+          "digest_reported_by_github": "sha256:a1d955d0334c5942b53ad572537ef576af451d8e110be483c9268f62de2ae62b",
+          "expired": false
+        }
+      ]
+    },
+    {
+      "run_id": 38986262582,
+      "name": "Razr USB eUSB2 binding schema",
+      "head_branch": "razr/usb-ps5169",
+      "head_sha": "57d4d32b614cf23c2d9f60cdb06daa30870d7b61",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Drzet/linux/actions/runs/38986262582",
+      "created_at": "2026-10-17T00:24:59Z",
+      "updated_at": "2026-10-17T00:26:55Z",
+      "jobs": [
+        {
+          "id": 117258336987,
+          "name": "binding",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install DT schema tooling",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate exact binding",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 12083526324,
+          "name": "razr-usb-dt-schema-57d4d32b614cf23c2d9f60cdb06daa30870d7b61",
+          "size_in_bytes": 854,
+          "digest_reported_by_github": "sha256:7966e814ede428370ac7965bc90a5756ef1fe836760c2ae5123fb20550e8807e",
+          "expired": false
+        }
+      ]
+    },
+    {
+      "run_id": 38986268226,
+      "name": "Razr USB eUSB2 binding schema",
+      "head_branch": "razr/usb",
+      "head_sha": "305bc34cac710adc9fe7c4794a6e909abdf83ee0",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/Drzet/linux/actions/runs/38986268226",
+      "created_at": "2026-10-17T00:25:03Z",
+      "updated_at": "2026-10-17T00:27:00Z",
+      "jobs": [
+        {
+          "id": 117258354437,
+          "name": "binding",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install DT schema tooling",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Validate exact binding",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 12083446610,
+          "name": "razr-usb-dt-schema-305bc34cac710adc9fe7c4794a6e909abdf83ee0",
+          "size_in_bytes": 849,
+          "digest_reported_by_github": "sha256:b90a141383e086fb77cfe8eedf2b85d52ba930ec9820a5f8b45ad41ecf8a0415",
+          "expired": false
+        }
+      ]
+    }
+  ]
+}

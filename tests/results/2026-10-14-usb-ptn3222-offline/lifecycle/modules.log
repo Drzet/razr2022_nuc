@@ -1,0 +1,9 @@
+make: Entering directory '/tmp/razr-usb-ptn3222'
+make[1]: Entering directory '/tmp/razr-ptn3222-build'
+  CC [M]  drivers/phy/phy-nxp-ptn3222.o
+  CC [M]  drivers/phy/phy-snps-eusb2.o
+  MODPOST Module.symvers
+  LD [M]  drivers/phy/phy-nxp-ptn3222.ko
+  LD [M]  drivers/phy/phy-snps-eusb2.ko
+make[1]: Leaving directory '/tmp/razr-ptn3222-build'
+make: Leaving directory '/tmp/razr-usb-ptn3222'

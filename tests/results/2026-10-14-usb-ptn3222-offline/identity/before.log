@@ -1,0 +1,1 @@
+driver-harness: /tmp/razr-ptn3222-identity-before/driver-harness.c:567: identity_policy: Assertion `ptn3222_init(&test_phy) == 0' failed.

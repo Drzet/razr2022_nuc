@@ -1,0 +1,9 @@
+Compiling extracted production driver functions with injected regmap/downstream callbacks
+mode-path failures and retries: 5 positions PASS
+probe EQ/gain failures and retries: 12 positions PASS
+failed retimer write, unchanged request retry PASS
+downstream mux failure, hardware rollback and retry PASS
+same mode, changed SVID rejection and retry PASS
+failed switch I/O, downstream rollback and retry PASS
+downstream switch failure PASS
+PS5169 extracted production-function fault injection: PASS

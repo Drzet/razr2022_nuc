@@ -1,0 +1,74 @@
+{
+  "sources": {
+    "drivers/phy/phy-nxp-ptn3222.c": "521752913ff692b82ca7ae207d115dfdda6c882ada6e3e751552f0ffad71c2bc",
+    "drivers/phy/phy-core.c": "2535dc20688c48082b30f2498a05931897dc7b5db902bb02c5f5322d31c80117",
+    "drivers/phy/phy-snps-eusb2.c": "3b05d338fbc469d4c4f33bd1dd70318189045a4015c92d9bed43f514f95d420d"
+  },
+  "test_sha256": "4179ef5d774de5ce9966af309950c34c1dc3eb3c77be5fabe57101a3a60eaf83",
+  "unit_shim_sha256": "d8add134b14462e99984190351b76e09ec7d6f7dfe52ff3f3c40a596b2528766",
+  "source_revision": null,
+  "expected_failure": false,
+  "scope": "unchanged production core dispatch/count and SNPS/provider bodies with host mocks",
+  "cases": [
+    {
+      "case": "init-retry",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "init-persistent",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "reconnect",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "reconnect-persistent",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "late-clock",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "late-reset-assert",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "late-reset-deassert",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "late-soc",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "voltage-retry",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "legacy-counts",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "optional-repeater",
+      "returncode": 0,
+      "expected_outcome": true
+    },
+    {
+      "case": "role-replay",
+      "returncode": 0,
+      "expected_outcome": true
+    }
+  ]
+}

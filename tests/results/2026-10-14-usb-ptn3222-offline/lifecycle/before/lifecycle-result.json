@@ -1,0 +1,24 @@
+{
+  "sources": {
+    "drivers/phy/phy-nxp-ptn3222.c": "023239da29c269e42bcebd0d97c1a77e7cd934f631ef3fec1429e044a535cf57",
+    "drivers/phy/phy-core.c": "2535dc20688c48082b30f2498a05931897dc7b5db902bb02c5f5322d31c80117",
+    "drivers/phy/phy-snps-eusb2.c": "6672c6923c1e1b057e227bdb1d573d67c2618a8521a0cee29b84ce1323360c17"
+  },
+  "test_sha256": "4179ef5d774de5ce9966af309950c34c1dc3eb3c77be5fabe57101a3a60eaf83",
+  "unit_shim_sha256": "d8add134b14462e99984190351b76e09ec7d6f7dfe52ff3f3c40a596b2528766",
+  "source_revision": "d513929e8c1ef2ea7f5158ebfb57fda99ff531e9",
+  "expected_failure": true,
+  "scope": "unchanged production core dispatch/count and SNPS/provider bodies with host mocks",
+  "cases": [
+    {
+      "case": "init-retry",
+      "returncode": 1,
+      "expected_outcome": true
+    },
+    {
+      "case": "reconnect",
+      "returncode": 1,
+      "expected_outcome": true
+    }
+  ]
+}

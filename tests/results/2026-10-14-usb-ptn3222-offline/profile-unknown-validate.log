@@ -1,0 +1,2 @@
+/tmp/razr-ptn3222-schema/profile-unknown.dtb: redriver@4f (nxp,ptn3222): nxp,usb2-tuning-profile:0: 'unknown' is not one of ['motorola,oneli']
+	from schema $id: http://devicetree.org/schemas/phy/nxp,ptn3222.yaml

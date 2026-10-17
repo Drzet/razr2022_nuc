@@ -1,0 +1,2 @@
+/tmp/razr-ptn3222-schema/raw-host-forbidden.dtb: redriver@4f (nxp,ptn3222): 'qcom,host-param-override-seq' does not match any of the regexes: '^pinctrl-[0-9]+$'
+	from schema $id: http://devicetree.org/schemas/phy/nxp,ptn3222.yaml

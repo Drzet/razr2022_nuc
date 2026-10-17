@@ -1,0 +1,51 @@
+{
+  "binding_sha256": "a663388f2104a9da9cf02038255f8cb7c4b2043ea3d244ea04df6d51037666db",
+  "scope": "synthetic DTBs; schema diagnostics, not board/hardware validation",
+  "cases": [
+    {
+      "fixture": "legacy-minimal",
+      "expected_diagnostic": null,
+      "result": "PASS"
+    },
+    {
+      "fixture": "profile-valid",
+      "expected_diagnostic": null,
+      "result": "PASS"
+    },
+    {
+      "fixture": "profile-no-reset",
+      "expected_diagnostic": "reset-gpios",
+      "result": "PASS"
+    },
+    {
+      "fixture": "profile-no-v18",
+      "expected_diagnostic": "vdd1v8-supply",
+      "result": "PASS"
+    },
+    {
+      "fixture": "profile-no-v33",
+      "expected_diagnostic": "vdd3v3-supply",
+      "result": "PASS"
+    },
+    {
+      "fixture": "profile-unknown",
+      "expected_diagnostic": "nxp,usb2-tuning-profile",
+      "result": "PASS"
+    },
+    {
+      "fixture": "profile-wrong-type",
+      "expected_diagnostic": "nxp,usb2-tuning-profile",
+      "result": "PASS"
+    },
+    {
+      "fixture": "raw-normal-forbidden",
+      "expected_diagnostic": "qcom,param-override-seq",
+      "result": "PASS"
+    },
+    {
+      "fixture": "raw-host-forbidden",
+      "expected_diagnostic": "qcom,host-param-override-seq",
+      "result": "PASS"
+    }
+  ]
+}
