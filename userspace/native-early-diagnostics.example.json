@@ -1,0 +1,36 @@
+{
+  "schema": "oneli-native-early-diagnostic-v1",
+  "kernel_commit": null,
+  "kernel_release": null,
+  "kernel_image_sha256": null,
+  "kernel_config_sha256": null,
+  "module_symvers_sha256": null,
+  "native_dtb_sha256": null,
+  "selected_overlay_identity": null,
+  "boot_contract_sha256": null,
+  "console": {
+    "device": null,
+    "kernel_arguments": null,
+    "evidence": null
+  },
+  "root_storage": {
+    "intended_device": null,
+    "mount_driver_closure": null,
+    "evidence": null
+  },
+  "busybox_static_arm64": {
+    "path": null,
+    "sha256": null,
+    "elf_architecture": null
+  },
+  "initramfs": {
+    "output_sha256": null,
+    "required_modules": null,
+    "required_firmware": null,
+    "unknown_requirements": null
+  },
+  "flash_recipe": null,
+  "bootloader_acceptance": null,
+  "physical_device_tested": false,
+  "status": "design-only: do not build or run until exact Boot-selected inputs supplied"
+}

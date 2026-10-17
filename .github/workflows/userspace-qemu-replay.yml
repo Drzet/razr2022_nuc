@@ -1,0 +1,63 @@
+name: QEMU replay from verified Debian rootfs artifact
+on:
+  workflow_dispatch:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-qemu-replay.yml'
+      - 'scripts/smoke-qemu.sh'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout userspace test harness
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install QEMU and image replay dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qemu-system-arm ipxe-qemu openssh-client e2fsprogs zstd unzip
+      - name: Retrieve and verify old rootfs artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p old-rootfs replay-evidence
+          gh run download 38177877133 --repo Drzet/razr2022_nuc --name userspace-qemu-38177877133-1 --dir old-rootfs
+          (cd old-rootfs && sha256sum -c SHA256SUMS)
+          cp old-rootfs/SHA256SUMS replay-evidence/source-SHA256SUMS
+          printf 'rootfs_origin_run=%s\nrootfs_origin_branch_head=%s\nrootfs_origin_pr_merge=%s\nreplay_checkout=%s\n' 38177877133 f785ae444e904fe030baa8d745102d25a1fe2cde 1417fedd35f9fe217ad02953321696e8f092acef "$(git rev-parse HEAD)" > replay-evidence/replay-provenance.txt
+      - name: Rehydrate disposable VM disk without changing rootfs tar
+        run: |
+          work="$RUNNER_TEMP/razr-userspace-replay"
+          echo "WORK=$work" >> "$GITHUB_ENV"
+          sudo mkdir -p "$work/rootfs"
+          sudo tar --use-compress-program=zstd --numeric-owner -xf old-rootfs/rootfs.tar.zst -C "$work/rootfs"
+          test ! -e "$work/rootfs/home/razr/.ssh/authorized_keys"
+          sudo cp old-rootfs/qemu-vmlinuz "$work/vmlinuz"
+          sudo cp old-rootfs/qemu-initrd.img "$work/initrd.img"
+          sudo ssh-keygen -q -t ed25519 -N '' -f "$work/ssh_id_ed25519"
+          sudo install -d -m 700 "$work/rootfs/home/razr/.ssh"
+          sudo install -m 600 "$work/ssh_id_ed25519.pub" "$work/rootfs/home/razr/.ssh/authorized_keys"
+          sudo chown -R "$(stat -c %u:%g "$work/rootfs/home/razr")" "$work/rootfs/home/razr/.ssh"
+          sudo install -d -m 755 "$work/rootfs/etc/sudoers.d"
+          printf 'razr ALL=(root) NOPASSWD: /usr/bin/systemctl poweroff\n' | sudo tee "$work/rootfs/etc/sudoers.d/99-qemu-only"
+          sudo chmod 0440 "$work/rootfs/etc/sudoers.d/99-qemu-only"
+          sudo truncate -s 3072M "$work/rootfs.ext4"
+          sudo mkfs.ext4 -F -q -L RAZRROOT -d "$work/rootfs" "$work/rootfs.ext4"
+          echo 0 > replay-evidence/build-exit-code.txt
+          printf '%s\n' "source rootfs tarball verified by SHA256SUMS; only QEMU disk has ephemeral SSH key" >> replay-evidence/replay-provenance.txt
+      - name: Verify boot, authenticated SSH, DHCP and clean shutdown
+        run: sudo bash scripts/smoke-qemu.sh "$WORK" "$GITHUB_WORKSPACE/replay-evidence"
+      - name: Publish replay evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-qemu-replay-${{ github.run_id }}-${{ github.run_attempt }}
+          path: replay-evidence/
+          if-no-files-found: warn
+          retention-days: 30

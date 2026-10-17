@@ -1,0 +1,42 @@
+{
+  "schema_version": 3,
+  "repository": "https://github.com/Drzet/linux",
+  "target_environment": "qemu_virt",
+  "kernel_commit": null,
+  "kernel_release": null,
+  "same_build": {
+    "build_id": null,
+    "kernel_commit": null,
+    "kernel_release": null,
+    "image_sha256": null,
+    "config_sha256": null,
+    "module_symvers_sha256": null
+  },
+  "image_path": null,
+  "config_path": null,
+  "module_symvers_path": null,
+  "modules_directory": null,
+  "initramfs_path": null,
+  "initramfs_modules": null,
+  "zero_initramfs_modules_reason": null,
+  "firmware_manifest_path": null,
+  "firmware_directory": null,
+  "dtb_path": null,
+  "boot_packaging_manifest_path": null,
+  "modules_sha256": null,
+  "qemu_runtime_module": {
+    "name": null,
+    "relative_path": null
+  },
+  "sha256": {
+    "image_path": null,
+    "config_path": null,
+    "module_symvers_path": null,
+    "initramfs_path": null,
+    "firmware_manifest_path": null,
+    "modules_dep": null
+  },
+  "evidence_stage": "awaiting-coordinator-selected-combined-kernel-and-modules",
+  "qemu_dtb": "generated-by-qemu-virt; never oneli",
+  "native_header_inputs_path": null
+}
