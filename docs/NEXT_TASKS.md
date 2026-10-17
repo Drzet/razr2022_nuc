@@ -1,25 +1,29 @@
-# Current assignments — 2026-10-17 Wireless acceptance
+# Current assignments — 2026-10-17 combined radio build accepted
 
-Supersedes the earlier Wireless CI correction assignment. [Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md).
+[Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes Boot's implementation assignment.
 
-## Active implementation: Boot — combined radio development candidate
+## Active implementation: Userspace — consume the accepted radio build
 
-Work on existing project/kernel **razr/boot** branches; preserve intervening commits. Reviewed Boot inputs: project **37dba10d18516e5f4295e637013d529314a2caa4**, kernel **5d261b415a494621c276f8a680286c66971dc57b**. Reviewed Wireless producer: kernel **5d191e2dd449cb226eecd7086f76fc202a6f2257**, project handoff **44f57b4bed055a843e0f829bea79353ca548360b**. Power contract **b8e85bbe4936814d29ac1db770e2b286c69e9dca**. Accepted integration remains **2b5acf108ae37040ac1e652e029bb37f5609e886** until coordinator promotes the new candidate.
+Project branch **razr/userspace**, reviewed head **428274b220e38d242b1cda2cfca63706f7374074**; preserve intervening work. Reuse existing Debian builder, native payload tooling and boot interface. Exact kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, release **7.3.0-rc6-g7f3865ee17c3**. Successful run **39050113058**, combined artifact **12109240146** (`oneli-radio-combined-39050113058-1`), ZIP SHA256 **d5ad99f03097655f03bc25b243ef2c1758b183bb49963167437750a3781a9de1**. Read the final coordinator review for Image/DTB/config hashes and qualifications.
 
-1. Combine accepted Wireless production delta/tests with accepted Boot staging, retaining commit provenance. Do not merge unrelated historical workflow definitions or revert Boot CI consolidation. Reuse the existing combined workflow; scope it to this branch and relevant inputs, cheap checks first.
-2. Enable the intended PMU, PCIe0/PHY/WLAN and QUP2/UART20/BT paths with their required RPMh/regulator/provider ancestors. Review all consumers affected by shared PM8350/PM8350C provider activation; preserve deliberate voltage envelopes, selector intersections and [INFERRED] PMR735A parent qualifications. Resolve concrete source-level dependencies; no blanket enabling of other board nodes, invented B_PLUS fixed voltage or new physical chip-ID gate.
-3. Review GPIO80 output-low pinctrl against the upstream GPIOD_ASIS preservation behavior before enabling the PMU. Preserve single ownership of GPIO80/81/204, no invented GPIO82 output, and UART7/serial0 diagnostics. Document the chosen startup policy from existing source evidence.
-4. Resolve a complete kernel configuration and module availability/load-order contract for providers, PMU, PCI pre-power, ath11k and BT serdev. Trace the actual PCI pre-enumeration dependency/deferred-probe path; do not assume modules on disk suffice or require built-ins without a source reason. Preserve the existing diagnostic boot contract.
-5. Adapt the existing compiled-DTB checker for explicitly enabled radio state, retaining supply, selector, pin, ancestry and diagnostics assertions. Run focused host/config/schema checks before one dependency-complete combined Image/DTB/modules/MODPOST build. Reuse the same compiled DTB across checks and retain inherited-warning comparison. No duplicate owner builds.
-6. Deliver exact source/config/toolchain identities, Image/DTB/matching modules artifact hashes, enabled-node/shared-supply change summary and module/firmware timing contract in the existing Boot handoff/readiness record. Publish to #12 and stop for coordinator review. Do not promote accepted manifests, flash hardware, build a new rootfs, or add DP/VPU/GPU changes in this candidate.
+1. Download once, verify ZIP and internal SHA256SUMS, consume the existing Image/DTB and matching radio-modules.tar.zst. No kernel rebuild; no mixing modules from a different release or the generic Debian QEMU kernel.
+2. Extend existing Debian ARM64 packaging with these modules, normal firmware-atheros from signed Debian non-free-firmware, NetworkManager, BlueZ and focused diagnostics (iw, pciutils, rfkill). Pin actual package/source versions and hashes. Reuse existing Motorola inventory only if an observed firmware request later requires fallback; no speculative extraction, board-data fabrication or Xiaomi identity/NVM.
+3. Include pci-pwrctrl-pwrseq and its actual dependency closure in an early initramfs and explicitly arrange its loading. Built-in PCIe host defers until the power-control child binds. Preserve modules.dep/aliases and verify module vermagic. Arrange ath11k_pci/hci_uart loading once their matching modules and firmware are accessible. Do not mistake host modprobe --show-depends for runtime operation.
+4. Preserve the accepted diagnostic-v2 payload and its resident HOLD behavior as a separate release. Deliver a versioned radio-development payload/rootfs using existing interface schemas where applicable; explain any necessary extension. UFS/USB storage paths remain disabled: do not invent a native root device, partition or claim this rootfs is bootable on oneli. Keep a self-contained early diagnostic path, without requiring native storage.
+5. Validate changed packaging/configuration cheaply first, inspect archive/module/firmware closure, and perform one relevant QEMU userspace/payload smoke test with explicit emulation boundaries. QEMU does not validate the oneli DTB, PMIC, PCIe radio or BT. Do not rebuild the kernel for these tests or repeat unchanged diagnostic suites without a concrete regression risk.
+6. Deliver exact artifacts/hashes/package inventory, boot-interface/load-order contract and focused test results in one current Userspace handoff; post to #13 and stop for coordinator acceptance. No phone operations or Boot/kernel/DTS edits.
 
-This is the sole implementation stream. Software integration does not establish radio operation. Once accepted, Userspace receives the immutable kernel/module contract for ordinary Linux firmware and NetworkManager/BlueZ integration.
+Sole implementation stream. VPU RESUME remains queued until this immediate radio packaging handoff; no new blanket subsystem round.
 
-## Wireless — accepted; documentation closure only
+## Boot — documentation closure only, no build
 
-Kernel **5d191e2dd449cb226eecd7086f76fc202a6f2257** accepted for isolated source/build scope. Run **39037486109**: cheap job **117410138942** and ARM64 module/MODPOST job **117410265783** both PASS; coordinator inspected actual final log and workflow-only correction.
+Accepted kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**: run **39050113058**, DT job **117446794445** and combined job **117447403567** PASS. Image/modules/MODPOST, installation/depmod, three load-order records and final manifest verification completed.
 
-Project **44f57b4bed055a843e0f829bea79353ca548360b** canonical handoff still says the final build is pending. Replace that current status with completed job/artifact/config/module hashes from the coordinator review; retain historical failures and mock-boundary disclosure. No repeat build or further driver work. Post the documentation commit to #14 and pause; respond only to concrete Boot dependencies.
+Project handoff at **372fabd6a0688e2bbe08a2bb6e80bb4deb122fc2** still describes failed predecessor 8603c55 as current. Update its top section and machine readiness to the final successful SHA/run/artifact and completed module packaging. Preserve failed attempts as history. Do not rerun DT or kernel compilation. Pause after documentation; respond only to concrete Userspace interface dependencies.
+
+## Wireless — paused
+
+Accepted 5d191e2 source/build scope. Canonical handoff now records final PASS; documentation closure is complete. No repeat tests or new implementation.
 
 ## Active documentation closure: DisplayPort
 
@@ -34,11 +38,15 @@ Append exact final run/job/artifact, config/module hashes and acceptance to the 
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** ac293ee project / c318805 kernel CI maintenance accepted; production source identical to accepted 905d2403. RESUME quirk remains queued after current radio prerequisite; not active. Preserve VPU2, disabled gate, user-accepted /3 and current startup policy.
 - **GPU:** paused.
-- **Userspace:** queued after accepted enabled kernel/config contract; ordinary Linux firmware, matching modules, NetworkManager/BlueZ and device-identity provenance. No rebuild now.
+- **Userspace:** active only under the exact-artifact assignment above.
 - **Battery/charging:** no implementation assigned.
 
 ## CI and integration
 
 CI maintenance assignments are complete. Builds remain automatic with relevant path/branch filters, cheap gates, reuse of identical inputs and scoped supersession cancellation. No blanket cleanup or manual-only migration.
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Wireless and disabled board deliveries are accepted; Boot is now assigned the exact-input combined radio integration above. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Combined radio development build 7f3865e is accepted for Userspace consumption; Boot implementation is complete. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
+
+## Build cost discipline
+
+No rebuild of accepted 7f3865e for documentation or Userspace work. The broad ARM64 defconfig + full modules build took about 48 minutes on this runner. Before a later kernel implementation requires another expensive build, select a separate reviewed oneli configuration reduction retaining diagnostic/QEMU and required subsystem dependency closure; do not trim/rebuild now. Resolve Kconfig and align config-affecting tools before compilation. Check post-build assertions against the actual Kbuild target's output contract. For failures after compilation, preserve reusable build outputs where practical and rerun only the necessary failed packaging/check stage when those outputs are available; a missing build tree must be disclosed, not replaced with mismatched modules. Builds remain automatic and cheap-gated.

@@ -2,24 +2,25 @@
 
 Updated 2026-10-17 after [Wireless/Boot delivery review](COORDINATOR_REVIEW_2026-10-17.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**Wireless optional shared-supply driver and Boot disabled board staging are accepted for source/build scope. Boot now owns one combined enabled radio development candidate and its integration build. Linux has not booted on the phone.**
+**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace now integrates those exact artifacts with Debian firmware and radio services. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
 | DP | Kernel d28598f; run 38987006218 host/schema and real ARM64 module/modpost PASS | Final handoff documentation only, then pause |
-| Boot | Project 37dba10; kernel 5d261b4 disabled wireless staging accepted; run 39026414041 PASS | Active: combined radio candidate and integration validation |
-| Wireless | Project 44f57b4; kernel 5d191e2 accepted; run 39037486109 host and ARM64 module/MODPOST PASS | Final handoff result update only, then pause |
+| Boot | Kernel 7f3865e; run 39050113058 full combined build PASS | Update stale handoff/readiness; no rebuild, then pause |
+| Wireless | Kernel 5d191e2 accepted; final successful result now recorded in handoff | Paused |
 | Power | b8e85bb wireless map/L7E review accepted | Paused; answer concrete integration dependencies |
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
 | VPU | Project ac293ee; workflow-only c318805 accepted; production 905d2403 acceptance retained | Paused; RESUME adaptation queued |
-| GPU / Userspace | Prior acceptance unchanged | Paused; Userspace awaits selected kernel contract |
+| Userspace | Exact radio development kernel/module contract accepted | Active: Debian radio payload integration |
+| GPU | Prior acceptance unchanged | Paused |
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. Branch acceptance is not integration promotion.
+Accepted legacy diagnostic integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. New radio development build **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, artifact **12109240146**, is accepted for Userspace consumption; it does not replace the packaged diagnostic-v2 release.
 
 ## Remaining work and qualifications
 
 - Wireless branch implements optional WCN6855 vddasd in the existing common regulator sequence. Host coverage uses mocked regulator/shared-consumer accounting; it is not kernel lifetime or hardware proof. The incorrect inline-function export assertion is corrected; actual ARM64 module link/MODPOST passes. Runtime lifetime and hardware behavior remain untested.
-- Boot has encoded deliberate active radio voltage envelopes and verified supported selectors in disabled staging. Low stock initial voltage is not itself a fault. Parent mapping and installed hardware compatibility retain [INFERRED] labels where based on reference evidence.
+- Boot has enabled the reviewed radio paths with deliberate voltage envelopes and supported selectors; unrelated UFS-only outputs remain disabled. Low stock initial voltage is not itself a fault. Parent mapping and installed hardware compatibility retain [INFERRED] labels where based on reference evidence.
 - Normal Linux drivers select firmware revisions; physical PCI/HCI identity and missing board-data entries are runtime checks, not requirements before disabled staging.
 - SWCTRL GPIO82 is not actively consumed by current upstream PMU; do not invent output behavior. Preserve diagnostic UART7 and established USB/DP pins.
 - DP source/build acceptance does not establish external-display operation, board power or sleep/wake.

@@ -111,3 +111,37 @@ Project head **44f57b4bed055a843e0f829bea79353ca548360b** correctly pins the new
 Select Boot as sole implementation owner for a combined radio development candidate from accepted Boot **5d261b415a494621c276f8a680286c66971dc57b** plus accepted Wireless **5d191e2dd449cb226eecd7086f76fc202a6f2257**, under the detailed NEXT_TASKS assignment. Review shared provider activation and GPIO startup, resolve actual module/pre-power dependencies, then one cheap-gated combined build. Userspace consumes its exact accepted artifacts afterward. No new DP/VPU/GPU integration is bundled into this task.
 
 Accepted integration and diagnostic-v2 manifests remain unchanged until candidate review. Mocked host lifetime tests and successful compilation do not establish native kernel lifetime, firmware loading or hardware operation.
+
+
+## Boot combined radio acceptance — 2026-10-17 evening
+
+**Accept kernel 7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce for combined radio development source/build scope and Userspace consumption.** Existing packaged diagnostic-v2 release and legacy integration manifest remain unchanged.
+
+Coordinator inspected source integration/corrections, final workflow diff, both final job logs and source PCI power-control path. [Run 39050113058](https://github.com/Drzet/linux/actions/runs/39050113058): DT/schema/config/host job **117446794445 PASS** (16:36:03–16:38:53 UTC); combined job **117447403567 PASS** (16:38:55–17:26:37 UTC). Final release **7.3.0-rc6-g7f3865ee17c3**.
+
+Enabled radio PMU/PCIe0/PHY/UART20 paths consume the accepted optional ASD producer. GPIO80 no longer forces output-low before GPIOD_ASIS. Unrelated UFS-only L7B/L9B outputs remain disabled; shared required PHY supplies remain registered. PMR735A parent topology/installed radio identity retain [INFERRED] qualifications. UART7 preserved. The final cheap job verifies 21 config requirements, 11 PMU inputs, six grouped parent edges and host harness 17 cases/326 mocked assertions.
+
+Actual combined log proves Image/modules ordinary MODPOST/link, vmlinux-owned exports from Module.symvers, modules_install/DEPMOD, dependency lists for pci-pwrctrl-pwrseq, ath11k_pci and hci_uart, compressed matching module archive and all 11 release manifest entries passing SHA256 verification. This closes the earlier post-build failure. Host dependency records are not kernel module execution.
+
+CI-reported artifacts/hashes, independently read from logs but not downloaded/rehashed by coordinator:
+- Combined artifact **12109240146**, ZIP SHA256 **d5ad99f03097655f03bc25b243ef2c1758b183bb49963167437750a3781a9de1**, 38,392,709 bytes.
+- DT evidence artifact **12107262705**.
+- Image **0a28060210e747f8c63755142935feda101df4f5d9759f4e876bc2bb1373fb2e**.
+- DTB **70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435**.
+- Config **e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273**.
+- Module.symvers **5802d8bb9cb077c61dcf0d7b2bdc8d32793329389156b3b312e7339f9a3d3151**.
+- Per-module and compressed archive digests are in the artifact manifest; Userspace must verify them on consumption.
+
+### Why the attempts were slow
+
+The actual workflow starts from broad ARM64 defconfig and runs make -j4 Image modules, including unrelated drivers. Final expensive job took 47m42s. This is not a narrowly selected oneli-only build.
+
+Five integration runs are recorded: 39044250747 failed cheap Kconfig expectation (hidden PCI pre-power resolved m, not y); 39044700866 failed config equality before compilation (pahole installed in only one job); 39045013110 cancelled as superseded; 39045171934 compiled but failed an incorrect vmlinux.symvers assertion, before module packaging; 39050113058 succeeded after checking vmlinux-owned exports in actual Module.symvers. The first two mistakes were cheap-gated, but the third wasted a completed compilation. Repeating the cheap DT gate followed the workflow dependency structure; identical final-source DTB/config hashes show that final correction did not need fresh DT evidence. No additional verification run is selected.
+
+These were validation/workflow mistakes, not demonstrated radio-source compilation defects. Future tasks must validate output contracts and tool parity before expensive jobs, reuse immutable evidence, and retain useful post-build outputs for packaging recovery where practical. Configuration reduction is a future bounded task before another necessary full kernel build, not justification to rebuild this successful release.
+
+### Next owner and limits
+
+Userspace is now the sole implementation stream: consume the exact build, package matching modules and standard Debian firmware/services, supply the early PCI pre-power module, validate archive/load contract and relevant QEMU userspace behavior. Native UFS/USB remain disabled; no root-device assumption or phone boot claim. No kernel rebuild.
+
+Boot handoff at project **372fabd6a0688e2bbe08a2bb6e80bb4deb122fc2** remains stale at failed 8603c55; only documentation/readiness closure is assigned. Wireless final handoff now records its successful build and is closed. Other acceptance remains unchanged.
