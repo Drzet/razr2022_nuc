@@ -1,34 +1,23 @@
-# Current assignments — 2026-10-17 Userspace packaging accepted
+# Current assignments — 2026-10-17 Userspace and earlycon review
 
-[Review](COORDINATOR_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the radio packaging implementation assignment.
+[Review](COORDINATOR_USERSPACE_DISPLAY_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes previous Userspace smoke and display port assignments.
 
-## Active: Userspace — one prepared-rootfs runtime smoke test
+## Active: Userspace — regulatory database packaging correction
 
-Packaging source **8f54a679c2aa285398e4b12a5f370b5fb7f16201**, handoff **8aedb729895bfd47f19507d9b54e43c3bae8e73e**, run **39056127007** accepted for package/archive and diskless early-module QEMU scope. Work on razr/userspace, preserving intervening commits.
+Tested source **e5de7e3961bf16fe65fd599514a6804316ef5a49**, handoff **f84d71e5e126d9f74a43b555a3062a3c3c153767** accepted for actual Debian QEMU software scope. No repeat of the unchanged completed systemd/NM/DNS smoke.
 
-The new Debian rootfs was inspected and packaged, but the successful QEMU tests boot only the separate BusyBox early initramfs. This follow-up checks the changed systemd/network/service environment, not the already-proved early module insertion.
+1. Confirm the handoff-reported cfg80211 regulatory.db ENOENT against preserved serial log in artifact **12110358882**, run **39058718000**. Identify the exact missing filename and configured signature requirements.
+2. Use the same signed Debian snapshot to obtain the normal **wireless-regdb** package; verify actual package contents, install paths, signature and matching kernel support. Do not modify regulatory rules, fabricate a country setting or substitute a custom/unsigned database. If a different package/path is required, explain it from inspected inputs.
+3. Update the existing staging recipe and produce a versioned corrected rootfs by layering only the required package/dependencies onto accepted tar **1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b**. No kernel rebuild, base bootstrap or repeat firmware extraction. Preserve old artifact identities.
+4. Verify installed database/signature and package hashes cheaply, then one focused guest cfg80211 load check with accepted kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**. Check actual database acceptance, not just absence of a grep match. Reuse existing runtime harness and avoid duplicate full suites. Record exact new rootfs/package hashes and logs in canonical handoff, then stop. No physical radio claims.
 
-1. Reuse exact rootfs artifact **12109815613**, ZIP **74d4948115beff682e38b918854ab62cce756358998839cf63ecc6b5a83b3306**, rootfs tar **1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b**. Reuse accepted kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce** from artifact **12109240146**, exact release **7.3.0-rc6-g7f3865ee17c3**. Verify hashes. No kernel rebuild, Debian bootstrap, apt reinstall or repeat firmware inventory.
-2. Use existing project-kernel QEMU harness with a disposable copy of this rootfs and QEMU-only virtio disk/DT/PL011 settings. Generate only the test-specific boot wrapper/initramfs needed to mount the virtual disk. Preserve distributed rootfs/early payload hashes; no invented native oneli root device.
-3. Verify actual systemd PID1, exact kernel release, matching module dependency resolution/loading, NetworkManager startup and virtual NIC address/route/DNS setup. Check D-Bus and BlueZ package/unit behavior; no Bluetooth controller exists in this QEMU setup, so a documented hardware-dependent unit skip/no-adapter result is not a failure. Test clean shutdown. Do not claim Wi-Fi association, firmware requests or Bluetooth pairing.
-4. In particular verify resolver setup: staging deliberately removes temporary /etc/resolv.conf. Report whether the installed NetworkManager configuration supplies working resolver state in the booted guest; correct only demonstrated packaging defects. Preserve any temporary test credentials outside distributed artifacts.
-5. Run this one meaningful automatic smoke test after cheap harness checks. Update the same canonical handoff with exact input hashes, guest outcomes, limitations and logs; post to #13 and stop. No repeat of completed diskless HOLD/early-loader tests for unchanged inputs.
+## GPU/display — isolated port accepted, pause
 
-Userspace continues this task independently of the bounded display-console task below.
+Project **401d2d8006707a4f7c2ebb11d03ac2b465916d3f**, kernel **5d9e2e7b5461ad421ad74fe2b0b1f79ca05f1fdf** accepted for default-disabled source/production-predicate tests and targeted ARM64 object compilation only. Run **39058524964**, job **117471377860** PASS. Not merged into accepted radio kernel or board configuration.
 
+No more compilation or board activation assigned. Production libfdt traversal/rendering execution and physical mapping/scanout remain outside tested scope; use real parser fixtures before a future activation/integration decision. Preserve UART-first baseline.
 
-## Active independent task: GPU/display agent — disabled early-framebuffer console port
-
-Create isolated kernel and project branches **razr/display-earlycon**: kernel base **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, project base this assignment commit. If a branch already exists, inspect and preserve it. Boot retains shared DTS/cmdline ownership. No Adreno/GPU activation is required or assigned.
-
-1. Use the user-supplied 2026-10-17 internal-display feasibility audit as the starting research, not proof of active oneli scanout. Pin closest reusable Xiaomi source **fe81794b5e1b8a3f11a165f3acbfdb8fa671dbb3**, drivers/tty/serial/earlycon-simplefb.c plus its Kconfig/Makefile dependencies. Check current maintained alternatives/pending support narrowly before porting; preserve license/authorship. No repeated panel/firmware inventory.
-2. Review and adapt only the generic earlycon implementation, default disabled. Coordinator independently inspected the pinned source and found review targets: width * 4 is evaluated as u32 before the stride comparison; format is passed to strcmp without a demonstrated NUL within DT-property length; selection does not check framebuffer status before taking the first compatible child. Reject malformed/out-of-range geometry and disabled nodes, check address/end and pixel-offset overflow/alignment, and define handling of multiple nodes. A reg extent alone does not prove RAM reservation or ownership.
-3. Audit early mappings, transition to permanent WC mapping, console unregister/init-memory lifetime, font bounds and write/wrap progress. Verify exact earlycon selection behavior alongside UART; do not assume two earlycon= arguments provide simultaneous consoles. Preserve the accepted UART-first configuration.
-4. Add focused malformed-DT and bounds/write tests with real production logic where practical, explicitly marking mocks. Cheap checks precede a targeted ARM64 object build with necessary Kconfig dependencies. No full Image/modules rebuild, no new rootfs or phone boot package.
-5. No oneli framebuffer node, copied Xiaomi geometry, display bootargs, reserved-memory changes or MDSS/DPU/DSI/panel activation. The shared 0xb8000000/0x02b00000 reference reservation is not evidence of active scanout. Hardware-free source work may proceed; actual enablement waits for confirmed geometry/format/stride/ownership and handoff continuity.
-6. Deliver one canonical handoff at docs/handoffs/2026-10-17-display-earlycon.md with exact source provenance, delta, focused tests, remaining source issues and exact hardware observations needed. Stop for coordinator review. Do not start a native panel driver.
-
-**Concurrency exception:** Userspace consumes frozen binary artifacts in its own branch; GPU/display changes an isolated serial earlycon implementation and its tests, with no shared DTS, kernel configuration baseline or Userspace file edits. This advances offline preparation without blocking the current rootfs test.
+Workflow follow-up for the next assigned source change: add workflow/ref-scoped cancellation and upload resolved config under a non-hidden filename (current upload path out/.config lacks include-hidden-files). The current ZIP is only 494 bytes, so do not describe it as a complete archived resolved configuration. CI log establishes selected config assertions/object result; default-disabled source acceptance does not require repeating this build merely to repair evidence packaging.
 
 ## Boot — documentation closure only, no build
 
@@ -52,8 +41,8 @@ Append exact final run/job/artifact, config/module hashes and acceptance to the 
 - **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** ac293ee project / c318805 kernel CI maintenance accepted; production source identical to accepted 905d2403. RESUME quirk remains queued after current radio prerequisite; not active. Preserve VPU2, disabled gate, user-accepted /3 and current startup policy.
-- **GPU/display:** only the isolated earlycon task above is active; Adreno implementation remains paused.
-- **Userspace:** active only for the prepared-rootfs runtime smoke above.
+- **GPU/display:** isolated earlycon port accepted and paused; Adreno implementation remains paused.
+- **Userspace:** active only for the regulatory database correction above.
 - **Battery/charging:** no implementation assigned.
 
 ## CI and integration
