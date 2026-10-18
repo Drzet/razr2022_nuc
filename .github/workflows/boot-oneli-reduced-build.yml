@@ -1,0 +1,273 @@
+name: Oneli reduced ARM64 Image and matching modules
+
+on:
+  push:
+    branches: [razr/boot]
+    paths:
+      - '.github/workflows/boot-oneli-reduced-build.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: boot-reduced-build-${{ github.workflow }-${{ github.ref }
+  cancel-in-progress: true
+
+jobs:
+  reduced-image-modules:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    env:
+      ARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+      GH_TOKEN: ${{ github.token }
+      REDUCED_LOCALVERSION: -oneli-reduced1
+      KERNEL_PIN: 7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce
+      REDUCED_CONFIG_SHA256: 97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be
+      ACCEPTED_CONFIG_SHA256: e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273
+      ACCEPTED_DTB_SHA256: 70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435
+    steps:
+      - name: Checkout reviewed BOOT project
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout immutable accepted radio kernel
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: 7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce
+          path: kernel-src
+          persist-credentials: false
+
+      - name: Match pinned GCC pahole and packaging utilities
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
+            make bc bison flex libssl-dev libelf-dev libncurses-dev \
+            python3 perl rsync cpio kmod zstd xz-utils dwarves file time
+          mkdir -p evidence release accepted-release reduced-evidence installed
+          {
+            printf 'source=%s\nproject=%s\nrequested_LOCALVERSION=%s\n' \
+              "$KERNEL_PIN" "$GITHUB_SHA" "$REDUCED_LOCALVERSION"
+            aarch64-linux-gnu-gcc --version | head -1
+            aarch64-linux-gnu-ld --version | head -1
+            pahole --version
+            make --version | head -1
+            python3 --version
+            zstd --version
+          } > evidence/toolchain.txt
+          test "$(git -C kernel-src rev-parse HEAD)" = "$KERNEL_PIN"
+
+      - name: Fetch and check immutable config and reused accepted DTB
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run download 39139991644 --repo Drzet/razr2022_nuc \
+            --name oneli-reduced-config-39139991644-1 --dir reduced-evidence
+          gh run download 39050113058 --repo Drzet/linux \
+            --name oneli-radio-combined-39050113058-1 --dir accepted-release
+          (cd reduced-evidence && sha256sum -c SHA256SUMS) \
+            > evidence/reduced-evidence-integrity.txt
+          (cd accepted-release/release && sha256sum -c SHA256SUMS) \
+            > evidence/accepted-release-integrity.txt
+          printf '%s  %s\n' "$REDUCED_CONFIG_SHA256" \
+            reduced-evidence/reduced.config | sha256sum -c -
+          printf '%s  %s\n' "$ACCEPTED_CONFIG_SHA256" \
+            accepted-release/release/kernel.config | sha256sum -c -
+          printf '%s  %s\n' "$ACCEPTED_DTB_SHA256" \
+            accepted-release/release/sm8475-motorola-oneli.dtb | sha256sum -c -
+          grep -Fx "$(aarch64-linux-gnu-gcc --version | head -1)" \
+            reduced-evidence/tool-versions.txt
+          grep -Fx "$(pahole --version)" reduced-evidence/tool-versions.txt
+          cp reduced-evidence/reduced.config evidence/reviewed-reduced.config
+          cp accepted-release/release/sm8475-motorola-oneli.dtb \
+            release/sm8475-motorola-oneli.dtb
+          printf '%s\n' \
+            'DTB reused without recompilation from accepted kernel run 39050113058, artifact 12109240146.' \
+            "DTB sha256=$ACCEPTED_DTB_SHA256" \
+            'Reduced config reused from run 39139991644 artifact 12141466452.' \
+            "Reduced config sha256=$REDUCED_CONFIG_SHA256" \
+            > evidence/immutable-inputs.txt
+
+      - name: Cheap Kconfig and required consumers gate before expensive work
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p kernel-src/out
+          cp reduced-evidence/reduced.config kernel-src/out/.config
+          make -C kernel-src O=out olddefconfig \
+            2>&1 | tee evidence/olddefconfig.log
+          cmp kernel-src/out/.config reduced-evidence/reduced.config
+          cp kernel-src/out/.config release/kernel.config
+          python3 -m py_compile scripts/check-oneli-reduced-config.py
+          python3 scripts/check-oneli-reduced-config.py \
+            --accepted accepted-release/release/kernel.config \
+            --candidate kernel-src/out/.config \
+            --radio-fragment kernel-src/arch/arm64/configs/razr-oneli-wireless.config \
+            --qemu-fragment configs/oneli-combined-qemu-virt.config \
+            --reductions configs/oneli-reduced-platforms.config \
+            --evidence evidence 2>&1 | tee evidence/contract.log
+          test "$(sha256sum release/kernel.config | cut -d' ' -f1)" = \
+            "$REDUCED_CONFIG_SHA256"
+          make -s -C kernel-src O=out \
+            LOCALVERSION="$REDUCED_LOCALVERSION" kernelrelease \
+            | tee release/kernel.release
+          test -s release/kernel.release
+          test "$(cat release/kernel.release)" != \
+            "$(cat accepted-release/release/kernel.release)"
+          grep -F -- "$REDUCED_LOCALVERSION" release/kernel.release
+          printf '%s\n' \
+            "old_kernelrelease=$(cat accepted-release/release/kernel.release)" \
+            "new_kernelrelease=$(cat release/kernel.release)" \
+            "invocation=make O=out LOCALVERSION=$REDUCED_LOCALVERSION -j4 Image modules" \
+            > evidence/release-separation.txt
+          echo ONELI_REDUCED_PREBUILD_INPUTS_AND_CONTRACT_PASS \
+            | tee evidence/prebuild-result.txt
+
+      - name: Compile ONE full ARM64 Image and modules tree with ordinary MODPOST
+        shell: bash
+        run: |
+          set -euo pipefail
+          start="$(date +%s)"
+          /usr/bin/time -f 'elapsed_seconds=%e\nmax_rss_kb=%M' \
+            -o evidence/compile-resource.txt \
+            make -C kernel-src O=out LOCALVERSION="$REDUCED_LOCALVERSION" \
+            -j4 Image modules 2>&1 | tee evidence/arm64-image-modules.log
+          end="$(date +%s)"
+          printf 'start_unix=%s\nend_unix=%s\nwall_seconds=%s\n' \
+            "$start" "$end" "$((end-start))" > evidence/compile-timing.txt
+          test -s kernel-src/out/arch/arm64/boot/Image
+          test -s kernel-src/out/Module.symvers
+          test -s kernel-src/out/vmlinux
+          for sym in devm_regulator_bulk_get pci_pwrctrl_create_devices devm_pwrseq_get; do
+            awk -F '\t' -v name="$sym" \
+              '$2 == name && $3 == "vmlinux" && $4 == "EXPORT_SYMBOL_GPL" {found=1} END {exit !found}' \
+              kernel-src/out/Module.symvers || {
+              echo "Missing built-in GPL provider in Module.symvers: $sym" >&2
+              exit 1
+            }
+          done
+          file kernel-src/out/vmlinux kernel-src/out/arch/arm64/boot/Image \
+            | tee evidence/image-file-types.txt
+          file kernel-src/out/drivers/net/wireless/ath/ath11k/ath11k_pci.ko \
+               kernel-src/out/drivers/bluetooth/hci_uart.ko \
+               kernel-src/out/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko \
+            | tee evidence/radio-module-file-types.txt
+          test "$(grep -c 'ARM aarch64' evidence/radio-module-file-types.txt)" -eq 3
+          cp kernel-src/out/arch/arm64/boot/Image release/Image
+          cp kernel-src/out/Module.symvers release/Module.symvers
+          cp kernel-src/out/System.map release/System.map
+          test "$(make -s -C kernel-src O=out \
+            LOCALVERSION="$REDUCED_LOCALVERSION" kernelrelease)" = \
+            "$(cat release/kernel.release)"
+          wc -c release/Image release/Module.symvers release/System.map \
+            | tee evidence/build-outputs-sizes.txt
+          touch evidence/build-success.marker
+
+      - name: Install, close dependency chains and package matching modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          make -C kernel-src O=out LOCALVERSION="$REDUCED_LOCALVERSION" \
+            -j4 INSTALL_MOD_PATH="$GITHUB_WORKSPACE/installed" \
+            INSTALL_MOD_STRIP=1 modules_install 2>&1 \
+            | tee evidence/modules-install.log
+          release_name="$(cat release/kernel.release)"
+          dir="installed/lib/modules/$release_name"
+          test -s "$dir/modules.dep"
+          test -s "$dir/modules.alias"
+          test ! -e "installed/lib/modules/$(cat accepted-release/release/kernel.release)"
+          (cd installed && find lib/modules -type f -name '*.ko*' -print0 \
+            | LC_ALL=C sort -z | xargs -0 -r sha256sum) \
+            > release/module-sha256.txt
+          test -s release/module-sha256.txt
+          modprobe --dirname installed --set-version "$release_name" \
+            --show-depends pci-pwrctrl-pwrseq \
+            | tee evidence/pcie-prepower-load-order.txt
+          modprobe --dirname installed --set-version "$release_name" \
+            --show-depends ath11k_pci \
+            | tee evidence/ath11k-load-order.txt
+          modprobe --dirname installed --set-version "$release_name" \
+            --show-depends hci_uart \
+            | tee evidence/hci-uart-load-order.txt
+          for mod in pci-pwrctrl-pwrseq ath11k_pci hci_uart; do
+            find "$dir" -type f -name "$mod.ko*" -print -quit \
+              | grep -q .
+          done
+          find "$dir" -type f -name '*.ko*' | wc -l \
+            | tee evidence/installed-module-count.txt
+          du -sb "$dir" | tee evidence/installed-modules-size.txt
+          test "$(wc -l < release/module-sha256.txt)" -gt 0
+          printf '%s\n' \
+            "Kbuild release: $release_name" \
+            'Built in: Qualcomm RPMh, PCIe host/QMP PHY and WCN6855 PMU/pwrseq.' \
+            'Early initramfs: explicitly load matching pci-pwrctrl-pwrseq.ko before PCI host enumeration; root port defers until pre-power child binds.' \
+            'Later: normal modprobe/udev firmware selection for ath11k_pci and Bluetooth hci_uart/QCA dependencies.' \
+            'Host dependency enumeration is not hardware module execution.' \
+            > release/radio-load-contract.txt
+          tar -I 'zstd -T0 -7' -cf release/radio-modules.tar.zst \
+            -C installed lib/modules
+          test -s release/radio-modules.tar.zst
+
+      - name: Final release manifest and complete identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' \
+            "kernel_source=$KERNEL_PIN" \
+            "project_workflow=$GITHUB_SHA" \
+            "kernel_release=$(cat release/kernel.release)" \
+            "LOCALVERSION=$REDUCED_LOCALVERSION" \
+            "reduced_config_sha256=$REDUCED_CONFIG_SHA256" \
+            "reused_accepted_dtb_sha256=$ACCEPTED_DTB_SHA256" \
+            'reduced_config_artifact=12141466452' \
+            'reused_DTB_artifact=12109240146' \
+            'scope=full ARM64 Image/modules/MODPOST, modules_install/depmod; no DTB build or handset boot' \
+            'accepted_radio_release_unchanged=true' \
+            > release/source-identity.txt
+          (cd release && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+            | LC_ALL=C sort -z | xargs -0 sha256sum > SHA256SUMS)
+          (cd release && sha256sum -c SHA256SUMS)
+          sha256sum release/Image release/radio-modules.tar.zst \
+            release/sm8475-motorola-oneli.dtb release/kernel.config \
+            | tee evidence/release-core-sha256.txt
+          wc -c release/Image release/radio-modules.tar.zst \
+            | tee evidence/release-core-sizes.txt
+          echo ONELI_REDUCED_ARM64_IMAGE_MODULES_PACKAGE_PASS \
+            | tee evidence/result.txt
+
+      - name: Preserve compiled outputs if packaging fails after successful build
+        if: failure()
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [ -f evidence/build-success.marker ]; then
+            if [ -d installed/lib/modules ]; then
+              tar -I 'zstd -T0 -3' -cf evidence/recovery-installed-modules.tar.zst \
+                -C installed lib/modules || true
+            else
+              find kernel-src/out -type f \( -name '*.ko' -o \
+                -name 'Module.symvers' -o -name 'System.map' -o \
+                -name 'Image' -o -name 'modules.order' \) -print0 \
+                | tar --null -cf - -T - | zstd -T0 -3 \
+                -o evidence/recovery-compiled-modules.tar.zst || true
+            fi
+            cp -n kernel-src/out/arch/arm64/boot/Image release/Image 2>/dev/null || true
+            cp -n kernel-src/out/Module.symvers release/Module.symvers 2>/dev/null || true
+          fi
+
+      - name: Export immutable release and evidence, including partial recovery
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-reduced-image-modules-${{ github.run_id }-${{ github.run_attempt }
+          path: |
+            release/
+            evidence/
+          retention-days: 30
+          if-no-files-found: warn
