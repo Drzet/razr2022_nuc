@@ -1,18 +1,26 @@
-# Current assignments — 2026-10-18 reduced configuration build
+# Current assignments — 2026-10-19 reduced build acceptance
 
-[Review](COORDINATOR_CONFIG_REVIEW_2026-10-18.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the Boot configuration-only preparation assignment.
+[Review](COORDINATOR_REDUCED_BUILD_REVIEW_2026-10-19.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the Boot reduced-build assignment.
 
-## Active: Boot — build and package the reviewed reduced configuration
+## Active: Userspace — consume reduced build and validate compatibility
 
-Configuration preparation is accepted at project **a0726ef69177c21755bc28b60de244681bf80f40**, handoff **0e6728c8336dc6dd9b6c4dc6a46d99fe99d6a2cd**. Continue project `razr/boot` from that delivered head. Sole implementation stream.
+Sole active implementation stream. Continue `razr/userspace` from accepted **eff19bcff7d5eb0fc1f181f4c86b9aa32bb18846** after inspecting its current head; preserve intervening work. Boot producer is accepted for build/package scope, not yet runtime scope.
 
-1. Reuse exact kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce** and reduced config **97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be**, from artifact **12141466452**, run **39139991644**. Verify hashes and current contract checker before compilation. Preserve the accepted old artifacts and source. No additional trimming, source/DTS edits or subsystem merges.
-2. Adapt the existing automatic build/packaging recipe in the project workflow to consume this pinned kernel/config. Keep cheap checks as prerequisites, scoped cancellation and finite timeout; documentation-only changes must not build. Do not rerun DT/schema/Wireless host suites for unchanged inputs. Reuse accepted DTB **70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435** from artifact **12109240146**, with provenance/hash recorded.
-3. Use a distinct explicit kernel release suffix for this configuration variant through the existing Kbuild LOCALVERSION mechanism; record the exact invocation and resolved kernelrelease. The old and new configurations must not install under the same module directory. Do not guess the resulting release string. Preserve resolved config identity, or explain any tool-derived change before compilation; match GCC/pahole and other config-affecting tools to the recorded evidence.
-4. Build Image and modules once with normal MODPOST/link. Install matching modules, run depmod and capture the existing early PCI pre-power, ath11k_pci and hci_uart dependency records. Check actual Module.symvers output as in the corrected accepted recipe. Archive Image, reused DTB, resolved config, matching modules, release manifest and checksums. Keep reusable outputs if a later packaging check fails; do not repeat successful compilation unnecessarily.
-5. Record elapsed compilation time, Image/module sizes and module counts against the old run with runner/config differences disclosed. Symbol-count reduction alone is not timing evidence. Record exact source/project/config/tool/run/artifact identities in the canonical handoff and readiness, then stop for review.
+Immutable inputs:
+- Kernel source **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, workflow **ada56aded6fb6d75aea8e626e7150a7e8ea2729a**, Boot handoff **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**.
+- Run **39170486506**, artifact **12153785196** (`oneli-reduced-image-modules-39170486506-1`), ZIP SHA256 **550044f8b170d6dcaeeaec3f00ba71e3054655f651e28a806ab16ea5d44bccfb**.
+- Exact release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**. Config SHA256 **97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be**.
+- Existing signed-regdb rootfs: artifact **12111471711**, run **39061160706**, inner tar SHA256 **630738c3ac43726199f56d326511fb8a69a443a01eea8e0a234318de5d3e8b38**.
 
-This is a new development build candidate, not a promoted release. No handset operation. Userspace remains paused until the exact producer artifact is reviewed; then its existing QEMU rootfs/early-loader/regdb checks will consume matching new modules without re-bootstrap or firmware extraction.
+1. Verify downloaded producer archive/release manifest, module hashes and exact kernel release. Reuse the accepted rootfs and firmware packages. Layer the new matching module tree into a versioned candidate; preserve old published archives. No bootstrap, kernel build, firmware re-extraction or package upgrades.
+2. Adapt existing loader/rootfs/regdb harnesses minimally for the explicit new producer identity. Replace old hardcoded release/hash expectations with validated candidate inputs, not unchecked bypasses. Keep early initramfs loading of matching pci-pwrctrl-pwrseq; ensure no old module directory is used for the new running kernel.
+3. Cheap checks first: package and dependency closure, initramfs contents, required modules, firmware/regdb signatures and immutable input hashes. Then reuse the existing diskless early-loader test and prepared Debian rootfs QEMU test for the changed kernel/config. Combine rootfs systemd/network/DNS/module and positive signed-regdb reload assertions into one guest run where practical; do not repeat duplicate comprehensive suites. Exercise actual module loading with the new release. QEMU cannot prove physical PCI enumeration or radio operation.
+4. Record running release, systemd PID1, networking/DNS result, early-loader result, module loads and positive cfg80211 signed database acceptance; preserve serial logs and failure output. A changed kernel needs these compatibility checks despite unchanged Userspace packages.
+5. Publish candidate rootfs/initramfs/manifests and exact source/run/artifact/hash identities in the canonical Userspace handoff. Stop for coordinator review. No phone flash, native root-device invention or promotion of diagnostic-v2.
+
+## Boot — reduced build accepted, pause
+
+Delivery **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**, run **39170486506**, artifact **12153785196** accepted for Image/modules/MODPOST and packaging. Coordinator independently verified release checksums and all 1,179 module hashes/vermagic identities. No repeat compilation, DT/schema tests or documentation-only closure round. Respond only to concrete producer-interface defects found by Userspace.
 
 ## VPU — RESUME adaptation accepted, pause
 
@@ -20,9 +28,9 @@ Kernel **daf47c502fe9c959d49fb37f10f79d5f7d037d8f**, project **c0a2ae91156f14d90
 
 Keep SM8475 disabled/unintegrated, VPU2, 480-fps startup and existing resource/ownership policy. Motorola firmware applicability remains [INFERRED]; /3 remains [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Physical chip ID is not a new development gate. Hardware validation later requires PAS/init/version plus DRC and drain/restart with verified frames.
 
-## Userspace — regulatory correction accepted, pause
+## Userspace prior regulatory correction — accepted
 
-Tested source **840d53bbceadc4fb33248c2d2487795d35160dd0**, documentation **eff19bcff7d5eb0fc1f181f4c86b9aa32bb18846**, automatic run **39061160706** accepted for package and focused QEMU scope. New rootfs tar SHA256 **630738c3ac43726199f56d326511fb8a69a443a01eea8e0a234318de5d3e8b38**; artifact **12111471711**. Debian wireless-regdb uses its upstream-signed alternative with existing kernel 7f3865e; no kernel rebuild. No repeated smoke, bootstrap or firmware extraction assigned. Native root-device selection and handset radio behavior remain unverified.
+Source 840d53b / handoff eff19bc / run 39061160706 remain accepted. Reuse that rootfs as the input above. The new task tests compatibility with the changed kernel/configuration, not another regulatory packaging fix.
 
 ## GPU/display — isolated port accepted, pause
 
@@ -51,7 +59,7 @@ Project **2f992d150b5c13b5f98c59e4b7fb9ee802ed918d** records the accepted d28598
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** RESUME accepted and paused; recovery/resource work remains unassigned.
 - **GPU/display:** isolated earlycon port accepted and paused; Adreno implementation remains paused.
-- **Userspace:** regulatory correction accepted; paused.
+- **Userspace:** active only for reduced-build consumption and compatibility testing above.
 - **Battery/charging:** no implementation assigned.
 
 ## CI and integration
@@ -62,4 +70,4 @@ Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic
 
 ## Build cost discipline
 
-No rebuild for documentation or unchanged Userspace work. The changed reduced configuration above warrants its first build. The broad ARM64 defconfig + full modules build took about 48 minutes on this runner. The reviewed reduced configuration is now selected for one automatic cheap-gated build under the Boot assignment above. Resolve Kconfig and align config-affecting tools before compilation. Check post-build assertions against the actual Kbuild target's output contract. For failures after compilation, preserve reusable build outputs where practical and rerun only the necessary failed packaging/check stage when those outputs are available; a missing build tree must be disclosed, not replaced with mismatched modules. Builds remain automatic and cheap-gated.
+No rebuild for documentation or unchanged Userspace work. The reduced configuration's first build is complete; reuse its artifacts. The broad ARM64 defconfig + full modules build took about 48 minutes on this runner. The reduced configuration has now been built and accepted for Userspace consumption; no further build is assigned. Resolve Kconfig and align config-affecting tools before compilation. Check post-build assertions against the actual Kbuild target's output contract. For failures after compilation, preserve reusable build outputs where practical and rerun only the necessary failed packaging/check stage when those outputs are available; a missing build tree must be disclosed, not replaced with mismatched modules. Builds remain automatic and cheap-gated.
