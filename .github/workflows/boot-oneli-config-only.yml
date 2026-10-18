@@ -36,6 +36,18 @@ jobs:
           repository: Drzet/linux
           ref: 7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce
           path: kernel-src
+          # Kconfig needs all Kconfig descriptions, not 70k unrelated C files.
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /Makefile
+            /Kconfig
+            /arch/arm64/Makefile
+            /arch/arm64/Kconfig*
+            /arch/arm64/configs/razr-oneli-wireless.config
+            /arch/Kconfig*
+            /scripts/**
+            /**/Kconfig*
           persist-credentials: false
       - name: Install only Kconfig build utilities
         run: |
