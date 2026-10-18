@@ -1,5 +1,28 @@
 # BOOT handoff: seventh-round console-summary v2 one-time host refresh
 
+## Reduced ARM64 configuration candidate — 2026-10-18 (CONFIG-ONLY; NOT BUILT)
+
+**Coordinator task:** [8dbbfd0](https://github.com/Drzet/razr2022_nuc/commit/8dbbfd088ca9f85a5a97a9c3cbd9539a4834b094). Preserve accepted source/build **Drzet/linux@7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, accepted kernel configuration SHA256 **`e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273`**, combined artifact **12109240146** and prior Userspace contracts unchanged. The candidate is **not** a new release or a replacement for the accepted Image/DTB/modules.
+
+**Candidate recipe and cheap validation:** project `razr/boot@a0726ef69177c21755bc28b60de244681bf80f40`:
+- `configs/oneli-reduced-platforms.config`: explicitly deselect **62** non-Qualcomm/non-QEMU ARM64 platform symbols over the exact accepted resolved config. Keep `ARCH_QCOM=y` and `ARCH_VEXPRESS=y`; retain other unexamined platform-independent drivers instead of guessing.
+- `scripts/check-oneli-reduced-config.py`: compare real `make ARCH=arm64 O=out olddefconfig` output against **85** exact functional requirements, **26** enabled radio-fragment selections, **16** QEMU virt built-ins and **253** enabled accepted oneli/diagnostic consumer symbols. Cover native UART/earlycon, pstore, initramfs, Debian/systemd, signed regulatory database, WLAN/BT/PCI pre-power, QEMU virtio storage/network/console, USB/Type-C/DP and module load requirements. `CONFIG_PCI_PWRCTRL_PWRSEQ=m` is retained: matching early-initramfs module insertion remains a prerequisite for PCI enumeration. Historical `CONFIG_DUMMY=m` in older QEMU fragment is *not* imposed because the accepted Userspace test uses `hci_uart`.
+- `.github/workflows/boot-oneli-config-only.yml`: sparse checkout of exact kernel Kconfig descriptions and pinned fragment; fetch accepted config from run 39050113058 and SHA256-check it; merge exclusions using existing `scripts/kconfig/merge_config.sh`, run real Kconfig `olddefconfig`, assert contracts and upload resolved config, full before/after diff, enabled removals and tool identities. No `Image`, `modules`, DTB compilation or QEMU test.
+
+**Final cheap validation:** [run **39139991644**](https://github.com/Drzet/razr2022_nuc/actions/runs/39139991644), job **117712429303 SUCCESS**, artifact [`oneli-reduced-config-39139991644-1` ID **12141466452**](https://github.com/Drzet/razr2022_nuc/actions/runs/39139991644/artifacts/12141466452), ZIP **172,122 bytes**, CI-reported ZIP SHA256 **`afa33a29a23cd6741655d081d57906f108361d1c56b1a363e8c1bc7748bcf4e3`**. Resolved reduced config SHA256 **`97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be`**. Counts from actual resolved configs:
+
+| | Built-in y | Module m | Total enabled |
+| --- | ---: | ---: | ---: |
+| Accepted broad baseline | 3,301 | 1,536 | 4,837 |
+| Reduced candidate | 2,246 | 1,034 | 3,280 |
+| Delta | −1,055 | −502 | **−1,557 (32.2%)** |
+
+There are **no newly enabled** symbols; **one y↔m change** among retained symbols is recorded in `changed-y-m.txt` for coordinator inspection. The check asserts required y/m choices and retained consumer prefixes but does not claim exhaustive unknown hardware dependencies or runtime support. Tool identities and the complete removed-symbol list are in the evidence archive. The reduced selection's 32.2% lower enabled-symbol count is a *scope estimate only*, **not** a measured build-time or memory reduction. Earlier failed/cancelled config-only attempts are superseded by this PASS.
+
+**Disposition:** deliver to coordinator for review. Do **not** wire this recipe into expensive automatic Image/modules builds or promote any release until selected. BOOT kernel, DTS, accepted release and radio/Userspace artifacts remain unchanged; no new physical boot evidence. No full build, DTB build or QEMU run was performed.
+
+---
+
 ## Final BOOT combined radio acceptance — 2026-10-17 (supersedes prior failed-current-state descriptions)
 
 **Coordinator accepted [Drzet/linux:razr/boot@7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce](https://github.com/Drzet/linux/commit/7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce) for combined radio development source/build scope and Userspace consumption.** Release: `7.3.0-rc6-g7f3865ee17c3`. [Final GitHub Actions run 39050113058](https://github.com/Drzet/linux/actions/runs/39050113058) **SUCCESS**, cheap DT/schema/resolved-config/host job **117446794445 PASS** and combined ARM64 job **117447403567 PASS**. The final [coordinator acceptance review](https://github.com/Drzet/razr2022_nuc/blob/main/docs/COORDINATOR_REVIEW_2026-10-17.md) independently inspected workflow/source changes and both final job logs. No new build is needed.
