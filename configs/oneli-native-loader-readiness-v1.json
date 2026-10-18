@@ -1046,5 +1046,53 @@
     "owner_next_action": "Boot paused; Userspace integrates exact accepted Image/DTB/matching modules, early PCI pre-power module and Debian firmware/services. No kernel rebuild or further Boot task.",
     "previous_failed_run": 39045171934,
     "previous_failed_reason": "Historical only: compiled Image/modules but false vmlinux.symvers assertion blocked packaging; fixed at 7f3865e and final CI PASS."
+  },
+  "oneli_reduced_kernel_config_candidate_2026_10_18": {
+    "status": "CONFIG_ONLY_KCONFIG_RESOLVED_CHEAP_CHECK_PASS_UNBUILT",
+    "coordinator_assignment": "8dbbfd088ca9f85a5a97a9c3cbd9539a4834b094",
+    "kernel_source_sha": "7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce",
+    "accepted_original_config_sha256": "e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273",
+    "project_recipe_commit": "a0726ef69177c21755bc28b60de244681bf80f40",
+    "fragment": "configs/oneli-reduced-platforms.config",
+    "checker": "scripts/check-oneli-reduced-config.py",
+    "workflow": ".github/workflows/boot-oneli-config-only.yml",
+    "run_id": 39139991644,
+    "job_id": 117712429303,
+    "run_conclusion": "success",
+    "artifact_id": 12141466452,
+    "artifact_name": "oneli-reduced-config-39139991644-1",
+    "artifact_zip_bytes": 172122,
+    "artifact_zip_sha256_ci_reported": "afa33a29a23cd6741655d081d57906f108361d1c56b1a363e8c1bc7748bcf4e3",
+    "resolved_candidate_config_sha256": "97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be",
+    "accepted_enabled": {
+      "y": 3301,
+      "m": 1536,
+      "total": 4837
+    },
+    "candidate_enabled": {
+      "y": 2246,
+      "m": 1034,
+      "total": 3280
+    },
+    "removed_enabled": 1557,
+    "added_enabled": 0,
+    "changed_y_m": 1,
+    "requested_platform_disables": 62,
+    "contract_assertions": {
+      "exact_required": 85,
+      "accepted_consumer_symbols": 253,
+      "radio_fragment": 26,
+      "qemu_builtins": 16
+    },
+    "retained_scope": "UART/earlycon, pstore, initramfs, Debian/systemd, signed regdb, radio, early PCI pre-power module, USB/Type-C/DP, QEMU virtio disk/net/console",
+    "known_exception": "historical QEMU fragment CONFIG_DUMMY=m not present in accepted baseline; Userspace tests hci_uart",
+    "build_completed": false,
+    "dtb_compiled": false,
+    "modules_compiled": false,
+    "qemu_executed": false,
+    "hardware_tested": false,
+    "accepted_radio_release_replaced": false,
+    "next_gate": "Coordinator review before any expensive build. Preserve accepted 7f3865e release, radio artifacts and Userspace contracts.",
+    "handoff": "docs/handoffs/2026-10-12-boot-seventh-console-v2-repackage.md"
   }
 }
