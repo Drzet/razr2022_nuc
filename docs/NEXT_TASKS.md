@@ -1,17 +1,24 @@
-# Current assignments — 2026-10-17 signed regdb review and VPU activation
+# Current assignments — 2026-10-18 VPU acceptance and Boot configuration
 
-[Review](COORDINATOR_REGDB_REVIEW_2026-10-17.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the Userspace regulatory correction and queued VPU state.
+[Review](COORDINATOR_VPU_REVIEW_2026-10-18.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the VPU RESUME implementation and Boot/DP documentation closure assignments.
 
-## Active: VPU — bounded firmware-specific RESUME adaptation
+## Active: Boot — prepare a reduced oneli build configuration
 
-Userspace regulatory prerequisite is accepted; VPU is now the sole implementation stream. Continue kernel `razr/vpu-provenance-v5@c31880525671f65c2d10d8d60d2ab9475c0797e4` (production 905d2403) and project `razr/vpu@ac293ee4c22e4407d53f03ed55809da1b3eeddf4`. Read the canonical VPU handoff and its already accepted fixed-revision Xiaomi comparison; do not repeat the broad audit.
+Sole implementation stream. Continue project `razr/boot@53c1b7a58099c9ad0fb111edf9f62cad8cc9797a`; use immutable kernel `7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce` and its accepted resolved configuration (artifact 12109240146, config SHA256 e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273). This selects the previously queued build-cost reduction, before another full integration build.
 
-1. Implement the narrowly scoped payload-free Gen2 RESUME option for the oneli development firmware profile, preferably in its existing firmware descriptor. Cover both DRC/settings-change and drain/restart command paths. Preserve default U32 reason payloads for other profiles. Preserve upstream attribution and record the donor revision.
-2. Enabled option must emit NONE/NULL/zero payload bytes, with the expected 64-byte single-command message instead of 68; preserve response/interrupt flags, session, port and command/packet IDs. Do not transplant Xiaomi VPU3 operations, limits, bandwidth tables or 30-fps policy.
-3. Add cheap tests against actual production serialization for both reasons, applicable ports, option states and queue-write failure propagation. Assert exact packet fields/lengths and unchanged defaults. Reuse current harness and consolidated automatic CI; run cheap gates before the existing required ARM64 build, once for the final source. No new full-build matrix or unrelated regression campaign.
-4. Record exact kernel/project commits, test/run/artifact identities and scope in the canonical handoff and issue #10, then stop for coordinator review. Keep SM8475 disabled and unintegrated; no shared DTS, release, firmware or Userspace changes.
+1. Inspect existing project fragments, accepted resolved config and kernel Kconfig/merge machinery. Reuse them to create a reproducible oneli-specific configuration candidate; no new configuration framework and no host `localmodconfig` (host hardware is not oneli).
+2. Retain every dependency required by the accepted UART/early diagnostics, pstore/ramoops support, initramfs, Debian/systemd, QEMU virtio disk/network/console tests, module loading, signed firmware/regdb and enabled radio paths. Preserve early PCI pre-power module packaging/load contract and y/m choices where consumers rely on them. Preserve accepted USB/Type-C/DP support used by diagnostic tooling; do not enable board peripherals or remove unknown dependencies speculatively. Derive exact symbols from inspected source/config and consumer scripts.
+3. Remove clearly unrelated architectures/platform drivers and peripherals from the build selection only where dependency closure permits. Record retained functional groups, removal rationale, before/after resolved config diff, exact source/tool versions and y/m counts. Counts are a scope estimate, not a measured build-time saving.
+4. Resolve candidate with the existing pinned toolchain/Kconfig tools; run cheap contract/assertion checks against existing Boot and Userspace consumers. Ensure all required symbols survive resolution with intended y/m values. Do not run Image/modules compilation, DT recompilation or QEMU for this config-only preparation.
+5. Commit the candidate recipe/fragment and evidence on the project branch; update the canonical Boot handoff and readiness only to describe this unbuilt candidate, preserving accepted artifact identities. Stop for coordinator review before wiring it into automatic expensive builds.
 
-Applicability to reference Motorola firmware `video-firmware.2.4-33580ad5a949b4d45b3b008988280e60573cd894` remains [INFERRED]. No physical chip-ID or /3 proof gate: /3 stays [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Retain VPU2, 480-fps startup and existing admission/resource/ownership policies. On-device acceptance later needs PAS/init/version, DRC/reallocation/resume and drain/LAST/restart with verified frames, not init-only success.
+No kernel source/shared DTS changes, DP/VPU/display merge, release replacement, new firmware extraction or handset operation. Future selected builds remain automatic and cheap-gated; this preparation does not change Actions policy.
+
+## VPU — RESUME adaptation accepted, pause
+
+Kernel **daf47c502fe9c959d49fb37f10f79d5f7d037d8f**, project **c0a2ae91156f14d9000c9a159cd3178fd31fbb0b**, run **39074972666** accepted for source, production packet host tests and ARM64 Image/modules/modpost scope. Both RESUME paths honor the oneli descriptor option; six other Gen2 profiles preserve defaults. No repeated test/build or new implementation assigned.
+
+Keep SM8475 disabled/unintegrated, VPU2, 480-fps startup and existing resource/ownership policy. Motorola firmware applicability remains [INFERRED]; /3 remains [INFERRED, USER-ACCEPTED FOR DEVELOPMENT]. Physical chip ID is not a new development gate. Hardware validation later requires PAS/init/version plus DRC and drain/restart with verified frames.
 
 ## Userspace — regulatory correction accepted, pause
 
@@ -25,28 +32,24 @@ No more compilation or board activation assigned. Production libfdt traversal/re
 
 Workflow follow-up for the next assigned source change: add workflow/ref-scoped cancellation and upload resolved config under a non-hidden filename (current upload path out/.config lacks include-hidden-files). The current ZIP is only 494 bytes, so do not describe it as a complete archived resolved configuration. CI log establishes selected config assertions/object result; default-disabled source acceptance does not require repeating this build merely to repair evidence packaging.
 
-## Boot — documentation closure only, no build
+## Boot documentation closure — accepted
 
-Accepted kernel **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**: run **39050113058**, DT job **117446794445** and combined job **117447403567** PASS. Image/modules/MODPOST, installation/depmod, three load-order records and final manifest verification completed.
-
-Project handoff at **372fabd6a0688e2bbe08a2bb6e80bb4deb122fc2** still describes failed predecessor 8603c55 as current. Update its top section and machine readiness to the final successful SHA/run/artifact and completed module packaging. Preserve failed attempts as history. Do not rerun DT or kernel compilation. Pause after documentation; respond only to concrete Userspace interface dependencies.
+Project **53c1b7a58099c9ad0fb111edf9f62cad8cc9797a** records final kernel 7f3865e/run 39050113058 in the handoff and machine readiness. No repeat closure or build. The new Boot task above supersedes its historical paused/Userspace-active wording.
 
 ## Wireless — paused
 
 Accepted 5d191e2 source/build scope. Canonical handoff now records final PASS; documentation closure is complete. No repeat tests or new implementation.
 
-## Active documentation closure: DisplayPort
+## DisplayPort — closure accepted, pause
 
-Kernel **d28598f544682eed5997ac9d57d423e9a5031624** is accepted for isolated AUX source/build scope. Successful automatic **38987006218** includes host/schema plus dependency-complete ARM64 link. Project **60fbc3a3dbc28d173cc67e632f57f25d99a3e58e** handoff is stale.
-
-Append exact final run/job/artifact, config/module hashes and acceptance to the existing DP handoff; remove the obsolete current Actions hold. Preserve historical failures as history. **Do not rerun the successful build or expand driver/DRM/PHY/DTS scope.** Post the documentation commit to #11; pause.
+Project **2f992d150b5c13b5f98c59e4b7fb9ee802ed918d** records the accepted d28598f source/build result, exact run/job/artifact/hash evidence and historical status of the Actions hold. Documentation closure is complete. No rebuild, merge or new DP implementation assigned.
 
 ## Accepted / paused / queued
 
 - **Power:** b8e85bb wireless source contract accepted. Paused; respond only to a specific dependency from active owners. USB/DP 8mV and chip-ID policy stays closed. No broad voltage research.
 - **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
-- **VPU:** active only for the bounded RESUME adaptation above; all other recovery/resource work remains queued.
+- **VPU:** RESUME accepted and paused; recovery/resource work remains unassigned.
 - **GPU/display:** isolated earlycon port accepted and paused; Adreno implementation remains paused.
 - **Userspace:** regulatory correction accepted; paused.
 - **Battery/charging:** no implementation assigned.
@@ -59,4 +62,4 @@ Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic
 
 ## Build cost discipline
 
-No rebuild of accepted 7f3865e for documentation or Userspace work. The broad ARM64 defconfig + full modules build took about 48 minutes on this runner. Before a later kernel implementation requires another expensive build, select a separate reviewed oneli configuration reduction retaining diagnostic/QEMU and required subsystem dependency closure; do not trim/rebuild now. Resolve Kconfig and align config-affecting tools before compilation. Check post-build assertions against the actual Kbuild target's output contract. For failures after compilation, preserve reusable build outputs where practical and rerun only the necessary failed packaging/check stage when those outputs are available; a missing build tree must be disclosed, not replaced with mismatched modules. Builds remain automatic and cheap-gated.
+No rebuild of accepted 7f3865e for documentation or Userspace work. The broad ARM64 defconfig + full modules build took about 48 minutes on this runner. The Boot assignment above prepares the reduced configuration with cheap validation; full compilation awaits coordinator review. Resolve Kconfig and align config-affecting tools before compilation. Check post-build assertions against the actual Kbuild target's output contract. For failures after compilation, preserve reusable build outputs where practical and rerun only the necessary failed packaging/check stage when those outputs are available; a missing build tree must be disclosed, not replaced with mismatched modules. Builds remain automatic and cheap-gated.
