@@ -1,13 +1,13 @@
 # Project status
 
-Updated 2026-10-18 after [VPU delivery review](COORDINATOR_VPU_REVIEW_2026-10-18.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
+Updated 2026-10-18 after [reduced configuration review](COORDINATOR_CONFIG_REVIEW_2026-10-18.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. Boot now prepares a smaller build configuration. Linux has not booted on the phone.**
+**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. The reduced build configuration passes source and Kconfig review; its first Image/modules build is assigned. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
 | DP | Kernel d28598f; run 38987006218 host/schema and real ARM64 module/modpost PASS | Closure 2f992d1 accepted; paused |
-| Boot | Kernel 7f3865e; run 39050113058 full combined build PASS | Closure 53c1b7a accepted; prepare reduced config, cheap checks only |
+| Boot | Kernel 7f3865e; run 39050113058 full combined build PASS | Reduced config a0726ef / handoff 0e6728c accepted; build/package once |
 | Wireless | Kernel 5d191e2 accepted; final successful result now recorded in handoff | Paused |
 | Power | b8e85bb wireless map/L7E review accepted | Paused; answer concrete integration dependencies |
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
