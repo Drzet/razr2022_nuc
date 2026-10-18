@@ -1,6 +1,34 @@
 # BOOT handoff: seventh-round console-summary v2 one-time host refresh
 
-## Reduced ARM64 configuration candidate — 2026-10-18 (CONFIG-ONLY; NOT BUILT)
+## Reduced radio Image + matching modules: one successful full build — 2026-10-18
+
+**Review assignment:** [coordinator 8414a9b](https://github.com/Drzet/razr2022_nuc/commit/8414a9b75e11048c40da176aa61cfe5dbb77a164). Full-build candidate **complete, submitted for coordinator review, not promoted**. [Run **39170486506**](https://github.com/Drzet/razr2022_nuc/actions/runs/39170486506), **job 117802312561 PASS**, ~**38m17s** job elapsed. Project workflow `razr/boot@ada56aded6fb6d75aea8e626e7150a7e8ea2729a`; immutable accepted kernel source `Drzet/linux@7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce` (no source/DTS changes). No kernel/DT recompilation separate from this one Image/modules build. The *earlier workflow-syntax-only run* 39170396977 failed to schedule any job, was corrected before any compilation and does not represent a second build.
+
+**Exact input, tool and release identity:** resolved reduced `kernel.config` SHA256 `97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be`, from reviewed [config artifact 12141466452](https://github.com/Drzet/razr2022_nuc/actions/runs/39139991644/artifacts/12141466452). It was independently compared byte-for-byte after `olddefconfig` and passed the existing 85-required/26-radio/16-QEMU/253-retained-symbol checker **before** full compilation. AArch64 GCC **13.3.0** (Ubuntu `13.3.0-6ubuntu2~24.04.1`), GNU ld **2.42**, pahole **v1.25**, GNU Make **4.3**, Python **3.12.3**, zstd **1.5.7** match the pinned config-only tool evidence where applicable. Invoke `make -C kernel-src O=out LOCALVERSION=-oneli-reduced1 -j4 Image modules`. Measured `/usr/bin/time` compilation **2,231.11s (37m11s)**, with recorded maximum RSS **499,164 KiB**. `make ... LOCALVERSION=-oneli-reduced1 kernelrelease` resolved **`7.3.0-rc6-oneli-reduced1-g7f3865ee17c3`**. Modules install under that exact `lib/modules/` path and **cannot silently mix** with accepted broad-build `7.3.0-rc6-g7f3865ee17c3`.
+
+**Output and independent artifact verification:**
+- [Combined artifact **12153785196**, `oneli-reduced-image-modules-39170486506-1`](https://github.com/Drzet/razr2022_nuc/actions/runs/39170486506/artifacts/12153785196), ZIP **29,870,089 bytes**, SHA256 **`550044f8b170d6dcaeeaec3f00ba71e3054655f651e28a806ab16ea5d44bccfb`**. Downloaded and independently hashed the ZIP. Its **10/10 release SHA256SUMS entries** independently verify against the ZIP's exact contents.
+- `Image` **36,436,480 bytes**, SHA256 **`279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8`**. Normal AArch64 Image/modules compilation and MODPOST; validated `vmlinux`-owned `devm_regulator_bulk_get`, `pci_pwrctrl_create_devices`, `devm_pwrseq_get` exported in actual `Module.symvers`.
+- `radio-modules.tar.zst` **15,361,864 bytes**, SHA256 **`53223f163ebf1939192d85002939b4f201cff9abf7feb5160acf63c7eebbe908`**. `modules_install` with strip and `depmod` passed. **1,179** installed `.ko` files; independently decompressed the nested archive and rehashed **all 1,179 individual files** against `release/module-sha256.txt` with **zero mismatches**. `modules.dep` and `modules.alias` present. Host `modprobe --show-depends` records for early `pci-pwrctrl-pwrseq`, `ath11k_pci` and `hci_uart` pass, with their matching module-directory identity.
+- **Reused unchanged DTB**, not recompiled: `sm8475-motorola-oneli.dtb` **108,175 bytes**, SHA256 `70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435`, from previously accepted [artifact 12109240146](https://github.com/Drzet/linux/actions/runs/39050113058/artifacts/12109240146), verified before build. No fresh DT/schema suite, Wireless host suite or QEMU tests.
+
+**Measured comparison (both GitHub-hosted Ubuntu 24.04 AArch64 GCC 13.3, same source tree and `-j4`, but not the same config and not a controlled identical-runner benchmark):**
+
+| Measure | Broad accepted build 39050113058 | Reduced 39170486506 | Delta |
+| --- | ---: | ---: | ---: |
+| Enabled resolved Kconfig symbols | 4,837 | 3,280 | −1,557 (−32.2%) |
+| Installed `.ko` files (verified archive) | 1,699 | 1,179 | −520 (−30.6%) |
+| `Image` bytes | 52,632,064 | 36,436,480 | −16,195,584 (−30.8%) |
+| Matching modules `.tar.zst` bytes | 19,777,389 | 15,361,864 | −4,415,525 (−22.3%) |
+| Full ARM64 CI job elapsed | ~47m42s | ~38m17s | ~9m25s faster (−19.7%) |
+
+The new **isolated compilation stage** took 37m11s; the broad workflow did not separately record `/usr/bin/time` for an exactly equivalent compilation stage. Its combined job also had different initial config/DT evidence handling and ran on a different hosted job. Thus the measured **whole-job** improvement is encouraging but is not an experimentally isolated speedup attributed solely to symbol removal. Tool identity, exact inputs, release manifests, change list, config counts, timings and module dependency lists are included in the successful artifact.
+
+**Final operational boundary and stop:** This is a **completed software build/package candidate awaiting coordinator acceptance**, not a new accepted phone image. Accepted broad radio Image/modules, diagnostic-v2 release and manifest remain untouched. USB/UFS native storage and real boot/PMIC/PCIe/Wi-Fi/BT remain untested; pstore/UART diagnostics, signed-regdb and QEMU requirements are preserved as Kconfig contracts only. Early userspace must still explicitly load the matching **`pci-pwrctrl-pwrseq.ko`** for the deferred PCIe pre-power child before WLAN enumeration. Userspace has not run its rootfs/early-loader/QEMU checks against this **new release identifier**. No extra kernel or DT build, QEMU, hardware operation or release promotion performed. BOOT **pauses for coordinator review**.
+
+---
+
+## Historical preparation: reduced ARM64 Kconfig-only candidate (subsequently built; see above)
 
 **Coordinator task:** [8dbbfd0](https://github.com/Drzet/razr2022_nuc/commit/8dbbfd088ca9f85a5a97a9c3cbd9539a4834b094). Preserve accepted source/build **Drzet/linux@7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, accepted kernel configuration SHA256 **`e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273`**, combined artifact **12109240146** and prior Userspace contracts unchanged. The candidate is **not** a new release or a replacement for the accepted Image/DTB/modules.
 
@@ -19,7 +47,7 @@
 
 There are **no newly enabled** symbols; **one y↔m change** among retained symbols is recorded in `changed-y-m.txt` for coordinator inspection. The check asserts required y/m choices and retained consumer prefixes but does not claim exhaustive unknown hardware dependencies or runtime support. Tool identities and the complete removed-symbol list are in the evidence archive. The reduced selection's 32.2% lower enabled-symbol count is a *scope estimate only*, **not** a measured build-time or memory reduction. Earlier failed/cancelled config-only attempts are superseded by this PASS.
 
-**Disposition:** deliver to coordinator for review. Do **not** wire this recipe into expensive automatic Image/modules builds or promote any release until selected. BOOT kernel, DTS, accepted release and radio/Userspace artifacts remain unchanged; no new physical boot evidence. No full build, DTB build or QEMU run was performed.
+**Historical disposition:** this paragraph described the **config-only preparation phase** before coordinator selection. The selected one-time Image/modules build subsequently **PASSED run 39170486506**, documented above. No DTB compilation, QEMU or phone boot was performed, and neither development build has been promoted to replace the accepted broad/diagnostic releases.
 
 ---
 
