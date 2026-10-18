@@ -89,7 +89,10 @@ def main():
     frozen = {k: v for k, v in old.items() if v in ('y', 'm')
               and k.startswith(PREFIXES)}
     demand(new, frozen, 'preserve oneli and generic diagnostic consumers')
-    demand(new, exclusions, 'requested foreign platforms removed')
+    # Hidden Kconfig symbols can disappear entirely when their parent platform
+    # becomes n. Missing and explicitly n both mean unselected, not a failure.
+    remaining = {k: new.get(k) for k in exclusions if new.get(k, 'n') != 'n'}
+    assert not remaining, f'foreign platform still selected: {remaining}'
     before = {k: v for k, v in old.items() if v in ('y', 'm')}
     after = {k: v for k, v in new.items() if v in ('y', 'm')}
     removed = sorted(before.keys() - after.keys())

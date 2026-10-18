@@ -68,6 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           cd kernel-src
+          mkdir -p out
           scripts/kconfig/merge_config.sh -m -O out \
             ../evidence/accepted.config ../configs/oneli-reduced-platforms.config \
             > ../evidence/config-merge.log 2>&1
