@@ -11,7 +11,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: boot-reduced-build-${{ github.workflow }-${{ github.ref }
+  group: boot-reduced-build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
     env:
       ARCH: arm64
       CROSS_COMPILE: aarch64-linux-gnu-
-      GH_TOKEN: ${{ github.token }
+      GH_TOKEN: ${{ github.token }}
       REDUCED_LOCALVERSION: -oneli-reduced1
       KERNEL_PIN: 7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce
       REDUCED_CONFIG_SHA256: 97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be
@@ -265,7 +265,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: oneli-reduced-image-modules-${{ github.run_id }-${{ github.run_attempt }
+          name: oneli-reduced-image-modules-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             release/
             evidence/
