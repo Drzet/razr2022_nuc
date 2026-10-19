@@ -1,0 +1,215 @@
+name: Userspace radio development packaging (accepted kernel only)
+on:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-radio-development.yml'
+      - 'scripts/package-radio-development.py'
+      - 'scripts/stage-radio-rootfs.sh'
+  workflow_dispatch:
+concurrency:
+  group: userspace-radio-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cheap-validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Check Python, shell and pinned source contract
+        run: |
+          set -Eeuo pipefail
+          python3 -m py_compile scripts/package-radio-development.py scripts/build-native-diag.py
+          bash -n scripts/stage-radio-rootfs.sh
+          python3 - <<'PY'
+          import importlib.util
+          s=importlib.util.spec_from_file_location("radio","scripts/package-radio-development.py")
+          m=importlib.util.module_from_spec(s)
+          s.loader.exec_module(m)
+          assert m.KERNEL == "7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce"
+          assert m.RELEASE == "7.3.0-rc6-g7f3865ee17c3"
+          assert m.PREPOWER == "kernel/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko"
+          assert len(m.CHECKS) == 5
+          print("RADIO_CHEAP_INPUT_PASS")
+          PY
+  radio-development:
+    needs: cheap-validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      RADIO_SHA: '7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce'
+      RADIO_RELEASE: '7.3.0-rc6-g7f3865ee17c3'
+      SOURCE_ZIP_SHA: 'd5ad99f03097655f03bc25b243ef2c1758b183bb49963167437750a3781a9de1'
+      SOURCE_ROOTFS_SHA: '2bdec49277b2ab79ccde1d84d7447c8342bd2e27a5c207468fc381d339825028'
+      BUSYBOX_DEB_SHA: 'c833be48abfa16bc19c4966ec93e289ff1ce5d2f1476cad3a57bd105378cd15c'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install unchanged host staging and QEMU tools
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends zstd kmod cpio binutils qemu-system-arm \
+            ipxe-qemu qemu-user-static binfmt-support e2fsprogs ca-certificates
+          mkdir -p radio-evidence source-radio source-rootfs module-tree tool-root
+          qemu-system-aarch64 --version | head -1 > radio-evidence/qemu-version.txt
+          modinfo --version | head -1 > radio-evidence/kmod-version.txt
+          printf 'radio_kernel=%s\nsource_artifact_id=12109240146\nsource_zip_sha256=%s\nuserspace_commit=%s\n' \
+            "$RADIO_SHA" "$SOURCE_ZIP_SHA" "$GITHUB_SHA" > radio-evidence/provenance.txt
+      - name: Consume immutable kernel release and signed Debian bootstrap tar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh run download 39050113058 --repo Drzet/linux \
+            --name oneli-radio-combined-39050113058-1 --dir source-radio
+          (cd source-radio/release && sha256sum -c SHA256SUMS) > radio-evidence/release-hashes.log
+          test "$(cat source-radio/release/kernel.release)" = "$RADIO_RELEASE"
+          gh run download 38177877133 --repo Drzet/razr2022_nuc \
+            --name userspace-qemu-38177877133-1 --dir source-rootfs
+          (cd source-rootfs && sha256sum -c SHA256SUMS) > radio-evidence/source-rootfs-hashes.log
+          printf '%s  %s\n' "$SOURCE_ROOTFS_SHA" source-rootfs/rootfs.tar.zst | sha256sum -c -
+          cp source-radio/release/SHA256SUMS radio-evidence/source-release-SHA256SUMS
+          cp source-radio/release/source-identity.txt radio-evidence/source-identity.txt
+          tar --zstd -tf source-radio/release/radio-modules.tar.zst | head -n 5 || :
+          tar --zstd -xf source-radio/release/radio-modules.tar.zst -C module-tree
+          (cd module-tree && sha256sum -c ../source-radio/release/module-sha256.txt) > radio-evidence/verified-modules.log
+      - name: Pin and inspect existing signed Debian static ARM64 BusyBox
+        run: |
+          set -Eeuo pipefail
+          curl -fLsS --retry 3 'https://deb.debian.org/debian/pool/main/b/busybox/busybox-static_1.37.0-6%2Bb9_arm64.deb' -o busybox.deb
+          printf '%s  %s\n' "$BUSYBOX_DEB_SHA" busybox.deb | sha256sum -c -
+          dpkg-deb -f busybox.deb Architecture Version > radio-evidence/busybox-package.txt
+          dpkg-deb -x busybox.deb tool-root
+          readelf -h tool-root/usr/bin/busybox | grep -F AArch64
+          if readelf -l tool-root/usr/bin/busybox | grep -q INTERP; then exit 1; fi
+      - name: Create separate radio early module loader and inspect archive
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/package-radio-development.py \
+            --release source-radio/release --modules module-tree \
+            --busybox tool-root/usr/bin/busybox --output radio-early
+          (cd radio-early && gzip -t radio-early.cpio.gz && cpio --quiet -t < radio-early.cpio) \
+            > radio-evidence/early-cpio-list.txt
+          grep -Fxq init radio-evidence/early-cpio-list.txt
+          grep -Fxq "lib/modules/$RADIO_RELEASE/kernel/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko" \
+            radio-evidence/early-cpio-list.txt
+          test "$(python3 -c 'import json; print(json.load(open("radio-early/radio-inputs.json"))["verified_module_count"])')" = 1699
+          cp radio-early/radio-inputs.json radio-evidence/radio-inputs.json
+      - name: Stage Debian ARM64 firmware, matching modules and normal radio services
+        run: |
+          set -Eeuo pipefail
+          sudo bash scripts/stage-radio-rootfs.sh \
+            "$GITHUB_WORKSPACE/source-rootfs/rootfs.tar.zst" "$SOURCE_ROOTFS_SHA" \
+            "$GITHUB_WORKSPACE/module-tree" "$RUNNER_TEMP/oneli-radio-rootfs" "$RADIO_RELEASE"
+          sudo cp -a "$RUNNER_TEMP/oneli-radio-rootfs/evidence/." radio-evidence/
+          sudo cp "$RUNNER_TEMP/oneli-radio-rootfs/radio-rootfs.tar.zst" radio-rootfs.tar.zst
+          sudo chown -R "$(id -u):$(id -g)" radio-evidence radio-rootfs.tar.zst
+          test "$(cat radio-evidence/stage-exit-code.txt)" = 0
+          grep -Fq pci-pwrctrl-pwrseq.ko radio-evidence/prepower-deps.txt
+          grep -Fq ath11k_pci.ko radio-evidence/ath11k-deps.txt
+          grep -Fq hci_uart.ko radio-evidence/bluetooth-deps.txt
+          for pkg in firmware-atheros network-manager bluez iw pciutils rfkill; do
+            grep -E "^$pkg[[:space:]]" radio-evidence/radio-packages.tsv
+          done
+          sha256sum radio-rootfs.tar.zst > radio-evidence/development-rootfs-sha256.txt
+      - name: QEMU diskless early PCI pre-power loader with accepted radio Image
+        run: |
+          set -Eeuo pipefail
+          test -r /usr/lib/ipxe/qemu/efi-virtio.rom
+          set +e
+          timeout --kill-after=10s 140s qemu-system-aarch64 -L /usr/lib/ipxe/qemu \
+            -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults \
+            -nographic -serial stdio -monitor none -no-reboot \
+            -kernel source-radio/release/Image -initrd radio-early/radio-early.cpio.gz \
+            -append 'console=ttyAMA0,115200 rdinit=/init razr.radio_qemu_shutdown=1' \
+            > radio-evidence/qemu-early.log 2>&1
+          rc=$?
+          set -e
+          printf '%s\n' "$rc" > radio-evidence/qemu-early-exit.txt
+          if [[ "$rc" -ne 0 ]]; then tail -n 100 radio-evidence/qemu-early.log; exit 1; fi
+          for marker in RADIO_EARLY_PID1=1 \
+            "RADIO_EARLY_RELEASE=$RADIO_RELEASE" \
+            'RADIO_EARLY_INSMOD_OK=kernel/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko' \
+            RADIO_EARLY_READY_V1 RADIO_EARLY_QEMU_SHUTDOWN 'reboot: Power down'; do
+            grep -aFq "$marker" radio-evidence/qemu-early.log || { tail -n 100 radio-evidence/qemu-early.log; exit 1; }
+          done
+          if grep -aFq RADIO_EARLY_INSMOD_FAILED radio-evidence/qemu-early.log; then exit 1; fi
+          echo RADIO_EARLY_QEMU_PASS
+      - name: QEMU verifies resident HOLD when no shutdown command provided
+        run: |
+          set -Eeuo pipefail
+          set +e
+          timeout --signal=TERM --kill-after=5s 12s qemu-system-aarch64 -L /usr/lib/ipxe/qemu \
+            -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults \
+            -nographic -serial stdio -monitor none -no-reboot \
+            -kernel source-radio/release/Image -initrd radio-early/radio-early.cpio.gz \
+            -append 'console=ttyAMA0,115200 rdinit=/init' \
+            > radio-evidence/qemu-hold.log 2>&1
+          rc=$?
+          set -e
+          echo "$rc" > radio-evidence/qemu-hold-exit.txt
+          test "$rc" -eq 124
+          grep -aFq RADIO_EARLY_READY_V1 radio-evidence/qemu-hold.log
+          grep -aFq RADIO_EARLY_HOLD radio-evidence/qemu-hold.log
+          if grep -aFq RADIO_EARLY_QEMU_SHUTDOWN radio-evidence/qemu-hold.log; then exit 1; fi
+          echo RADIO_EARLY_HOLD_PASS
+      - name: Finalize exact checksums and package provenance
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          import hashlib,json,pathlib
+          h=lambda p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+          inp=json.load(open('radio-early/radio-inputs.json'))
+          root='radio-evidence/'
+          m={'schema':'oneli-radio-development-release-v1','source_run':39050113058,
+             'source_artifact_id':12109240146,'source_zip_sha256': 'd5ad99f03097655f03bc25b243ef2c1758b183bb49963167437750a3781a9de1',
+             'kernel_commit':inp['kernel_commit'],'kernel_release':inp['kernel_release'],
+             'module_count':inp['verified_module_count'],'early_cpio_sha256':inp['early_cpio_sha256'],
+             'early_gzip_sha256':inp['early_gzip_sha256'],
+             'rootfs_tar_sha256':h('radio-rootfs.tar.zst'),
+             'radio_packages':pathlib.Path(root+'radio-packages.tsv').read_text().splitlines(),
+             'firmware_files_sha256':h(root+'firmware-files.txt'),
+             'qemu_early_log_sha256':h(root+'qemu-early.log'),
+             'qemu_hold_log_sha256':h(root+'qemu-hold.log'),
+             'qemu_early_exit':0,'qemu_hold_timeout_exit':124,
+             'native_root_device':None,'hardware_tested':False,
+             'diagnostic_v2_release_unchanged':True}
+          pathlib.Path(root+'radio-release-manifest.json').write_text(json.dumps(m,sort_keys=True,indent=2)+'\n')
+          PY
+          (cd radio-early && sha256sum radio-early.cpio radio-early.cpio.gz radio-inputs.json) > radio-evidence/early-SHA256SUMS
+          (cd radio-evidence && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+          (cd radio-evidence && sha256sum -c SHA256SUMS)
+          echo RADIO_DEVELOPMENT_PACKAGE_PASS
+      - name: Preserve failure or success evidence
+        if: always()
+        run: |
+          if [[ -d "$RUNNER_TEMP/oneli-radio-rootfs/evidence" ]]; then
+            sudo cp -an "$RUNNER_TEMP/oneli-radio-rootfs/evidence/." radio-evidence/ || :
+          fi
+          sudo chown -R "$(id -u):$(id -g)" radio-evidence || :
+      - name: Upload development evidence and early loader
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-radio-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            radio-evidence/
+            radio-early/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload prepared Debian radio rootfs tar
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-radio-rootfs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: radio-rootfs.tar.zst
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error

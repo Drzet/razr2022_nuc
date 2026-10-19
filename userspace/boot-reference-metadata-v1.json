@@ -1,0 +1,135 @@
+{
+  "schema": "oneli-userspace-reference-metadata-v1",
+  "source": {
+    "boot_contract": {
+      "repository": "Drzet/razr2022_nuc",
+      "ref": "12fd47873ed587ab7518c3ac747c747757e8005f",
+      "path": "configs/oneli-boot-packaging-v1.json",
+      "git_blob_sha1": "dae3b4898f236e0ff8c86e5f01b84326c6cf40d2"
+    },
+    "vpu_export": {
+      "repository": "Drzet/razr2022_nuc",
+      "ref": "1a59d79fda42a977956de8e06c3a60d44b2971f4",
+      "path": "docs/vpu/2026-10-12-oneli-stock-fdt-properties.json",
+      "git_blob_sha1": "51a3ea64119a4f39de7be2197f1d706a97f5f939",
+      "full_raw_json_sha256": "1a07f09d9ce7c3c4c1bcd4317ef634b28197a93bffe464e1c63f737579063465",
+      "artifact_id": 11734430639
+    },
+    "public_stock_zip_sha256": "620117217b2474411ce8f86c9a0e08d9b9fd82f42098c3ab65b1fcd6d976903c"
+  },
+  "reference_only": true,
+  "active_bootloader_overlay_verified": false,
+  "structural_format_observed": true,
+  "native_composition_ready": false,
+  "hardware_accepted": false,
+  "stock_header": {
+    "boot": {
+      "version": 4,
+      "header_bytes": 1584,
+      "layout_page_bytes": 4096,
+      "os_version_raw": null
+    },
+    "vendor_boot": {
+      "version": 4,
+      "header_bytes": 2128,
+      "page_bytes": 4096,
+      "reference_addresses": {
+        "kernel": 32768,
+        "ramdisk": 16777216,
+        "tags": 256,
+        "dtb": 32505856
+      },
+      "vendor_ramdisk": {
+        "offset": 4096,
+        "bytes": 13335589,
+        "compression": "legacy-LZ4 (magic 02214c18)",
+        "sha256": "5309c9a46937648872e84b94c2cbd592ad41c0fe2efc6be0319d497056f8986e"
+      },
+      "base_dtb_region": {
+        "offset": 13340672,
+        "bytes": 958962,
+        "sha256": "88b605e746f829545f3a5ceabc8ac669eee803db1397d32cc7f49ec91fbba71e",
+        "fdt_components": [
+          {
+            "offset": 0,
+            "bytes": 479481,
+            "sha256": "8e269672cd9d77da8575bf201c646c966219064cc0f9001bf512e7bf47455652",
+            "msm_id": [
+              530,
+              65536
+            ]
+          },
+          {
+            "offset": 479481,
+            "bytes": 479481,
+            "sha256": "b8a243a0ae0569e64dfc85bc5ee15e2eeddf65aa2f4df406c24a8467e739c843",
+            "msm_id": [
+              540,
+              65536
+            ]
+          }
+        ]
+      },
+      "fragment": {
+        "count": 1,
+        "entry_bytes": 108,
+        "type": 1,
+        "board_ids": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "name": null
+      },
+      "bootconfig": {
+        "offset": 14307328,
+        "bytes": 85,
+        "keys": [
+          "androidboot.hardware",
+          "androidboot.memcg",
+          "androidboot.usbcontroller"
+        ],
+        "values_verified": false
+      }
+    }
+  },
+  "reference_overlay": {
+    "index": 3,
+    "board_id": [
+      69,
+      49152
+    ],
+    "sha256": "4fd14c771ecf9f6eadd8e9e56215bcb2858beda6808ce107ae45a9ce18173aad",
+    "applied": false
+  },
+  "vpu_firmware_install": {
+    "status": "proposed-disabled-profile",
+    "consumer": "qcom Iris VPU RFC, disabled oneli DT",
+    "source_path": "radio.img/SINGLE_N_LONELY/NON-HLOS.bin/Android-sparse/ext4/image/vpu20_4v.mbn",
+    "proposed_linux_install_path": "qcom/vpu/vpu20_4v.mbn",
+    "sha256": "9582ea4c5565408bd3e5ba6f8fffc7881f226cae001b6fcd7a0c868de9add9af",
+    "authentication_verified": false,
+    "required_for_qemu_virt": false,
+    "required_for_minimal_oneli_early_initramfs": false
+  },
+  "unresolved": [
+    "stock boot OS-version raw field not extracted",
+    "vendor ramdisk fragment descriptor name not extracted",
+    "active bootloader DTBO/base selection unknown",
+    "reference load addresses not accepted native placements",
+    "independent native repack/AVB/bootloader validation outstanding"
+  ]
+}

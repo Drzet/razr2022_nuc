@@ -1,0 +1,235 @@
+name: Userspace reduced kernel compatibility
+on:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-reduced-compat.yml'
+      - 'scripts/consume-reduced-radio.py'
+      - 'scripts/stage-reduced-radio.sh'
+      - 'scripts/prepare-reduced-radio-qemu.sh'
+      - 'scripts/reduced-radio-guest.sh'
+  workflow_dispatch:
+concurrency:
+  group: userspace-reduced-compat-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cheap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Validate scripts, contract and trusted immutable identifiers
+        run: |
+          set -Eeuo pipefail
+          python3 -m py_compile scripts/consume-reduced-radio.py scripts/package-radio-development.py
+          bash -n scripts/stage-reduced-radio.sh scripts/prepare-reduced-radio-qemu.sh \
+            scripts/reduced-radio-guest.sh scripts/smoke-regdb-qemu.sh
+          python3 - <<'PY'
+          import importlib.util
+          spec=importlib.util.spec_from_file_location("reduced","scripts/consume-reduced-radio.py")
+          m=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(m)
+          assert m.RELEASE=="7.3.0-rc6-oneli-reduced1-g7f3865ee17c3"
+          assert m.CHECKS["Image"]=="279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8"
+          assert m.CHECKS["kernel.config"]=="97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be"
+          assert m.PREPOWER.endswith("pci-pwrctrl-pwrseq.ko")
+          print("RAZR_REDUCED_CHEAP_PASS")
+          PY
+  combined:
+    needs: cheap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      REDUCED_RELEASE: '7.3.0-rc6-oneli-reduced1-g7f3865ee17c3'
+      REDUCED_SOURCE_SHA: '7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce'
+      REDUCED_IMAGE_SHA: '279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8'
+      ROOTFS_PARENT_SHA: '630738c3ac43726199f56d326511fb8a69a443a01eea8e0a234318de5d3e8b38'
+      STATIC_BUSYBOX_DEB_SHA: 'c833be48abfa16bc19c4966ec93e289ff1ce5d2f1476cad3a57bd105378cd15c'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install host QEMU and archive tools, no kernel compilation
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qemu-system-arm qemu-user-static \
+            binfmt-support ipxe-qemu zstd cpio kmod e2fsprogs initramfs-tools-core binutils
+          mkdir -p reduced-evidence producer rootfs-source modules-unpacked busybox-root
+          printf 'userspace_source=%s\nreduced_producer_run=39170486506\nreduced_producer_artifact_id=12153785196\nparent_regdb_rootfs_artifact_id=12111471711\nreduced_kernel_source=%s\n' \
+            "$GITHUB_SHA" "$REDUCED_SOURCE_SHA" > reduced-evidence/inputs.txt
+      - name: Verify accepted Boot producer and exact signed-regdb parent
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh run download 39170486506 --repo Drzet/razr2022_nuc \
+            --name oneli-reduced-image-modules-39170486506-1 --dir producer
+          (cd producer/release && sha256sum -c SHA256SUMS) > reduced-evidence/producer-SHA256SUMS-result.txt
+          printf '%s  %s\n' "$REDUCED_IMAGE_SHA" producer/release/Image | sha256sum -c -
+          test "$(cat producer/release/kernel.release)" = "$REDUCED_RELEASE"
+          test "$(grep '^kernel_source=' producer/release/source-identity.txt)" = "kernel_source=$REDUCED_SOURCE_SHA"
+          gh run download 39061160706 --repo Drzet/razr2022_nuc \
+            --name userspace-radio-regdb-rootfs-39061160706-1 --dir rootfs-source
+          printf '%s  %s\n' "$ROOTFS_PARENT_SHA" rootfs-source/radio-rootfs-regdb-v2.tar.zst | sha256sum -c -
+          tar --zstd -xf producer/release/radio-modules.tar.zst -C modules-unpacked
+          python3 scripts/consume-reduced-radio.py --release producer/release \
+            --installed modules-unpacked --output reduced-evidence/reduced-source-contract.json
+          test "$(python3 -c 'import json;print(json.load(open("reduced-evidence/reduced-source-contract.json"))["verified_module_count"])')" = 1179
+          cp producer/release/SHA256SUMS reduced-evidence/producer-release-SHA256SUMS
+          cp producer/release/source-identity.txt reduced-evidence/producer-source-identity.txt
+      - name: Reuse signed Debian static ARM64 BusyBox for early loader
+        run: |
+          set -Eeuo pipefail
+          curl -fLsS --retry 3 'https://deb.debian.org/debian/pool/main/b/busybox/busybox-static_1.37.0-6%2Bb9_arm64.deb' -o busybox.deb
+          printf '%s  %s\n' "$STATIC_BUSYBOX_DEB_SHA" busybox.deb | sha256sum -c -
+          dpkg-deb -x busybox.deb busybox-root
+          readelf -h busybox-root/usr/bin/busybox | grep -F AArch64
+          if readelf -l busybox-root/usr/bin/busybox | grep -q INTERP; then exit 1; fi
+          dpkg-deb -f busybox.deb Architecture Version > reduced-evidence/busybox-version.txt
+      - name: Produce reduced-only diagnostic early loader with matching PCI prepower module
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/consume-reduced-radio.py --release producer/release \
+            --installed modules-unpacked --busybox busybox-root/usr/bin/busybox --output reduced-early
+          gzip -t reduced-early/radio-early.cpio.gz
+          cpio -it --quiet < reduced-early/radio-early.cpio > reduced-evidence/early-files.txt
+          grep -Fxq "lib/modules/$REDUCED_RELEASE/kernel/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko" reduced-evidence/early-files.txt
+          grep -Fxq init reduced-evidence/early-files.txt
+          cp reduced-early/radio-inputs.json reduced-evidence/reduced-early-inputs.json
+      - name: Layer only reduced ABI modules into signed regulatory Debian rootfs
+        run: |
+          set -Eeuo pipefail
+          dir="$RUNNER_TEMP/oneli-reduced-rootfs"
+          echo "REDUCED_STAGE=$dir" >> "$GITHUB_ENV"
+          sudo bash scripts/stage-reduced-radio.sh \
+            "$GITHUB_WORKSPACE/rootfs-source/radio-rootfs-regdb-v2.tar.zst" "$ROOTFS_PARENT_SHA" \
+            "$GITHUB_WORKSPACE/producer/release" "$GITHUB_WORKSPACE/modules-unpacked" "$dir" \
+            | tee reduced-evidence/stage-result.txt
+          test -s "$dir/reduced-radio-rootfs.tar.zst"
+          grep -Fq RAZR_REDUCED_ROOTFS_STAGE_PASS reduced-evidence/stage-result.txt
+          sudo cp -a "$dir/evidence/." reduced-evidence/
+          sudo chown -R "$(id -u):$(id -g)" reduced-evidence
+      - name: QEMU positive diskless early insertion, accepted reduced Image
+        run: |
+          set -Eeuo pipefail
+          set +e
+          timeout --signal=TERM --kill-after=10s 140s qemu-system-aarch64 -L /usr/lib/ipxe/qemu \
+            -machine virt -cpu cortex-a57 -m 1024 -smp 2 -accel tcg -nodefaults \
+            -nographic -serial stdio -monitor none -no-reboot \
+            -kernel producer/release/Image -initrd reduced-early/radio-early.cpio.gz \
+            -append 'console=ttyAMA0,115200 rdinit=/init razr.radio_qemu_shutdown=1' \
+            > reduced-evidence/early-qemu-serial.log 2>&1
+          rc=$?
+          set -e
+          echo "$rc" > reduced-evidence/early-qemu-exit.txt
+          test "$rc" = 0 || { tail -n 100 reduced-evidence/early-qemu-serial.log; exit 1; }
+          for marker in RADIO_EARLY_PID1=1 \
+            "RADIO_EARLY_RELEASE=$REDUCED_RELEASE" \
+            'RADIO_EARLY_INSMOD_OK=kernel/drivers/pci/pwrctrl/pci-pwrctrl-pwrseq.ko' \
+            RADIO_EARLY_READY_V1 RADIO_EARLY_QEMU_SHUTDOWN 'reboot: Power down'; do
+            grep -aFq "$marker" reduced-evidence/early-qemu-serial.log ||
+              { tail -n 120 reduced-evidence/early-qemu-serial.log; exit 1; }
+          done
+          if grep -aFq RADIO_EARLY_INSMOD_FAILED reduced-evidence/early-qemu-serial.log; then exit 1; fi
+          echo RAZR_REDUCED_EARLY_QEMU_PASS
+      - name: Prepare disposable matching initramfs and Debian virtio disk
+        run: |
+          set -Eeuo pipefail
+          work="$RUNNER_TEMP/oneli-reduced-qemu"
+          echo "REDUCED_WORK=$work" >> "$GITHUB_ENV"
+          newsha=$(sha256sum "$REDUCED_STAGE/reduced-radio-rootfs.tar.zst" | cut -d' ' -f1)
+          sudo bash scripts/prepare-reduced-radio-qemu.sh \
+            "$REDUCED_STAGE/reduced-radio-rootfs.tar.zst" "$GITHUB_WORKSPACE/producer/release" \
+            "$newsha" "$work" | tee reduced-evidence/prepare-qemu-result.txt
+          grep -Fxq RAZR_REDUCED_QEMU_PREP_PASS reduced-evidence/prepare-qemu-result.txt
+          sudo cp -a "$work/evidence/." reduced-evidence/
+          sudo chown -R "$(id -u):$(id -g)" reduced-evidence
+          test -s "$work/initrd.img"
+          test -s "$work/rootfs.ext4"
+      - name: One guest verifies reduced systemd/NM/DNS/radio ABI and signed regdb
+        run: |
+          set -Eeuo pipefail
+          sudo bash scripts/smoke-regdb-qemu.sh "$REDUCED_WORK" "$GITHUB_WORKSPACE/reduced-evidence" \
+             | tee reduced-evidence/reduced-rootfs-result.txt
+          sudo chown -R "$(id -u):$(id -g)" reduced-evidence
+          for marker in RAZR_REGDB_QEMU_PASS; do grep -Fxq "$marker" reduced-evidence/reduced-rootfs-result.txt; done
+          for marker in RAZR_REDUCED_SYSTEMD_PASS RAZR_REDUCED_RELEASE_PASS \
+            RAZR_REDUCED_ONLY_MATCHING_MODULES_PASS RAZR_REDUCED_PREPOWER_PASS \
+            RAZR_REDUCED_HCI_MODPROBE_PASS RAZR_REDUCED_ATH11K_MODPROBE_PASS \
+            RAZR_REDUCED_DBUS_PASS RAZR_REDUCED_NM_PASS RAZR_REDUCED_IPV4_PASS \
+            RAZR_REDUCED_ROUTE_PASS RAZR_REDUCED_RESOLVER_PASS RAZR_REDUCED_DNS_PASS \
+            RAZR_REDUCED_SIGNED_REGDB_FILES_PASS RAZR_REGDB_KERNEL_SIGNATURE_ACCEPTED \
+            RAZR_REDUCED_REGDOMAIN_PASS RAZR_REDUCED_FAILURES=0 \
+            RAZR_REDUCED_ROOTFS_QEMU_PASS 'reboot: Power down'; do
+            grep -aFq "$marker" reduced-evidence/qemu-serial.log ||
+              { tail -n 100 reduced-evidence/qemu-serial.log; exit 1; }
+          done
+          if grep -aEq 'RAZR_REDUCED_FAIL=|RAZR_REDUCED_ROOTFS_QEMU_FAIL' reduced-evidence/qemu-serial.log; then exit 1; fi
+          test "$(cat reduced-evidence/qemu-exit-code.txt)" = 0
+          echo RAZR_REDUCED_COMPATIBILITY_PASS
+      - name: Record immutable candidate hashes, new rootfs and QEMU evidence
+        run: |
+          set -Eeuo pipefail
+          sudo cp "$REDUCED_STAGE/reduced-radio-rootfs.tar.zst" reduced-radio-rootfs.tar.zst
+          sudo chown "$(id -u):$(id -g)" reduced-radio-rootfs.tar.zst
+          sha256sum reduced-radio-rootfs.tar.zst > reduced-evidence/reduced-rootfs-sha256.txt
+          python3 - <<'PY'
+          import json,hashlib,pathlib
+          p=pathlib.Path("reduced-evidence")
+          h=lambda f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()
+          metadata=json.loads((p/"reduced-early-inputs.json").read_text())
+          record={"schema":"oneli-reduced-radio-userspace-v1",
+            "kernel_commit":"7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce",
+            "kernel_release":metadata["kernel_release"], "producer_run":39170486506,
+            "producer_artifact_id":12153785196,
+            "producer_zip_sha256":"550044f8b170d6dcaeeaec3f00ba71e3054655f651e28a806ab16ea5d44bccfb",
+            "parent_signed_regdb_rootfs_sha256":"630738c3ac43726199f56d326511fb8a69a443a01eea8e0a234318de5d3e8b38",
+            "new_rootfs_sha256":h("reduced-radio-rootfs.tar.zst"),
+            "early_initramfs_gzip_sha256":metadata["early_gzip_sha256"],
+            "qemu_rootfs_initramfs_sha256":h(__import__("os").environ["REDUCED_WORK"]+"/initrd.img"),
+            "diskless_serial_sha256":h(p/"early-qemu-serial.log"),
+            "debian_serial_sha256":h(p/"qemu-serial.log"),
+            "module_count":metadata["verified_module_count"],
+            "signed_regdb_accepted_in_guest":True,
+            "phone_tested":False, "native_root_device":None}
+          (p/"reduced-radio-release.json").write_text(json.dumps(record,sort_keys=True,indent=2)+"\n")
+          PY
+          (cd reduced-early && sha256sum radio-early.cpio radio-early.cpio.gz radio-inputs.json) > reduced-evidence/early-SHA256SUMS
+          (cd reduced-evidence && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+          (cd reduced-evidence && sha256sum -c SHA256SUMS)
+          echo RAZR_REDUCED_DELIVERY_PASS
+      - name: Preserve failure or success logs
+        if: always()
+        run: |
+          if [[ -n "${REDUCED_STAGE:-}" && -d "$REDUCED_STAGE/evidence" ]]; then
+            sudo cp -an "$REDUCED_STAGE/evidence/." reduced-evidence/ || :
+          fi
+          if [[ -n "${REDUCED_WORK:-}" && -d "$REDUCED_WORK/evidence" ]]; then
+            sudo cp -an "$REDUCED_WORK/evidence/." reduced-evidence/ || :
+          fi
+          sudo chown -R "$(id -u):$(id -g)" reduced-evidence || :
+      - name: Upload reduced producer consumption and both guest traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-reduced-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            reduced-evidence/
+            reduced-early/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload versioned reduced rootfs
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-reduced-rootfs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: reduced-radio-rootfs.tar.zst
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error

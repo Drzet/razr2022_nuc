@@ -1,0 +1,66 @@
+name: ARM64 native artifact contract fixtures
+on:
+  workflow_dispatch:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-native-contract.yml'
+      - 'scripts/validate-native-kernel-inputs.py'
+      - 'tests/userspace/test_native_contract.py'
+      - 'userspace/native-kernel-inputs.example.json'
+      - 'userspace/boot-reference-metadata-v2.json'
+      - 'scripts/audit-boot-reference-consumer.py'
+      - 'scripts/prepare-project-qemu.sh'
+      - 'scripts/preflight-project-qemu.py'
+      - 'scripts/normalize-boot-combined-bundle.py'
+      - 'scripts/finalize-project-qemu-manifest.py'
+      - 'tests/userspace/test_project_qemu_preflight.py'
+      - 'userspace/boot-reference-metadata-v2.json'
+      - 'scripts/smoke-qemu.sh'
+permissions:
+  contents: read
+jobs:
+  negative-fixtures:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout coordinator code
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install native artifact inspection tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang kmod cpio initramfs-tools-core zstd xz-utils
+      - name: Validate parser and run positive/negative fixtures
+        run: |
+          set -Eeuo pipefail
+          python3 -m py_compile scripts/validate-native-kernel-inputs.py tests/userspace/test_native_contract.py scripts/preflight-project-qemu.py scripts/normalize-boot-combined-bundle.py scripts/finalize-project-qemu-manifest.py tests/userspace/test_project_qemu_preflight.py
+          python3 tests/userspace/test_native_contract.py 2>&1 | tee native-contract-fixtures.log
+          python3 tests/userspace/test_project_qemu_preflight.py 2>&1 | tee native-preflight-fixtures.log
+      - name: Verify pinned Boot and VPU reference metadata without firmware payloads
+        run: |
+          set -Eeuo pipefail
+          mkdir -p pinned-reference
+          curl --fail --location --retry 2 --silent --show-error \
+            https://raw.githubusercontent.com/Drzet/razr2022_nuc/cfdecbf41a329bcc0fa3074f8de708e95ef698b1/configs/oneli-boot-packaging-v2.json \
+            -o pinned-reference/boot-v2.json
+          curl --fail --location --retry 2 --silent --show-error \
+            https://raw.githubusercontent.com/Drzet/razr2022_nuc/1a59d79fda42a977956de8e06c3a60d44b2971f4/docs/vpu/2026-10-12-oneli-stock-fdt-properties.json \
+            -o pinned-reference/vpu-fdt.json
+          python3 scripts/audit-boot-reference-consumer.py \
+            --boot-v2 pinned-reference/boot-v2.json \
+            --vpu-fdt pinned-reference/vpu-fdt.json \
+            --userspace userspace/boot-reference-metadata-v2.json \
+            --output native-reference-audit.json
+          bash -n scripts/prepare-project-qemu.sh scripts/smoke-qemu.sh
+      - name: Retain fixture transcript
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-native-contract-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            native-contract-fixtures.log
+            native-preflight-fixtures.log
+            native-reference-audit.json
+          retention-days: 30

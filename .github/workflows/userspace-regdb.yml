@@ -1,0 +1,149 @@
+name: Userspace signed regulatory database correction
+on:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-regdb.yml'
+      - 'scripts/stage-radio-regdb.sh'
+      - 'scripts/prepare-regdb-qemu.sh'
+      - 'scripts/smoke-regdb-qemu.sh'
+  workflow_dispatch:
+concurrency:
+  group: userspace-regdb-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cheap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Syntax, integrity and signed-kernel policy
+        run: |
+          set -Eeuo pipefail
+          bash -n scripts/stage-radio-regdb.sh scripts/prepare-regdb-qemu.sh scripts/smoke-regdb-qemu.sh scripts/prepare-radio-rootfs-qemu.sh
+          grep -Fq '20261011T000000Z' scripts/stage-radio-regdb.sh
+          grep -Fq 'regulatory.db-upstream' scripts/stage-radio-regdb.sh
+          grep -Fq 'regulatory.db.p7s-upstream' scripts/prepare-regdb-qemu.sh
+          grep -Fq 'iw reg reload' scripts/prepare-regdb-qemu.sh
+          echo RADIO_REGDB_CHEAP_PASS
+  check-signed-regdb:
+    needs: cheap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      OLD_ROOTFS_SHA: '1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b'
+      RADIO_RELEASE: '7.3.0-rc6-g7f3865ee17c3'
+      RADIO_IMAGE_SHA: '0a28060210e747f8c63755142935feda101df4f5d9759f4e876bc2bb1373fb2e'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install host-only emulation and packaging prerequisites
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qemu-user-static binfmt-support qemu-system-arm \
+            ipxe-qemu zstd e2fsprogs cpio initramfs-tools-core
+          mkdir -p regdb-evidence source-rootfs radio-producer
+          printf 'userspace_commit=%s\noriginal_rootfs_run=39056127007\nradio_kernel_commit=7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce\noriginal_rootfs_sha256=%s\n' "$GITHUB_SHA" "$OLD_ROOTFS_SHA" > regdb-evidence/inputs.txt
+      - name: Verify immutable source tar and accepted kernel before staging
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh run download 39056127007 --repo Drzet/razr2022_nuc --name userspace-radio-rootfs-39056127007-1 --dir source-rootfs
+          printf '%s  %s\n' "$OLD_ROOTFS_SHA" source-rootfs/radio-rootfs.tar.zst | sha256sum -c -
+          gh run download 39050113058 --repo Drzet/linux --name oneli-radio-combined-39050113058-1 --dir radio-producer
+          (cd radio-producer/release && sha256sum -c SHA256SUMS) > regdb-evidence/producer-hashes.txt
+          printf '%s  %s\n' "$RADIO_IMAGE_SHA" radio-producer/release/Image | sha256sum -c -
+          test "$(cat radio-producer/release/kernel.release)" = "$RADIO_RELEASE"
+          grep -Fxq 'CONFIG_CFG80211_REQUIRE_SIGNED_REGDB=y' radio-producer/release/kernel.config
+          grep -Fxq 'CONFIG_CFG80211_USE_KERNEL_REGDB_KEYS=y' radio-producer/release/kernel.config
+          grep -Fxq 'CONFIG_CFG80211=m' radio-producer/release/kernel.config
+          cp radio-producer/release/kernel.config regdb-evidence/accepted-kernel.config
+      - name: Layer only Debian wireless-regdb onto accepted rootfs
+        run: |
+          set -Eeuo pipefail
+          layer="$RUNNER_TEMP/radio-regdb-layer"
+          echo "REGDB_LAYER=$layer" >> "$GITHUB_ENV"
+          sudo bash scripts/stage-radio-regdb.sh \
+            "$GITHUB_WORKSPACE/source-rootfs/radio-rootfs.tar.zst" "$OLD_ROOTFS_SHA" "$layer" | tee regdb-evidence/layer-result.txt
+          sudo cp -a "$layer/evidence/." regdb-evidence/
+          sudo chown -R "$(id -u):$(id -g)" regdb-evidence
+          test "$(cat regdb-evidence/staging-exit.txt)" = 0
+          grep -Fq RADIO_REGDB_LAYER_PASS regdb-evidence/layer-result.txt
+          test -s "$layer/radio-rootfs-regdb-v2.tar.zst"
+          grep -Fq wireless-regdb regdb-evidence/regdb-package.tsv
+          (cd "$layer/root" && sha256sum -c "$GITHUB_WORKSPACE/regdb-evidence/regdb-sha256.txt")
+          test ! -s regdb-evidence/dpkg-verify.txt
+      - name: Prepare focused cfg80211 QEMU guest from new rootfs
+        run: |
+          set -Eeuo pipefail
+          work="$RUNNER_TEMP/radio-regdb-qemu"
+          echo "REGDB_WORK=$work" >> "$GITHUB_ENV"
+          newsha=$(sha256sum "$REGDB_LAYER/radio-rootfs-regdb-v2.tar.zst" | cut -d' ' -f1)
+          # The reused QEMU preparer previously pinned the old tar. Only its disposable
+          # caller's hash check is adapted here, no redistribution of old-rootfs bytes.
+          sudo env RAZR_REGDB_SOURCE_SHA="$newsha" bash scripts/prepare-regdb-qemu.sh \
+             "$REGDB_LAYER/radio-rootfs-regdb-v2.tar.zst" "$GITHUB_WORKSPACE/radio-producer/release" \
+             "$newsha" "$work" | tee regdb-evidence/qemu-preparation.txt
+          sudo cp -a "$work/evidence/." regdb-evidence/
+          sudo chown -R "$(id -u):$(id -g)" regdb-evidence
+          grep -Fq RADIO_REGDB_QEMU_PREP_PASS regdb-evidence/qemu-preparation.txt
+      - name: Boot accepted kernel once and verify kernel accepts PKCS7 regdb
+        run: |
+          set -Eeuo pipefail
+          sudo bash scripts/smoke-regdb-qemu.sh "$REGDB_WORK" "$GITHUB_WORKSPACE/regdb-evidence" | tee regdb-evidence/qemu-result.txt
+          sudo chown -R "$(id -u):$(id -g)" regdb-evidence
+          grep -Fxq RAZR_REGDB_QEMU_PASS regdb-evidence/qemu-result.txt
+          test "$(cat regdb-evidence/qemu-exit-code.txt)" = 0
+      - name: Publish precise package and QEMU evidence
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          import pathlib,json,hashlib
+          p=pathlib.Path("regdb-evidence")
+          old="1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b"
+          h=lambda f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()
+          root=pathlib.Path(__import__('os').environ['REGDB_LAYER'])
+          m={"schema":"oneli-radio-regdb-v2","kernel_commit":"7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce",
+             "kernel_release":"7.3.0-rc6-g7f3865ee17c3","source_radio_rootfs_sha256":old,
+             "versioned_rootfs_sha256":h(root/"radio-rootfs-regdb-v2.tar.zst"),
+             "signed_debian_package":(p/"regdb-package.tsv").read_text().strip(),
+             "selected_signer":"upstream wireless-regdb (kernel built-in key)",
+             "db_signatures":(p/"regdb-sha256.txt").read_text().splitlines(),
+             "guest_qemu_serial_sha256":h(p/"qemu-serial.log"),
+             "guest_kernel_signed_reload":"PASS","hardware_tested":False,"native_root_device":None}
+          (p/"regdb-release.json").write_text(json.dumps(m,indent=2,sort_keys=True)+"\n")
+          PY
+          (cd regdb-evidence && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+          (cd regdb-evidence && sha256sum -c SHA256SUMS)
+      - name: Preserve evidence even on errors
+        if: always()
+        run: |
+          if [[ -n "${REGDB_LAYER:-}" && -d "$REGDB_LAYER/evidence" ]]; then
+            sudo cp -a "$REGDB_LAYER/evidence/." regdb-evidence/ || :
+          fi
+          sudo chown -R "$(id -u):$(id -g)" regdb-evidence || :
+      - name: Upload regdb guest and package evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-regdb-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: regdb-evidence/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload versioned accepted-snapshot radio rootfs
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-radio-regdb-rootfs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/radio-regdb-layer/radio-rootfs-regdb-v2.tar.zst
+          compression-level: 0
+          retention-days: 30
+          if-no-files-found: error

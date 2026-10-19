@@ -1,0 +1,109 @@
+name: Prepared radio Debian rootfs QEMU smoke
+on:
+  push:
+    branches: ['razr/userspace']
+    paths:
+      - '.github/workflows/userspace-radio-rootfs-qemu.yml'
+      - 'scripts/prepare-radio-rootfs-qemu.sh'
+      - 'scripts/smoke-radio-rootfs-qemu.sh'
+  workflow_dispatch:
+concurrency:
+  group: userspace-radio-rootfs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  actions: read
+jobs:
+  cheap-harness:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Syntax and immutable identities
+        run: |
+          set -Eeuo pipefail
+          bash -n scripts/prepare-radio-rootfs-qemu.sh
+          bash -n scripts/smoke-radio-rootfs-qemu.sh
+          grep -Fq '1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b' scripts/prepare-radio-rootfs-qemu.sh
+          grep -Fq '7.3.0-rc6-g7f3865ee17c3' scripts/prepare-radio-rootfs-qemu.sh
+          grep -Fq 'RAZR_RADIO_DNS_LOOKUP_PASS' scripts/smoke-radio-rootfs-qemu.sh
+          echo RADIO_RUNTIME_CHEAP_PASS
+  prepared-rootfs-qemu:
+    needs: cheap-harness
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ROOTFS_SHA: '1cfb7b29b6502c08fc5e9d1139c98c8ef78012c5a46d5c24962646045372865b'
+      IMAGE_SHA: '0a28060210e747f8c63755142935feda101df4f5d9759f4e876bc2bb1373fb2e'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Install only host QEMU/disposable image tools
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends qemu-system-arm ipxe-qemu \
+            qemu-user-static binfmt-support e2fsprogs zstd cpio initramfs-tools-core kmod
+          command -v qemu-system-aarch64
+          command -v qemu-aarch64-static
+          command -v lsinitramfs
+          mkdir -p run-evidence source-rootfs radio-producer
+          printf 'userspace_commit=%s\nradio_kernel_commit=7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce\nradio_producer_run=39050113058\nrootfs_producer_run=39056127007\n' "$GITHUB_SHA" > run-evidence/inputs.txt
+      - name: Reuse and verify exact immutable rootfs and kernel
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          gh run download 39056127007 --repo Drzet/razr2022_nuc \
+            --name userspace-radio-rootfs-39056127007-1 --dir source-rootfs
+          printf '%s  %s\n' "$ROOTFS_SHA" source-rootfs/radio-rootfs.tar.zst | sha256sum -c -
+          gh run download 39050113058 --repo Drzet/linux \
+            --name oneli-radio-combined-39050113058-1 --dir radio-producer
+          (cd radio-producer/release && sha256sum -c SHA256SUMS) > run-evidence/kernel-source-checksums.log
+          printf '%s  %s\n' "$IMAGE_SHA" radio-producer/release/Image | sha256sum -c -
+          test "$(cat radio-producer/release/kernel.release)" = '7.3.0-rc6-g7f3865ee17c3'
+          cp radio-producer/release/SHA256SUMS run-evidence/source-SHA256SUMS
+          sha256sum source-rootfs/radio-rootfs.tar.zst radio-producer/release/Image > run-evidence/exact-sources-sha256.txt
+      - name: Create disposable virtio rootfs disk and matching initramfs
+        run: |
+          set -Eeuo pipefail
+          work="$RUNNER_TEMP/radio-runtime-qemu"
+          echo "RADIO_WORK=$work" >> "$GITHUB_ENV"
+          sudo bash scripts/prepare-radio-rootfs-qemu.sh \
+            "$GITHUB_WORKSPACE/source-rootfs/radio-rootfs.tar.zst" \
+            "$GITHUB_WORKSPACE/radio-producer/release" "$ROOTFS_SHA" "$work" \
+            | tee run-evidence/staging.log
+          sudo cp -a "$work/evidence/." run-evidence/
+          sudo chown -R "$(id -u):$(id -g)" run-evidence
+          test "$(cat run-evidence/staging-exit.txt)" = 0
+          test -s "$work/rootfs.ext4"
+          test -s "$work/initrd.img"
+          grep -Fq pci-pwrctrl-pwrseq.ko run-evidence/initramfs-file-list.txt
+      - name: Boot exact radio kernel with Debian systemd and verify radio service profile
+        run: |
+          set -Eeuo pipefail
+          sudo bash scripts/smoke-radio-rootfs-qemu.sh "$RADIO_WORK" "$GITHUB_WORKSPACE/run-evidence" \
+            | tee run-evidence/qemu-smoke-result.txt
+          sudo chown -R "$(id -u):$(id -g)" run-evidence
+          grep -Fq RADIO_ROOTFS_QEMU_SMOKE_PASS run-evidence/qemu-smoke-result.txt
+          test "$(cat run-evidence/qemu-exit-code.txt)" = 0
+      - name: Preserve verifiable evidence
+        if: always()
+        run: |
+          if [[ -n "${RADIO_WORK:-}" && -d "$RADIO_WORK/evidence" ]]; then
+            sudo cp -an "$RADIO_WORK/evidence/." run-evidence/ || :
+          fi
+          sudo chown -R "$(id -u):$(id -g)" run-evidence || :
+          (cd run-evidence && find . -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+          (cd run-evidence && sha256sum -c SHA256SUMS)
+      - name: Upload runtime serial and provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: userspace-radio-rootfs-runtime-${{ github.run_id }}-${{ github.run_attempt }}
+          path: run-evidence/
+          retention-days: 30
+          if-no-files-found: warn
