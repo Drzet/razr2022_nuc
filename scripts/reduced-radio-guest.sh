@@ -66,9 +66,12 @@ if getent ahostsv4 deb.debian.org >/run/reduced-dns.log 2>&1; then
     say RAZR_REDUCED_DNS_PASS
 else bad DNS; fi
 say RAZR_REGDB_TEST_START
+say RAZR_REGDB_KERNEL_MATCH
 if test "$(readlink -f /usr/lib/firmware/regulatory.db)" = /usr/lib/firmware/regulatory.db-upstream &&
     test "$(readlink -f /usr/lib/firmware/regulatory.db.p7s)" = /usr/lib/firmware/regulatory.db.p7s-upstream; then
     say RAZR_REDUCED_SIGNED_REGDB_FILES_PASS
+    say "RAZR_REGDB_DB_SHA256=$(sha256sum /usr/lib/firmware/regulatory.db-upstream | cut -d' ' -f1)"
+    say "RAZR_REGDB_SIG_SHA256=$(sha256sum /usr/lib/firmware/regulatory.db.p7s-upstream | cut -d' ' -f1)"
 else bad REGDB_FILES; fi
 if modprobe cfg80211 && iw reg reload >/run/reduced-regdb-reload.log 2>&1; then
     say RAZR_REGDB_KERNEL_SIGNATURE_ACCEPTED
@@ -80,9 +83,13 @@ if iw reg get > /run/reduced-regdomain.log 2>&1 &&
    grep -q '^global' /run/reduced-regdomain.log; then
     say RAZR_REDUCED_REGDOMAIN_PASS
 else bad REGDOMAIN; fi
-while IFS= read -r line; do say "RAZR_REDUCED_REGDOMAIN=$line"; done < /run/reduced-regdomain.log
+while IFS= read -r line; do
+    say "RAZR_REDUCED_REGDOMAIN=$line"
+    say "RAZR_REGDB_DOMAIN=$line"
+done < /run/reduced-regdomain.log
 say "RAZR_REDUCED_FAILURES=$failures"
 if test "$failures" -eq 0; then
+    say RAZR_REGDB_TEST_PASS
     say RAZR_REDUCED_ROOTFS_QEMU_PASS
 else
     say RAZR_REDUCED_ROOTFS_QEMU_FAIL
