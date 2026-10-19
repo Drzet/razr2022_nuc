@@ -1,22 +1,24 @@
-# Current assignments — 2026-10-19 reduced build acceptance
+# Current assignments — 2026-10-19 Userspace acceptance and earlycon tests
 
-[Review](COORDINATOR_REDUCED_BUILD_REVIEW_2026-10-19.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the Boot reduced-build assignment.
+[Review](COORDINATOR_REDUCED_USERSPACE_REVIEW_2026-10-19.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes reduced-build Userspace compatibility testing.
 
-## Active: Userspace — consume reduced build and validate compatibility
+## Active: GPU/display — close earlycon parser/rendering test gap
 
-Sole active implementation stream. Continue `razr/userspace` from accepted **eff19bcff7d5eb0fc1f181f4c86b9aa32bb18846** after inspecting its current head; preserve intervening work. Boot producer is accepted for build/package scope, not yet runtime scope.
+Sole active implementation stream; software-only, no display activation. Continue kernel `razr/display-earlycon@5d9e2e7b5461ad421ad74fe2b0b1f79ca05f1fdf` and project `razr/display-earlycon@401d2d8006707a4f7c2ebb11d03ac2b465916d3f` after checking current heads. This selects the specific untested scope recorded in the prior review, not a new native panel/GPU driver.
 
-Immutable inputs:
-- Kernel source **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, workflow **ada56aded6fb6d75aea8e626e7150a7e8ea2729a**, Boot handoff **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**.
-- Run **39170486506**, artifact **12153785196** (`oneli-reduced-image-modules-39170486506-1`), ZIP SHA256 **550044f8b170d6dcaeeaec3f00ba71e3054655f651e28a806ab16ea5d44bccfb**.
-- Exact release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**. Config SHA256 **97ee634780847771163608e353e0086eceee6347ccd42a4d9d87d04f967981be**.
-- Existing signed-regdb rootfs: artifact **12111471711**, run **39061160706**, inner tar SHA256 **630738c3ac43726199f56d326511fb8a69a443a01eea8e0a234318de5d3e8b38**.
+1. Reuse the existing earlycon harness and pinned kernel libfdt/OF helpers. Exercise actual production DT scanning against real flattened DT fixtures, not mocked enumeration returning preselected nodes. Cover missing/disabled/duplicate nodes, malformed or truncated properties, supported cell layouts and address translation; record any OF-helper substitutions and remaining coverage limits honestly.
+2. Exercise actual production console write/clear/glyph routines against a guarded host-memory framebuffer. Check exact writes and bounds for line wrapping, newline, screen wrap, padded stride, smallest usable geometry, unsupported characters and mapping failures. Mock physical mappings/console registration only as necessary; do not replace the logic under test with another implementation.
+3. Test the early-to-permanent mapping transition and failure paths with controlled mapping hooks where practical. No claim of real WC mapping, firmware scanout or live display continuity. Fix only concrete defects exposed by these tests; preserve default-disabled config and UART-first baseline.
+4. Include previously queued workflow/ref-scoped cancellation and resolved config archival under a non-hidden filename. Cheap fixture/parser/rendering checks first. Reuse prior ARM64 object result if production code is unchanged; if production code changes, perform one targeted object compile, not full Image/modules builds. Do not rerun unrelated suites.
+5. Record exact commits, meaningful failure cases, mocks/limits and artifacts in the existing canonical display handoff, then stop for review.
 
-1. Verify downloaded producer archive/release manifest, module hashes and exact kernel release. Reuse the accepted rootfs and firmware packages. Layer the new matching module tree into a versioned candidate; preserve old published archives. No bootstrap, kernel build, firmware re-extraction or package upgrades.
-2. Adapt existing loader/rootfs/regdb harnesses minimally for the explicit new producer identity. Replace old hardcoded release/hash expectations with validated candidate inputs, not unchecked bypasses. Keep early initramfs loading of matching pci-pwrctrl-pwrseq; ensure no old module directory is used for the new running kernel.
-3. Cheap checks first: package and dependency closure, initramfs contents, required modules, firmware/regdb signatures and immutable input hashes. Then reuse the existing diskless early-loader test and prepared Debian rootfs QEMU test for the changed kernel/config. Combine rootfs systemd/network/DNS/module and positive signed-regdb reload assertions into one guest run where practical; do not repeat duplicate comprehensive suites. Exercise actual module loading with the new release. QEMU cannot prove physical PCI enumeration or radio operation.
-4. Record running release, systemd PID1, networking/DNS result, early-loader result, module loads and positive cfg80211 signed database acceptance; preserve serial logs and failure output. A changed kernel needs these compatibility checks despite unchanged Userspace packages.
-5. Publish candidate rootfs/initramfs/manifests and exact source/run/artifact/hash identities in the canonical Userspace handoff. Stop for coordinator review. No phone flash, native root-device invention or promotion of diagnostic-v2.
+No shared DTS, guessed framebuffer geometry/reservation, board enablement, native panel initialization, Adreno work or merge into reduced-radio kernel. Physical handoff requirements remain unresolved.
+
+## Userspace — reduced compatibility accepted, pause
+
+Tested **c1b8f0aafde4133553308316dcc38f9620308873**, handoff **b82a4f1b32a0be81bf8f47a82a32d7dcdea435f1**, run **39237882830** accepted for QEMU software scope. Both diskless early loader and combined Debian guest pass using release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**.
+
+Rootfs artifact **12180241062**, inner tar SHA256 **d83f787677df38656c6df0a16002d98c3a93910aa717db6d7ad84b1ed80301fb**; evidence/early initramfs artifact **12180445735**, early gzip SHA256 **875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c**. Reuse these exact artifacts; no repeat guest, packaging or kernel build. Native root storage/boot and physical radios remain untested.
 
 ## Boot — reduced build accepted, pause
 
@@ -32,13 +34,9 @@ Keep SM8475 disabled/unintegrated, VPU2, 480-fps startup and existing resource/o
 
 Source 840d53b / handoff eff19bc / run 39061160706 remain accepted. Reuse that rootfs as the input above. The new task tests compatibility with the changed kernel/configuration, not another regulatory packaging fix.
 
-## GPU/display — isolated port accepted, pause
+## GPU/display prior acceptance
 
-Project **401d2d8006707a4f7c2ebb11d03ac2b465916d3f**, kernel **5d9e2e7b5461ad421ad74fe2b0b1f79ca05f1fdf** accepted for default-disabled source/production-predicate tests and targeted ARM64 object compilation only. Run **39058524964**, job **117471377860** PASS. Not merged into accepted radio kernel or board configuration.
-
-No more compilation or board activation assigned. Production libfdt traversal/rendering execution and physical mapping/scanout remain outside tested scope; use real parser fixtures before a future activation/integration decision. Preserve UART-first baseline.
-
-Workflow follow-up for the next assigned source change: add workflow/ref-scoped cancellation and upload resolved config under a non-hidden filename (current upload path out/.config lacks include-hidden-files). The current ZIP is only 494 bytes, so do not describe it as a complete archived resolved configuration. CI log establishes selected config assertions/object result; default-disabled source acceptance does not require repeating this build merely to repair evidence packaging.
+Kernel 5d9e2e7 / project 401d2d8 remain accepted for isolated predicate/source/object scope. The active task above extends tests to production parser/rendering execution. No board activation or integration is authorized.
 
 ## Boot documentation closure — accepted
 
@@ -58,8 +56,8 @@ Project **2f992d150b5c13b5f98c59e4b7fb9ee802ed918d** records the accepted d28598
 - **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** RESUME accepted and paused; recovery/resource work remains unassigned.
-- **GPU/display:** isolated earlycon port accepted and paused; Adreno implementation remains paused.
-- **Userspace:** active only for reduced-build consumption and compatibility testing above.
+- **GPU/display:** active only for the parser/rendering validation above; Adreno remains paused.
+- **Userspace:** reduced-build QEMU compatibility accepted; paused.
 - **Battery/charging:** no implementation assigned.
 
 ## CI and integration
