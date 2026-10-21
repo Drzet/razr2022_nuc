@@ -1262,7 +1262,7 @@
     "coordinator_review_pending": true
   },
   "motorola_abl_loader_route_2026_10_21": {
-    "status": "FOCUSED_ABL_TRACE_VERIFIED_AND_CONSUMED; v2_TEMPORARY_ROUTE_CONDITIONAL; SPLIT_V4_WRITING_FALLBACK_INFERRED; NO_EXECUTABLE_ROUTE",
+    "status": "BOUNDED_AVB_COMPONENT_SOURCE_TRACE_REVIEWED; PREFER_CONDITIONAL_SELF_CONTAINED_V2_RAM_BOOT_DESIGN; NO_SUPPORTED_EXECUTION_ROUTE",
     "assignment": "docs/NEXT_TASKS.md 2026-10-21 loader composition",
     "firmware_reference": "research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3",
     "public_bootloader_img_sha256": "bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3",
@@ -1335,18 +1335,98 @@
     "image_list_source_call_rva": "0x547ac -> 0x4f0d8 (indirect component-provider/verification path; source semantics unresolved)",
     "image_list_producer_rva": "0x54ccc–0x54e04",
     "image_list_structure": "x22 return handle -> list count +0x20; list entries pointer +0x18; entries 24 bytes name pointer +0, buffer pointer +8, length +0x10; copied to context array +0x98, count at +0x398",
-    "v2_legacy_dtb_dataflow": "0x553d0–0x553f0 invokes 0x69570 from same loader; header version 0,1,2 branch at 0x69780–0x69824 reads legacy embedded DTB/header fields; source validation through 0x4f0d8 and Motorola selection/overlays still unresolved.",
+    "v2_legacy_dtb_dataflow": "0x553f0->0x69570 accepts headers 0..2; 0x87750->0x87da0 checks legacy recovery-DTBO region within boot image, not named dtbo lookup on this path. Motorola final DTB/PMIC matching and actual preloaded AVB record source unknown.",
     "vendor_boot_v4_source_status": "NOT_PROVEN: downstream lookup at 0x66f48 gets whatever named record 0x4f0d8 delivered; cannot infer installed vendor_boot merely from lookup.",
     "dtbo_source_status": "NOT_PROVEN: downstream lookup at 0x87788; if named record provided, underlying source still selected upstream; Motorola board-ID/overlay path remains conditional.",
-    "preferred_route": "Conditional NEXT route: trace only 0x4f0d8 source/callback; if self-contained downloaded v2 accepted through 0x69570 mainline DTB path without stock DTBO collision, propose separate v2 packaging task and non-writing fastboot boot diagnostic test. No v2 image exists or is authorized today.",
+    "preferred_route": "NEXT DESIGN ONLY: separately package a single Android v2 self-contained boot image using accepted reduced Image, native diskless early initramfs and mainline DTB; validate host v2 structure and seek separate approval for one UART-first RAM-only trial; no current artifact, no physical support claim.",
     "active_slot_isolation_proven": false,
     "inactive_slot_recovery_proven": false,
     "preferred_temporary_v2_packaging_complete": false,
     "preferred_temporary_v2_boot_supported_proven": false,
-    "next_source_trace_target": "0x4f0d8, then specific read/preload callbacks if invoked (outside existing focused artifact); do NOT rerun successful 39625529459",
+    "next_source_trace_target": "0x5390c AvbOps callback registration/implementations and 0x5bfe8 located protocol +0x10 method if static verification is required before the future v2 RAM trial. 0x4f0d8 itself is now analysed.",
     "no_new_firmware_retrieval": true,
     "no_ci_rerun": true,
     "no_repackage": true,
-    "no_phone_operations": true
+    "no_phone_operations": true,
+    "avb_source_function_identified": "0x4f0d8 matches avb_slot_verify; 0x4f28c flags bit 0x4 NO_VBMETA_PARTITION per AOSP ABI; Motorola caller conditionally ORs this at 0x55020. This does not mean no storage reads.",
+    "pending_callback_source": "0x54110 ->0x5390c AvbOps pointer setup; need read_from_partition/get_preloaded_partition callback implementations or runtime source observation before asserting downloaded image chosen.",
+    "additional_component_source_artifact_id": 12364725668,
+    "additional_component_source_run_id": 39638655285,
+    "additional_component_source_job_conclusion": "failure_post_output_assertion",
+    "component_source_artifact_hash_independently_verified": true,
+    "existing_split_v4_inactive_slot_installation_status": "[INFERRED] CONDITIONAL FALLBACK ONLY; not approved; recovery not independently proven"
+  },
+  "motorola_abl_component_source_2026_10_21": {
+    "status": "STATIC_AVB_COMPONENT_SOURCE_REVIEWED; CONDITIONAL_V2_RAM_PACKAGING_RECOMMENDED; NO_EXECUTABLE_LOADER_ROUTE_PROVEN",
+    "coordinator_assignment_commit": "826833f81f76139def5c825b74e7bb5f29d86a77",
+    "pinned_bootloader_img_sha256": "bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3",
+    "pinned_linuxloader_pe_sha256": "5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca",
+    "analysis_script_commit": "06f23ecbbf66f6dba29cff9597a8e73d8fe7cff7",
+    "focused_runs": [
+      {
+        "run_id": 39638359248,
+        "result": "FAILED_REACHABLE_FUNCTION_BUDGET_75_NO_NEW_GRAPH"
+      },
+      {
+        "run_id": 39638655285,
+        "job_id": 119356074070,
+        "result": "FAILED_POST_ANALYSIS_OVERSTRICT_EXTERNAL_TAIL_EDGE_ASSERTION; EVIDENCE_GENERATED_AND_INDEPENDENTLY_CHECKED",
+        "artifact_id": 12364725668
+      }
+    ],
+    "output_zip_artifact_id": 12364725668,
+    "output_zip_bytes": 447005,
+    "output_zip_sha256_independently_verified": "32a0eecd53eda4ec6cb6dadcb3cd2364760502a4b6f8eb2a53ec2cb780a8fc68",
+    "artifact_members_independently_hashed": 4,
+    "output_member_sha256s": {
+      "abl-component-source-reachable-disassembly.txt": "9f19e2758d056311c6ea1a16f009bdb0ce486517748dc462cbbc3bb6d620ddee",
+      "abl-component-source-callgraph.json": "88ad1d4a21153dec42d5c4283b3160534c424d3e27afc40726916a7f8588ade2",
+      "abl-focused-fastboot-load-disassembly.txt": "6f534f4f65ae2aa8bc58aa7ab032f6ef077a60899fdbd9b742ad2e407f167599",
+      "abl-focused-fastboot-call-index.json": "a2e5e64e1c06ffc28d6b95c3392b04aa8b6a2ecf4b2668f43416fd78d578b204"
+    },
+    "callgraph_entrypoints": 102,
+    "callgraph_instruction_instances": 67051,
+    "source_function_rva": "0x4f0d8",
+    "source_function_static_coverage": "750 instructions, 0x4f0d8..0x5033c; recorded external tail at 0x172f0, not missing decoded source",
+    "source_function_identification": "compiled avb_slot_verify API",
+    "source_function_signature": "AvbOps*, requested_partitions, ab_suffix, verification_flags, hashtree_mode, AvbSlotVerifyData**",
+    "actual_call_register_setup": "0x54794..0x547ac: x0=ops ptr, x1=requested names (0x55ad0/0xdb378), x2=suffix, w3=flags, w4=0, x5=result ptr",
+    "avb_flags": {
+      "bit_0": "ALLOW_VERIFICATION_ERROR: AOSP enum, consistent with compiled Motorola conditional",
+      "bit_2_hex_0x4": "NO_VBMETA_PARTITION: AOSP enum; Motorola tbnz w20,#2 at 0x4f28c chooses bypass-top-level-vbmeta path; it does not guarantee no other partition reads",
+      "caller_condition": "0x55020..0x55040 adds bit 0x4 only if context mode byte zero; 0x547ac has an alternative invocation with original 0/1 flags"
+    },
+    "avb_ops_callback_indirect_sites": [
+      "0x4f57c",
+      "0x4f650",
+      "0x4f86c"
+    ],
+    "requested_names_source": "0x55ad0 reads name pointers from static index table at 0xdb378; actual table values not decoded in evidence",
+    "result_records": "Returned partition list at +0x18, count +0x20; 24-byte partition-name / data-pointer / length copied at 0x54ccc..0x54e04 into boot context entries +0x98; downstream 0x66708 performs named lookup",
+    "unresolved_source_registration": "AvbOps callback setup/implementations incl. read_from_partition vs get_preloaded_partition; ops pointer obtained via 0x5390c call at 0x54110, which is outside the completed excerpt",
+    "mode_source": "0x5bfe8..0x5c080: EFI LocateProtocol-like services call [service+0x140], caches interface global 0x107620; protocol method +0x10 returns byte to context[0] at fastboot 0x8da8",
+    "mode_runtime_return_known": false,
+    "mode_semantics_static": "mode byte ==0 causes OR 0x4 on fallback AVB invocation; actual protocol response not recorded",
+    "v4_boot_candidate_mainline_dtb_without_vendor_boot": false,
+    "v4_vendor_boot_source_proven": false,
+    "v4_dtbo_source_proven": false,
+    "legacy_v2_path": "Header 0..2 handled in 0x69570 via 0x69780..0x69824; 0x87750..0x87764 -> 0x87da0 checks boot-image-relative recovery-DTBO region; no named DTBO lookup in this branch",
+    "v2_ram_boot_proven": false,
+    "proposed_next_artifact": "Self-contained Android boot header v2 RAM trial candidate embedding exact accepted reduced Image, native diskless early gzip initramfs and unmodified mainline oneli DTB, retaining UART7-first console. Requires separate packaging instruction.",
+    "accepted_immutable_inputs": {
+      "kernel_image_sha256": "279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8",
+      "native_early_initramfs_sha256": "875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c",
+      "oneli_dtb_sha256": "70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435",
+      "existing_split_v4_artifact_id": 12338654148
+    },
+    "other_gates": "Motorola DT board/PMIC match without downstream qcom,board-id, potential stock DTBO interference, physical /memory fixup and runtime Image alignment/reservation check",
+    "hypothetical_inactive_slot_restore": "[INFERRED] fallback only: unchanged active slot is not a guarantee of independent recovery, AVB or rollback",
+    "no_authorized_device_operation": true,
+    "no_kernel_or_dt_rebuild": true,
+    "no_repackage": true,
+    "no_qemu": true,
+    "no_third_ci_run": true,
+    "evidence_doc": "docs/oneli-reduced-native-diag-launch-decision-2026-10-21.md",
+    "next_decision": "Coordinator selects separate one-off v2 packaging+host validations followed by first authorised UART-monitored RAM-only boot trial, OR narrowly scoped 0x5390c AvbOps source/firmware protocol method before trial; do not require prior successful Linux boot."
   }
 }
