@@ -1,7 +1,23 @@
 # Motorola oneli reduced native diagnostic v4: offline launch and recovery decision
 
-Date: **2026-10-21**. Owner: **BOOT**. State: **OFFLINE PACKAGED; PINNED AVB ACQUISITION TRACE INSPECTED; SELF-CONTAINED v2 RAM-BOOT NEXT PACKAGING CANDIDATE ONLY; NO EXECUTABLE ROUTE PROVEN; NO FLASH/DEVICE EXECUTION AUTHORIZED**.
+Date: **2026-10-21**. Owner: **BOOT**. State: **SELF-CONTAINED V2 RAM-TRIAL IMAGE OFFLINE HOST-VALIDATED; HARDWARE UNTESTED; DEVICE EXECUTION AND FLASH NOT AUTHORIZED**.
 
+
+## 2026-10-21 coordinator-approved offline v2 packaging: SUCCESS (not a device approval)
+
+**Assignment:** [73b15f3](https://github.com/Drzet/razr2022_nuc/commit/73b15f3b2a097756116bea77e3d257a9ce1573b4). **One self-contained, UNSIGNED Android v2 RAM-trial boot image has now been packaged and host-validated. This supersedes older sections below stating v2 is unbuilt.** Its v4 predecessor remains separate and unchanged. Motorola compatibility and permission to execute on the handset remain **UNTESTED / NOT APPROVED**.
+
+- [AOSP-v2 packaging run **39642219570**, job **119368408037 SUCCESS**](https://github.com/Drzet/razr2022_nuc/actions/runs/39642219570), project tested `a9b5b0288341820e29772ae96f7f6805c4b2b9fe`, new script `scripts/package_oneli_native_v2_ram_diag.py`, workflow `.github/workflows/boot-native-v2-ram-diag.yml`.
+- [Download artifact **12365726243**](https://github.com/Drzet/razr2022_nuc/actions/runs/39642219570/artifacts/12365726243), ZIP **13,752,547 bytes**, SHA256 **`bac6e9660592d24ed58969538612e7b029ff74f8e403c5bc53f710de40383990`**. Independently downloaded/rehashed and verified **all 6/6** inner `SHA256SUMS` entries.
+- `oneli-reduced-radio-diag-boot-v2.RAM-TRIAL.UNSIGNED.img`: **37,572,608 bytes**, SHA256 **`5176f3d442fc7c307d80ac23c2e87659d6d5975a594a6ee8388331046f4a8e31`**. No separate `vendor_boot` is part of the v2 candidate.
+- Source payloads EXACT: reduced raw `Image` SHA256 `279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8`, image-file size **36,436,480** at offset **4,096**; native diskless early gzip SHA256 `875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c`, size **1,018,661** at offset **36,442,112**; unchanged oneli DTB SHA256 `70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435`, size **108,175** at embedded v2 DTB region offset **37,462,016**. File total rounded to page boundary **37,572,608**.
+- Actual parsed Android header: magic ANDROID!, **version 2**, size **1,660**, **4,096-byte pages**, name `oneli`, OS raw `0`; command line `console=ttyMSM0,115200n8 loglevel=8 printk.time=1 rdinit=/init`, extra command line empty. Explicit `second_size=0`, `second_addr=0`, `recovery_dtbo_size=0`, `recovery_dtbo_offset=0`; legacy SHA-1 boot image ID recomputed. Header address fields `kernel=0x8000`, `ramdisk=0x1000000`, `tags=0x100`, `dtb=0x1f00000` reuse the reviewed **structural placeholder** input JSON, **not** observed ABL physical load addresses.
+- Validation: full accepted producer SHA256SUMS manifest, exact module archive/release/config, 19-member early newc/executable resident `/init` with matching `pci-pwrctrl-pwrseq.ko`, strict independent binary v2 parser, complete section and zero-padding checks, AOSP `unpack_bootimg` extracted all 3 identical payload hashes, **byte-identical AOSP re-pack**, no extra optional sections or trailing bytes. Pinned AOSP tool commit `7209a7164f1772db43f92928012c86a00f6202ff`.
+- Physical ARM64 load requirement is **2 MiB Image-start alignment** and header `image_size=37,158,912` (versus **36,436,480** file bytes). Neither legacy-image page padding nor the placeholder v2 `kernel_addr` proves runtime placement.
+
+**Proposed future one-shot experiment:** [read-only preflight, single `fastboot boot` and verified stock-return runbook](oneli-v2-ram-trial-runbook-2026-10-21.md). Standard AOSP syntax is documented; Motorola's AVB downloaded-image callback selection, EFI mode value, v2 DTB/board matching and stock DTBO interference, FDT `/memory` fixups, physical Image relocation and UART7 output remain **specific first-trial unknowns**. A future authorized test should capture host FAIL/OKAY, bootloader/UART stage, chosen DTB, kernel/early resident markers; silence is **inconclusive** without a working UART reference. No prior Linux boot success is demanded. Stock `vendor_boot`, `boot`, `dtbo`, `vbmeta`, slots and AVB state were **not changed**. No handset command, kernel/DT compilation, QEMU rerun or trace rerun occurred.
+
+---
 
 ## 2026-10-21 component-acquisition analysis: Motorola compiled AVB routine
 
