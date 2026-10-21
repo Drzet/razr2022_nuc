@@ -1,26 +1,20 @@
-# Current assignments — 2026-10-21 native diagnostic packaging
+# Current assignments — 2026-10-21 loader composition
 
-[Review](COORDINATOR_DISPLAY_TEST_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Selects offline Boot packaging after accepted display tests and reduced-kernel Userspace validation.
+[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Offline packaging accepted; Boot now resolves the loading route.
 
-## Active assignment — Boot: package the reduced native diagnostic candidate
+## Active assignment — Boot: resolve vendor_boot and DTB delivery
 
-**Owner:** Boot only. Work in project `razr/boot`, preserving delivery **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7** and subsequent existing work. Kernel source remains **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**. This is offline image assembly, not another kernel build. Phone availability and bootloader lock state do not gate it.
+**Owner:** Boot only, project `razr/boot` from **cddb2bf99f3893865ddbd9498bb35697fa33f45d**, preserving later work. Offline investigation; no kernel build, repackaging, QEMU rerun, handset commands or lock-state checks.
 
-### Fixed inputs
+The packaging delivery is accepted: tested **31d75a7**, run **39585458990**, artifact **12338654148**. Reuse it unchanged. See [coordinator review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md).
 
-- Reduced producer run **39170486506**, artifact **12153785196**, release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**. ZIP SHA256 `550044f8b170d6dcaeeaec3f00ba71e3054655f651e28a806ab16ea5d44bccfb`.
-- Image SHA256 `279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8`; DTB `70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435`; matching modules archive `53223f163ebf1939192d85002939b4f201cff9abf7feb5160acf63c7eebbe908`.
-- Userspace delivery **b82a4f1b32a0be81bf8f47a82a32d7dcdea435f1**, run **39237882830**, evidence/early artifact **12180445735**. ZIP SHA256 `8c9ca5b0a2fd08294014f5678abafb9764da638e21822346881b0ceb8ddd56ac`; native diskless `radio-early.cpio.gz` SHA256 `875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c`. Do not substitute the QEMU-only Debian initrd.
+1. Reuse the exact Motorola ABL evidence and tooling from **research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3**. Trace the downloaded-image handler at RVAs **0x8d50/0x8db0** into image loading: identify header-version branches and the actual source of vendor_boot, DTB, DTBO and each ramdisk. Record call sites, branch predicates and data flow; strings or generic Qualcomm source alone are insufficient Motorola proof.
+2. Answer two alternatives explicitly: does the downloaded v4 path read installed vendor_boot, and does Motorola's downloaded-image path support a self-contained v2 image with embedded mainline DTB/ramdisk? The Xiaomi v2 recipe is a comparator, not proof of Motorola support. Establish DT selection/overlay and memory-fixup handling as far as this same path permits. Do not perform a broad firmware audit or invent another loader.
+3. Recommend one concrete route: supported temporary self-contained image; supported temporary delivery of both components; or a minimal partition-writing boot/vendor_boot plan with stock restoration. For each rejected route provide evidence or the exact unresolved branch. Design of the writing alternative is authorized; execution, slot/AVB changes and flashing are not. Do not require RAM-only support if the implementation does not provide it.
+4. Update the existing launch-decision document, readiness record and canonical handoff with the selected route, exact evidence and remaining trial observations. Runtime log/placement capture belongs in the proposed experiment where not knowable beforehand; do not create a circular requirement for prior successful boot. Preserve UART-first diagnostics.
+5. Reuse existing analysis artifacts. If required bytes are unavailable, identify the exact missing artifact/member and recover only the already-pinned public firmware component through existing tooling, verifying its recorded hash; no full stock archive download or proprietary bytes in git. Any focused analysis CI is cheap, finite and distinct from kernel/package CI.
 
-### Work and acceptance
-
-1. Adapt the existing boot/vendor_boot v4 packaging recipe and pinned AOSP tools from `configs/oneli-boot-packaging-v2.json`, `configs/accepted-native-console-v2-2026-10-13.json` and the canonical Boot handoff. Reuse accepted MBM analysis at **research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3**; investigate only a concrete missing packaging/launch detail.
-2. Assemble a separately versioned diagnostic candidate using the exact Image, oneli DTB and diskless early initramfs above. Produce the required boot/vendor_boot bundle according to the existing recipe. Preserve prior accepted releases. Keep the UART-first configuration; no framebuffer guesses, native DSI enablement or stock DTBO applied blindly to the mainline DTB.
-3. Run cheap packaging checks first. Round-trip unpack the output and compare component hashes/bytes; check v4 headers, sizes, ramdisk placement/compression, DTB selection, command line and resident diagnostic init behavior. Exclude `razr.radio_qemu_shutdown=1` from handset arguments. Validate the actual new ARM64 Image header/image_size and documented load-address constraints; distinguish static checks from unknown runtime placement. No repeat Image/modules compilation, Debian bootstrap or identical QEMU test.
-4. Write a short, concrete launch and recovery procedure using the existing loader evidence. Establish whether the proposed temporary-boot route actually consumes this candidate's DTB and ramdisk/vendor_boot components; support for `fastboot boot` alone does not establish that. If composition remains unresolved, name the exact missing behavior and deliver the offline artifacts anyway. Do not invent partition/slot commands or call the package flash-ready without a supported procedure. No lock-state investigation is assigned; unlocking, flashing, changing slots or AVB settings and handset execution are outside this task.
-5. Publish downloadable image artifacts and a checksum/component/tool-version manifest. Update the existing machine readiness record and one canonical Boot handoff with exact commits, artifact IDs, checks, launch-method limitations and recovery prerequisites. Report **offline packaged; hardware untested**, then stop for coordinator review.
-
-**Stop condition:** reviewable candidate bundle plus focused validation evidence and an explicit launch/recovery decision (or precisely bounded unresolved loader behavior). An unavailable artifact or concrete input mismatch must be reported; do not silently rebuild or substitute inputs. Userspace may answer a specific payload-interface question; other agents remain paused.
+**Deliverable/stop:** source/binary-backed route recommendation and a concrete first-trial/rollback plan. If a path cannot be resolved statically, identify the specific branch/value and smallest observation that decides it; do not merely repeat “unproven” for the entire boot process. Submit for coordinator review. Other agents remain paused.
 
 ## GPU/display — production-path tests accepted, pause
 
@@ -42,9 +36,9 @@ Tested **c1b8f0aafde4133553308316dcc38f9620308873**, handoff **b82a4f1b32a0be81b
 
 Rootfs artifact **12180241062**, inner tar SHA256 **d83f787677df38656c6df0a16002d98c3a93910aa717db6d7ad84b1ed80301fb**; evidence/early initramfs artifact **12180445735**, early gzip SHA256 **875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c**. Reuse these exact artifacts; no repeat guest or kernel build. Boot may consume the existing early payload in the assigned native image packaging. Native root storage/boot and physical radios remain untested.
 
-## Boot — reduced producer accepted; packaging active above
+## Boot — reduced producer and offline packaging accepted
 
-Delivery **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**, run **39170486506**, artifact **12153785196** accepted for Image/modules/MODPOST and packaging. Coordinator independently verified release checksums and all 1,179 module hashes/vermagic identities. No repeat compilation, DT/schema tests or documentation-only closure round. Reuse this producer for the active native packaging assignment above.
+Delivery **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**, run **39170486506**, artifact **12153785196** accepted for Image/modules/MODPOST and packaging. Coordinator independently verified release checksums and all 1,179 module hashes/vermagic identities. No repeat compilation, DT/schema tests or documentation-only closure round. Native bundle run 39585458990 is also accepted for offline structure; investigate only the loader route above.
 
 ## VPU — RESUME adaptation accepted, pause
 
@@ -82,7 +76,7 @@ Project **2f992d150b5c13b5f98c59e4b7fb9ee802ed918d** records the accepted d28598
 
 CI maintenance assignments are complete. Builds remain automatic with relevant path/branch filters, cheap gates, reuse of identical inputs and scoped supersession cancellation. No blanket cleanup or manual-only migration.
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Combined radio development build 7f3865e is accepted for Userspace consumption; The reduced producer is complete; native image packaging is assigned above. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Combined radio development build 7f3865e is accepted for Userspace consumption; native image packaging is complete; loader composition is assigned above. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
 
 ## Build cost discipline
 
