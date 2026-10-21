@@ -40,8 +40,8 @@ TARGETS = (0x53b50, 0x65708, 0x882c8, 0x6b320, 0x6b310, 0x55b00,
 # provider and mode source. It does not mistake a static parser for an observed
 # hardware execution, and it never exports PE sections or executable bytes.
 COMPONENT_SEEDS = (0x4f0d8, 0x5bfe8, 0x55ad0)
-MAX_TOTAL_INSTRUCTIONS = 60000
-MAX_FUNCTIONS = 75
+MAX_TOTAL_INSTRUCTIONS = 120000
+MAX_FUNCTIONS = 150
 MAX_ONE_FUNCTION_INSTRUCTIONS = 11000
 
 def _literal_target(inst):
@@ -129,9 +129,12 @@ def record_component_source_trace(instructions, loader, output):
             overflow=True
             break
         if depth<1:
-            follow=cfg["calls"]
+            # First-generation local/loader callees: exclude low-level logging,
+            # arithmetic, and EFI stubs while retaining component I/O helpers.
+            follow=[t for t in cfg["calls"] if 0x45000<=t<0x92000]
         elif depth==1:
-            follow=[t for t in cfg["calls"] if 0x45000<=t<0x8c000]
+            # Second generation only within provider's immediate code locality.
+            follow=[t for t in cfg["calls"] if 0x4c000<=t<0x53000]
         else:
             follow=[]
         for target in follow:
