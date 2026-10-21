@@ -1,20 +1,27 @@
 # Current assignments — 2026-10-21 loader composition
 
-[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Corrected static trace accepted; Boot now resolves the identified component-acquisition function.
+[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Component-acquisition findings accepted for bounded static scope; Boot now packages the v2 RAM-trial candidate.
 
-## Active assignment — Boot: finish the component-source trace
+## Active assignment — Boot: package one self-contained v2 RAM-trial candidate
 
-Corrected delivery **de1c7d47f4f046a352aa250ecc4f5eb8d06fc48e** is accepted as bounded static analysis. Coordinator independently verified artifact **12356911086** ZIP/member hashes and inspected the **0x547ac -> 0x4f0d8** call and **0x54ccc..0x54e04** returned-list copying. No executable route is yet established.
+**Owner:** Boot, project `razr/boot` from **d6b21609fd549c44614194c8b137f88072bb7178**, preserving later work. Component-source research accepted as bounded evidence; no executable route or hardware success claimed. Coordinator selects **offline v2 packaging**, not another disassembly round. Other agents remain paused.
 
-**Owner:** Boot, project `razr/boot` from that delivery, preserving later work. Use existing research and the same pinned Motorola PE. No kernel/DT build, repackaging, QEMU or handset operations.
+### Immutable payloads
 
-1. Extend the existing static analysis to **0x4f0d8**, its component-acquisition callbacks and **0x5bfe8** if needed to identify the context mode. Recover only the previously pinned bootloader member if executable bytes are unavailable; verify stock SHA **bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3** and PE SHA **5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca**. Reuse the existing helper/workflow.
-2. Capture the bounded reachable code and relevant constants/callback registrations together, rather than stopping at each arbitrary disassembly-window edge. Keep proprietary executables ephemeral. Validate actual instruction coverage and artifact contents before reporting success. Cheap script checks precede one focused analysis run; consume its output before delivery.
-3. Trace which buffers/partitions supply boot, vendor_boot and DTBO for downloaded v2 and v4. Establish the meanings and register flow of verification flags, including bit 0x4, rather than assuming generic AVB semantics. Identify the callbacks' sources, requested-name list and returned list.
-4. Assess the complete v2 route through the already identified legacy DTB parser: whether it can deliver our mainline DTB and early ramdisk, and what DT selection/overlay restrictions remain. Distinguish source-backed constraints from runtime observations. Prefer a self-contained temporary image if supported; preserve split-v4 installation as a conditional fallback [INFERRED], with no assumed slot recovery guarantee.
-5. Update the existing launch decision, readiness and handoff with a decisive route recommendation and evidence. If temporary v2 is viable, propose the exact subsequent packaging delta using existing immutable inputs; do not package in this task. If a runtime decision remains unavoidable, identify the minimal experiment and observable outcome rather than requesting a preceding successful Linux boot.
+Reuse accepted producer run **39170486506**, artifact **12153785196**, kernel source **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**:
+- Image SHA256 **279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8**.
+- Oneli DTB SHA256 **70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435**.
+- Native early gzip initramfs from Userspace run **39237882830**, artifact **12180445735**, SHA256 **875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c**. No Debian QEMU-only initrd substitution.
 
-**Stop:** component-source call chain resolved sufficiently to choose packaging/first-trial design, or a specific runtime-dependent boundary with the concrete observation needed. No broad firmware audit or repeated kernel/package CI. Other agents remain paused.
+### Deliverable
+
+1. Use the existing pinned AOSP mkbootimg/unpack tools (**7209a7164f1772db43f92928012c86a00f6202ff**) and reviewed Xiaomi v2 packaging as a format comparator. Assemble one separately named Android header-v2 candidate containing the accepted raw Image, generic early initramfs and mainline DTB in its explicit embedded DTB region. Empty recovery-DTBO/second-stage fields unless a concrete source requirement is demonstrated. Record every header field and its evidence; header address fields are not proof of final physical placement.
+2. Preserve UART-first cmdline `console=ttyMSM0,115200n8 loglevel=8 printk.time=1 rdinit=/init`; exclude `razr.radio_qemu_shutdown=1`. Keep the DTB byte-identical. Do not copy Xiaomi geometry, board IDs, stock overlays or vendor ramdisks.
+3. Cheap input/recipe checks first, then one packaging-only job. Independently unpack and compare all three payload hashes, field sizes, page boundaries and file bounds. Retain the actual ARM64 Image runtime size/alignment constraints separately from image-file padding. Verify empty optional regions and resident init. Publish candidate, checksum manifest, exact tool/source identity and results. No kernel/DT build or duplicate QEMU test.
+4. Update the existing launch-decision/readiness/handoff with a concrete proposed single RAM-only trial and stock-return procedure for later review. Explicit unknowns: downloaded-buffer vs installed-buffer selection in Motorola AvbOps callbacks, firmware mode result, board/DTBO selection, memory fixups and actual kernel placement. These are trial observations, not a demand for prior successful Linux boot. Include observable acceptance/rejection criteria and what silence cannot establish. Use only verified command syntax; do not execute handset commands.
+5. Preserve stock **vendor_boot**, boot partitions, DTBO, vbmeta and slots. This v2 candidate is designed to supply DTB with the downloaded image; success on Motorola remains **[INFERRED]/UNTESTED**. Existing split-v4 artifact **12338654148** remains unchanged as fallback evidence. No partition-writing fallback is selected.
+
+**Stop:** downloadable host-validated v2 trial candidate plus the proposed runbook, submitted for coordinator review. No device boot/flash, unlock or slot/AVB changes. Do not rerun the static trace merely to turn its historical CI status green; its salvaged artifact is already reviewed.
 
 ## GPU/display — production-path tests accepted, pause
 
