@@ -1,27 +1,24 @@
-# Current assignments — 2026-10-21 loader composition
+# Current assignments — 2026-10-21 v2 package accepted
 
-[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Component-acquisition findings accepted for bounded static scope; Boot now packages the v2 RAM-trial candidate.
+[Review](COORDINATOR_V2_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Offline v2 preparation complete; next milestone is a device experiment.
 
-## Active assignment — Boot: package one self-contained v2 RAM-trial candidate
+## Boot v2 delivery accepted — no active offline implementation
 
-**Owner:** Boot, project `razr/boot` from **d6b21609fd549c44614194c8b137f88072bb7178**, preserving later work. Component-source research accepted as bounded evidence; no executable route or hardware success claimed. Coordinator selects **offline v2 packaging**, not another disassembly round. Other agents remain paused.
+Accepted delivery **cc8caae0dd7c7f2bb030cd167e69f366aec876d4**, tested **a9b5b0288341820e29772ae96f7f6805c4b2b9fe**, run **39642219570**, artifact **12365726243**. Coordinator independently verified ZIP, six manifest entries, complete image and all three embedded payload hashes. See [review](COORDINATOR_V2_PACKAGE_REVIEW_2026-10-21.md).
 
-### Immutable payloads
+**Candidate:** `oneli-reduced-radio-diag-boot-v2.RAM-TRIAL.UNSIGNED.img`, **37,572,608 bytes**, SHA256 **5176f3d442fc7c307d80ac23c2e87659d6d5975a594a6ee8388331046f4a8e31**.
+[Download](https://github.com/Drzet/razr2022_nuc/actions/runs/39642219570/artifacts/12365726243).
+[Proposed Boot runbook](https://github.com/Drzet/razr2022_nuc/blob/cc8caae0dd7c7f2bb030cd167e69f366aec876d4/docs/oneli-v2-ram-trial-runbook-2026-10-21.md).
 
-Reuse accepted producer run **39170486506**, artifact **12153785196**, kernel source **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**:
-- Image SHA256 **279431f997fc2334d92760d47c01aec2b8e12cf47e6d149d6a078f2347c330e8**.
-- Oneli DTB SHA256 **70d5c7b08ddda1c0974ac85e95bb1328528bb533c344a0681b5e95b88cd17435**.
-- Native early gzip initramfs from Userspace run **39237882830**, artifact **12180445735**, SHA256 **875eb0a1b0f63dbecaefb5160775da01bd8a3bc445ca1eb016effe3717875b7c**. No Debian QEMU-only initrd substitution.
+### Next concrete milestone — one on-phone RAM experiment
 
-### Deliverable
+Boot is the owner for the next device session when handset access and owner authorization are supplied. Use the accepted image and existing runbook; no rebuild, repackaging, QEMU or further disassembly is assigned. Establish an independent stock-return procedure and UART7/alternative observation route, then propose one temporary `fastboot boot` attempt using the exact image. This queue entry does not execute or authorize handset operations by itself.
 
-1. Use the existing pinned AOSP mkbootimg/unpack tools (**7209a7164f1772db43f92928012c86a00f6202ff**) and reviewed Xiaomi v2 packaging as a format comparator. Assemble one separately named Android header-v2 candidate containing the accepted raw Image, generic early initramfs and mainline DTB in its explicit embedded DTB region. Empty recovery-DTBO/second-stage fields unless a concrete source requirement is demonstrated. Record every header field and its evidence; header address fields are not proof of final physical placement.
-2. Preserve UART-first cmdline `console=ttyMSM0,115200n8 loglevel=8 printk.time=1 rdinit=/init`; exclude `razr.radio_qemu_shutdown=1`. Keep the DTB byte-identical. Do not copy Xiaomi geometry, board IDs, stock overlays or vendor ramdisks.
-3. Cheap input/recipe checks first, then one packaging-only job. Independently unpack and compare all three payload hashes, field sizes, page boundaries and file bounds. Retain the actual ARM64 Image runtime size/alignment constraints separately from image-file padding. Verify empty optional regions and resident init. Publish candidate, checksum manifest, exact tool/source identity and results. No kernel/DT build or duplicate QEMU test.
-4. Update the existing launch-decision/readiness/handoff with a concrete proposed single RAM-only trial and stock-return procedure for later review. Explicit unknowns: downloaded-buffer vs installed-buffer selection in Motorola AvbOps callbacks, firmware mode result, board/DTBO selection, memory fixups and actual kernel placement. These are trial observations, not a demand for prior successful Linux boot. Include observable acceptance/rejection criteria and what silence cannot establish. Use only verified command syntax; do not execute handset commands.
-5. Preserve stock **vendor_boot**, boot partitions, DTBO, vbmeta and slots. This v2 candidate is designed to supply DTB with the downloaded image; success on Motorola remains **[INFERRED]/UNTESTED**. Existing split-v4 artifact **12338654148** remains unchanged as fallback evidence. No partition-writing fallback is selected.
+The candidate embeds kernel, ramdisk and DTB; **no vendor_boot write or replacement is planned**. The runbook's phrase “does not consume stock vendor_boot” is a design intention, not a proven statement about Motorola's unresolved callbacks. Record actual loader behavior during the experiment. Stock partitions, slot and AVB configuration must not be changed by the proposed procedure. Do not reopen offline lock-state investigation.
 
-**Stop:** downloadable host-validated v2 trial candidate plus the proposed runbook, submitted for coordinator review. No device boot/flash, unlock or slot/AVB changes. Do not rerun the static trace merely to turn its historical CI status green; its salvaged artifact is already reviewed.
+Expected evidence: exact host response, available UART/loader/kernel messages, early-init markers or precise rejection, and successful return to stock. Internal display is not enabled. Silence without working telemetry is inconclusive. Actual runtime placement and DT selection are observations to collect where exposed, not prerequisites requiring a previous successful Linux boot.
+
+**Agents:** Boot paused pending the device session; all other agents remain paused. No documentation-only closure round is assigned.
 
 ## GPU/display — production-path tests accepted, pause
 
@@ -45,7 +42,7 @@ Rootfs artifact **12180241062**, inner tar SHA256 **d83f787677df38656c6df0a16002
 
 ## Boot — reduced producer and offline packaging accepted
 
-Delivery **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**, run **39170486506**, artifact **12153785196** accepted for Image/modules/MODPOST and packaging. Coordinator independently verified release checksums and all 1,179 module hashes/vermagic identities. No repeat compilation, DT/schema tests or documentation-only closure round. Native bundle run 39585458990 is also accepted for offline structure; investigate only the loader route above.
+Delivery **b34ff6d7aafd920187155d5d8d7a8c6a7e3e4bc7**, run **39170486506**, artifact **12153785196** accepted for Image/modules/MODPOST and packaging. Coordinator independently verified release checksums and all 1,179 module hashes/vermagic identities. No repeat compilation, DT/schema tests or documentation-only closure round. Native bundle run 39585458990 is also accepted for offline structure; v2 package is also accepted; pause as above.
 
 ## VPU — RESUME adaptation accepted, pause
 
@@ -83,7 +80,7 @@ Project **2f992d150b5c13b5f98c59e4b7fb9ee802ed918d** records the accepted d28598
 
 CI maintenance assignments are complete. Builds remain automatic with relevant path/branch filters, cheap gates, reuse of identical inputs and scoped supersession cancellation. No blanket cleanup or manual-only migration.
 
-Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Combined radio development build 7f3865e is accepted for Userspace consumption; native image packaging is complete; loader composition is assigned above. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
+Accepted integration **2b5acf108ae37040ac1e652e029bb37f5609e886** and diagnostic-v2 artifacts unchanged. Combined radio development build 7f3865e is accepted for Userspace consumption; native image packaging is complete; v2 packaging is accepted; device experiment is queued above. DP AUX is now eligible for a separately selected integration; neither working DP nor VPU is a prerequisite for minimal native boot. No handset operation or flash assigned.
 
 ## Build cost discipline
 
