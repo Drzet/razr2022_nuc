@@ -48,6 +48,22 @@ jobs:
           python3 scripts/analyze-oneli-abl-fastboot-composition.py \
             --inspector pinned-research/scripts/inspect-oneli-mbm-public-reference.py \
             --output evidence
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out=Path("evidence")
+          graph=json.loads((out/"abl-component-source-callgraph.json").read_text())
+          for seed in ("0x4f0d8", "0x5bfe8", "0x55ad0"):
+              info=graph["functions"][seed]
+              assert info["covered_instructions"]>10, (seed,info)
+              assert not info["external_unresolved_edges"], (seed,info["external_unresolved_edges"])
+          assert graph["reported_instruction_instances"]>=80
+          assert graph["reported_function_instances"]>=3
+          assert (out/"abl-component-source-reachable-disassembly.txt").stat().st_size>3000
+          print("COMPONENT_SOURCE_COVERAGE_CHECK_PASS",
+                graph["reported_function_instances"],
+                graph["reported_instruction_instances"])
+          PY
           {
             echo "research_ref=5a8d6ab606c825dbe776db43955c44214f7c64e3"
             echo "boot_project_ref=$GITHUB_SHA"
