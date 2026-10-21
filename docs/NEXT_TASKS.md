@@ -1,20 +1,19 @@
 # Current assignments — 2026-10-21 loader composition
 
-[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Offline packaging accepted; Boot now resolves the loading route.
+[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Offline packaging accepted; loader-route review requests consumption of the already successful trace.
 
-## Active assignment — Boot: resolve vendor_boot and DTB delivery
+## Active assignment — Boot: consume the completed loader trace
 
-**Owner:** Boot only, project `razr/boot` from **cddb2bf99f3893865ddbd9498bb35697fa33f45d**, preserving later work. Offline investigation; no kernel build, repackaging, QEMU rerun, handset commands or lock-state checks.
+**Changes requested on delivery 575f198b2b45d441662d9001debb7a25eb479a77.** Work on `razr/boot`, preserving existing work. No rerun, firmware retrieval, build, repackaging or handset operation.
 
-The packaging delivery is accepted: tested **31d75a7**, run **39585458990**, artifact **12338654148**. Reuse it unchanged. See [coordinator review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md).
+The handoff says the new trace was not executed and the decisive **0x53b50** window is unavailable. Coordinator independently found successful [run **39625529459**](https://github.com/Drzet/razr2022_nuc/actions/runs/39625529459), job **119309734687**, tested **9f2ed924965e88cb3d590a77e09b4fccbe4649ea**. Logs verify the pinned Motorola component and PE hashes and include **0x53b00..0x56100**, covering that function.
 
-1. Reuse the exact Motorola ABL evidence and tooling from **research/oneli-mbm-readonly-20261015@5a8d6ab606c825dbe776db43955c44214f7c64e3**. Trace the downloaded-image handler at RVAs **0x8d50/0x8db0** into image loading: identify header-version branches and the actual source of vendor_boot, DTB, DTBO and each ramdisk. Record call sites, branch predicates and data flow; strings or generic Qualcomm source alone are insufficient Motorola proof.
-2. Answer two alternatives explicitly: does the downloaded v4 path read installed vendor_boot, and does Motorola's downloaded-image path support a self-contained v2 image with embedded mainline DTB/ramdisk? The Xiaomi v2 recipe is a comparator, not proof of Motorola support. Establish DT selection/overlay and memory-fixup handling as far as this same path permits. Do not perform a broad firmware audit or invent another loader.
-3. Recommend one concrete route: supported temporary self-contained image; supported temporary delivery of both components; or a minimal partition-writing boot/vendor_boot plan with stock restoration. For each rejected route provide evidence or the exact unresolved branch. Design of the writing alternative is authorized; execution, slot/AVB changes and flashing are not. Do not require RAM-only support if the implementation does not provide it.
-4. Update the existing launch-decision document, readiness record and canonical handoff with the selected route, exact evidence and remaining trial observations. Runtime log/placement capture belongs in the proposed experiment where not knowable beforehand; do not create a circular requirement for prior successful boot. Preserve UART-first diagnostics.
-5. Reuse existing analysis artifacts. If required bytes are unavailable, identify the exact missing artifact/member and recover only the already-pinned public firmware component through existing tooling, verifying its recorded hash; no full stock archive download or proprietary bytes in git. Any focused analysis CI is cheap, finite and distinct from kernel/package CI.
+1. Download and verify existing artifact **12356911086**, `oneli-abl-fastboot-composition-39625529459`, ZIP SHA256 **5c5de8d8efbe766bbf8a37caada4d5db0a5ef0768c1647c6d2d51e66763d9ca9**, and its member checksums. Consume its disassembly and call index; do not rerun the successful workflow.
+2. Trace **0x53b50** and the recorded component-table population to determine vendor_boot/DTBO sources for downloaded v4 versus legacy embedded-DTB paths. Give instruction/data-flow evidence, not merely parser availability. If an essential callee is outside the artifact, identify its exact RVA and the unresolved value before requesting any further acquisition.
+3. Revise the existing launch decision, machine readiness and canonical handoff using this result. The inactive-slot boot+vendor_boot proposal remains a **conditional fallback design**, not the selected executable route until available temporary-boot evidence is assessed. “No repackaging” constrains this assignment's operations; it is not a technical reason to reject a supported v2 design. Recommend any necessary later packaging explicitly rather than doing it.
+4. Record actual successful run/artifact identity and remove stale “not executed / missing window” claims. Mark unverified slot isolation/recovery assumptions [INFERRED]; an untouched slot alone does not prove independent recoverability. Keep runtime-only observations distinct from offline analysis.
 
-**Deliverable/stop:** source/binary-backed route recommendation and a concrete first-trial/rollback plan. If a path cannot be resolved statically, identify the specific branch/value and smallest observation that decides it; do not merely repeat “unproven” for the entire boot process. Submit for coordinator review. Other agents remain paused.
+**Stop:** return a corrected route recommendation grounded in the completed artifact, or the precise remaining data-flow gap. No phone writes or slot/AVB changes. Other agents remain paused.
 
 ## GPU/display — production-path tests accepted, pause
 
