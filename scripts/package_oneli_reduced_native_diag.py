@@ -56,7 +56,7 @@ def check_release_manifest(directory):
     require(len(rows) == 10, "producer release manifest does not have 10 entries")
     seen = set()
     for row in rows:
-        match = re.fullmatch(r"([a-f0-9]{64})  \\./([A-Za-z0-9_.-]+)", row)
+        match = re.fullmatch(r"([a-f0-9]{64})  \./([A-Za-z0-9_.-]+)", row)
         require(match is not None, "invalid producer manifest line")
         name = match.group(2)
         require(name not in seen, "duplicate producer manifest name")
@@ -71,7 +71,7 @@ def check_release_manifest(directory):
 def verify_early(early):
     raw = read(early / "radio-early.cpio", EARLY_CPIO_SHA)
     gz = read(early / "radio-early.cpio.gz", EARLY_GZIP_SHA)
-    require(gz[:3] == b"\\x1f\\x8b\\x08" and gz[3] == 0 and gz[4:8] == bytes(4),
+    require(gz[:3] == b"\x1f\x8b\x08" and gz[3] == 0 and gz[4:8] == bytes(4),
             "early ramdisk is not deterministic gzip")
     require(gzip.decompress(gz) == raw, "compressed early initramfs not byte-identical")
     members = base.newc_parse(raw)
@@ -85,7 +85,7 @@ def verify_early(early):
             b"razr.radio_qemu_shutdown=1", b"linux,dummy-virt")
     for token in need:
         require(token in init, "missing tested early init behavior: " + repr(token))
-    require(init.endswith(b'while :; do "$BB" sleep 60; done\\n'),
+    require(init.endswith(b'while :; do "$BB" sleep 60; done\n'),
             "resident hold behavior differs from tested payload")
     require(not any(b"razr.radio_qemu_shutdown=1" in path.encode()
                     for path in members), "unexpected initramfs member")
@@ -106,7 +106,7 @@ def verify_early(early):
 
 
 def inspect_image(kernel):
-    require(len(kernel) == 36436480 and kernel[56:60] == b"ARM\\x64",
+    require(len(kernel) == 36436480 and kernel[56:60] == b"ARM\x64",
             "invalid ARM64 Image magic or file length")
     text_offset, image_size, flags = struct.unpack_from("<QQQ", kernel, 8)
     require(text_offset == 0 and image_size == 37158912 and flags == 0xa,
@@ -169,7 +169,7 @@ def main():
     command = CMDLINE.encode("ascii")
     require(len(command) < 1536 and b"razr.radio_qemu_shutdown=1" not in command,
             "forbidden handset shutdown parameter")
-    boot[44:1580] = command.ljust(1536, b"\\0")
+    boot[44:1580] = command.ljust(1536, b"\0")
     boot = bytes(boot)
 
     parsed_boot, parsed_vendor = layout.inspect_boot(boot), layout.inspect_vendor(vendor_boot)
@@ -239,7 +239,7 @@ def main():
         "root_device":None,
         "accepted_prior_releases_unchanged":True}
     (args.output / "offline-validation.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\\n")
+        json.dumps(report, indent=2, sort_keys=True) + "\n")
     print("ONELI_NATIVE_DIAG_OFFLINE_PACKAGING_PASS " +
           json.dumps({"boot_sha256":sha(boot),
                       "vendor_boot_sha256":sha(vendor_boot),
