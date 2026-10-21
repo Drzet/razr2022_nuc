@@ -1,18 +1,24 @@
-# Current assignments — 2026-10-19 Userspace acceptance and earlycon tests
+# Current assignments — 2026-10-21 display test acceptance
 
-[Review](COORDINATOR_REDUCED_USERSPACE_REVIEW_2026-10-19.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes reduced-build Userspace compatibility testing.
+[Review](COORDINATOR_DISPLAY_TEST_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Supersedes the earlycon parser/rendering test assignment.
 
-## Active: GPU/display — close earlycon parser/rendering test gap
+## No active implementation assignment
 
-Sole active implementation stream; software-only, no display activation. Continue kernel `razr/display-earlycon@5d9e2e7b5461ad421ad74fe2b0b1f79ca05f1fdf` and project `razr/display-earlycon@401d2d8006707a4f7c2ebb11d03ac2b465916d3f` after checking current heads. This selects the specific untested scope recorded in the prior review, not a new native panel/GPU driver.
+The selected offline deliveries are complete. Do not generate another build/test round merely because an agent is idle. The reduced kernel/rootfs remains accepted for software/QEMU scope; native boot has not been demonstrated.
 
-1. Reuse the existing earlycon harness and pinned kernel libfdt/OF helpers. Exercise actual production DT scanning against real flattened DT fixtures, not mocked enumeration returning preselected nodes. Cover missing/disabled/duplicate nodes, malformed or truncated properties, supported cell layouts and address translation; record any OF-helper substitutions and remaining coverage limits honestly.
-2. Exercise actual production console write/clear/glyph routines against a guarded host-memory framebuffer. Check exact writes and bounds for line wrapping, newline, screen wrap, padded stride, smallest usable geometry, unsupported characters and mapping failures. Mock physical mappings/console registration only as necessary; do not replace the logic under test with another implementation.
-3. Test the early-to-permanent mapping transition and failure paths with controlled mapping hooks where practical. No claim of real WC mapping, firmware scanout or live display continuity. Fix only concrete defects exposed by these tests; preserve default-disabled config and UART-first baseline.
-4. Include previously queued workflow/ref-scoped cancellation and resolved config archival under a non-hidden filename. Cheap fixture/parser/rendering checks first. Reuse prior ARM64 object result if production code is unchanged; if production code changes, perform one targeted object compile, not full Image/modules builds. Do not rerun unrelated suites.
-5. Record exact commits, meaningful failure cases, mocks/limits and artifacts in the existing canonical display handoff, then stop for review.
+## GPU/display — production-path tests accepted, pause
 
-No shared DTS, guessed framebuffer geometry/reservation, board enablement, native panel initialization, Adreno work or merge into reduced-radio kernel. Physical handoff requirements remain unresolved.
+Kernel **0739fea79154fd43658c86533e2f254ebb8a52f2**, project **cd98f2a8f61a3d2b465548f4c552f9ac159326db**, run **39262243264**, job **118092625502** accepted for production scanner/rendering/remap host-fixture scope and targeted ARM64 object compilation. Production functional logic is unchanged; the only production-file delta selects a test header under a host-only macro.
+
+Real libfdt blobs now exercise the production scanner; actual rendering/remap code executes with host hooks. Full kernel OF address translation and hardware WC mappings remain mocked. The host suite uses distro libfdt 1.7.0, not the pinned kernel copy. Do not describe this as full kernel parser/address-translation or physical display validation.
+
+Default remains disabled; no oneli framebuffer node, boot arguments, DSI panel or merge is assigned. No repeat build or standalone documentation closure.
+
+## Next activation prerequisites — device evidence
+
+When oneli is available, select one bounded stock-side observation task for Boot with GPU/display supplying the exact framebuffer questions. Reuse captured stock evidence; collect only missing installed-panel identity, framebuffer dimensions/stride/format/base/ownership and visible screen behavior through the intended boot transition. A reservation alone is insufficient. UART7 physical pad/connector and logic-level confirmation remains an independent early-output route.
+
+This is a queued prerequisite, not authorization for flashing, guessed framebuffer writes, new source enablement or commands against an unavailable device. No native DSI panel is selected: main and cover remain unimplemented. If native panel work is selected later, compare actual vendor panel descriptions and bring up one panel first. Do not substitute another device's init tables based only on controller family.
 
 ## Userspace — reduced compatibility accepted, pause
 
@@ -34,10 +40,6 @@ Keep SM8475 disabled/unintegrated, VPU2, 480-fps startup and existing resource/o
 
 Source 840d53b / handoff eff19bc / run 39061160706 remain accepted. Reuse that rootfs as the input above. The new task tests compatibility with the changed kernel/configuration, not another regulatory packaging fix.
 
-## GPU/display prior acceptance
-
-Kernel 5d9e2e7 / project 401d2d8 remain accepted for isolated predicate/source/object scope. The active task above extends tests to production parser/rendering execution. No board activation or integration is authorized.
-
 ## Boot documentation closure — accepted
 
 Project **53c1b7a58099c9ad0fb111edf9f62cad8cc9797a** records final kernel 7f3865e/run 39050113058 in the handoff and machine readiness. No repeat closure or build. The new Boot task above supersedes its historical paused/Userspace-active wording.
@@ -56,7 +58,7 @@ Project **2f992d150b5c13b5f98c59e4b7fb9ee802ed918d** records the accepted d28598
 - **Boot observability:** accepted. UART-first conditional recommendation and exact metadata retained; physical access/live RAM/retention await device observations. No repeated FDT extraction, packing or speculative framebuffer/ramoops activation.
 - **USB:** 3c949fe project; 57d4d32 PS5169 and 305bc34 USB CI maintenance accepted. PTN remains 1e5268277f6d4c25cde2f3e2b3f00439107e087a. Paused.
 - **VPU:** RESUME accepted and paused; recovery/resource work remains unassigned.
-- **GPU/display:** active only for the parser/rendering validation above; Adreno remains paused.
+- **GPU/display:** host production-path tests accepted; paused. Adreno remains paused.
 - **Userspace:** reduced-build QEMU compatibility accepted; paused.
 - **Battery/charging:** no implementation assigned.
 

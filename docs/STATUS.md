@@ -1,8 +1,8 @@
 # Project status
 
-Updated 2026-10-19 after [reduced Userspace review](COORDINATOR_REDUCED_USERSPACE_REVIEW_2026-10-19.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
+Updated 2026-10-21 after [display test review](COORDINATOR_DISPLAY_TEST_REVIEW_2026-10-21.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. The reduced Image/modules and Debian rootfs pass both early-loader and combined runtime QEMU tests. GPU/display now closes the isolated earlycon parser/rendering test gap. Linux has not booted on the phone.**
+**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. The reduced Image/modules and Debian rootfs pass both early-loader and combined runtime QEMU tests. Isolated earlycon production-path host tests and ARM64 object compilation are accepted; all agents are paused. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
@@ -13,7 +13,7 @@ Updated 2026-10-19 after [reduced Userspace review](COORDINATOR_REDUCED_USERSPAC
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
 | VPU | Kernel daf47c5 / project c0a2ae9 accepted; packet tests and ARM64 build PASS | Paused; disabled/unintegrated |
 | Userspace | Tested c1b8f0a; delivery b82a4f1; run 39237882830 both QEMU guests PASS | Accepted and paused |
-| GPU/display | Kernel 5d9e2e7 isolated earlycon source/predicate/object scope accepted | Active parser/rendering tests; default disabled, no board activation |
+| GPU/display | Kernel 0739fea / project cd98f2a; production scanner/render/remap host tests and ARM64 object PASS | Paused; default disabled, no board activation |
 
 Accepted legacy diagnostic integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. New radio development build **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, artifact **12109240146**, is accepted for Userspace consumption; it does not replace the packaged diagnostic-v2 release.
 
