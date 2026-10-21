@@ -35,6 +35,169 @@ TARGETS = (0x53b50, 0x65708, 0x882c8, 0x6b320, 0x6b310, 0x55b00,
            0x55b28, 0x55b30, 0x55b40, 0x88294, 0x88f50,
            0x66c00, 0x673d0, 0x68c78)
 
+
+# The following focused follow-up walks actual branch edges from the component
+# provider and mode source. It does not mistake a static parser for an observed
+# hardware execution, and it never exports PE sections or executable bytes.
+COMPONENT_SEEDS = (0x4f0d8, 0x5bfe8, 0x55ad0)
+MAX_TOTAL_INSTRUCTIONS = 60000
+MAX_FUNCTIONS = 75
+MAX_ONE_FUNCTION_INSTRUCTIONS = 11000
+
+def _literal_target(inst):
+    import re
+    if inst.mnemonic in ("b", "bl") or inst.mnemonic.startswith("b.") or inst.mnemonic in ("cbz", "cbnz", "tbz", "tbnz"):
+        last = inst.op_str.rsplit(",", 1)[-1].strip()
+        if re.fullmatch(r"#(?:0x[0-9a-f]+|\d+)", last):
+            return int(last[1:], 0)
+    return None
+
+def _discover_cfg(seed, instruction_map, hard_limit=MAX_ONE_FUNCTION_INSTRUCTIONS):
+    """One function's forward reachable instructions, stopping at returns.
+
+    Calls are recorded but not followed within the current function. A tail
+    branch leaving the local 64 KiB envelope is separately exposed so a
+    displaced compiler thunk cannot silently disappear.
+    """
+    todo = [seed]
+    seen = set()
+    calls, tail_external, indirect = set(), set(), set()
+    while todo:
+        at = todo.pop()
+        if at in seen:
+            continue
+        if len(seen) >= hard_limit:
+            raise RuntimeError(f"CFG budget exceeded for entry {seed:#x}; inspect before publication")
+        i = instruction_map.get(at)
+        if i is None:
+            tail_external.add((at, "missing-executable-instruction"))
+            continue
+        if abs(at-seed) >= 0x10000:
+            tail_external.add((at, "outside-64KiB-seed-envelope"))
+            continue
+        seen.add(at)
+        name = i.mnemonic
+        target = _literal_target(i)
+        if name == "bl":
+            if target is not None:
+                calls.add(target)
+            todo.append(at+4)
+        elif name == "blr":
+            indirect.add(at)
+            todo.append(at+4)
+        elif name in ("ret", "eret", "br", "drps"):
+            if name == "br":
+                indirect.add(at)
+            continue
+        elif name == "b":
+            if target is None:
+                indirect.add(at)
+            else:
+                todo.append(target)
+        elif name.startswith("b.") or name in ("cbz", "cbnz", "tbz", "tbnz"):
+            if target is not None:
+                todo.append(target)
+            todo.append(at+4)
+        else:
+            todo.append(at+4)
+    return {"addresses": sorted(seen), "calls": sorted(calls),
+            "indirect": sorted(indirect), "external": sorted(tail_external)}
+
+def record_component_source_trace(instructions, loader, output):
+    by_pc={i.address:i for i in instructions}
+    for seed in COMPONENT_SEEDS:
+        assert seed in by_pc, f"Missing focused entry RVA {seed:#x}"
+    # Recurse into every direct callee of 0x4f0d8 and 0x5bfe8. A second
+    # generation is included for acquisition-related ABL routines; exclude
+    # generic low-address UEFI/stub helpers to control scope and expense.
+    work=[(s,0,s) for s in COMPONENT_SEEDS]
+    visited={}
+    overflow=False
+    while work:
+        entry,depth,root=work.pop(0)
+        if entry in visited:
+            continue
+        if len(visited)>=MAX_FUNCTIONS:
+            overflow=True
+            break
+        if entry not in by_pc:
+            visited[entry]={"missing": True, "depth":depth, "root":hex(root)}
+            continue
+        cfg=_discover_cfg(entry,by_pc)
+        visited[entry]=dict(cfg,depth=depth,root=hex(root))
+        if sum(len(q.get("addresses",())) for q in visited.values())>MAX_TOTAL_INSTRUCTIONS:
+            overflow=True
+            break
+        if depth<1:
+            follow=cfg["calls"]
+        elif depth==1:
+            follow=[t for t in cfg["calls"] if 0x45000<=t<0x8c000]
+        else:
+            follow=[]
+        for target in follow:
+            if target in by_pc and target not in visited:
+                work.append((target,depth+1,root))
+    if overflow:
+        raise RuntimeError(f"COMPONENT_TRACE_BUDGET_EXCEEDED functions={len(visited)}; adjust bounded call graph explicitly, do not claim success")
+    total=sum(len(q.get("addresses",())) for q in visited.values())
+    if total<80:
+        raise RuntimeError("Component-source trace underpopulated: no reliable instruction coverage")
+    output=Path(output)
+    lines=["# Motorola oneli exact component-source static AArch64 trace",
+           "All addresses are PE RVAs, not RAM addresses; no firmware bytes retained",
+           f"Pinned LinuxLoader SHA256 {hashlib.sha256(loader).hexdigest()}",
+           f"Roots {', '.join(hex(x) for x in COMPONENT_SEEDS)}",
+           f"Functions/roots walked {len(visited)}; total instruction instances {total}",
+           "Conditional branches followed both ways; BL recorded separately; indirect BLR/BR marked",
+           ""]
+    report={}
+    for entry,r in sorted(visited.items()):
+        label=f"0x{entry:x}"
+        if r.get("missing"):
+            report[label]=r
+            lines.append(f"## {label} missing target\n")
+            continue
+        addrs=r["addresses"]
+        report[label]={
+            "entry_rva":label,"seed_root":r["root"],"depth":r["depth"],
+            "covered_instructions":len(addrs),
+            "covered_start_rva":hex(addrs[0]),
+            "covered_end_exclusive_rva":hex(addrs[-1]+4),
+            "direct_callees":[hex(t) for t in r["calls"]],
+            "indirect_branch_or_call_sites":[hex(t) for t in r["indirect"]],
+            "external_unresolved_edges":[{"rva":hex(t),"reason":reason} for t,reason in r["external"]]
+        }
+        lines+= [f"## FUNCTION {label} root={r['root']} depth={r['depth']}"
+                 f" covered={len(addrs)} start={hex(addrs[0])} end={hex(addrs[-1]+4)}",
+                 f"CALLS {', '.join(hex(x) for x in r['calls'])}",
+                 f"INDIRECT {', '.join(hex(x) for x in r['indirect'])}",
+                 f"EXTERNAL {', '.join(hex(x[0])+':'+x[1] for x in r['external'])}", ""]
+        lines += [f"{pc:08x}  {by_pc[pc].mnemonic:<10} {by_pc[pc].op_str}"
+                  for pc in addrs]
+        lines.append("")
+    (output/"abl-component-source-reachable-disassembly.txt").write_text("\n".join(lines)+"\n")
+    (output/"abl-component-source-callgraph.json").write_text(json.dumps({
+        "firmware_pe_sha256":hashlib.sha256(loader).hexdigest(),
+        "seeds":[hex(x) for x in COMPONENT_SEEDS],
+        "bounded_branch_follow":True,
+        "reported_function_instances":len(visited),
+        "reported_instruction_instances":total,
+        "functions":report,
+        "source_bytes_retained":False,
+        "hardware_execution":False,
+        "static_semantics_not_runtime_validation":True
+    },indent=2)+"\n")
+    for seed in COMPONENT_SEEDS:
+        item=report[f"0x{seed:x}"]
+        assert item["covered_instructions"]>10, f"Incomplete seed {seed:x}"
+    print(f"COMPONENT_SOURCE_TRACE_PASS functions={len(visited)} instructions={total} "
+          f"roots={','.join(hex(s) for s in COMPONENT_SEEDS)}")
+    for seed in COMPONENT_SEEDS:
+        x=report[f"0x{seed:x}"]
+        print(f"COVERAGE root={seed:#x} {x['covered_start_rva']}..{x['covered_end_exclusive_rva']} "
+              f"count={x['covered_instructions']} calls={len(x['direct_callees'])} "
+              f"indirect={len(x['indirect_branch_or_call_sites'])}")
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--inspector", type=Path, required=True)
@@ -132,6 +295,7 @@ def main():
     print(f"bootloader.img={source_meta['sha256']} LinuxLoader={report['abl_linuxloader_pe_sha256']}")
     for name, (lo, hi) in WINDOWS.items():
         print(f"{name}: 0x{lo:x}..0x{hi:x}")
+    record_component_source_trace(instructions, loader, args.output)
     print("No executable firmware bytes exported.")
 
 if __name__ == "__main__":
