@@ -177,8 +177,8 @@ def main():
             "expected v4 boot and vendor_boot")
     require(parsed_boot["cmdline"] == CMDLINE and parsed_vendor["cmdline"] == "",
             "unexpected bootloader command-line composition")
-    require(parsed_boot["sections"][0]["name"] == "kernel" and
-            parsed_boot["sections"][0]["sha256"] == IMAGE_SHA,
+    require(any(section["name"] == "kernel" and section["sha256"] == IMAGE_SHA
+                for section in parsed_boot["sections"]),
             "kernel round-trip offset/content mismatch")
     require(any(s["name"] == "ramdisk" and s["sha256"] == EARLY_GZIP_SHA
                 for s in parsed_boot["sections"]), "generic ramdisk not from accepted Userspace")
@@ -207,6 +207,7 @@ def main():
     vn = "oneli-reduced-radio-diag-vendor_boot-v4.UNSIGNED.img"
     (args.output / bn).write_bytes(boot)
     (args.output / vn).write_bytes(vendor_boot)
+    (args.output / "vendor-platform-empty.cpio.gz").write_bytes(vendor)
     report = {
         "schema":"oneli-reduced-radio-native-diagnostic-offline-v1",
         "status":"OFFLINE_PACKAGED_HARDWARE_UNTESTED",

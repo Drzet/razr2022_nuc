@@ -81,7 +81,7 @@ jobs:
             --tags_offset 0x100 --dtb_offset 0x1f00000 --board oneli \
             --vendor_cmdline '' --dtb inputs/producer/release/sm8475-motorola-oneli.dtb \
             --ramdisk_type platform --ramdisk_name native-diag \
-            --vendor_ramdisk_fragment <(python3 -c 'import sys;sys.path.insert(0,"scripts");import build_oneli_native_host_candidate as b;sys.stdout.buffer.write(b.newc_empty())' | gzip -n -9) \
+            --vendor_ramdisk_fragment out/vendor-platform-empty.cpio.gz \
             --vendor_boot independent/aosp-vendor_boot.img
           python3 - <<'PY'
           import hashlib,json,sys
