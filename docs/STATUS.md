@@ -1,13 +1,13 @@
 # Project status
 
-Updated 2026-10-21 after [display test review](COORDINATOR_DISPLAY_TEST_REVIEW_2026-10-21.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
+Updated 2026-10-21 with offline Boot packaging assigned after [display test review](COORDINATOR_DISPLAY_TEST_REVIEW_2026-10-21.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
-**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. The reduced Image/modules and Debian rootfs pass both early-loader and combined runtime QEMU tests. Isolated earlycon production-path host tests and ARM64 object compilation are accepted; all agents are paused. Linux has not booted on the phone.**
+**Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. The reduced Image/modules and Debian rootfs pass both early-loader and combined runtime QEMU tests. Isolated earlycon production-path host tests and ARM64 object compilation are accepted; Boot is assigned to package a native diagnostic candidate from these accepted artifacts; other agents remain paused. Linux has not booted on the phone.**
 
 | Owner | Reviewed state | Next action |
 | --- | --- | --- |
 | DP | Kernel d28598f; run 38987006218 host/schema and real ARM64 module/modpost PASS | Closure 2f992d1 accepted; paused |
-| Boot | Kernel 7f3865e; run 39050113058 full combined build PASS | Reduced build b34ff6d / run 39170486506 accepted; paused |
+| Boot | Kernel 7f3865e; run 39050113058 full combined build PASS | Reduced build b34ff6d / run 39170486506 accepted; assemble and validate native diagnostic images offline |
 | Wireless | Kernel 5d191e2 accepted; final successful result now recorded in handoff | Paused |
 | Power | b8e85bb wireless map/L7E review accepted | Paused; answer concrete integration dependencies |
 | USB | Project 3c949fe; CI 57d4d32 / 305bc34 accepted | Paused |
@@ -31,3 +31,5 @@ Accepted legacy diagnostic integration **2b5acf108ae37040ac1e652e029bb37f5609e88
 [Canonical schematic evidence](oneli_schematic_evidence_2026-10-15.md) remains authoritative. No phone Linux execution, wireless association, BT pairing or DP display result is claimed.
 
 Reduced development artifact **12153785196**, release **7.3.0-rc6-oneli-reduced1-g7f3865ee17c3**, is accepted for build/package scope. Image 36,436,480 bytes; 1,179 matching modules. It reuses kernel source 7f3865e and the accepted DTB. QEMU compatibility for this variant now passes with rootfs artifact 12180241062 and early/evidence artifact 12180445735; neither older release is replaced.
+
+Boot's next deliverable is a separately versioned boot/vendor_boot candidate using the reduced Image/DTB and accepted diskless early initramfs, with round-trip checks, checksums and a supported launch/recovery procedure or exact unresolved loader behavior. Reuse the existing v4 packaging and MBM research; no kernel rebuild or lock-state investigation is assigned. Offline preparation does not depend on handset access or unlock. The new bundle is not yet delivered or approved for handset execution; temporary boot must account for which DTB/vendor_boot components the loader actually uses.
