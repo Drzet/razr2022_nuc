@@ -1,19 +1,20 @@
 # Current assignments — 2026-10-21 loader composition
 
-[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Offline packaging accepted; loader-route review requests consumption of the already successful trace.
+[Review](COORDINATOR_BOOT_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Corrected static trace accepted; Boot now resolves the identified component-acquisition function.
 
-## Active assignment — Boot: consume the completed loader trace
+## Active assignment — Boot: finish the component-source trace
 
-**Changes requested on delivery 575f198b2b45d441662d9001debb7a25eb479a77.** Work on `razr/boot`, preserving existing work. No rerun, firmware retrieval, build, repackaging or handset operation.
+Corrected delivery **de1c7d47f4f046a352aa250ecc4f5eb8d06fc48e** is accepted as bounded static analysis. Coordinator independently verified artifact **12356911086** ZIP/member hashes and inspected the **0x547ac -> 0x4f0d8** call and **0x54ccc..0x54e04** returned-list copying. No executable route is yet established.
 
-The handoff says the new trace was not executed and the decisive **0x53b50** window is unavailable. Coordinator independently found successful [run **39625529459**](https://github.com/Drzet/razr2022_nuc/actions/runs/39625529459), job **119309734687**, tested **9f2ed924965e88cb3d590a77e09b4fccbe4649ea**. Logs verify the pinned Motorola component and PE hashes and include **0x53b00..0x56100**, covering that function.
+**Owner:** Boot, project `razr/boot` from that delivery, preserving later work. Use existing research and the same pinned Motorola PE. No kernel/DT build, repackaging, QEMU or handset operations.
 
-1. Download and verify existing artifact **12356911086**, `oneli-abl-fastboot-composition-39625529459`, ZIP SHA256 **5c5de8d8efbe766bbf8a37caada4d5db0a5ef0768c1647c6d2d51e66763d9ca9**, and its member checksums. Consume its disassembly and call index; do not rerun the successful workflow.
-2. Trace **0x53b50** and the recorded component-table population to determine vendor_boot/DTBO sources for downloaded v4 versus legacy embedded-DTB paths. Give instruction/data-flow evidence, not merely parser availability. If an essential callee is outside the artifact, identify its exact RVA and the unresolved value before requesting any further acquisition.
-3. Revise the existing launch decision, machine readiness and canonical handoff using this result. The inactive-slot boot+vendor_boot proposal remains a **conditional fallback design**, not the selected executable route until available temporary-boot evidence is assessed. “No repackaging” constrains this assignment's operations; it is not a technical reason to reject a supported v2 design. Recommend any necessary later packaging explicitly rather than doing it.
-4. Record actual successful run/artifact identity and remove stale “not executed / missing window” claims. Mark unverified slot isolation/recovery assumptions [INFERRED]; an untouched slot alone does not prove independent recoverability. Keep runtime-only observations distinct from offline analysis.
+1. Extend the existing static analysis to **0x4f0d8**, its component-acquisition callbacks and **0x5bfe8** if needed to identify the context mode. Recover only the previously pinned bootloader member if executable bytes are unavailable; verify stock SHA **bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3** and PE SHA **5e6db9577a35ec5a5e9c848e271e13048b9ba71a47311d64f0a29b78500eb3ca**. Reuse the existing helper/workflow.
+2. Capture the bounded reachable code and relevant constants/callback registrations together, rather than stopping at each arbitrary disassembly-window edge. Keep proprietary executables ephemeral. Validate actual instruction coverage and artifact contents before reporting success. Cheap script checks precede one focused analysis run; consume its output before delivery.
+3. Trace which buffers/partitions supply boot, vendor_boot and DTBO for downloaded v2 and v4. Establish the meanings and register flow of verification flags, including bit 0x4, rather than assuming generic AVB semantics. Identify the callbacks' sources, requested-name list and returned list.
+4. Assess the complete v2 route through the already identified legacy DTB parser: whether it can deliver our mainline DTB and early ramdisk, and what DT selection/overlay restrictions remain. Distinguish source-backed constraints from runtime observations. Prefer a self-contained temporary image if supported; preserve split-v4 installation as a conditional fallback [INFERRED], with no assumed slot recovery guarantee.
+5. Update the existing launch decision, readiness and handoff with a decisive route recommendation and evidence. If temporary v2 is viable, propose the exact subsequent packaging delta using existing immutable inputs; do not package in this task. If a runtime decision remains unavoidable, identify the minimal experiment and observable outcome rather than requesting a preceding successful Linux boot.
 
-**Stop:** return a corrected route recommendation grounded in the completed artifact, or the precise remaining data-flow gap. No phone writes or slot/AVB changes. Other agents remain paused.
+**Stop:** component-source call chain resolved sufficiently to choose packaging/first-trial design, or a specific runtime-dependent boundary with the concrete observation needed. No broad firmware audit or repeated kernel/package CI. Other agents remain paused.
 
 ## GPU/display — production-path tests accepted, pause
 
