@@ -1,0 +1,51 @@
+{
+  "schema": "oneli-native-host-console-v2-input-lock",
+  "purpose": "repackage-only-changed-generic-diagnostic-ramdisk; no new kernel or vendor_boot",
+  "safety": {
+    "phone_boot_validated": false,
+    "native_flash_approved": false,
+    "AVB_signed": false,
+    "host_only": true
+  },
+  "frozen_kernel": {
+    "commit": "2b5acf108ae37040ac1e652e029bb37f5609e886",
+    "release": "7.3.0-rc6-g2b5acf108ae3",
+    "combined_bundle_sha256": "5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896",
+    "Image_sha256": "3a8fa9620e0fc8de68ce8db45dacdfd811a2ba2c9718f9cddee3893ec9af0939",
+    "config_sha256": "c86c04cc707889c66f8e4a485d1bff70819c1747150cb211836f07efb9fff90e",
+    "dtb_sha256": "d3c9abcea9950200babbcf6c979073dc94c6af5cac68578540ad570db4a14a03"
+  },
+  "userspace_v2": {
+    "source_commit": "64b7a3358d3250dbe92518e548517ddfd038b149",
+    "run_id": 38317559417,
+    "artifact_id": 11777077254,
+    "artifact_name": "native-diag-v2-38317559417-1",
+    "zip_sha256": "3625ebfdaf83edd4628791f8a818ecaea357aeabcb354b062e00911124f4ed76",
+    "cpio_sha256": "cf00eb88014e177a48164f5d70ee8ee277ebe5936a8808bf80885ae8818a408e",
+    "compressed_sha256": "ccd4c96b2cb05ff695175af8625dbbf8fe2f822d32fafaa5ae930e7796b7a93b",
+    "init_sha256": "d23e8bd9662a91d9cd1b6edaa1db49ed5ec8ea6aec70f9763cddab4a6e8989e9",
+    "qemu_positive_log_sha256": "7bea7509a00d77c775df8bd42d4106339f2c8457fcf807703121e1f689c9a03b",
+    "qemu_hold_log_sha256": "675d61bc90a48e5d15367412adbc43b5dac174242825ab5b2468bd5a1456bdb3",
+    "payload_revision": "console-summary-v2",
+    "interface": "oneli-native-early-initramfs-interface-v1",
+    "interface_git_blob": "710c2681734f699e456d3a673a27f851f202a7e3",
+    "console_fixture": "RAZR_NATIVE_PROBE_ERROR_FIXTURE_CI_ONLY"
+  },
+  "immutable_vendor_boot_v1": {
+    "run_id": 38310449244,
+    "artifact_id": 11774750168,
+    "artifact_name": "oneli-native-host-only-v1",
+    "vendor_boot_sha256": "1b4f6379b41e22735176bf63c725d3455d47c7b510f29d0de62b408da5f47572",
+    "note": "reuse exact separately accepted vendor_boot image; no new vendor_boot image generated or uploaded"
+  },
+  "previous_generic_v1": {
+    "compressed_sha256": "3d7a08022bdff062455099d509d54c9aa571cb9c289d89a431b7edb892846f3b",
+    "boot_image_sha256": "f47686e4cff28d9491ece814dd6c91c6f22eab32b3061a46f9bb935ae1fcda74",
+    "preserved": true
+  },
+  "pinned_boot_code": {
+    "file": "scripts/build_oneli_native_host_candidate.py",
+    "git_blob_sha1": "8221b23255489f7e94d3b267106c36db02c31df5"
+  },
+  "next_stage": "host-validation-only replacement of boot-v4 generic ramdisk; phone loader/output gates unchanged"
+}

@@ -1,0 +1,115 @@
+name: Oneli reduced config candidate (Kconfig only)
+
+on:
+  push:
+    branches: [razr/boot]
+    paths:
+      - 'configs/oneli-reduced-platforms.config'
+      - 'scripts/check-oneli-reduced-config.py'
+      - '.github/workflows/boot-oneli-config-only.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: boot-config-only-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  resolve-config-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      ARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out config-only project candidate
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Check out exact accepted kernel (no source changes)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: 7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce
+          path: kernel-src
+          # Kconfig needs all Kconfig descriptions, not 70k unrelated C files.
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /Makefile
+            /Kconfig
+            /arch/arm64/Makefile
+            /arch/arm64/Kconfig*
+            /arch/arm64/configs/razr-oneli-wireless.config
+            /arch/Kconfig*
+            /scripts/**
+            /**/Kconfig*
+          persist-credentials: false
+      - name: Install only Kconfig build utilities
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu make bc \
+            bison flex libssl-dev libelf-dev dwarves python3
+          mkdir -p evidence accepted-release
+          {
+            git -C kernel-src rev-parse HEAD
+            aarch64-linux-gnu-gcc --version | head -1
+            pahole --version
+            make --version | head -1
+            python3 --version
+          } > evidence/tool-versions.txt
+      - name: Reuse accepted kernel config rather than rebuilding its release
+        run: |
+          set -euo pipefail
+          gh run download 39050113058 --repo Drzet/linux \
+            --name oneli-radio-combined-39050113058-1 --dir accepted-release
+          test -s accepted-release/release/kernel.config
+          printf '%s  %s\n' \
+            e10f77e9c982a4c3c81c94e69922ad8ae623b71e99df88e40c415e5a6fc0b273 \
+            accepted-release/release/kernel.config | sha256sum -c -
+          cp accepted-release/release/kernel.config evidence/accepted.config
+          test "$(git -C kernel-src rev-parse HEAD)" = \
+            7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce
+      - name: Merge exclusions and resolve upstream Kconfig, NO Image/DTB/modules
+        run: |
+          set -euo pipefail
+          cd kernel-src
+          mkdir -p out
+          scripts/kconfig/merge_config.sh -m -O out \
+            ../evidence/accepted.config ../configs/oneli-reduced-platforms.config \
+            > ../evidence/config-merge.log 2>&1
+          make O=out olddefconfig > ../evidence/olddefconfig.log 2>&1
+          cp out/.config ../evidence/reduced.config
+      - name: Verify actual radio, UART, USB/DP and Userspace/QEMU contract
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/check-oneli-reduced-config.py
+          python3 scripts/check-oneli-reduced-config.py \
+            --accepted evidence/accepted.config \
+            --candidate evidence/reduced.config \
+            --radio-fragment kernel-src/arch/arm64/configs/razr-oneli-wireless.config \
+            --qemu-fragment configs/oneli-combined-qemu-virt.config \
+            --reductions configs/oneli-reduced-platforms.config \
+            --evidence evidence | tee evidence/contract.log
+      - name: Export config and cheap validation evidence only
+        if: always()
+        run: |
+          mkdir -p evidence
+          printf 'source=%s\nproject=%s\noriginal_run=39050113058\nkind=CONFIG_ONLY_NO_IMAGE_DTB_OR_QEMU\n' \
+            '7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce' "$GITHUB_SHA" \
+            > evidence/identity.txt
+          (cd evidence && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+            | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-reduced-config-${{ github.run_id }}-${{ github.run_attempt }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn

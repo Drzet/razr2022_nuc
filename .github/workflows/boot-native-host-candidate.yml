@@ -1,0 +1,104 @@
+name: Oneli unsigned native host candidate
+on:
+  workflow_dispatch:
+  push:
+    branches: ['razr/boot']
+    paths:
+      - '.github/workflows/boot-native-host-candidate.yml'
+      - 'scripts/build_oneli_native_host_candidate.py'
+      - 'tests/test_oneli_native_host_candidate.py'
+      - 'configs/oneli-native-host-header-inputs-v1.json'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  host-only-v4:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: ntherning/mkbootimg
+          ref: 7209a7164f1772db43f92928012c86a00f6202ff
+          path: pinned-aosp
+          persist-credentials: false
+      - name: Prepare pinned accepted artifact inputs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends zstd gzip cpio
+          mkdir -p kernel-download inputs/kernel inputs/userspace out independent/boot independent/vendor
+          gh run download 38292394177 --repo Drzet/linux --name oneli-combined-bundle-38292394177-1 --dir kernel-download
+          printf '%s  %s\n' '5338b42efa668b8755c5cff7d12ef9d1ede46106c3abe17cf30118030c009896' kernel-download/combined-bundle.tar.zst | sha256sum -c -
+          tar --zstd -xf kernel-download/combined-bundle.tar.zst -C inputs/kernel ./Image ./sm8475-motorola-oneli.dtb ./kernel.config ./kernel.release
+          gh run download 38307910388 --repo Drzet/razr2022_nuc --name native-diag-v1-38307910388-1 --dir inputs/userspace
+          (cd inputs/userspace && sha256sum -c SHA256SUMS)
+          python3 -m unittest discover -s tests -p 'test_oneli_native_host_candidate.py' -v
+      - name: Pack actual accepted kernel and verified diagnostic initramfs
+        run: |
+          set -Eeuo pipefail
+          python3 scripts/build_oneli_native_host_candidate.py \
+            --kernel-dir inputs/kernel --payload-dir inputs/userspace \
+            --header-inputs configs/oneli-native-host-header-inputs-v1.json --output out
+          python3 scripts/oneli_boot_v4_layout.py inspect out/boot-candidate.UNSIGNED.img out/vendor_boot-candidate.UNSIGNED.img > out/secondary-layout-inspection.json
+      - name: Independent pinned AOSP unpack/pack comparison
+        run: |
+          set -Eeuo pipefail
+          python3 pinned-aosp/unpack_bootimg.py --boot_img out/boot-candidate.UNSIGNED.img --out independent/boot > out/aosp-boot-unpack.log
+          python3 pinned-aosp/unpack_bootimg.py --boot_img out/vendor_boot-candidate.UNSIGNED.img --out independent/vendor > out/aosp-vendor-unpack.log
+          python3 pinned-aosp/mkbootimg.py --header_version 4 \
+            --kernel inputs/kernel/Image --ramdisk inputs/userspace/oneli-diag-initramfs.cpio.gz \
+            --cmdline '' --output independent/aosp-boot.img
+          python3 pinned-aosp/mkbootimg.py --header_version 4 --pagesize 4096 \
+            --base 0 --kernel_offset 0x8000 --ramdisk_offset 0x1000000 \
+            --tags_offset 0x100 --dtb_offset 0x1f00000 --board oneli \
+            --vendor_cmdline '' --dtb inputs/kernel/sm8475-motorola-oneli.dtb \
+            --ramdisk_type platform --ramdisk_name native-diag \
+            --vendor_ramdisk_fragment out/vendor-platform-empty.cpio.gz \
+            --vendor_boot independent/aosp-vendor.img
+          python3 scripts/oneli_boot_v4_layout.py inspect independent/aosp-boot.img independent/aosp-vendor.img > out/aosp-packed-layout.json
+          python3 - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          src={
+            'kernel': ('independent/boot/kernel','inputs/kernel/Image'),
+            'ramdisk': ('independent/boot/ramdisk','inputs/userspace/oneli-diag-initramfs.cpio.gz'),
+            'dtb': ('independent/vendor/dtb','inputs/kernel/sm8475-motorola-oneli.dtb'),
+            'vendor_fragment': ('independent/vendor/vendor_ramdisk00','out/vendor-platform-empty.cpio.gz')
+          }
+          for name,(actual,expected) in src.items():
+            assert sha(actual)==sha(expected),f'AOSP independent unpack {name} digest mismatch'
+          ours=json.loads(Path('out/secondary-layout-inspection.json').read_text())
+          theirs=json.loads(Path('out/aosp-packed-layout.json').read_text())
+          for section in ('kernel','ramdisk'):
+            a=next(x for x in ours['boot']['sections'] if x['name']==section)
+            b=next(x for x in theirs['boot']['sections'] if x['name']==section)
+            assert (a['sha256'],a['bytes'])==(b['sha256'],b['bytes']),section
+          for section in ('dtb_region','vendor_ramdisk','bootconfig'):
+            a=next(x for x in ours['vendor_boot']['sections'] if x['name']==section)
+            b=next(x for x in theirs['vendor_boot']['sections'] if x['name']==section)
+            assert (a['sha256'],a['bytes'])==(b['sha256'],b['bytes']),section
+          assert ours['boot']['sections'][-1]['bytes']==0
+          assert ours['vendor_boot']['ramdisk_table']==theirs['vendor_boot']['ramdisk_table']
+          report=json.loads(Path('out/native-host-validation.json').read_text())
+          report['independent_aosp_unpack']='passed'
+          report['independent_aosp_repack_section_crosscheck']='passed'
+          report['native_flash_approved']=False
+          report['avb_signed']=False
+          Path('out/native-host-validation.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
+          print('RAZR_NATIVE_HOST_ONLY_AOSP_CROSSCHECK_PASS')
+          PY
+          (cd out && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS && sha256sum -c SHA256SUMS)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: oneli-native-host-only-v1
+          path: out/
+          retention-days: 30
+          if-no-files-found: warn

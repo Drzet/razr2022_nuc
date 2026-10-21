@@ -1,0 +1,86 @@
+name: Oneli ABL downloaded-image composition (read-only static)
+
+on:
+  push:
+    branches: [razr/boot]
+    paths:
+      - 'scripts/analyze-oneli-abl-fastboot-composition.py'
+      - '.github/workflows/boot-abl-fastboot-composition.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: boot-abl-fastboot-composition-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pinned-abl-static-trace:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Reuse pinned public firmware research acquisition helper
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/razr2022_nuc
+          ref: 5a8d6ab606c825dbe776db43955c44214f7c64e3
+          path: pinned-research
+          persist-credentials: false
+      - name: Install static disassembly dependencies only
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends python3-venv binutils
+          python3 -m venv "$RUNNER_TEMP/abl-tools"
+          "$RUNNER_TEMP/abl-tools/bin/pip" install --disable-pip-version-check \
+            uefi_firmware==1.16 capstone==5.0.6 pefile==2024.8.26
+          echo "$RUNNER_TEMP/abl-tools/bin" >> "$GITHUB_PATH"
+      - name: Trace Motorola fastboot download into image composition
+        run: |
+          set -euo pipefail
+          test "$(git -C pinned-research rev-parse HEAD)" = \
+            5a8d6ab606c825dbe776db43955c44214f7c64e3
+          python3 -m py_compile scripts/analyze-oneli-abl-fastboot-composition.py
+          python3 scripts/analyze-oneli-abl-fastboot-composition.py \
+            --inspector pinned-research/scripts/inspect-oneli-mbm-public-reference.py \
+            --output evidence
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          out=Path("evidence")
+          graph=json.loads((out/"abl-component-source-callgraph.json").read_text())
+          for seed in ("0x4f0d8", "0x5bfe8", "0x55ad0"):
+              info=graph["functions"][seed]
+              assert info["covered_instructions"]>10, (seed,info)
+              # Out-of-envelope tail jumps are explicitly recorded in the
+              # call graph; they are not a failure of seed instruction coverage.
+              if info["external_unresolved_edges"]:
+                  print("RECORDED_EXTERNAL_TAIL_EDGES", seed,
+                        info["external_unresolved_edges"])
+          assert graph["reported_instruction_instances"]>=80
+          assert graph["reported_function_instances"]>=3
+          assert (out/"abl-component-source-reachable-disassembly.txt").stat().st_size>3000
+          print("COMPONENT_SOURCE_COVERAGE_CHECK_PASS",
+                graph["reported_function_instances"],
+                graph["reported_instruction_instances"])
+          PY
+          {
+            echo "research_ref=5a8d6ab606c825dbe776db43955c44214f7c64e3"
+            echo "boot_project_ref=$GITHUB_SHA"
+            echo "firmware_sha256=bcb596054b276aa3e314412e32b274be8c33b4d93dde9550f55f9a7376496ab3"
+            echo "kind=FOCUSED_READONLY_DISASSEMBLY_NO_KERNEL_BUILD_NO_DEVICE"
+            python3 --version
+          } > evidence/identity.txt
+          (cd evidence && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+           | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: oneli-abl-fastboot-composition-${{ github.run_id }}
+          path: evidence/
+          retention-days: 30
+          if-no-files-found: warn

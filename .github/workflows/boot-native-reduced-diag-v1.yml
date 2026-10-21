@@ -1,0 +1,157 @@
+name: Oneli reduced native diagnostic packaging (offline only)
+
+on:
+  push:
+    branches: [razr/boot]
+    paths:
+      - 'scripts/package_oneli_reduced_native_diag.py'
+      - '.github/workflows/boot-native-reduced-diag-v1.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: oneli-native-reduced-diag-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out pinned Boot project source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Check out independently pinned AOSP pack/unpack tools
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: ntherning/mkbootimg
+          ref: 7209a7164f1772db43f92928012c86a00f6202ff
+          path: pinned-aosp
+          persist-credentials: false
+      - name: Fetch EXACT accepted artifacts, no kernel compilation
+        run: |
+          set -euo pipefail
+          mkdir -p inputs/producer inputs/userspace independent/boot independent/vendor evidence
+          gh run download 39170486506 --repo Drzet/razr2022_nuc \
+            --name oneli-reduced-image-modules-39170486506-1 --dir inputs/producer
+          gh run download 39237882830 --repo Drzet/razr2022_nuc \
+            --name userspace-reduced-evidence-39237882830-1 --dir inputs/userspace
+          test -s inputs/producer/release/Image
+          test -s inputs/producer/release/SHA256SUMS
+          test -s inputs/userspace/reduced-early/radio-early.cpio.gz
+          printf 'project_sha=%s\naosp_sha=%s\n' "$GITHUB_SHA" \
+            "$(git -C pinned-aosp rev-parse HEAD)" > evidence/source-identity.txt
+          test "$(git -C pinned-aosp rev-parse HEAD)" = \
+            7209a7164f1772db43f92928012c86a00f6202ff
+          python3 --version >> evidence/source-identity.txt
+          gzip --version | head -1 >> evidence/source-identity.txt
+      - name: Verify source and payload and assemble Android v4 images
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/package_oneli_reduced_native_diag.py
+          python3 scripts/package_oneli_reduced_native_diag.py \
+            --producer inputs/producer --early inputs/userspace \
+            --header-inputs configs/oneli-native-host-header-inputs-v1.json \
+            --output out | tee evidence/packaging-result.txt
+          python3 scripts/oneli_boot_v4_layout.py roundtrip \
+            out/oneli-reduced-radio-diag-boot-v4.UNSIGNED.img \
+            out/oneli-reduced-radio-diag-vendor_boot-v4.UNSIGNED.img \
+            > evidence/secondary-v4-roundtrip.json
+      - name: Independent AOSP v4 unpack and component/commandline comparison
+        run: |
+          set -euo pipefail
+          python3 pinned-aosp/unpack_bootimg.py \
+            --boot_img out/oneli-reduced-radio-diag-boot-v4.UNSIGNED.img \
+            --out independent/boot > evidence/aosp-boot-unpack.txt
+          python3 pinned-aosp/unpack_bootimg.py \
+            --boot_img out/oneli-reduced-radio-diag-vendor_boot-v4.UNSIGNED.img \
+            --out independent/vendor > evidence/aosp-vendor-unpack.txt
+          python3 pinned-aosp/mkbootimg.py --header_version 4 \
+            --kernel inputs/producer/release/Image \
+            --ramdisk inputs/userspace/reduced-early/radio-early.cpio.gz \
+            --cmdline 'console=ttyMSM0,115200n8 loglevel=8 printk.time=1 rdinit=/init' \
+            --output independent/aosp-boot.img
+          python3 pinned-aosp/mkbootimg.py --header_version 4 --pagesize 4096 \
+            --base 0 --kernel_offset 0x8000 --ramdisk_offset 0x1000000 \
+            --tags_offset 0x100 --dtb_offset 0x1f00000 --board oneli \
+            --vendor_cmdline '' --dtb inputs/producer/release/sm8475-motorola-oneli.dtb \
+            --ramdisk_type platform --ramdisk_name native-diag \
+            --vendor_ramdisk_fragment out/vendor-platform-empty.cpio.gz \
+            --vendor_boot independent/aosp-vendor_boot.img
+          python3 - <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          import oneli_boot_v4_layout as v4
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          def require(ok,msg):
+              if not ok: raise ValueError(msg)
+          out=Path('out')
+          report=json.loads((out/'offline-validation.json').read_text())
+          expected={
+            'independent/boot/kernel': report['image_sha256'],
+            'independent/boot/ramdisk': report['early_initramfs_sha256'],
+            'independent/vendor/dtb': report['dtb_sha256'],
+            'independent/vendor/vendor_ramdisk00': report['vendor_fragment_sha256']}
+          for path,digest in expected.items():
+              require(sha(path)==digest,'AOSP independent unpack SHA mismatch: '+path)
+          boots=[
+            v4.inspect_boot((out/'oneli-reduced-radio-diag-boot-v4.UNSIGNED.img').read_bytes()),
+            v4.inspect_boot(Path('independent/aosp-boot.img').read_bytes())]
+          vendors=[
+            v4.inspect_vendor((out/'oneli-reduced-radio-diag-vendor_boot-v4.UNSIGNED.img').read_bytes()),
+            v4.inspect_vendor(Path('independent/aosp-vendor_boot.img').read_bytes())]
+          require(all(b['version']==4 for b in boots) and
+                  all(v['version']==4 for v in vendors),'non-v4 AOSP parity')
+          for key in ('cmdline','os_version_raw'):
+              require(boots[0][key]==boots[1][key], 'AOSP boot header mismatch: '+key)
+          for name in ('kernel','ramdisk','signature'):
+              a=next(x for x in boots[0]['sections'] if x['name']==name)
+              b=next(x for x in boots[1]['sections'] if x['name']==name)
+              require((a['bytes'],a['sha256'])==(b['bytes'],b['sha256']),
+                      'AOSP boot component mismatch: '+name)
+          for name in ('vendor_ramdisk','dtb_region','bootconfig'):
+              a=next(x for x in vendors[0]['sections'] if x['name']==name)
+              b=next(x for x in vendors[1]['sections'] if x['name']==name)
+              require((a['bytes'],a['sha256'])==(b['bytes'],b['sha256']),
+                      'AOSP vendor component mismatch: '+name)
+          require(vendors[0]['ramdisk_table']==vendors[1]['ramdisk_table'],
+                  'AOSP vendor ramdisk table mismatch')
+          require(report['boot_cmdline']==boots[0]['cmdline'] and
+                  'razr.radio_qemu_shutdown=1' not in boots[0]['cmdline'],
+                  'native commandline altered')
+          require(boots[0]['sections'][-1]['bytes']==0 and
+                  vendors[0]['sections'][-1]['bytes']==0,
+                  'unexpected signature/bootconfig')
+          require(report['flash_approved'] is False and
+                  report['hardware_tested'] is False, 'unsafe native-ready marker')
+          report['aosp_independent_unpack']='PASS'
+          report['aosp_independent_repack_component_crosscheck']='PASS'
+          report['aosp_pinned_commit']='7209a7164f1772db43f92928012c86a00f6202ff'
+          (out/'offline-validation.json').write_text(json.dumps(report,sort_keys=True,indent=2)+'\n')
+          print('ONELI_NATIVE_DIAG_AOSP_V4_CROSSCHECK_PASS')
+          PY
+          (cd out && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+            | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS && \
+            sha256sum -c SHA256SUMS)
+          cp evidence/source-identity.txt out/source-identity.txt
+          cp evidence/packaging-result.txt out/packaging-result.txt
+          cp evidence/secondary-v4-roundtrip.json out/secondary-v4-roundtrip.json
+          cp evidence/aosp-boot-unpack.txt out/aosp-boot-unpack.txt
+          cp evidence/aosp-vendor-unpack.txt out/aosp-vendor-unpack.txt
+          (cd out && find . -maxdepth 1 -type f ! -name SHA256SUMS -print0 \
+            | LC_ALL=C sort -z | xargs -0 -r sha256sum > SHA256SUMS && \
+            sha256sum -c SHA256SUMS)
+      - name: Upload only offline unsigned candidate and verified manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: success()
+        with:
+          name: oneli-reduced-native-diag-offline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: out/
+          retention-days: 30
+          if-no-files-found: error
