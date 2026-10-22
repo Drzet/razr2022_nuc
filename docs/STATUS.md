@@ -1,6 +1,6 @@
 # Project status
 
-Updated 2026-10-21 after [v2 package review](COORDINATOR_V2_PACKAGE_REVIEW_2026-10-21.md). [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
+Updated 2026-10-22 after [eqs audit review](COORDINATOR_EQS_AUDIT_REVIEW_2026-10-22.md); [v2 package acceptance](COORDINATOR_V2_PACKAGE_REVIEW_2026-10-21.md) unchanged. [Assignments](NEXT_TASKS.md) · [Policy](WORKFLOW.md).
 
 **Combined radio kernel 7f3865e is accepted for development source/build scope: Image, DTB, matching modules and dependency records pass. Userspace radio packaging and diskless early-loader QEMU tests are accepted. Prepared Debian rootfs systemd/network/DNS/module smoke now passes. The signed regulatory database correction passes focused QEMU validation with the existing kernel. VPU RESUME adaptation passes source/host/build review and remains disabled. The reduced Image/modules and Debian rootfs pass both early-loader and combined runtime QEMU tests. Isolated earlycon production-path host tests and ARM64 object compilation are accepted; the native boot/vendor_boot bundle now passes offline packaging checks. Boot's component-acquisition findings are accepted for bounded static scope; the self-contained v2 RAM-trial image is now accepted for offline structure. All agents are paused pending a device experiment. Linux has not booted on the phone.**
 
@@ -16,6 +16,10 @@ Updated 2026-10-21 after [v2 package review](COORDINATOR_V2_PACKAGE_REVIEW_2026-
 | GPU/display | Kernel 0739fea / project cd98f2a; production scanner/render/remap host tests and ARM64 object PASS | Paused; default disabled, no board activation |
 
 Accepted legacy diagnostic integration **2b5acf108ae37040ac1e652e029bb37f5609e886**, [integration manifest](../configs/accepted-integration-2026-10-12.json) and [diagnostic-v2 manifest](../configs/accepted-native-console-v2-2026-10-13.json) unchanged. New radio development build **7f3865ee17c37146e183a45cd8ff2b6c59d0e9ce**, artifact **12109240146**, is accepted for Userspace consumption; it does not replace the packaged diagnostic-v2 release.
+
+## Eqs audit review — 2026-10-22
+
+[Coordinator assessment](COORDINATOR_EQS_AUDIT_REVIEW_2026-10-22.md): pinned eqs/oneli source comparison corroborates SE18/L8C redriver wiring and AUX GPIO2/71. The WAS7227Q binding and powered SBU driver already exist in accepted d28598f; do not repeat their implementation or tests. PTN BUK identity policy remains accepted. No new native boot, UART-access or display solution was established. Existing candidate and paused agent state are unchanged.
 
 ## Remaining work and qualifications
 

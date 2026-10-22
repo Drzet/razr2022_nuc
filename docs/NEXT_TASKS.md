@@ -1,4 +1,4 @@
-# Current assignments — 2026-10-21 v2 package accepted
+# Current assignments — 2026-10-22 eqs audit reviewed
 
 [Review](COORDINATOR_V2_PACKAGE_REVIEW_2026-10-21.md) · [Status](STATUS.md) · [Policy](WORKFLOW.md). Offline v2 preparation complete; next milestone is a device experiment.
 
@@ -19,6 +19,10 @@ The candidate embeds kernel, ramdisk and DTB; **no vendor_boot write or replacem
 Expected evidence: exact host response, available UART/loader/kernel messages, early-init markers or precise rejection, and successful return to stock. Internal display is not enabled. Silence without working telemetry is inconclusive. Actual runtime placement and DT selection are observations to collect where exposed, not prerequisites requiring a previous successful Linux boot.
 
 **Agents:** Boot paused pending the device session; all other agents remain paused. No documentation-only closure round is assigned.
+
+## Eqs findings retained for later integration — not active
+
+See [review and corrections](COORDINATOR_EQS_AUDIT_REVIEW_2026-10-22.md). No new agent assignment follows from this audit. When coordinator selects USB/DP integration, **Boot** owns shared DTS and consumes the existing **USB** PS5169/PTN and **DP** powered WAS7227Q candidates. Preserve PS5169 SE18/L8C, GPIO91 sole GLINK input, and connector SBU port@2 with the already accepted compatible/supply contract. Validate the changed combined graph once. Do not reimplement the SBU binding/driver, reopen BUK ID acceptance, or rebuild the unchanged RAM-trial image. Eqs supplies no physical UART access solution. All owners remain paused as above.
 
 ## GPU/display — production-path tests accepted, pause
 
