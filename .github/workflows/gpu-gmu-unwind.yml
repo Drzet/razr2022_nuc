@@ -1,0 +1,44 @@
+name: GPU GMU error-path static guard
+
+on:
+  push:
+    branches: ['razr/gpu']
+    paths:
+      - '.github/workflows/gpu-gmu-unwind.yml'
+      - 'tests/scripts/check-gmu-probe-unwind.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-gmu-unwind:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: Drzet/linux
+          ref: 3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
+          path: kernel
+          persist-credentials: false
+      - name: Verify exact kernel and error-path guard including mutation negatives
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          git -C kernel rev-parse HEAD > evidence/kernel-sha.txt
+          test "$(cat evidence/kernel-sha.txt)" = 3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
+          echo "$GITHUB_SHA" > evidence/project-sha.txt
+          python3 -V | tee evidence/python-version.txt
+          python3 -m py_compile tests/scripts/check-gmu-probe-unwind.py
+          python3 tests/scripts/check-gmu-probe-unwind.py --self-test kernel/drivers/gpu/drm/msm/adreno/a6xx_gmu.c 2>&1 | tee evidence/check.log
+      - name: Publish static source-test result
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gpu-gmu-unwind-${{ github.run_id }}
+          path: evidence/
+          retention-days: 30

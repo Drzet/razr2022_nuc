@@ -1,0 +1,44 @@
+name: GPU stock FDT to HFI DDR crosswalk (metadata only)
+
+on:
+  push:
+    branches: ['razr/gpu']
+    paths:
+      - '.github/workflows/gpu-stock-hfi-crosswalk.yml'
+      - 'scripts/check-gpu-stock-hfi-crosswalk.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Fetch exact pinned existing source metadata and HFI C source
+        run: |
+          set -Eeuo pipefail
+          mkdir -p reference evidence
+          vpu=25c8b3283ccc50ae8db2f028d9d0906b9444fa02
+          kernel=3baaec593ae7c701e95e0c3df2d56c33d3aed4f3
+          curl -fLsS --retry 3 --max-time 60 "https://raw.githubusercontent.com/Drzet/razr2022_nuc/${vpu}/docs/vpu/evidence/focused-stock-properties.json" -o reference/focused.json
+          curl -fLsS --retry 3 --max-time 60 "https://raw.githubusercontent.com/Drzet/razr2022_nuc/${vpu}/docs/vpu/evidence/qualified-mdt-loader-bounds.json" -o reference/loader.json
+          curl -fLsS --retry 3 --max-time 60 "https://raw.githubusercontent.com/Drzet/linux/${kernel}/drivers/gpu/drm/msm/adreno/a6xx_hfi.c" -o reference/a6xx_hfi.c
+          sha256sum reference/* > evidence/source-SHA256SUMS
+          printf 'vpu=%s\nkernel=%s\nproject=%s\n' "${vpu}" "${kernel}" "$GITHUB_SHA" > evidence/source-commits.txt
+      - name: Verify all 13 levels, exact 12 entry HFI commands and ZAP structural load
+        run: |
+          set -Eeuo pipefail
+          python3 -m py_compile scripts/check-gpu-stock-hfi-crosswalk.py
+          python3 scripts/check-gpu-stock-hfi-crosswalk.py --focused reference/focused.json --loader reference/loader.json --hfi reference/a6xx_hfi.c --json-out evidence/result.json 2>&1 | tee evidence/test.log
+      - name: Archive read-only metadata results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: gpu-stock-hfi-crosswalk-${{ github.run_id }}
+          path: evidence/
+          retention-days: 30
